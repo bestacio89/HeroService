@@ -1,4 +1,4 @@
-﻿using ArchUnitNET.Domain.Extensions;
+using ArchUnitNET.Domain.Extensions;
 using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnit;
 using Franz.Common.Business.Domain;
@@ -6,26 +6,26 @@ using Franz.Common.Business.Events;
 using Franz.Common.Mediator;
 using Franz.Common.Mediator.Results;
 using Franz.Common.Mediator.Errors;
-namespace Franz.Testing.ArchitectureTests;
+namespace HeroService.Testing.ArchitectureTests;
 
 /// <summary>
-/// Validates the structural integrity of the Domain layer in Franz-based projects.
+/// Validates the structural integrity of the Domain layer in HeroService-based projects.
 /// </summary>
 public class DomainArchitectureTests : BaseArchitectureTest
 {
-  // ─────────────────────────────────────────────
-  // 🧱 ENTITY RULES
-  // ─────────────────────────────────────────────
+  // ---------------------------------------------
+  // ?? ENTITY RULES
+  // ---------------------------------------------
  
   [Fact]
   public void DomainEntities_ShouldInherit_FromEntityOrEntityOfT()
   {
-    // 🧱 Identify all domain entities that are NOT value objects or infrastructure
+    // ?? Identify all domain entities that are NOT value objects or infrastructure
     var domainEntities = DomainLayer
         .GetObjects(BaseArchitecture)
         .Where(t =>
            
-            !t.ResidesInNamespace("Franz.Domain.ValueObjects") && // 🚫 exclude ValueObjects
+            !t.ResidesInNamespace("HeroService.Domain.ValueObjects") && // ?? exclude ValueObjects
             !t.FullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase) &&
             !t.FullName.Contains("Persistence", StringComparison.OrdinalIgnoreCase) &&
             !t.FullName.Contains("Mongo", StringComparison.OrdinalIgnoreCase) &&
@@ -39,11 +39,11 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!domainEntities.Any())
     {
-      Console.WriteLine("🟡 No domain entities found — skipping Entity<> enforcement.");
+      Console.WriteLine("?? No domain entities found � skipping Entity<> enforcement.");
       return;
     }
 
-    // ✅ Enforce that all domain entities inherit Entity or Entity<T>
+    // ? Enforce that all domain entities inherit Entity or Entity<T>
     ArchRuleDefinition
         .Classes()
         .That()
@@ -55,12 +55,12 @@ public class DomainArchitectureTests : BaseArchitectureTest
         .Because("All domain entities must inherit Entity or Entity<TId> for consistent identity, equality, and lifecycle management.")
         .Check(BaseArchitecture);
 
-    Console.WriteLine($"✅ Verified {domainEntities.Count} domain entity type(s) inherit Entity or Entity<TId>.");
+    Console.WriteLine($"? Verified {domainEntities.Count} domain entity type(s) inherit Entity or Entity<TId>.");
   }
 
-  // ─────────────────────────────────────────────
-  // ⚙️ AGGREGATE ROOT RULES
-  // ─────────────────────────────────────────────
+  // ---------------------------------------------
+  // ?? AGGREGATE ROOT RULES
+  // ---------------------------------------------
   [Fact]
   public void AggregateRoots_AreSetupCorrectly()
   {
@@ -73,7 +73,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (aggregateRootInterface == null)
     {
-      Console.WriteLine("🟡 IAggregateRoot<TEvent> interface not found — skipping aggregate root validation.");
+      Console.WriteLine("?? IAggregateRoot<TEvent> interface not found � skipping aggregate root validation.");
       return;
     }
 
@@ -87,11 +87,11 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!aggregateRoots.Any())
     {
-      Console.WriteLine("🟡 No aggregate roots implementing IAggregateRoot<TEvent> found — skipping aggregate rule.");
+      Console.WriteLine("?? No aggregate roots implementing IAggregateRoot<TEvent> found � skipping aggregate rule.");
       return;
     }
 
-    // ✅ Structural rule
+    // ? Structural rule
     ArchRuleDefinition
         .Classes()
         .That()
@@ -103,9 +103,9 @@ public class DomainArchitectureTests : BaseArchitectureTest
         .Because("Aggregate roots should implement IAggregateRoot<TEvent> and inherit from AggregateRoot<> base class.")
         .Check(BaseArchitecture);
 
-    Console.WriteLine($"✅ Validated {aggregateRoots.Count} aggregate root(s) successfully.");
+    Console.WriteLine($"? Validated {aggregateRoots.Count} aggregate root(s) successfully.");
 
-    // ✅ Optional: Ensure aggregates depend on domain events
+    // ? Optional: Ensure aggregates depend on domain events
     if (domainEventInterface != null)
     {
       ArchRuleDefinition
@@ -118,17 +118,17 @@ public class DomainArchitectureTests : BaseArchitectureTest
           .Because("Aggregate roots should be capable of raising domain events.")
           .Check(BaseArchitecture);
 
-      Console.WriteLine("✅ Verified aggregate roots depend on domain events.");
+      Console.WriteLine("? Verified aggregate roots depend on domain events.");
     }
     else
     {
-      Console.WriteLine("🟡 IDomainEvent interface not found — skipping dependency validation.");
+      Console.WriteLine("?? IDomainEvent interface not found � skipping dependency validation.");
     }
   }
 
-  // ─────────────────────────────────────────────
-  // 📢 DOMAIN EVENT RULES
-  // ─────────────────────────────────────────────
+  // ---------------------------------------------
+  // ?? DOMAIN EVENT RULES
+  // ---------------------------------------------
   [Fact]
   public void Events_AreSetupCorrectly()
   {
@@ -145,13 +145,13 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!hasAggregates)
     {
-      Console.WriteLine("🟡 No aggregates found — skipping event validation test.");
+      Console.WriteLine("?? No aggregates found � skipping event validation test.");
       return;
     }
 
     if (!HasDomainEvents)
     {
-      Console.WriteLine("🟡 No domain events found — skipping event validation test.");
+      Console.WriteLine("?? No domain events found � skipping event validation test.");
       return;
     }
 
@@ -168,7 +168,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!validDomainEvents.Any())
     {
-      Console.WriteLine("🟡 No valid domain events found after filtering internal types — skipping.");
+      Console.WriteLine("?? No valid domain events found after filtering internal types � skipping.");
       return;
     }
 
@@ -185,12 +185,12 @@ public class DomainArchitectureTests : BaseArchitectureTest
         .Because("All events should implement IDomainEvent or IIntegrationEvent and follow the 'SomethingHappenedEvent' naming convention.")
         .Check(BaseArchitecture);
 
-    Console.WriteLine($"✅ Validated {validDomainEvents.Count} domain event(s) successfully.");
+    Console.WriteLine($"? Validated {validDomainEvents.Count} domain event(s) successfully.");
   }
 
-  // ─────────────────────────────────────────────
-  // 🧭 DOMAIN DEPENDENCY RULES
-  // ─────────────────────────────────────────────
+  // ---------------------------------------------
+  // ?? DOMAIN DEPENDENCY RULES
+  // ---------------------------------------------
   [Fact]
   public void DomainAssemblyDependencies_AreCorrect()
   {
@@ -200,7 +200,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!domainobjects.Any())
     {
-      Console.WriteLine("🟡 No CommandHandlers found in Application layer — skipping rule.");
+      Console.WriteLine("?? No CommandHandlers found in Application layer � skipping rule.");
       return;
     }
     ArchRuleDefinition
@@ -212,7 +212,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
         // Self references (other domain types)
         .ResideInNamespaceMatching("*.Domain")
 
-        // Franz base abstractions
+        // HeroService base abstractions
         .OrShould().ResideInAssembly(typeof(Entity<>).Assembly.GetName().Name)          // Franz.Common.Business
         .OrShould().ResideInAssembly(typeof(ValueObject).Assembly.GetName().Name)       // Franz.Common.Business.Domain
         .OrShould().ResideInAssembly(typeof(Result).Assembly.GetName().Name)            // Franz.Common.Mediator
@@ -225,11 +225,11 @@ public class DomainArchitectureTests : BaseArchitectureTest
         .OrShould().ResideInNamespace("System.Linq")
         .OrShould().ResideInNamespace("System.Runtime.CompilerServices")
 
-        .Because("The Domain layer may depend on itself, Franz domain abstractions, and system libraries only.")
+        .Because("The Domain layer may depend on itself, HeroService domain abstractions, and system libraries only.")
         .WithoutRequiringPositiveResults()
         .Check(BaseArchitecture);
 
-    Console.WriteLine("✅ Verified domain dependency isolation (self + Franz + System).");
+    Console.WriteLine("? Verified domain dependency isolation (self + HeroService + System).");
   }
 
 
@@ -238,7 +238,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
   {
     if (!HasDomainEvents)
     {
-      Console.WriteLine("🟡 No domain events found — skipping infrastructure dependency rule.");
+      Console.WriteLine("?? No domain events found � skipping infrastructure dependency rule.");
       return;
     }
 
@@ -248,11 +248,11 @@ public class DomainArchitectureTests : BaseArchitectureTest
         .Are(DomainEventTypes)
         .Should()
         .NotDependOnAnyTypesThat()
-        .ResideInNamespace("Franz.Infrastructure")
+        .ResideInNamespace("HeroService.Infrastructure")
         .Because("Domain events must be pure domain concepts without infrastructure dependencies.")
         .Check(BaseArchitecture);
 
-    Console.WriteLine("✅ Confirmed domain events do not depend on infrastructure.");
+    Console.WriteLine("? Confirmed domain events do not depend on infrastructure.");
   }
 }
 

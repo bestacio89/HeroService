@@ -20,7 +20,7 @@ param (
         Mandatory = $false,
         ValueFromPipeline = $false)]
  
-    [string]$TargetProjectName = "Something" ,
+    [string]$TargetProjectName = "HeroService" ,
     
     [Alias('odtp')]
     [parameter(

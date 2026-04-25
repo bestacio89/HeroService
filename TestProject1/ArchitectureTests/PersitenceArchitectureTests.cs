@@ -1,4 +1,4 @@
-﻿using ArchUnitNET.Fluent;
+using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnit;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Franz.Testing.ArchitectureTests;
+namespace HeroService.Testing.ArchitectureTests;
 public class PersistenceArchitectureTests : BaseArchitectureTest
 {
   private Assembly[] LoadAssembliesWithPattern(string assemblyPattern)
@@ -50,7 +50,7 @@ public class PersistenceArchitectureTests : BaseArchitectureTest
 
     if (!repositories.Any())
     {
-      Console.WriteLine("🟡 No CommandHandlers found in Application layer — skipping rule.");
+      Console.WriteLine("?? No CommandHandlers found in Application layer � skipping rule.");
       return;
     }
 
@@ -60,11 +60,11 @@ public class PersistenceArchitectureTests : BaseArchitectureTest
         .ResideInAssembly(PersistenceAssembly)
         .Should()
         .OnlyDependOnTypesThat()
-        // ✅ Allow dependencies on Franz core domain abstractions
+        // ? Allow dependencies on HeroService core domain abstractions
         .ResideInNamespaceMatching("Franz.Common.Business.Domain")
         .OrShould().ResideInNamespaceMatching("Franz.Common.Business.Events")
 
-        // ✅ Allow dependencies on Franz persistence and repository tooling
+        // ? Allow dependencies on HeroService persistence and repository tooling
         .OrShould().ResideInNamespaceMatching("Franz.Common.EntityFramework")
         .OrShould().ResideInNamespaceMatching("Franz.Common.EntityFramework.Repositories")
         .OrShould().ResideInNamespaceMatching("Franz.Common.EntityFramework.Extensions")
@@ -74,12 +74,12 @@ public class PersistenceArchitectureTests : BaseArchitectureTest
         .OrShould().ResideInNamespaceMatching("Franz.Common.MongoDB")
         .OrShould().ResideInNamespaceMatching("Franz.Common.MongoDB.Config") 
 
-        // ✅ Allow DI, Mediator, and core utilities
+        // ? Allow DI, Mediator, and core utilities
         .OrShould().ResideInNamespaceMatching("Microsoft.Extensions.DependencyInjection")
         .OrShould().ResideInNamespaceMatching("Franz.Common.Mediator")
         .OrShould().ResideInNamespaceMatching("Franz.Common.Errors")
 
-        // ✅ Allow standard BCL namespaces
+        // ? Allow standard BCL namespaces
         .OrShould().ResideInNamespaceMatching("System")
         .OrShould().ResideInNamespaceMatching("System.Collections")
         .OrShould().ResideInNamespaceMatching("System.Collections.Generic")
@@ -88,14 +88,14 @@ public class PersistenceArchitectureTests : BaseArchitectureTest
         .OrShould().ResideInNamespaceMatching("System.Threading.Tasks")
         .OrShould().ResideInNamespaceMatching("System.Runtime.CompilerServices")
 
-        // ✅ Allow itself (internal persistence classes)
-        .OrShould().ResideInNamespaceMatching("Franz.Persistence")
+        // ? Allow itself (internal persistence classes)
+        .OrShould().ResideInNamespaceMatching("HeroService.Persistence")
 
-        .Because("The Persistence layer should depend only on Franz persistence abstractions, core business types, and system libraries.")
+        .Because("The Persistence layer should depend only on HeroService persistence abstractions, core business types, and system libraries.")
         .WithoutRequiringPositiveResults()
         .Check(BaseArchitecture);
 
-    Console.WriteLine("✅ Verified persistence dependency isolation (Franz + System + self).");
+    Console.WriteLine("? Verified persistence dependency isolation (HeroService + System + self).");
   }
 
 

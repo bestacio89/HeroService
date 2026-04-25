@@ -1,14 +1,14 @@
-﻿using ArchUnitNET;
+using ArchUnitNET;
 using ArchUnitNET.Domain.Extensions;
 using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnit;
 using Franz.Common.Mediator.Messages;
-using FranzTesting;
+using HeroServiceTesting;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 using ControllerBase =  Microsoft.AspNetCore.Mvc.ControllerBase;
 
-namespace Franz.Testing.ArchitectureTests;
+namespace HeroService.Testing.ArchitectureTests;
 public class ApiArchitectureTests : BaseArchitectureTest
 {
   [Fact]
@@ -28,7 +28,7 @@ public class ApiArchitectureTests : BaseArchitectureTest
 
     if (!apiObjects.Any())
     {
-      Console.WriteLine("🟡 No  Service Intefaces found — skipping contract interface enforcement (virgin template).");
+      Console.WriteLine("?? No  Service Intefaces found � skipping contract interface enforcement (virgin template).");
       return;
     }
     ArchRuleDefinition // Get types from the provider
@@ -38,7 +38,7 @@ public class ApiArchitectureTests : BaseArchitectureTest
         .Should()
         .BeAssignableTo(typeof(ControllerBase))
         .AndShould()
-        .ResideInNamespace("Franz.API.Controllers")
+        .ResideInNamespace("HeroService.API.Controllers")
         .Check(BaseArchitecture);
 
   
@@ -57,26 +57,26 @@ public class ApiArchitectureTests : BaseArchitectureTest
 
     if (!contractObjects.Any())
     {
-      Console.WriteLine("🟡 No contract interfaces or message definitions found — skipping enforcement (template mode).");
+      Console.WriteLine("?? No contract interfaces or message definitions found � skipping enforcement (template mode).");
       return;
     }
 
     var apiClasses = BaseArchitecture
         .Classes
-        .Where(t => t.Assembly.Name.Equals("Franz.API", StringComparison.OrdinalIgnoreCase))
+        .Where(t => t.Assembly.Name.Equals("HeroService.API", StringComparison.OrdinalIgnoreCase))
         .ToList();
 
     if (!apiClasses.Any())
     {
-      Console.WriteLine("🟡 No API layer types found — skipping dependency validation.");
+      Console.WriteLine("?? No API layer types found � skipping dependency validation.");
       return;
     }
 
-    // Build rule — pass allowed assemblies as separate params
+    // Build rule � pass allowed assemblies as separate params
     ArchRuleDefinition
       .Classes()
       .That()
-      .ResideInAssembly("Franz.API")
+      .ResideInAssembly("HeroService.API")
       .And()
       .DoNotHaveNameEndingWith("Program")
       .And()
@@ -84,11 +84,11 @@ public class ApiArchitectureTests : BaseArchitectureTest
       .Should()
       .OnlyDependOnTypesThat()
       .ResideInAssembly(
-          "Franz.API"       
+          "HeroService.API"       
       )
       .OrShould()
       .ResideInAssembly(
-          "Franz.Contracts")
+          "HeroService.Contracts")
       .OrShould()
       .ResideInAssembly(
           "Franz.Common")

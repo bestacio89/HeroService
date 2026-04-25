@@ -1,4 +1,4 @@
-﻿using ArchUnitNET.Domain;
+using ArchUnitNET.Domain;
 using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnit;
 using Franz.Common.Business.Domain;
@@ -8,10 +8,10 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace Franz.Testing.ArchitectureTests
+namespace HeroService.Testing.ArchitectureTests
 {
   /// <summary>
-  /// 🧩 Franz Architecture Governance — Application Layer
+  /// ?? HeroService Architecture Governance � Application Layer
   /// Enforces CQRS and dependency boundaries for the Application assembly.
   /// </summary>
   public class ApplicationArchitectureTests : BaseArchitectureTest
@@ -22,9 +22,9 @@ namespace Franz.Testing.ArchitectureTests
       Assert.NotNull(ApplicationLayer);
     }
 
-    // ───────────────────────────────────────────────
-    // ⚙️ COMMAND HANDLERS
-    // ───────────────────────────────────────────────
+    // -----------------------------------------------
+    // ?? COMMAND HANDLERS
+    // -----------------------------------------------
     [Fact]
     public void CommandHandlers_Should_Implement_ICommandHandler_And_Follow_Naming()
     {
@@ -34,7 +34,7 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!handlers.Any())
       {
-        Console.WriteLine("🟡 No CommandHandlers found in Application layer — skipping rule.");
+        Console.WriteLine("?? No CommandHandlers found in Application layer � skipping rule.");
         return;
       }
 
@@ -48,12 +48,12 @@ namespace Franz.Testing.ArchitectureTests
           .Because("Command handlers must implement ICommandHandler<,> and follow the 'SomethingCommandHandler' naming pattern.")
           .Check(BaseArchitecture);
 
-      Console.WriteLine($"✅ Validated {handlers.Count} command handler(s).");
+      Console.WriteLine($"? Validated {handlers.Count} command handler(s).");
     }
 
-    // ───────────────────────────────────────────────
-    // 🔍 QUERY HANDLERS
-    // ───────────────────────────────────────────────
+    // -----------------------------------------------
+    // ?? QUERY HANDLERS
+    // -----------------------------------------------
     [Fact]
     public void QueryHandlers_Should_Implement_IQueryHandler_And_Follow_Naming()
     {
@@ -63,7 +63,7 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!handlers.Any())
       {
-        Console.WriteLine("🟡 No QueryHandlers found in Application layer — skipping rule.");
+        Console.WriteLine("?? No QueryHandlers found in Application layer � skipping rule.");
         return;
       }
 
@@ -77,18 +77,18 @@ namespace Franz.Testing.ArchitectureTests
           .Because("Query handlers must implement IQueryHandler<,> and follow the 'SomethingQueryHandler' naming pattern.")
           .Check(BaseArchitecture);
 
-      Console.WriteLine($"✅ Validated {handlers.Count} query handler(s).");
+      Console.WriteLine($"? Validated {handlers.Count} query handler(s).");
     }
 
-    // ───────────────────────────────────────────────
-    // 🧠 NOTIFICATION HANDLERS
-    // ───────────────────────────────────────────────
+    // -----------------------------------------------
+    // ?? NOTIFICATION HANDLERS
+    // -----------------------------------------------
     [Fact]
     public void NotificationHandlers_Should_Implement_INotificationHandler_And_Follow_Naming()
     {
       if (!HasEventHandlers)
       {
-        Console.WriteLine("🟡 No notification or event handlers found — skipping rule.");
+        Console.WriteLine("?? No notification or event handlers found � skipping rule.");
         return;
       }
 
@@ -104,9 +104,9 @@ namespace Franz.Testing.ArchitectureTests
           .Check(BaseArchitecture);
     }
 
-    // ───────────────────────────────────────────────
-    // 🧱 DOMAIN EVENTS & HANDLERS
-    // ───────────────────────────────────────────────
+    // -----------------------------------------------
+    // ?? DOMAIN EVENTS & HANDLERS
+    // -----------------------------------------------
     [Fact]
     public void EventHandlers_Should_Implement_IEventHandler_And_Match_DomainEvents()
     {
@@ -114,7 +114,7 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!HasDomainEvents)
       {
-        Console.WriteLine("🟡 No domain events or event handlers detected — skipping rule.");
+        Console.WriteLine("?? No domain events or event handlers detected � skipping rule.");
         return;
       }
 
@@ -144,7 +144,7 @@ namespace Franz.Testing.ArchitectureTests
             .Because("All domain events must implement IDomainEvent or IEvent.")
             .Check(BaseArchitecture);
 
-        Console.WriteLine($"✅ Validated {pureDomainEvents.Count} domain event(s).");
+        Console.WriteLine($"? Validated {pureDomainEvents.Count} domain event(s).");
       }
 
       // Application handlers must implement correct event contracts
@@ -162,23 +162,23 @@ namespace Franz.Testing.ArchitectureTests
             .Because("All event handlers must implement IEventHandler<T> or INotificationHandler<T>.")
             .Check(BaseArchitecture);
 
-        Console.WriteLine($"✅ Validated {ApplicationEventHandlerTypes.Count} application event handler(s).");
+        Console.WriteLine($"? Validated {ApplicationEventHandlerTypes.Count} application event handler(s).");
       }
 
       if (internalAppEvents.Any())
       {
-        Console.WriteLine($"ℹ️ Ignored {internalAppEvents.Count} internal events (Validation/Notification/Pipeline):");
+        Console.WriteLine($"?? Ignored {internalAppEvents.Count} internal events (Validation/Notification/Pipeline):");
         foreach (var evt in internalAppEvents)
-          Console.WriteLine($"   ↳ {evt.FullName}");
+          Console.WriteLine($"   ? {evt.FullName}");
       }
 
-      Console.WriteLine($"✅ Event governance check completed — {pureDomainEvents.Count} domain event(s), {ApplicationEventHandlerTypes.Count} handler(s).");
+      Console.WriteLine($"? Event governance check completed � {pureDomainEvents.Count} domain event(s), {ApplicationEventHandlerTypes.Count} handler(s).");
     }
 
-    // ───────────────────────────────────────────────
-    // 🧩 DEPENDENCY BOUNDARY
-    // ───────────────────────────────────────────────
-    [Fact(DisplayName = "🧩 Application Layer — Strict Dependency Governance")]
+    // -----------------------------------------------
+    // ?? DEPENDENCY BOUNDARY
+    // -----------------------------------------------
+    [Fact(DisplayName = "?? Application Layer � Strict Dependency Governance")]
     public void ApplicationLayer_Should_Depend_Only_On_Allowed_Namespaces()
     {
       ReportArchitectureContext();
@@ -209,17 +209,17 @@ namespace Franz.Testing.ArchitectureTests
           .OrShould().DependOnAnyTypesThat().ResideInNamespace("System.Threading")
           .OrShould().DependOnAnyTypesThat().ResideInNamespace("System.Threading.Tasks")
           .OrShould().DependOnAnyTypesThat().ResideInNamespace("Microsoft.Extensions.DependencyInjection")
-          .Because("The Application layer must remain pure — only Franz.Common and System namespaces are allowed.");
+          .Because("The Application layer must remain pure � only Franz.Common and System namespaces are allowed.");
 
       try
       {
         rule.Check(BaseArchitecture);
-        Console.WriteLine("✅ Application layer validated — no foreign dependencies detected.");
+        Console.WriteLine("? Application layer validated � no foreign dependencies detected.");
       }
       catch (FailedArchRuleException ex)
       {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("🚨 Franz detected an impurity in the Application layer!");
+        Console.WriteLine("?? HeroService detected an impurity in the Application layer!");
         Console.ResetColor();
         Console.WriteLine($"Details: {ex.Message}");
         throw;

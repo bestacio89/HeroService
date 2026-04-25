@@ -1,4 +1,4 @@
-﻿using ArchUnitNET.Domain;
+using ArchUnitNET.Domain;
 using ArchUnitNET.Domain.Extensions;
 using ArchUnitNET.Fluent;
 using ArchUnitNET.Loader;
@@ -13,21 +13,21 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Assembly = System.Reflection.Assembly;
 
-namespace Franz.Testing
+namespace HeroService.Testing
 {
   /// <summary>
-  /// Universal architecture context for Franz-based solutions.
-  /// Dynamically loads Franz.* (Common, Common.Mediator, Domain, Application, API, Persistence, Contracts).
+  /// Universal architecture context for HeroService-based solutions.
+  /// Dynamically loads HeroService.* (Common, Common.Mediator, Domain, Application, API, Persistence, Contracts).
   /// </summary>
   public abstract class BaseArchitectureTest
   {
-    // ─────────────────────────────────────────────
+    // ---------------------------------------------
     // Static bootstrap
-    // ─────────────────────────────────────────────
+    // ---------------------------------------------
     static BaseArchitectureTest()
     {
       Console.OutputEncoding = System.Text.Encoding.UTF8;
-      Console.WriteLine("🧩 Preloading solution assemblies...");
+      Console.WriteLine("?? Preloading solution assemblies...");
 
       // Include Franz.Common and Franz.Common.Mediator
       const string allowedPattern =
@@ -52,15 +52,15 @@ namespace Franz.Testing
         .OrderByDescending(g => g.Count())
         .FirstOrDefault()?.Key ?? "Unknown";
 
-      Console.WriteLine($"⚙️  Detected Solution Prefix: {solutionPrefix}");
-      foreach (var asm in assembliesToLoad) Console.WriteLine($"   • {asm.GetName().Name}");
+      Console.WriteLine($"??  Detected Solution Prefix: {solutionPrefix}");
+      foreach (var asm in assembliesToLoad) Console.WriteLine($"   � {asm.GetName().Name}");
 
       // Build architecture graph
       BaseArchitecture = new ArchLoader()
         .LoadAssemblies(assembliesToLoad)
         .Build();
 
-      Console.WriteLine("✅ Architecture graph built successfully.\n");
+      Console.WriteLine("? Architecture graph built successfully.\n");
 
       // Late-binding by suffix (fallback)
       DomainAssembly = TryResolveAssembly(".Domain") ?? assembliesToLoad.FirstOrDefault(a => a.GetName().Name.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase));
@@ -70,7 +70,7 @@ namespace Franz.Testing
       ContractsAssembly = TryResolveAssembly(".Contracts") ?? assembliesToLoad.FirstOrDefault(a => a.GetName().Name.EndsWith(".Contracts", StringComparison.OrdinalIgnoreCase));
       // (Common assemblies are not strictly needed as fields, we just need them loaded into BaseArchitecture)
 
-      // 🔎 Diagnostics — verify key interfaces are visible to the model
+      // ?? Diagnostics � verify key interfaces are visible to the model
       bool scopedExists = BaseArchitecture.Interfaces.Any(i => i.FullName == typeof(Franz.Common.DependencyInjection.IScopedDependency).FullName);
       bool singletonExists = BaseArchitecture.Interfaces.Any(i => i.FullName == typeof(Franz.Common.DependencyInjection.ISingletonDependency).FullName);
       bool icommandExists = BaseArchitecture.Interfaces.Any(i => i.FullName == typeof(ICommand).FullName);
@@ -80,12 +80,12 @@ namespace Franz.Testing
       if (!scopedExists || !singletonExists || !icommandExists || !iqueryExists)
       {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("⚠️  Warning: Some Franz.Common.* or Mediator interfaces were NOT found in the architecture graph.");
-        if (!scopedExists) Console.WriteLine("   ➜ Missing: Franz.Common.DependencyInjection.IScopedDependency");
-        if (!singletonExists) Console.WriteLine("   ➜ Missing: Franz.Common.DependencyInjection.ISingletonDependency");
-        if (!icommandExists) Console.WriteLine("   ➜ Missing: Franz.Common.Mediator.Messages.ICommand");
-        if (!iqueryExists) Console.WriteLine("   ➜ Missing: Franz.Common.Mediator.Messages.IQuery<>");
-        if (!customreposexist) Console.WriteLine("   ➜ Non Existant: Custom Repository types this architecture runs with Franz.Common Preordained entity and aggregate repos (e.g., IBookRepository)");
+        Console.WriteLine("??  Warning: Some Franz.Common.* or Mediator interfaces were NOT found in the architecture graph.");
+        if (!scopedExists) Console.WriteLine("   ? Missing: Franz.Common.DependencyInjection.IScopedDependency");
+        if (!singletonExists) Console.WriteLine("   ? Missing: Franz.Common.DependencyInjection.ISingletonDependency");
+        if (!icommandExists) Console.WriteLine("   ? Missing: Franz.Common.Mediator.Messages.ICommand");
+        if (!iqueryExists) Console.WriteLine("   ? Missing: Franz.Common.Mediator.Messages.IQuery<>");
+        if (!customreposexist) Console.WriteLine("   ? Non Existant: Custom Repository types this architecture runs with Franz.Common Preordained entity and aggregate repos (e.g., IBookRepository)");
         Console.WriteLine("   Hint: Ensure Franz.Common*.dll are copied to the test output (bin) folder.");
         Console.ResetColor();
       }
@@ -108,9 +108,9 @@ namespace Franz.Testing
       SolutionPrefix = solutionPrefix;
     }
 
-    // ─────────────────────────────────────────────
+    // ---------------------------------------------
     // Public static fields used throughout
-    // ─────────────────────────────────────────────
+    // ---------------------------------------------
     protected static Assembly? DomainAssembly;
     protected static Assembly? ApplicationAssembly;
     protected static Assembly? PersistenceAssembly;
@@ -142,23 +142,23 @@ namespace Franz.Testing
     protected static bool HasDomainEvents;
     protected static bool HasEventHandlers;
 
-    // ─────────────────────────────────────────────
+    // ---------------------------------------------
     // Helpers (shared)
-    // ─────────────────────────────────────────────
+    // ---------------------------------------------
     protected static void ReportArchitectureContext()
     {
-      Console.WriteLine("═══════════════════════════════════════════════");
-      Console.WriteLine($" ⚖️  FRANZ GOVERNANCE — {SolutionPrefix}");
-      Console.WriteLine("═══════════════════════════════════════════════");
-      Console.WriteLine($"📦 Assemblies:");
-      Console.WriteLine($"   • Domain:       {DomainAssembly?.GetName().Name ?? "N/A"}");
-      Console.WriteLine($"   • Application:  {ApplicationAssembly?.GetName().Name ?? "N/A"}");
-      Console.WriteLine($"   • Persistence:  {PersistenceAssembly?.GetName().Name ?? "N/A"}");
-      Console.WriteLine($"   • API:          {ApiAssembly?.GetName().Name ?? "N/A"}");
-      Console.WriteLine($"   • Contracts:    {ContractsAssembly?.GetName().Name ?? "N/A"}");
-      Console.WriteLine($"🧩 Domain Events:  {DomainEventTypes.Count}");
-      Console.WriteLine($"🧩 Handlers:       {ApplicationEventHandlerTypes.Count}");
-      Console.WriteLine("═══════════════════════════════════════════════\n");
+      Console.WriteLine("-----------------------------------------------");
+      Console.WriteLine($" ??  HeroService GOVERNANCE � {SolutionPrefix}");
+      Console.WriteLine("-----------------------------------------------");
+      Console.WriteLine($"?? Assemblies:");
+      Console.WriteLine($"   � Domain:       {DomainAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"   � Application:  {ApplicationAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"   � Persistence:  {PersistenceAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"   � API:          {ApiAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"   � Contracts:    {ContractsAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"?? Domain Events:  {DomainEventTypes.Count}");
+      Console.WriteLine($"?? Handlers:       {ApplicationEventHandlerTypes.Count}");
+      Console.WriteLine("-----------------------------------------------\n");
     }
 
     protected static bool SkipIfLayerMissing(IObjectProvider<IType> layer, string name)
@@ -166,7 +166,7 @@ namespace Franz.Testing
       var count = layer.GetObjects(BaseArchitecture).Count();
       if (count == 0)
       {
-        Console.WriteLine($"🟡 {name} — no types found (virgin template). Skipping.");
+        Console.WriteLine($"?? {name} � no types found (virgin template). Skipping.");
         return true;
       }
       return false;
@@ -176,7 +176,7 @@ namespace Franz.Testing
     {
       if (asm == null)
       {
-        Console.WriteLine($"🟡 {name} — assembly not found. Skipping.");
+        Console.WriteLine($"?? {name} � assembly not found. Skipping.");
         return false;
       }
       return true;
@@ -188,7 +188,7 @@ namespace Franz.Testing
       ApplicationEventHandlerTypes = new List<IType>();
       HasDomainEvents = false;
       HasEventHandlers = false;
-      Console.WriteLine("🔄 Architecture state reset.");
+      Console.WriteLine("?? Architecture state reset.");
     }
 
     protected static string GetNamespaceSummary()
@@ -203,9 +203,9 @@ namespace Franz.Testing
       return string.Join(", ", all);
     }
 
-    // ─────────────────────────────────────────────
+    // ---------------------------------------------
     // Private helpers
-    // ─────────────────────────────────────────────
+    // ---------------------------------------------
     private static Assembly? TryResolveAssembly(string suffix)
     {
       // Try to find an already loaded assembly by suffix
@@ -225,11 +225,11 @@ namespace Franz.Testing
         try
         {
           asm = Assembly.LoadFrom(file);
-          Console.WriteLine($"📦 Late-loaded assembly: {asm.GetName().Name}");
+          Console.WriteLine($"?? Late-loaded assembly: {asm.GetName().Name}");
         }
         catch (Exception ex)
         {
-          Console.WriteLine($"⚠️ Could not load {suffix}.dll — {ex.Message}");
+          Console.WriteLine($"?? Could not load {suffix}.dll � {ex.Message}");
         }
       }
       return asm;
@@ -251,16 +251,16 @@ namespace Franz.Testing
           if (!AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().FullName == asmName.FullName))
           {
             var asm = Assembly.LoadFrom(file);
-            Console.WriteLine($"📦 Manually loaded {asm.GetName().Name}");
+            Console.WriteLine($"?? Manually loaded {asm.GetName().Name}");
           }
         }
         catch (BadImageFormatException)
         {
-          Console.WriteLine($"🧱 Skipped non-.NET assembly: {Path.GetFileName(file)}");
+          Console.WriteLine($"?? Skipped non-.NET assembly: {Path.GetFileName(file)}");
         }
         catch (Exception ex)
         {
-          Console.WriteLine($"⚠️ Skipped {Path.GetFileName(file)} — {ex.Message}");
+          Console.WriteLine($"?? Skipped {Path.GetFileName(file)} � {ex.Message}");
         }
       }
     }

@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../../common.targets" />
+
+  <ItemGroup>
+    <PackageReference Include="Franz.Common.Business" />
+    <PackageReference Include="Franz.Common.Hosting" />
+    <PackageReference Include="Franz.Common.Mapping" />
+    <PackageReference Include="Franz.Common.Mediator" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HeroService.Contracts\HeroService.Contracts.csproj" />
+    <ProjectReference Include="..\HeroService.Domain\HeroService.Domain.csproj" />
+    <ProjectReference Include="..\HeroService.Persistence\HeroService.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Example\Commands\" />
+    <Folder Include="Features\Example\Queries\" />
+  </ItemGroup>
+
+</Project>

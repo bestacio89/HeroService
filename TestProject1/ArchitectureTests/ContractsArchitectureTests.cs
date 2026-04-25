@@ -1,4 +1,4 @@
-﻿using ArchUnitNET.Domain;
+using ArchUnitNET.Domain;
 using ArchUnitNET.Domain.Extensions;
 using ArchUnitNET.Fluent;
 
@@ -8,12 +8,12 @@ using Franz.Common.Business.Domain;
 
 using Franz.Common.DependencyInjection;
 using Franz.Common.Mediator.Messages;
-using FranzTesting;
+using HeroServiceTesting;
 using Microsoft.Azure.Cosmos.Linq;
 using System.Reflection;
 using Interface = System.Reflection.TypeInfo;
 
-namespace Franz.Testing.ArchitectureTests
+namespace HeroService.Testing.ArchitectureTests
 {
   public class ContractsArchitecture : BaseArchitectureTest
   {
@@ -35,7 +35,7 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!commandobjects.Any())
       {
-        Console.WriteLine("🟡 No Queries found in Contract layer — skipping rule.");
+        Console.WriteLine("?? No Queries found in Contract layer � skipping rule.");
         return;
       }
       ArchRuleDefinition.
@@ -55,7 +55,7 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!commandobjects.Any())
       {
-        Console.WriteLine("🟡 No Commands found in Contract layer — skipping rule.");
+        Console.WriteLine("?? No Commands found in Contract layer � skipping rule.");
         return;
       }
       ArchRuleDefinition.
@@ -80,12 +80,12 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!contractObjects.Any())
       {
-        Console.WriteLine("🟡 No Dtos found — skipping persistence contract enforcement (virgin template).");
+        Console.WriteLine("?? No Dtos found � skipping persistence contract enforcement (virgin template).");
         return;
       }
       ArchRuleDefinition.
            Classes().That()
-          .ResideInNamespace("Franz.Contracts.DTOS")
+          .ResideInNamespace("HeroService.Contracts.DTOS")
           .Should()
           .HaveNameEndingWith("Dto")
           .Because("Dtos should be properly named as such")
@@ -104,12 +104,12 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!contractObjects.Any())
       {
-        Console.WriteLine("🟡 No Custom Service Intefaces found — skipping persistence contract enforcement (virgin template).");
+        Console.WriteLine("?? No Custom Service Intefaces found � skipping persistence contract enforcement (virgin template).");
         return;
       }
       ArchRuleDefinition.
         Classes()
-        .That().ResideInNamespace("Franz.Contracts.Infrastructure.*")
+        .That().ResideInNamespace("HeroService.Contracts.Infrastructure.*")
         .Should()
         .BeAssignableTo(typeof(IScopedDependency))
         .OrShould().BeAssignableTo(typeof(ISingletonDependency))
@@ -122,7 +122,7 @@ namespace Franz.Testing.ArchitectureTests
     [Fact]
     public void Persistence_Interfaces_Follow_Rules()
     {
-      // 🎯 Identify repository interfaces defined in the Domain (contracts or persistence abstractions)
+      // ?? Identify repository interfaces defined in the Domain (contracts or persistence abstractions)
       var contractObjects = ContractsLayer
           .GetObjects(BaseArchitecture)
           .Where(t =>
@@ -132,11 +132,11 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!contractObjects.Any())
       {
-        Console.WriteLine("🟡 No repository interfaces found — skipping persistence contract enforcement (virgin template).");
+        Console.WriteLine("?? No repository interfaces found � skipping persistence contract enforcement (virgin template).");
         return;
       }
 
-      // ✅ Enforce rule: all repository interfaces should conform to Franz repository contracts
+      // ? Enforce rule: all repository interfaces should conform to HeroService repository contracts
       ArchRuleDefinition
           .Classes()
           .That()
@@ -154,14 +154,14 @@ namespace Franz.Testing.ArchitectureTests
           .WithoutRequiringPositiveResults()
           .Check(BaseArchitecture);
 
-      Console.WriteLine($"✅ Verified {contractObjects.Count} repository interface(s) follow the Franz persistence contract model.");
+      Console.WriteLine($"? Verified {contractObjects.Count} repository interface(s) follow the HeroService persistence contract model.");
     }
 
 
     [Fact]
     public void CustomPersistenceInterfaces_Follow_Rules()
     {
-      // 🎯 Identify repository interfaces defined in the Domain (contracts or persistence abstractions)
+      // ?? Identify repository interfaces defined in the Domain (contracts or persistence abstractions)
       var contractObjects = ContractsLayer
           .GetObjects(BaseArchitecture)
           .Where(t =>
@@ -175,10 +175,10 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!contractObjects.Any())
       {
-        Console.WriteLine("🟡 No custom repository interfaces found — skipping persistence contract enforcement (virgin template).");
+        Console.WriteLine("?? No custom repository interfaces found � skipping persistence contract enforcement (virgin template).");
         return;
       }
-      // ✅ Enforce rule: all custom repository interfaces should inherit IScopedDependency
+      // ? Enforce rule: all custom repository interfaces should inherit IScopedDependency
       ArchRuleDefinition.Classes()
           .That()
           .AreNot(typeof(IReadRepository<>)) // Exclude IReadRepository
@@ -205,7 +205,7 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!dtoObjects.Any())
       {
-        Console.WriteLine("🟡 No DTOs found — skipping DTO immutability rule.");
+        Console.WriteLine("?? No DTOs found � skipping DTO immutability rule.");
         return;
       }
 
@@ -216,11 +216,11 @@ namespace Franz.Testing.ArchitectureTests
         var type = GetReflectionType(dto);
         if (type == null) continue;
 
-        // ✅ Skip records
+        // ? Skip records
         if (IsRecord(type))
           continue;
 
-        // 🧠 Check for mutable properties (setters not init-only)
+        // ?? Check for mutable properties (setters not init-only)
         bool hasWritableProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Any(p =>
             {
@@ -240,11 +240,11 @@ namespace Franz.Testing.ArchitectureTests
 
       if (!offenders.Any())
       {
-        Console.WriteLine("✅ All DTOs are immutable records or init-only — compliance confirmed.");
+        Console.WriteLine("? All DTOs are immutable records or init-only � compliance confirmed.");
         return;
       }
 
-      Console.WriteLine("🚨 Mutable or non-record DTOs detected:");
+      Console.WriteLine("?? Mutable or non-record DTOs detected:");
       offenders.ForEach(o => Console.WriteLine($" - {o.FullName}"));
 
       var rule = ArchRuleDefinition
@@ -264,7 +264,7 @@ namespace Franz.Testing.ArchitectureTests
 
     private static Type? GetReflectionType(IType archType)
     {
-      // Try dynamic reflection — avoids compile-time generic binding
+      // Try dynamic reflection � avoids compile-time generic binding
       var maybeTypeProp = archType.GetType().GetProperty("Type", BindingFlags.Public | BindingFlags.Instance);
       if (maybeTypeProp?.GetValue(archType) is Type systemType)
         return systemType;

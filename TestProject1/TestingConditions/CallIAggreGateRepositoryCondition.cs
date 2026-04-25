@@ -1,4 +1,4 @@
-﻿using ArchUnitNET.Domain;
+using ArchUnitNET.Domain;
 using ArchUnitNET.Fluent;
 using ArchUnitNET.Fluent.Conditions;
 using ArchUnitNET.Fluent.Syntax.Elements.Types;
@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FranzTesting.TestingConditions
+namespace HeroServiceTesting.TestingConditions
 {
   public class CallIAggregateRepositoryMethodCondition : ICondition<IMember>
   {
