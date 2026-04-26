@@ -1,5 +1,4 @@
 
-using HeroService.Contracts.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

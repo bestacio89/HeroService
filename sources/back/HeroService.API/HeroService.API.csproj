@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Clients\" />
     <Folder Include="Controllers\NewFolder\" />
     <Folder Include="logs\" />
   </ItemGroup>

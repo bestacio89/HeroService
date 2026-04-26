@@ -1,6 +1,6 @@
 using HeroService.API.Extensions;
 using HeroService.Application;
-using HeroService.Application.Books.Queries;
+
 using Franz.Common.Http.Bootstrap.Extensions;
 using Franz.Common.Http.Client.Extensions;
 using Franz.Common.Http.EntityFramework.Extensions;
@@ -10,13 +10,13 @@ using Franz.Common.Mediator.Extensions;
 
 using Franz.Common.Mediator.Polly;
 using Franz.Common.Serialization.Extensions;
-using HeroService.Persistence; // our new cowboy helper
-using HeroService.Persistence.Seeders;
+using HeroService.Persistence; 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Filters;
 using System.Reflection;
+using HeroService.Application.Heroes.Commands;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
@@ -38,9 +38,9 @@ builder.Services.AddOpenApi();
 // --- Application & Persistence ---
 builder.Services.RegisterApplicationServices();
 builder.Services.RegisterPersistenceServices<ApplicationDbContext>(builder.Configuration);
-builder.Services.AddRelationalDatabase<ApplicationDbContext>(builder.Environment, builder.Configuration)
-  .AddEntityRepositories<ApplicationDbContext>()
-  .AddGenericRepositories<ApplicationDbContext>();
+builder.Services.AddRelationalDatabase<ApplicationDbContext>(builder.Environment, builder.Configuration).
+  RegisterPersistenceServices<ApplicationDbContext>(builder.Configuration);
+
 
 
 
@@ -55,7 +55,7 @@ builder.Services.AddHttpArchitecture(builder.Environment, builder.Configuration)
 //builder.Services.AddExternalServices(builder.Configuration);
 
 // --- Mediator + Pipelines ---
-builder.Services.AddFranzMediator(new[] { typeof(ListBooksQueryHandler).Assembly });
+builder.Services.AddFranzMediator(new[] { typeof(CreateHeroCommandHandler).Assembly });
     ;
 
 // --- Resilience (Polly) ---
@@ -86,8 +86,7 @@ using (var scope = app.Services.CreateScope())
   {
     db.Database.EnsureDeleted();
     db.Database.EnsureCreated();
-    BookSeeder.Seed(db);
-    MemberSeeder.Seed(db);
+   
   }
   else
   {

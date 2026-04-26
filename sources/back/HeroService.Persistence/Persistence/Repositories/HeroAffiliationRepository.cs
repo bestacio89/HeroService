@@ -1,25 +1,29 @@
 ﻿using HeroService.Contracts.Persistence;
+using HeroService.Domain.Heroes.Affiliations;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
 using Microsoft.EntityFrameworkCore;
 
-namespace HeroService.Persistence.Persistence.Repositories;
+namespace HeroService.Persistence.Repositories;
 
-public sealed class MythologyRepository
-    :  IMythologyRepository
+public sealed class HeroAffiliationRepository : IHeroAffiliationRepository
 {
-  public MythologyRepository(ApplicationDbContext dbContext)
-      
+  private readonly ApplicationDbContext dbContext;
+
+  public HeroAffiliationRepository(ApplicationDbContext dbContext)
   {
+    this.dbContext = dbContext;
   }
 
-  public async Task<MythologyType?> GetByNameAsync(
-      string name,
+  public async Task<HeroAffiliation?> GetByOriginAndMythologyAsync(
+      OriginType originType,
+      Guid mythologyTypeId,
       CancellationToken cancellationToken = default)
   {
-    return await DbContext.Set<MythologyType>()
+    return await dbContext.Set<HeroAffiliation>()
         .AsNoTracking()
         .FirstOrDefaultAsync(
-            x => x.Name.ToLower() == name.ToLower(),
+            x => x.OriginType == originType &&
+                 x.MythologyTypeId == mythologyTypeId,
             cancellationToken);
   }
 }
