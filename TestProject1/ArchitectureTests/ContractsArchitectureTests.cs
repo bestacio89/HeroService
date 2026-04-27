@@ -5,9 +5,10 @@ using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnit;
 
 using Franz.Common.Business.Domain;
-
+using Franz.Common.Business.Repositories;
 using Franz.Common.DependencyInjection;
 using Franz.Common.Mediator.Messages;
+
 using HeroServiceTesting;
 using Microsoft.Azure.Cosmos.Linq;
 using System.Reflection;
@@ -144,7 +145,7 @@ namespace HeroService.Testing.ArchitectureTests
           .Should()
           .BeAssignableTo(typeof(IScopedDependency))
           .AndShould()
-          .NotBeAssignableTo(typeof(IReadRepository<>))
+          .NotBeAssignableTo(typeof(Franz.Common.MongoDB.Repositories.Contracts.IEntityRepository<>))
           .OrShould()
           .NotBeAssignableTo(typeof(IAggregateRepository<,>))
           .AndShould()
@@ -181,7 +182,7 @@ namespace HeroService.Testing.ArchitectureTests
       // ? Enforce rule: all custom repository interfaces should inherit IScopedDependency
       ArchRuleDefinition.Classes()
           .That()
-          .AreNot(typeof(IReadRepository<>)) // Exclude IReadRepository
+          .AreNot(typeof(IEntityRepository<,>)) // Exclude IReadRepository
           .And().AreNot(typeof(IAggregateRepository<,>)) // Exclude IAggregateRepository
           .And().HaveNameEndingWith("Repository") // Naming convention for custom repositories
           .Should()

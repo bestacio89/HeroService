@@ -1,4 +1,5 @@
-﻿using Franz.Common.DependencyInjection;
+﻿#nullable enable
+using Franz.Common.DependencyInjection;
 
 namespace HeroService.Contracts.Persistence;
 

@@ -89,6 +89,8 @@
 ///
 /// These layers must NEVER overlap.
 /// </summary>
+/// 
+#nullable enable
 public class Skin : Entity<Guid>
 {
   public Guid HeroId { get; private set; }

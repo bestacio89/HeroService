@@ -1,7 +1,7 @@
 ﻿using Franz.Common.DependencyInjection;
 using HeroService.Domain.Heroes.Affiliations;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
-
+#nullable enable
 namespace HeroService.Contracts.Persistence;
 
 public interface IHeroAffiliationRepository : IScopedDependency

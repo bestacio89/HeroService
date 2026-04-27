@@ -4,7 +4,7 @@ using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 using HeroService.Domain.Heroes.Versioned.Snapshotting;
 using Newtonsoft.Json.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-
+#nullable enable
 namespace HeroService.Application.Heroes.Versioned.Snapshotting;
 
 /// <summary>

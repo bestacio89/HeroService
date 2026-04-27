@@ -12,13 +12,16 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Assembly = System.Reflection.Assembly;
-
+#nullable enable
 namespace HeroService.Testing
 {
   /// <summary>
   /// Universal architecture context for HeroService-based solutions.
   /// Dynamically loads HeroService.* (Common, Common.Mediator, Domain, Application, API, Persistence, Contracts).
   /// </summary>
+  /// #nullable enable
+  /// 
+#nullable enable
   public abstract class BaseArchitectureTest
   {
     // ---------------------------------------------

@@ -1,7 +1,7 @@
 ﻿using HeroService.Contracts.Persistence;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
 using Microsoft.EntityFrameworkCore;
-
+#nullable enable
 namespace HeroService.Persistence.Persistence.Repositories;
 
 public sealed class MythologyRepository : IMythologyRepository

@@ -2,7 +2,7 @@
 using HeroService.Domain.Heroes.Affiliations;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
 using Microsoft.EntityFrameworkCore;
-
+#nullable enable
 namespace HeroService.Persistence.Repositories;
 
 public sealed class HeroAffiliationRepository : IHeroAffiliationRepository

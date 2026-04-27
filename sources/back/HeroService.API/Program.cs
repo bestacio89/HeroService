@@ -1,92 +1,52 @@
-using HeroService.API.Extensions;
+
 using HeroService.Application;
-
+using HeroService.Application.Heroes.Commands;
+using HeroService.Persistence;
 using Franz.Common.Http.Bootstrap.Extensions;
-using Franz.Common.Http.Client.Extensions;
 using Franz.Common.Http.EntityFramework.Extensions;
-
+using Franz.Common.Http.Documentation.Extensions;
 using Franz.Common.Logging.Extensions;
 using Franz.Common.Mediator.Extensions;
-
 using Franz.Common.Mediator.Polly;
-using Franz.Common.Serialization.Extensions;
-using HeroService.Persistence; 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Serilog.Filters;
-using System.Reflection;
-using HeroService.Application.Heroes.Commands;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
 var config = builder.Configuration;
-// --- Logging (env-aware Serilog via UseHybridLog) ---
+
+// --- Logging ---
 builder.Host.UseLog();
 builder.Services.AddFranzSerilogAuditPipeline()
                 .AddFranzEventValidationPipeline()
                 .AddFranzSerilogLoggingPipeline()
                 .AddFranzTelemetry(env, config);
-               
-
-
-
-// --- Core services ---
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
 
 // --- Application & Persistence ---
 builder.Services.RegisterApplicationServices();
-builder.Services.RegisterPersistenceServices<ApplicationDbContext>(builder.Configuration);
-builder.Services.AddRelationalDatabase<ApplicationDbContext>(builder.Environment, builder.Configuration).
-  RegisterPersistenceServices<ApplicationDbContext>(builder.Configuration);
+// Standardized Database registration - handles DbContext and Persistence Services
+builder.Services.AddRelationalDatabase<ApplicationDbContext>(env, config);
 
-
-
-
-
-// --- Http Architecture ---
-builder.Services.AddHttpArchitecture(builder.Environment, builder.Configuration);
-
-// --- Messaging ---
-//builder.Services.AddMessagingInHttpContext(builder.Configuration);
-
-//builder.Services.AddHttpServices(builder.Configuration, TimeSpan.FromSeconds(30));
-//builder.Services.AddExternalServices(builder.Configuration);
+// --- Http Architecture & Documentation ---
+// This handles Controllers, Versioning, and Swagger via your internal logic
+builder.Services.AddHttpArchitecture(env, config);
 
 // --- Mediator + Pipelines ---
 builder.Services.AddFranzMediator(new[] { typeof(CreateHeroCommandHandler).Assembly });
-    ;
+builder.Services.AddFranzResilience(config);
 
-// --- Resilience (Polly) ---
-builder.Services.AddFranzResilience(builder.Configuration);
-
-// --- API Versioning & CORS ---
-builder.Services.AddApiVersioning(options =>
-{
-  options.DefaultApiVersion = new ApiVersion(1, 0);
-  options.AssumeDefaultVersionWhenUnspecified = true;
-  options.ReportApiVersions = true;
-});
-builder.Services.AddCors(options =>
-{
-  options.AddPolicy("AllowAll", policy =>
-      policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-});
 
 var app = builder.Build();
 
 // --- DB Initialization ---
 using (var scope = app.Services.CreateScope())
 {
-  var env2 = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
   var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-  if (env2.IsDevelopment())
+  if (app.Environment.IsDevelopment())
   {
     db.Database.EnsureDeleted();
     db.Database.EnsureCreated();
-   
   }
   else
   {
@@ -94,25 +54,17 @@ using (var scope = app.Services.CreateScope())
   }
 }
 
-// Ensure Serilog flushes
 app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 
 // --- Middleware ---
-//app.UseCors("AllowAll");
-//app.UseHttpArchitecture();
-
 if (app.Environment.IsDevelopment())
 {
-  app.MapOpenApi();
-  app.UseSwagger();
-  app.UseSwaggerUI(c =>
-  {
-    c.SwaggerEndpoint("/openapi/v1.json", "HeroService API v1");
-    c.RoutePrefix = "swagger";
-  });
+  // Use the framework-level documentation helper
+  app.UseDocumentation();
 }
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
