@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Asclepius — Unity Package</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f0f7f2;
+    --surface: #ffffff;
+    --surface2: #e6f2ea;
+    --border: #c2dac8;
+    --border2: #78b090;
+    --text: #060f08;
+    --muted: #1e3d28;
+    --subtle: #5a8870;
+    --accent: #1a6b38;
+    --accent2: #22913c;
+    --gold: #b8860b;
+    --code-bg: #030a04;
+    --code-text: #c8f0d0;
+    --tag-bg: #e0f5e8;
+    --tag-text: #0a3818;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .hero-header {
+    background: linear-gradient(135deg, #020a04 0%, #041808 30%, #072010 55%, #0a2818 80%, #041810 100%);
+    padding: 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Caduceus serpent scale pattern */
+  .hero-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1'%3E%3Cellipse cx='15' cy='15' rx='8' ry='5'/%3E%3Cellipse cx='45' cy='15' rx='8' ry='5'/%3E%3Cellipse cx='15' cy='45' rx='8' ry='5'/%3E%3Cellipse cx='45' cy='45' rx='8' ry='5'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Sacred gold healing light at bottom */
+  .hero-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, transparent, #3a8050, #80d0a0, #c8f0d8, #80d0a0, #3a8050, transparent);
+    opacity: 0.70;
+  }
+
+  .hero-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .hero-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-myth  { background: rgba(120,200,140,0.22); color: #90e8b0; border: 1px solid rgba(120,200,140,0.42); }
+  .badge-role  { background: rgba(200,180,20,0.22);  color: #f0d870; border: 1px solid rgba(200,180,20,0.40); }
+  .badge-unity { background: rgba(99,102,241,0.25);  color: #a5b4fc; border: 1px solid rgba(99,102,241,0.40); }
+
+  .hero-name {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    position: relative;
+    line-height: 1.1;
+  }
+
+  .hero-name span { color: #90e8b0; }
+
+  .hero-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 8px;
+    position: relative;
+  }
+
+  .deco {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.09;
+    font-size: 120px;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* ── TABS ── */
+  .tabs-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .tab-btn {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 40px 48px; max-width: 1100px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* ── DESIGN BRIEF ── */
+  .brief-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .brief-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .brief-card.full { grid-column: 1 / -1; }
+
+  .brief-card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brief-card p { color: var(--muted); line-height: 1.7; font-size: 13px; }
+
+  .color-swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .swatch { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .swatch-dot { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); flex-shrink: 0; }
+
+  .prompt-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 8px;
+  }
+
+  .prompt-box p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #c8f0d0;
+    line-height: 1.8;
+  }
+
+  .prompt-box .kw  { color: #90e8b0; }
+  .prompt-box .str { color: #f0d870; }
+  .prompt-box .num { color: #80d8ff; }
+
+  .copy-btn {
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: rgba(26,107,56,0.14);
+    border: 1px solid rgba(26,107,56,0.32);
+    color: #90e8b0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all .15s;
+  }
+
+  .copy-btn:hover { background: rgba(26,107,56,0.26); }
+  .copy-btn.copied { color: #86efac; border-color: rgba(134,239,172,0.4); }
+
+  .detail-list { list-style: none; }
+  .detail-list li {
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .detail-list li:last-child { border-bottom: none; }
+  .detail-list li::before { content: '→'; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+  /* ── SKILLS ── */
+  .skills-grid { display: flex; flex-direction: column; gap: 16px; }
+
+  .skill-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .skill-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-key {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .sk1 { background: #e0f5e8; color: #0a3818; border: 1px solid #90d0a8; }
+  .sk2 { background: #e0f5e8; color: #0a3818; border: 1px solid #90d0a8; }
+  .skp { background: #fff8e0; color: #4a3000; border: 1px solid #d0a840; }
+  .sku { background: #030a04; color: #90e8b0; border: 1px solid #1a6b38; }
+
+  .skill-meta { flex: 1; }
+  .skill-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .skill-type { font-size: 11px; color: var(--subtle); margin-top: 2px; }
+
+  .ult-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #030a04;
+    color: #90e8b0;
+    letter-spacing: 0.5px;
+  }
+
+  .heal-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #e0f5e8;
+    color: #0a3818;
+    letter-spacing: 0.5px;
+    margin-left: 4px;
+    border: 1px solid #90d0a8;
+  }
+
+  .buff-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #fff8e0;
+    color: #4a3000;
+    letter-spacing: 0.5px;
+    margin-left: 4px;
+    border: 1px solid #d0a840;
+  }
+
+  .skill-body { padding: 16px 20px; }
+  .skill-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
+
+  .skill-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .skill-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+  }
+
+  .skill-stat .label { font-size: 10px; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.5px; }
+  .skill-stat .value { font-size: 15px; font-weight: 700; color: var(--accent2); margin-top: 2px; }
+  .skill-stat.heal { background: #e0f5e8; border-color: #90d0a8; }
+  .skill-stat.heal .value { color: #0a5020; }
+  .skill-stat.gold { background: #fff8e0; border-color: #d0a840; }
+  .skill-stat.gold .value { color: #6a4800; }
+  .skill-stat.tank { background: #e8edf5; border-color: #a0b8d0; }
+  .skill-stat.tank .value { color: #1a3060; }
+
+  /* ── CODE ── */
+  .code-section { margin-top: 0; }
+
+  .code-file {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .code-file-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .file-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .file-lang {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .lang-cs   { background: #dbeafe; color: #1d4ed8; }
+  .lang-hlsl { background: #e0f5e8; color: #0a3818; }
+
+  pre {
+    margin: 0;
+    padding: 20px 24px;
+    overflow-x: auto;
+    background: var(--code-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--code-text);
+  }
+
+  .kw   { color: #90e8b0; }
+  .cm   { color: #1e3820; font-style: italic; }
+  .str  { color: #f0d870; }
+  .num  { color: #80d8ff; }
+  .cls  { color: #a0f0c0; }
+  .fn   { color: #c8a0ff; }
+  .prop { color: #f0a060; }
+  .attr { color: #f07070; }
+
+  /* ── TOOLS ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color .15s, transform .1s;
+  }
+
+  .tool-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .tool-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+
+  .tool-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+
+  .tool-name { font-size: 15px; font-weight: 600; }
+  .tool-cat  { font-size: 11px; color: var(--subtle); margin-top: 1px; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+  .tool-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tool-tag {
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+    background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+  }
+  .tool-tag.green  { background: #dcfce7; color: #14532d; border-color: #bbf7d0; }
+  .tool-tag.blue   { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .tool-tag.orange { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+  .tool-tag.purple { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+  .tool-tag.jade   { background: #e0f5e8; color: #0a3818; border-color: #90d0a8; }
+  .tool-tag.gold   { background: #fff8e0; color: #4a3000; border-color: #d0a840; }
+
+  /* ── WORKFLOW ── */
+  .workflow-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+
+  .workflow-box h3 {
+    font-size: 12px; font-weight: 600; color: #90e8b0;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+  }
+
+  .workflow-steps { display: flex; flex-direction: column; gap: 8px; }
+
+  .wstep {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 12px; color: #c8f0d0;
+    font-family: 'JetBrains Mono', monospace; line-height: 1.6;
+  }
+
+  .wnum {
+    width: 22px; height: 22px;
+    background: rgba(26,107,56,0.32); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #90e8b0;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  .warrow { color: #1e3820; margin: 0 4px; }
+
+  /* ── PROGRESSION ── */
+  .progression-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .progress-card h3 {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-note { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  .stat-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+  .stat-table th, .stat-table td {
+    padding: 9px 10px; border-bottom: 1px solid var(--border);
+    text-align: left; vertical-align: top;
+  }
+
+  .stat-table th {
+    color: var(--subtle); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .stat-table td strong { color: var(--text); }
+  .stat-table td.heal  { color: #0a5020; font-weight: 600; }
+  .stat-table td.gold  { color: #6a4800; font-weight: 600; }
+
+  .level-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .level-chip {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 999px; background: var(--surface2);
+    color: var(--muted); border: 1px solid var(--border);
+  }
+
+  .level-chip.active { background: var(--tag-bg); color: var(--tag-text); border-color: #90d0a8; }
+  .level-chip.heal   { background: #e0f5e8; color: #0a3818; border-color: #90d0a8; }
+  .level-chip.gold   { background: #fff8e0; color: #4a3000; border-color: #d0a840; }
+
+  .rank-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+
+  .rank-table th, .rank-table td {
+    padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: center;
+  }
+
+  .rank-table th:first-child, .rank-table td:first-child {
+    text-align: left; color: var(--muted); font-weight: 600;
+  }
+
+  .rank-table th {
+    color: var(--subtle); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .rank-table td.jade { color: var(--accent2); font-weight: 700; }
+  .rank-table td.gold { color: #8a6000; font-weight: 700; }
+
+  .code-mini-note { margin-top: 14px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  @media (max-width: 700px) {
+    .hero-header { padding: 24px 20px; }
+    .tabs-bar { padding: 0 12px; }
+    .section { padding: 24px 16px; }
+    .brief-grid { grid-template-columns: 1fr; }
+    .deco { display: none; }
+    .progression-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="hero-header">
+  <div class="hero-badge-row">
+    <span class="hero-badge badge-myth">Greek Mythology · Olympian Demigod</span>
+    <span class="hero-badge badge-role">Support Tank · Paladin · Healer</span>
+    <span class="hero-badge badge-unity">Unity Package</span>
+  </div>
+  <div class="hero-name">Asclepius <span>— God of Medicine</span></div>
+  <div class="hero-subtitle">Son of Apollo · Lord of Healing · Rod of Asclepius · Serpent-Bearer · Raised the Dead</div>
+  <div class="deco">🐍</div>
+</div>
+
+<!-- ══════════ TABS ══════════ -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('design', this)">🎨 Design Brief</button>
+  <button class="tab-btn" onclick="showTab('skills', this)">⚕️ Abilities</button>
+  <button class="tab-btn" onclick="showTab('code', this)">{ } C# Scripts</button>
+  <button class="tab-btn" onclick="showTab('shader', this)">✦ HLSL Shaders</button>
+  <button class="tab-btn" onclick="showTab('tools', this)">🛠 3D AI Tools</button>
+</div>
+
+<!-- ══════════ DESIGN BRIEF ══════════ -->
+<div class="section active" id="tab-design">
+  <div class="brief-grid">
+
+    <div class="brief-card">
+      <h3>Silhouette &amp; Morphology</h3>
+      <p>Tall, broad-shouldered divine healer — the calm authority of a physician who has conquered death itself. ~1.95m, substantial build without being a brawler: wide chest, strong arms used to lifting fallen warriors, serene bearing. Long dark curling hair, full dark beard, deep amber-gold eyes that glow faintly with divine life energy. Moves with deliberate, unhurried gravitas — he does not rush because he cannot be stopped. A god who walks into the worst wound on the battlefield and does not flinch.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Divine Armor — Sacred Physician Paladin</h3>
+      <p>A fusion of Greek divine armor and the healer's craft: heavy bronze-green patinated breastplate over a white physician's chiton robe, the hem visible below the armor. Thick greaves, broad pauldrons with serpent-head detailing at each shoulder. A sacred laurel wreath of glowing jade light crowns the head rather than a helmet. The breastplate has the Rod of Asclepius embossed at the center — a serpent coiled around a rod, glowing with warm green-gold healing light. Heavy sandaled boots, leather bracers. A physician's satchel at the hip — not decorative but actively used in ability animations.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Sacred Weapon — Rod of Asclepius</h3>
+      <p>The Rod of Asclepius — not a combat weapon but a divine implement of medicine. A plain dark wood rod slightly taller than Asclepius himself, with a single serpent coiled around its length. The serpent is alive — it shifts, watches, and glows with warm jade light at the scales' edges. During offensive abilities the rod is used as a melee bludgeon; during healing the serpent uncoils from the rod and reaches toward the target before retracting. During the Ultimate the serpent fully detaches and grows enormous, flying across the battlefield as a divine healer and destroyer simultaneously.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Sacred Companion — The Serpent of Life</h3>
+      <p>The living serpent on the Rod of Asclepius is always present — coiled at rest on the rod during movement, head raised and eyes glowing during healing casts, fully extended outward during Skill 2 at maximum range. It is both a visual identifier and a gameplay VFX anchor: healing beams originate from the serpent's mouth, not from Asclepius's hands. During the Ultimate it detaches entirely and becomes an autonomous flying serpent the size of a horse that orbits the battlefield, healing allies and poisoning enemies simultaneously.</p>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Color Palette — Swatches</h3>
+      <div class="color-swatch-row">
+        <div class="swatch"><div class="swatch-dot" style="background:#3a6040"></div> Bronze-green — patinated armor</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#f8f4e8;border:1px solid #ccc"></div> Sacred white — physician chiton</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#40c070"></div> Jade green — healing energy</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#c8a030"></div> Sacred gold — divine emboss</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#204828"></div> Deep serpent green — snake scales</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#a0e8b8;border:1px solid #ccc"></div> Pale mint — life restoration VFX</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#f0b040"></div> Warm amber — divine eye glow</div>
+      </div>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Visual Effects — Unity Particle System</h3>
+      <ul class="detail-list">
+        <li>Idle ambient: living serpent coiled on rod shifts position occasionally, warm jade-green light motes drift upward from the rod tip, laurel wreath emits a soft gold-green pulse</li>
+        <li>Basic attack — Divine Smite: heavy rod swing leaves a brief jade impact flash on contact, brief serpent hiss glow at hit point, screen-edge green flash when hitting a marked enemy</li>
+        <li>Skill 1 — Pharmakeia Aura: gentle expanding ring of pale mint light from Asclepius's feet, small green runes orbit nearby allies, continuous healing motes flow from rod toward targets in radius</li>
+        <li>Skill 2 — Serpent's Reach: the sacred serpent extends outward from the rod toward the target, green-gold radiance flows along the serpent body, healing light splashes at the target point, serpent retracts and coils back</li>
+        <li>Passive — Unbreakable Constitution: when Asclepius drops to the threshold, golden light erupts from his breastplate emboss, laurel wreath blazes, armor plates emit heat distortion</li>
+        <li>Ultimate — Divine Resurrection: serpent detaches from rod entirely, growing massive (3× scale), orbits the battlefield as a glowing jade-gold entity, green healing beams fire downward to allies, poison cloud erupts on enemy contact, full battlefield light-shift to warm jade tint during duration</li>
+        <li>Revive sub-effect: when an ally is resurrected by the Ultimate, a brilliant white-gold pillar of light erupts from their location, jade serpent coils briefly around them before the ally rises</li>
+        <li>Death: Asclepius kneels, the serpent lifts its head mournfully before dissolving upward in jade light — the rod falls but glows faintly, implying he can never truly die</li>
+      </ul>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Midjourney Prompt — 2D Concept Art</h3>
+      <div class="prompt-box">
+        <p><span class="kw">asclepius god of medicine divine paladin original character</span>, <span class="str">tall broad-shouldered divine healer, long dark curling hair, full dark beard, glowing amber-gold eyes, heavy bronze-green patinated breastplate with Rod of Asclepius serpent emboss glowing jade green at center, white physician chiton robe visible below armor hem, thick bronze greaves, broad pauldrons with serpent head detailing, jade-glowing laurel wreath crown instead of helmet, leather bracers, physician's satchel at hip, tall dark wood rod with living serpent coiled around it raised in right hand</span>, <span class="kw">protective paladin stance shielding a fallen ally</span>, <span class="str">ancient Greek temple of healing setting, warm jade-green divine light radiating from rod and armor emboss, healing motes of pale mint light floating upward around him, living serpent eyes glowing gold on rod, sacred altar with offerings in background, marble columns, divine physician aura</span>, <span class="num">full body character sheet front and side view, white background option, divine epic fantasy concept art style, clean lineart, MOBA paladin hero design, high detail, 4K, --ar 2:1 --style raw --q 2</span></p>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Meshy / Kaedim Prompt — 3D Generation</h3>
+      <div class="prompt-box">
+        <p><span class="kw">divine fantasy MOBA hero, humanoid biped male paladin support tank healer</span>, <span class="str">Greek mythology-inspired Asclepius god of medicine, tall broad-shouldered muscular male, long dark curly hair, full dark beard, glowing amber eyes, heavy bronze-green patinated breastplate with serpent-around-rod emboss at center (Rod of Asclepius motif), white physician chiton robe visible below armor hem and at collar, thick bronze greaves on shins, broad pauldrons with serpent-head shoulder detailing, jade-glowing laurel wreath crown on head (no helmet), leather bracers, small physician's satchel prop at left hip, tall dark wood staff-rod with single serpent coiled around its entire length as separate animated prop — serpent head raised at top of rod, scales with faint jade glow at edges</span>, <span class="kw">T-pose, front-facing neutral pose, full body, centered, clean biped proportions, rod as separate prop mesh with serpent as separate rigged attachment, satchel as hip prop, chiton cloth as separate geometry element, laurel wreath as head geo, clearly separated deformation joints throughout</span>, <span class="str">game-ready for Unity humanoid rig, PBR textures, separate material zones for bronze-green armor, white chiton, dark wood rod, serpent scales (jade glow emission zone), gold emboss, dark leather, skin, dark curly hair, medium-high poly, FBX export</span>, <span class="num">must support animations: protective combat idle staff raised, calm walk, run stride, basic rod smite swing, pharmakeia aura activation (rod plant on ground), serpent reach extend cast (rod extended toward target, serpent extends outward), ultimate serpent release (serpent detaches and grows), revive ally kneel gesture, hit react stagger, death solemn kneel</span></p>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ ABILITIES ══════════ -->
+<div class="section" id="tab-skills">
+  <div class="progression-grid">
+    <div class="progress-card">
+      <h3>Hero Progression — Level 1 → 15</h3>
+      <table class="stat-table">
+        <thead>
+          <tr><th>Attribute</th><th>Level 1</th><th>Level 15</th><th>Growth</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>HP</strong></td><td>4200</td><td>8600</td><td>+314.3 / lvl</td></tr>
+          <tr><td><strong>HP Regen</strong></td><td>16.0</td><td>34.0</td><td>+1.29 / lvl</td></tr>
+          <tr><td><strong>Vitality (resource)</strong></td><td>100</td><td>100</td><td>Fixed pool</td></tr>
+          <tr><td><strong>Vitality Regen</strong></td><td>14 / s</td><td>28 / s</td><td>+1.0 / lvl</td></tr>
+          <tr><td><strong>Heal Power</strong></td><td>210</td><td>520</td><td>+22.1 / lvl</td></tr>
+          <tr><td><strong>Physical Attack</strong></td><td>140</td><td>270</td><td>+9.3 / lvl</td></tr>
+          <tr><td><strong>Physical Defense</strong></td><td>62</td><td>145</td><td>+5.9 / lvl</td></tr>
+          <tr><td><strong>Magic Defense</strong></td><td>40</td><td>98</td><td>+4.1 / lvl</td></tr>
+          <tr><td><strong>Attack Speed</strong></td><td>0.78</td><td>1.00</td><td>+0.016 / lvl</td></tr>
+          <tr><td><strong>Move Speed</strong></td><td>230</td><td>230</td><td class="gold">Fixed — deliberate pace</td></tr>
+          <tr><td><strong>Basic Attack Range</strong></td><td>3.0m</td><td>3.0m</td><td>Fixed (melee rod)</td></tr>
+          <tr><td><strong>Serpent Range</strong></td><td>7.0m</td><td>7.0m</td><td class="heal">Skill 2 heal reach</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="progress-card">
+      <h3>System Proposal</h3>
+      <div class="progress-note">
+        Asclepius is a <strong>Paladin Support Tank</strong> — the highest HP pool in the roster, excellent physical and magic defense, and a unique <strong>Heal Power stat</strong> that scales his healing independently of physical attack. He uses a <strong>Vitality resource</strong> (fixed at 100) that regenerates continuously — representing his divine life force.<br/><br/>
+        He excels at holding the front line while continuously sustaining his team. His damage is secondary; his value is <strong>presence, healing output, and the Ultimate</strong> — a battlefield-defining serpent that can <strong>resurrect a fallen ally</strong> at maximum rank, the most powerful ability in the roster and the reason teams keep Asclepius alive at all costs.
+      </div>
+      <div class="level-row">
+        <span class="level-chip active">Hero: 15 Levels</span>
+        <span class="level-chip">Skill 1: 4 Ranks</span>
+        <span class="level-chip">Skill 2: 4 Ranks</span>
+        <span class="level-chip">Ultimate: 3 Ranks</span>
+        <span class="level-chip heal">Heal Power Stat</span>
+        <span class="level-chip gold">Vitality Resource</span>
+      </div>
+      <div class="code-mini-note">
+        <strong>Heal Power</strong> is a dedicated stat in <code>RuntimeHeroStats</code> that scales healing independently — like magic power for healers. It grows from 210 → 520 over 15 levels. Vitality is a float capped at 100, regenerating per second and spent on abilities. The Ultimate at Rank III can revive a dead ally — handled as a <strong>revival coroutine</strong> that reconstructs the ally's HP to 40% and re-enables their controller.
+      </div>
+    </div>
+  </div>
+
+  <div class="skills-grid">
+
+    <!-- BASIC ATTACK -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk1">B</div>
+        <div class="skill-meta">
+          <div class="skill-name">Basic Attack — Divine Smite</div>
+          <div class="skill-type">Physical · Melee rod strike · Vit regen on hit</div>
+        </div>
+        <span class="heal-badge">REGEN ON HIT</span>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">Asclepius swings the Rod of Asclepius in a heavy overhead arc — a slow but powerful strike that hits all enemies in a short frontal wedge (the rod is wide). Not his primary role but functional: each hit generates <strong>+8 Vitality</strong>, helping him maintain healing uptime during melee engagements. The serpent on the rod hisses and flashes jade on each impact. Enemies struck are briefly <strong>Weakened</strong> (−10% physical attack for 2s), reflecting Asclepius's medical knowledge of pressure points and vulnerabilities. Slow attack speed — he is a physician, not a fighter.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Formula</div><div class="value">ATQ × 1.10</div></div>
+          <div class="skill-stat"><div class="label">Cleave arc</div><div class="value">90° wedge</div></div>
+          <div class="skill-stat heal"><div class="label">Vit on hit</div><div class="value">+8</div></div>
+          <div class="skill-stat"><div class="label">Weaken</div><div class="value">−10% / 2s</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Hero Scale</th><th>Lvl 1</th><th>Lvl 8</th><th>Lvl 15</th></tr></thead>
+          <tbody>
+            <tr><td>Physical Attack</td><td>140</td><td>205</td><td>270</td></tr>
+            <tr><td>Smite damage</td><td>154</td><td>226</td><td>297</td></tr>
+            <tr><td>Heal Power</td><td>210</td><td>365</td><td>520</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SKILL 1 -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk1">1</div>
+        <div class="skill-meta">
+          <div class="skill-name">Pharmakeia Aura — Circle of Medicine</div>
+          <div class="skill-type">Support · Persistent AoE heal · Ally buff · Continuous</div>
+        </div>
+        <span class="heal-badge">HEAL AURA</span>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">Asclepius plants the Rod of Asclepius into the ground and activates a persistent healing field — a circle of sacred medicine radiating outward from the rod. All allies within range receive <strong>continuous HP regeneration</strong> per second scaled by Heal Power. Additionally, allies within the aura gain a <strong>+12% Physical and Magic Defense buff</strong> — the physician's art strengthens the body against harm. The aura lasts for a set duration and costs Vitality per second to sustain, not a flat cast cost — Asclepius can cancel it early by recasting. He can still move and basic attack while the aura is active, but cannot use Skill 2 simultaneously. A true sustained support field that rewards positioning.</div>
+        <div class="skill-stats">
+          <div class="skill-stat heal"><div class="label">Aura radius</div><div class="value">7.0m</div></div>
+          <div class="skill-stat heal"><div class="label">HP / sec</div><div class="value">Scale: HP</div></div>
+          <div class="skill-stat gold"><div class="label">Def. buff</div><div class="value">+12%</div></div>
+          <div class="skill-stat"><div class="label">Vit / sec cost</div><div class="value">8 / s</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead>
+          <tbody>
+            <tr><td>Heal / sec (HP)</td><td class="jade">55</td><td class="jade">75</td><td class="jade">95</td><td class="jade">115</td></tr>
+            <tr><td>Heal Power scaling</td><td>28%</td><td>33%</td><td>38%</td><td>43%</td></tr>
+            <tr><td>Defense buff</td><td>+12%</td><td>+14%</td><td>+16%</td><td>+18%</td></tr>
+            <tr><td>Max duration</td><td>8s</td><td>10s</td><td>12s</td><td>14s</td></tr>
+            <tr><td>Vit cost / sec</td><td>8</td><td>8</td><td>8</td><td>8</td></tr>
+            <tr><td>Cooldown (after end)</td><td>10s</td><td>9s</td><td>8s</td><td>7s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SKILL 2 -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk2">2</div>
+        <div class="skill-meta">
+          <div class="skill-name">Serpent's Reach — Hand of Healing</div>
+          <div class="skill-type">Support · Targeted single-ally heal · Instant · Cleanse debuff</div>
+        </div>
+        <span class="heal-badge">HEAL + CLEANSE</span>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">The sacred serpent extends outward from the Rod of Asclepius toward a single allied target within range — a focused burst of concentrated healing energy delivered directly. The ally receives an immediate flat <strong>HP restoration</strong> burst (scaled by Heal Power) and has <strong>one negative status effect removed</strong> (the oldest active debuff is cleansed — blind, slow, root, poison, etc.). If the target is already at full HP the excess converts to a temporary <strong>HP shield</strong> equal to 30% of the heal value, lasting 4s. The serpent retract animation takes 0.4s — Asclepius is briefly stationary but not locked. The cleanest, most reliable single-target heal in the roster — exactly what a field medic requires.</div>
+        <div class="skill-stats">
+          <div class="skill-stat heal"><div class="label">Reach range</div><div class="value">7.0m</div></div>
+          <div class="skill-stat heal"><div class="label">Heal burst</div><div class="value">Scale: HP</div></div>
+          <div class="skill-stat gold"><div class="label">Cleanse</div><div class="value">1 debuff</div></div>
+          <div class="skill-stat tank"><div class="label">Overflow shield</div><div class="value">30% heal</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead>
+          <tbody>
+            <tr><td>Burst heal (base)</td><td class="jade">320</td><td class="jade">420</td><td class="jade">520</td><td class="jade">620</td></tr>
+            <tr><td>Heal Power scaling</td><td>65%</td><td>72%</td><td>79%</td><td>86%</td></tr>
+            <tr><td>Overflow shield %</td><td>30%</td><td>30%</td><td>30%</td><td>30%</td></tr>
+            <tr><td>Cleanse count</td><td>1</td><td>1</td><td>2</td><td>2</td></tr>
+            <tr><td>Vitality cost</td><td>28</td><td>28</td><td>28</td><td>28</td></tr>
+            <tr><td>Cooldown</td><td>8s</td><td>7s</td><td>6s</td><td>5s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PASSIVE -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key skp">P</div>
+        <div class="skill-meta">
+          <div class="skill-name">Passive — Unbreakable Constitution</div>
+          <div class="skill-type">Passive · Last stand · Self-heal surge · Damage reduction at low HP</div>
+        </div>
+        <span class="buff-badge">DIVINE FORTITUDE</span>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">The god of medicine cannot be easily felled — his body is the most resilient testament to his art. Three layered effects: <strong>(1) Iron Body</strong> — Asclepius passively reduces all incoming damage by <strong>8%</strong> at all times, representing his divine constitution. <strong>(2) Crisis Surge</strong> — when Asclepius drops below <strong>30% HP</strong>, he immediately activates a self-healing surge restoring <strong>12% of max HP per second</strong> for 4 seconds (once per 40s cooldown). <strong>(3) Physician's Vigil</strong> — all healing Asclepius provides to allies is increased by <strong>+15%</strong> when he himself is below 50% HP, reflecting the divine paradox: the healer gives more when his own life hangs in the balance.</div>
+        <div class="skill-stats">
+          <div class="skill-stat tank"><div class="label">Dmg reduction</div><div class="value">8%</div></div>
+          <div class="skill-stat heal"><div class="label">Crisis regen</div><div class="value">12% HP/s</div></div>
+          <div class="skill-stat"><div class="label">Crisis trigger</div><div class="value">30% HP</div></div>
+          <div class="skill-stat gold"><div class="label">Vigil heal boost</div><div class="value">+15%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ULTIMATE -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sku">U</div>
+        <div class="skill-meta">
+          <div class="skill-name">Divine Resurrection — The Great Serpent</div>
+          <div class="skill-type">Ultimate · Serpent unleash · AoE heal + poison · Rank III: Revive ally</div>
+        </div>
+      </div>
+      <span class="ult-badge">ULTIMATE</span>
+      <span class="heal-badge">REVIVE at Rank III</span>
+      <div class="skill-body">
+        <div class="skill-desc">Asclepius raises the Rod of Asclepius skyward and the sacred serpent <strong>detaches from the rod entirely</strong>, growing to enormous size and becoming an autonomous flying entity for the duration. The Great Serpent orbits the battlefield, performing two simultaneous functions: <strong>Healing Passes</strong> — every ally it flies over receives a burst of HP restoration scaled by Heal Power; <strong>Venom Strikes</strong> — every enemy it contacts receives magic damage and a stacking <strong>Poison DoT</strong>. At <strong>Rank III</strong>, Asclepius's mastery over life and death reaches its zenith: if any ally has died in the past <strong>6 seconds</strong>, the Great Serpent will fly to their fallen body and perform a divine <strong>Resurrection</strong>, restoring them to 40% HP. This is the most impactful single ability in any team's roster — the reason Asclepius must be protected at all costs.</div>
+        <div class="skill-stats">
+          <div class="skill-stat heal"><div class="label">Serpent duration</div><div class="value">8s</div></div>
+          <div class="skill-stat heal"><div class="label">Ally heal / pass</div><div class="value">Scale: HP</div></div>
+          <div class="skill-stat"><div class="label">Enemy poison</div><div class="value">4s DoT</div></div>
+          <div class="skill-stat gold"><div class="label">Rank III</div><div class="value">REVIVE</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th></tr></thead>
+          <tbody>
+            <tr><td>Serpent duration</td><td>8s</td><td>10s</td><td>12s</td></tr>
+            <tr><td>Heal / ally pass (base)</td><td class="jade">280</td><td class="jade">380</td><td class="jade">500</td></tr>
+            <tr><td>Heal Power scaling</td><td>55%</td><td>65%</td><td>80%</td></tr>
+            <tr><td>Venom dmg / tick</td><td>60</td><td>80</td><td>105</td></tr>
+            <tr><td>Poison duration</td><td>4s</td><td>4s</td><td>4s</td></tr>
+            <tr><td>Resurrection window</td><td>—</td><td>—</td><td class="gold">6s after death</td></tr>
+            <tr><td>Revival HP %</td><td>—</td><td>—</td><td class="jade">40% max HP</td></tr>
+            <tr><td>Vitality cost</td><td>80</td><td>88</td><td>100</td></tr>
+            <tr><td>Cooldown</td><td>110s</td><td>95s</td><td>80s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="workflow-box">
+    <h3>Recommended Unity Architecture</h3>
+    <div class="workflow-steps">
+      <div class="wstep"><div class="wnum">1</div><span><span style="color:#90e8b0">HeroDefinition.asset</span> <span class="warrow">→</span> Stats level 1→15, Heal Power curve, Vitality regen, passive thresholds, revive window</span></div>
+      <div class="wstep"><div class="wnum">2</div><span><span style="color:#c8a0ff">AsclepiusController</span> <span class="warrow">→</span> Vitality float, aura sustained-cost loop, cleanse system, overflow shield, passive crisis surge, revive coroutine</span></div>
+      <div class="wstep"><div class="wnum">3</div><span><span style="color:#f0d870">AsclepiusCombatVFX</span> <span class="warrow">→</span> Serpent glow binder (_VitPercent), aura ring, reach extend animation, great serpent path + heal beams, revival pillar</span></div>
+      <div class="wstep"><div class="wnum">4</div><span><span style="color:#80d8ff">URP Shaders</span> <span class="warrow">→</span> Armor surface + Vitality glow, serpent scale emission, aura ground ring, great serpent body glow, revival pillar beam</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ C# SCRIPTS ══════════ -->
+<div class="section" id="tab-code">
+  <div class="code-section">
+
+    <!-- HeroDefinition.cs -->
+    <div class="code-file">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> HeroDefinition.cs</div>
+        <button class="copy-btn" onclick="copyCode('code1', this)">Copy</button>
+      </div>
+      <pre id="code1"><span class="cm">// HeroDefinition.cs
+// ScriptableObject — MOBA 15-level hero data.
+// Extended for Asclepius: dedicated Heal Power stat, Vitality resource,
+// passive crisis thresholds, aura sustain cost, revive window + HP percent.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+<span class="kw">using</span> System;
+
+[<span class="cls">CreateAssetMenu</span>(menuName = <span class="str">"Game/Hero Definition"</span>, fileName = <span class="str">"HeroDefinition"</span>)]
+<span class="kw">public class</span> <span class="cls">HeroDefinition</span> : <span class="cls">ScriptableObject</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Identity"</span>)]
+    <span class="kw">public</span> <span class="kw">string</span>   heroId      = <span class="str">"asclepius"</span>;
+    <span class="kw">public</span> <span class="kw">string</span>   displayName = <span class="str">"Asclepius"</span>;
+    <span class="kw">public</span> <span class="cls">HeroRole</span> role        = <span class="cls">HeroRole</span>.Support;
+
+    [<span class="cls">Header</span>(<span class="str">"Core progression — Level 1 to 15"</span>)]
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> maxHp          = <span class="kw">new</span>(<span class="num">4200f</span>, <span class="num">8600f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> hpRegen         = <span class="kw">new</span>(<span class="num">16.0f</span>, <span class="num">34.0f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> vitalityRegen   = <span class="kw">new</span>(<span class="num">14.0f</span>, <span class="num">28.0f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> healPower       = <span class="kw">new</span>(<span class="num">210f</span>,  <span class="num">520f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> physicalAttack  = <span class="kw">new</span>(<span class="num">140f</span>,  <span class="num">270f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> physicalDefense = <span class="kw">new</span>(<span class="num">62f</span>,   <span class="num">145f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> magicDefense    = <span class="kw">new</span>(<span class="num">40f</span>,   <span class="num">98f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> attackSpeed     = <span class="kw">new</span>(<span class="num">0.78f</span>, <span class="num">1.00f</span>);
+
+    [<span class="cls">Header</span>(<span class="str">"Fixed properties"</span>)]
+    <span class="kw">public float</span> moveSpeed         = <span class="num">230f</span>;
+    <span class="kw">public float</span> basicAttackRange  = <span class="num">3.0f</span>;
+    <span class="kw">public float</span> basicAttackAngle  = <span class="num">90f</span>;
+    <span class="kw">public float</span> attackSpeedRatio  = <span class="num">1.0f</span>;
+    <span class="kw">public float</span> maxVitality       = <span class="num">100f</span>;
+    <span class="kw">public float</span> serpentReachRange = <span class="num">7.0f</span>;
+    <span class="kw">public float</span> vitOnBasicHit     = <span class="num">8f</span>;
+    <span class="kw">public float</span> weakenDuration    = <span class="num">2.0f</span>;
+    <span class="kw">public float</span> weakenAmount      = <span class="num">0.10f</span>; <span class="cm">// 10% ATQ reduction</span>
+
+    [<span class="cls">Header</span>(<span class="str">"Passive — Unbreakable Constitution"</span>)]
+    <span class="kw">public float</span> passiveDamageReduction = <span class="num">0.08f</span>; <span class="cm">// 8% always</span>
+    <span class="kw">public float</span> crisisHpThreshold      = <span class="num">0.30f</span>; <span class="cm">// 30% HP triggers surge</span>
+    <span class="kw">public float</span> crisisSurgeHealPerSec  = <span class="num">0.12f</span>; <span class="cm">// 12% max HP / sec</span>
+    <span class="kw">public float</span> crisisSurgeDuration    = <span class="num">4.0f</span>;
+    <span class="kw">public float</span> crisisSurgeCooldown    = <span class="num">40.0f</span>;
+    <span class="kw">public float</span> vigilHpThreshold       = <span class="num">0.50f</span>; <span class="cm">// below 50% HP</span>
+    <span class="kw">public float</span> vigilHealBoost         = <span class="num">0.15f</span>; <span class="cm">// +15% to ally heals</span>
+
+    [<span class="cls">Header</span>(<span class="str">"Ability ranks"</span>)]
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> basicAttack = <span class="kw">new</span>(<span class="str">"Divine Smite"</span>,
+        <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="num">1.10f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> skillOne = <span class="kw">new</span>(<span class="str">"Pharmakeia Aura"</span>,
+        <span class="kw">new</span>[] { <span class="num">55f</span>,  <span class="num">75f</span>,  <span class="num">95f</span>,  <span class="num">115f</span> },  <span class="cm">// base heal / sec</span>
+        <span class="kw">new</span>[] { <span class="num">8f</span>,   <span class="num">8f</span>,   <span class="num">8f</span>,   <span class="num">8f</span>   },  <span class="cm">// vit / sec sustained cost</span>
+        <span class="kw">new</span>[] { <span class="num">10f</span>,  <span class="num">9f</span>,   <span class="num">8f</span>,   <span class="num">7f</span>   }, <span class="num">0.33f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> skillTwo = <span class="kw">new</span>(<span class="str">"Serpent's Reach"</span>,
+        <span class="kw">new</span>[] { <span class="num">320f</span>, <span class="num">420f</span>, <span class="num">520f</span>, <span class="num">620f</span> },
+        <span class="kw">new</span>[] { <span class="num">28f</span>,  <span class="num">28f</span>,  <span class="num">28f</span>,  <span class="num">28f</span>  },
+        <span class="kw">new</span>[] { <span class="num">8f</span>,   <span class="num">7f</span>,   <span class="num">6f</span>,   <span class="num">5f</span>   }, <span class="num">0.72f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> ultimate = <span class="kw">new</span>(<span class="str">"Divine Resurrection"</span>,
+        <span class="kw">new</span>[] { <span class="num">280f</span>, <span class="num">380f</span>, <span class="num">500f</span> },  <span class="cm">// heal per ally pass</span>
+        <span class="kw">new</span>[] { <span class="num">80f</span>,  <span class="num">88f</span>,  <span class="num">100f</span> },
+        <span class="kw">new</span>[] { <span class="num">110f</span>, <span class="num">95f</span>,  <span class="num">80f</span>  }, <span class="num">0f</span>); <span class="cm">// scaling applied via healPower in controller</span>
+
+    [<span class="cls">Header</span>(<span class="str">"Ultimate — Great Serpent"</span>)]
+    <span class="kw">public float</span>[] serpentDurations    = { <span class="num">8f</span>, <span class="num">10f</span>, <span class="num">12f</span> };
+    <span class="kw">public float</span>[] venomDmgPerTick     = { <span class="num">60f</span>, <span class="num">80f</span>, <span class="num">105f</span> };
+    <span class="kw">public float</span>   reviveHpPercent     = <span class="num">0.40f</span>; <span class="cm">// 40% max HP on revive</span>
+    <span class="kw">public float</span>   reviveWindowSeconds = <span class="num">6f</span>;   <span class="cm">// death must be within 6s</span>
+
+    <span class="kw">public</span> <span class="cls">RuntimeHeroStats</span> <span class="fn">CreateRuntime</span>(<span class="kw">int</span> level)
+    {
+        level = <span class="cls">Mathf</span>.Clamp(level, <span class="num">1</span>, <span class="num">15</span>);
+        <span class="kw">return new</span> <span class="cls">RuntimeHeroStats</span>
+        {
+            level           = level,
+            maxHp           = maxHp.<span class="fn">Evaluate</span>(level),
+            hpRegen         = hpRegen.<span class="fn">Evaluate</span>(level),
+            vitalityRegen   = vitalityRegen.<span class="fn">Evaluate</span>(level),
+            healPower       = healPower.<span class="fn">Evaluate</span>(level),
+            physicalAttack  = physicalAttack.<span class="fn">Evaluate</span>(level),
+            physicalDefense = physicalDefense.<span class="fn">Evaluate</span>(level),
+            magicDefense    = magicDefense.<span class="fn">Evaluate</span>(level),
+            attackSpeed     = attackSpeed.<span class="fn">Evaluate</span>(level),
+            moveSpeed       = moveSpeed,
+            basicAttackRange = basicAttackRange,
+            basicAttackAngle = basicAttackAngle,
+            attackSpeedRatio = attackSpeedRatio,
+            maxVitality      = maxVitality
+        };
+    }
+}
+
+<span class="kw">public enum</span> <span class="cls">HeroRole</span> { Tank, Fighter, Assassin, Mage, Marksman, Support, MageAssassin }
+
+[Serializable]
+<span class="kw">public struct</span> <span class="cls">ScaledStat</span>
+{
+    <span class="kw">public float</span> level1, level15;
+    <span class="kw">public</span> <span class="cls">ScaledStat</span>(<span class="kw">float</span> l1, <span class="kw">float</span> l15) { level1 = l1; level15 = l15; }
+    <span class="kw">public float</span> <span class="fn">Evaluate</span>(<span class="kw">int</span> level)
+    {
+        level = <span class="cls">Mathf</span>.Clamp(level, <span class="num">1</span>, <span class="num">15</span>);
+        <span class="kw">return</span> level == <span class="num">1</span> ? level1 : <span class="cls">Mathf</span>.Lerp(level1, level15, (level - <span class="num">1f</span>) / <span class="num">14f</span>);
+    }
+}
+
+[Serializable]
+<span class="kw">public class</span> <span class="cls">AbilityRankData</span>
+{
+    <span class="kw">public string</span>  abilityName;
+    <span class="kw">public float</span>[] baseDamage;   <span class="cm">// doubles as base heal for support abilities</span>
+    <span class="kw">public float</span>[] vitalityCost;
+    <span class="kw">public float</span>[] cooldown;
+    <span class="kw">public float</span>   scalingHealPower;
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span>(<span class="kw">string</span> n, <span class="kw">float</span>[] dmg, <span class="kw">float</span>[] cost, <span class="kw">float</span>[] cd, <span class="kw">float</span> scale)
+    { abilityName = n; baseDamage = dmg; vitalityCost = cost; cooldown = cd; scalingHealPower = scale; }
+
+    <span class="kw">public float</span> <span class="fn">HealAtRank</span>   (<span class="kw">int</span> r, <span class="kw">float</span> hp) => baseDamage  [<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,baseDamage.Length-<span class="num">1</span>)]   + hp * scalingHealPower;
+    <span class="kw">public float</span> <span class="fn">VitCostAtRank</span>(<span class="kw">int</span> r)          => vitalityCost[<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,vitalityCost.Length-<span class="num">1</span>)];
+    <span class="kw">public float</span> <span class="fn">CooldownAtRank</span>(<span class="kw">int</span> r)         => cooldown    [<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,cooldown.Length-<span class="num">1</span>)];
+}
+
+[Serializable]
+<span class="kw">public struct</span> <span class="cls">RuntimeHeroStats</span>
+{
+    <span class="kw">public int</span>   level;
+    <span class="kw">public float</span> maxHp, hpRegen;
+    <span class="kw">public float</span> maxVitality, vitalityRegen;
+    <span class="kw">public float</span> healPower, physicalAttack, physicalDefense, magicDefense;
+    <span class="kw">public float</span> attackSpeed, moveSpeed, basicAttackRange, basicAttackAngle, attackSpeedRatio;
+}</pre>
+    </div>
+
+    <!-- AsclepiusController.cs -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> AsclepiusController.cs</div>
+        <button class="copy-btn" onclick="copyCode('code2', this)">Copy</button>
+      </div>
+      <pre id="code2"><span class="cm">// AsclepiusController.cs
+// Main controller: Vitality resource, Pharmakeia sustained aura (Vit/sec cost),
+// Serpent's Reach single-target heal + cleanse + overflow shield,
+// passive crisis surge + vigil heal boost, damage reduction,
+// Great Serpent ultimate with ally heal passes, venom ticks, and Rank III revive.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+<span class="kw">using</span> <span class="cls">UnityEngine</span>.AI;
+<span class="kw">using</span> System.Collections;
+<span class="kw">using</span> System.Collections.Generic;
+
+[<span class="cls">RequireComponent</span>(<span class="kw">typeof</span>(<span class="cls">NavMeshAgent</span>))]
+<span class="kw">public class</span> <span class="cls">AsclepiusController</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Data"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">HeroDefinition</span> heroDefinition;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">15</span>)] <span class="kw">private int</span> heroLevel = <span class="num">1</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Ability Ranks"</span>)]
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">4</span>)] <span class="kw">private int</span> skillOneRank = <span class="num">1</span>;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">4</span>)] <span class="kw">private int</span> skillTwoRank = <span class="num">1</span>;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">3</span>)] <span class="kw">private int</span> ultimateRank = <span class="num">1</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Scene References"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Animator</span>           animator;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">NavMeshAgent</span>       agent;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">AsclepiusCombatVFX</span> combatVfx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Transform</span>           rodTip;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Transform</span>           serpentHead;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LayerMask</span>           allyMask;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LayerMask</span>           enemyMask;
+
+    [<span class="cls">Header</span>(<span class="str">"Runtime"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">RuntimeHeroStats</span> stats;
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> currentHp;
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> currentVitality;
+    [<span class="cls">SerializeField</span>] <span class="kw">private bool</span>  isDead;
+
+    <span class="kw">private float</span> basicCooldown, skillOneCooldown, skillTwoCooldown, ultimateCooldown;
+    <span class="kw">private float</span> crisisSurgeCooldown;
+    <span class="kw">private bool</span>  crisisSurgeActive;
+    <span class="kw">private bool</span>  auraActive;
+    <span class="kw">private bool</span>  serpentUnleashed;
+    <span class="kw">private</span>       <span class="cls">Coroutine</span> auraCoroutine;
+
+    <span class="cm">// Tracks recently deceased allies for revive (ally Health component → time of death)</span>
+    <span class="kw">private readonly</span> <span class="cls">Dictionary</span>&lt;<span class="cls">AllyHealth</span>, <span class="kw">float</span>&gt; recentDeaths = <span class="kw">new</span>();
+
+    <span class="kw">public float</span> HpPercent       => stats.maxHp       > <span class="num">0f</span> ? currentHp       / stats.maxHp       : <span class="num">0f</span>;
+    <span class="kw">public float</span> VitalityPercent => stats.maxVitality > <span class="num">0f</span> ? currentVitality / stats.maxVitality : <span class="num">0f</span>;
+    <span class="kw">public bool</span>  AuraActive      => auraActive;
+    <span class="kw">public bool</span>  IsDead          => isDead;
+
+    <span class="cm">// Vigil heal boost: +15% when Asclepius is below 50% HP</span>
+    <span class="kw">private float</span> VigilMultiplier => HpPercent < heroDefinition.vigilHpThreshold
+                                      ? <span class="num">1f</span> + heroDefinition.vigilHealBoost : <span class="num">1f</span>;
+
+    <span class="kw">private void</span> <span class="fn">Reset</span>() { agent = <span class="fn">GetComponent</span>&lt;<span class="cls">NavMeshAgent</span>&gt;(); animator = <span class="fn">GetComponentInChildren</span>&lt;<span class="cls">Animator</span>&gt;(); }
+    <span class="kw">private void</span> <span class="fn">Awake</span>() { <span class="kw">if</span> (agent == <span class="kw">null</span>) agent = <span class="fn">GetComponent</span>&lt;<span class="cls">NavMeshAgent</span>&gt;(); <span class="fn">ApplyLevel</span>(heroLevel, <span class="kw">true</span>); }
+
+    <span class="kw">private void</span> <span class="fn">Update</span>()
+    {
+        <span class="kw">if</span> (isDead || heroDefinition == <span class="kw">null</span>) <span class="kw">return</span>;
+        <span class="fn">TickCooldowns</span>();
+        <span class="fn">RegenerateResources</span>();
+        <span class="fn">CheckCrisisPassive</span>();
+        <span class="fn">PruneExpiredDeaths</span>();
+        <span class="fn">UpdateAnimator</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">ApplyLevel</span>(<span class="kw">int</span> newLevel, <span class="kw">bool</span> fullRestore = <span class="kw">false</span>)
+    {
+        heroLevel = <span class="cls">Mathf</span>.Clamp(newLevel, <span class="num">1</span>, <span class="num">15</span>);
+        stats     = heroDefinition.<span class="fn">CreateRuntime</span>(heroLevel);
+        agent.speed = stats.moveSpeed / <span class="num">100f</span>;
+        <span class="kw">if</span> (fullRestore) { currentHp = stats.maxHp; currentVitality = stats.maxVitality; }
+        <span class="kw">else</span> currentHp = <span class="cls">Mathf</span>.Min(currentHp, stats.maxHp);
+    }
+
+    <span class="kw">public void</span> <span class="fn">MoveTo</span>(<span class="cls">Vector3</span> worldPoint)
+    {
+        <span class="kw">if</span> (isDead) <span class="kw">return</span>;
+        agent.isStopped = <span class="kw">false</span>;
+        agent.<span class="fn">SetDestination</span>(worldPoint);
+    }
+
+    <span class="cm">// ── BASIC ATTACK — Divine Smite: AoE wedge + Weaken + Vit regen ───────</span>
+    <span class="kw">public void</span> <span class="fn">BasicAttack</span>()
+    {
+        <span class="kw">if</span> (isDead || basicCooldown > <span class="num">0f</span>) <span class="kw">return</span>;
+        basicCooldown = <span class="num">1f</span> / <span class="cls">Mathf</span>.Max(<span class="num">0.1f</span>, stats.attackSpeed * stats.attackSpeedRatio);
+        <span class="kw">float</span> dmg = stats.physicalAttack * heroDefinition.basicAttack.scalingHealPower;
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"BasicAttack"</span>);
+        combatVfx.<span class="fn">PlaySmite</span>(rodTip.position);
+
+        <span class="kw">bool</span> hitAnything = <span class="kw">false</span>;
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(transform.position, stats.basicAttackRange, enemyMask))
+        {
+            <span class="cls">Vector3</span> toEnemy = (col.transform.position - transform.position).normalized;
+            <span class="kw">if</span> (<span class="cls">Vector3</span>.<span class="fn">Angle</span>(transform.forward, toEnemy) > stats.basicAttackAngle * <span class="num">0.5f</span>) <span class="kw">continue</span>;
+            col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;()?.<span class="fn">ApplyPhysicalDamage</span>(dmg);
+            col.<span class="fn">GetComponent</span>&lt;<span class="cls">StatusEffectReceiver</span>&gt;()?.<span class="fn">ApplyWeaken</span>(heroDefinition.weakenAmount, heroDefinition.weakenDuration);
+            hitAnything = <span class="kw">true</span>;
+        }
+        <span class="kw">if</span> (hitAnything) <span class="fn">GainVitality</span>(heroDefinition.vitOnBasicHit);
+    }
+
+    <span class="cm">// ── SKILL 1 — Pharmakeia Aura: sustained heal field ───────────────────</span>
+    <span class="kw">public void</span> <span class="fn">ToggleAura</span>()
+    {
+        <span class="kw">if</span> (auraActive) { <span class="fn">EndAura</span>(); <span class="kw">return</span>; }
+        <span class="kw">if</span> (isDead || skillOneCooldown > <span class="num">0f</span> || serpentUnleashed) <span class="kw">return</span>; <span class="cm">// cannot run with Sk2 active check if needed</span>
+        auraCoroutine = <span class="fn">StartCoroutine</span>(<span class="fn">AuraRoutine</span>(skillOneRank));
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">AuraRoutine</span>(<span class="kw">int</span> rank)
+    {
+        auraActive = <span class="kw">true</span>;
+        agent.isStopped = <span class="kw">false</span>; <span class="cm">// Asclepius can still move while aura is active</span>
+        <span class="kw">float</span> maxDuration  = <span class="num">6f</span> + rank * <span class="num">2f</span>;
+        <span class="kw">float</span> elapsed      = <span class="num">0f</span>;
+        <span class="kw">float</span> tick         = <span class="num">0f</span>;
+        <span class="kw">float</span> vitCostPerSec = heroDefinition.skillOne.<span class="fn">VitCostAtRank</span>(rank);
+        <span class="kw">float</span> healPerSec   = heroDefinition.skillOne.<span class="fn">HealAtRank</span>(rank, stats.healPower);
+        <span class="kw">float</span> auraRadius   = <span class="num">7.0f</span>;
+        <span class="kw">float</span> defBuff      = <span class="num">0.10f</span> + rank * <span class="num">0.02f</span>;
+
+        animator.<span class="fn">SetBool</span>(<span class="str">"AuraActive"</span>, <span class="kw">true</span>);
+        combatVfx.<span class="fn">StartAura</span>(transform.position, auraRadius);
+
+        <span class="kw">while</span> (auraActive && elapsed < maxDuration)
+        {
+            <span class="cm">// Check Vit drain</span>
+            <span class="kw">if</span> (currentVitality < vitCostPerSec * <span class="cls">Time</span>.deltaTime) { <span class="fn">EndAura</span>(); <span class="kw">yield break</span>; }
+            <span class="fn">SpendVitality</span>(vitCostPerSec * <span class="cls">Time</span>.deltaTime);
+
+            tick    += <span class="cls">Time</span>.deltaTime;
+            elapsed += <span class="cls">Time</span>.deltaTime;
+
+            <span class="cm">// Heal tick every 0.5s, buff application continuous</span>
+            <span class="kw">if</span> (tick >= <span class="num">0.5f</span>)
+            {
+                tick = <span class="num">0f</span>;
+                <span class="kw">float</span> tickHeal = healPerSec * <span class="num">0.5f</span> * VigilMultiplier;
+                <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(transform.position, auraRadius, allyMask))
+                {
+                    <span class="kw">var</span> ally = col.<span class="fn">GetComponent</span>&lt;<span class="cls">AllyHealth</span>&gt;();
+                    <span class="kw">if</span> (ally != <span class="kw">null</span>) ally.<span class="fn">Heal</span>(tickHeal);
+                    col.<span class="fn">GetComponent</span>&lt;<span class="cls">DefenseBuffReceiver</span>&gt;()?.<span class="fn">ApplyDefBuff</span>(defBuff, <span class="num">0.6f</span>); <span class="cm">// refresh every tick</span>
+                }
+                combatVfx.<span class="fn">PulseAura</span>(transform.position, auraRadius);
+            }
+            <span class="kw">yield return null</span>;
+        }
+        <span class="fn">EndAura</span>();
+    }
+
+    <span class="kw">private void</span> <span class="fn">EndAura</span>()
+    {
+        <span class="kw">if</span> (!auraActive) <span class="kw">return</span>;
+        auraActive = <span class="kw">false</span>;
+        <span class="kw">if</span> (auraCoroutine != <span class="kw">null</span>) <span class="fn">StopCoroutine</span>(auraCoroutine);
+        skillOneCooldown = heroDefinition.skillOne.<span class="fn">CooldownAtRank</span>(skillOneRank);
+        animator.<span class="fn">SetBool</span>(<span class="str">"AuraActive"</span>, <span class="kw">false</span>);
+        combatVfx.<span class="fn">StopAura</span>();
+    }
+
+    <span class="cm">// ── SKILL 2 — Serpent's Reach: targeted heal + cleanse + shield ────────</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastSkillTwo</span>(<span class="cls">AllyHealth</span> target)
+    {
+        <span class="kw">if</span> (isDead || skillTwoCooldown > <span class="num">0f</span> || target == <span class="kw">null</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (currentVitality < heroDefinition.skillTwo.<span class="fn">VitCostAtRank</span>(skillTwoRank)) <span class="kw">return false</span>;
+        <span class="kw">if</span> (<span class="cls">Vector3</span>.<span class="fn">Distance</span>(transform.position, target.transform.position) > heroDefinition.serpentReachRange) <span class="kw">return false</span>;
+
+        <span class="fn">SpendVitality</span>(heroDefinition.skillTwo.<span class="fn">VitCostAtRank</span>(skillTwoRank));
+        skillTwoCooldown = heroDefinition.skillTwo.<span class="fn">CooldownAtRank</span>(skillTwoRank);
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"SerpentReach"</span>);
+        <span class="fn">StartCoroutine</span>(<span class="fn">SerpentReachRoutine</span>(target, skillTwoRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">SerpentReachRoutine</span>(<span class="cls">AllyHealth</span> target, <span class="kw">int</span> rank)
+    {
+        combatVfx.<span class="fn">PlaySerpentReach</span>(serpentHead.position, target.transform.position);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.4f</span>); <span class="cm">// serpent extend travel time</span>
+
+        <span class="kw">if</span> (target == <span class="kw">null</span>) <span class="kw">yield break</span>;
+
+        <span class="kw">float</span> rawHeal     = heroDefinition.skillTwo.<span class="fn">HealAtRank</span>(rank, stats.healPower) * VigilMultiplier;
+        <span class="kw">float</span> actualHeal  = target.<span class="fn">Heal</span>(rawHeal);
+        <span class="kw">float</span> overflow    = rawHeal - actualHeal; <span class="cm">// HP already full amount</span>
+
+        <span class="cm">// Cleanse debuffs (1 at rank I-II, 2 at rank III-IV)</span>
+        <span class="kw">int</span> cleanseCount = rank >= <span class="num">3</span> ? <span class="num">2</span> : <span class="num">1</span>;
+        target.<span class="fn">GetComponent</span>&lt;<span class="cls">StatusEffectReceiver</span>&gt;()?.<span class="fn">CleanseDebuffs</span>(cleanseCount);
+
+        <span class="cm">// Overflow → HP shield</span>
+        <span class="kw">if</span> (overflow > <span class="num">0f</span>)
+        {
+            <span class="kw">float</span> shieldAmt = rawHeal * <span class="num">0.30f</span>;
+            target.<span class="fn">GetComponent</span>&lt;<span class="cls">ShieldReceiver</span>&gt;()?.<span class="fn">ApplyShield</span>(shieldAmt, <span class="num">4f</span>);
+            combatVfx.<span class="fn">PlayOverflowShield</span>(target.transform.position, shieldAmt);
+        }
+
+        combatVfx.<span class="fn">PlayHealBurst</span>(target.transform.position, actualHeal);
+    }
+
+    <span class="cm">// ── ULTIMATE — Great Serpent: unleash, heal allies, poison enemies, revive ─</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastUltimate</span>()
+    {
+        <span class="kw">if</span> (isDead || ultimateCooldown > <span class="num">0f</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (currentVitality < heroDefinition.ultimate.<span class="fn">VitCostAtRank</span>(ultimateRank)) <span class="kw">return false</span>;
+
+        <span class="fn">SpendVitality</span>(heroDefinition.ultimate.<span class="fn">VitCostAtRank</span>(ultimateRank));
+        ultimateCooldown = heroDefinition.ultimate.<span class="fn">CooldownAtRank</span>(ultimateRank);
+        <span class="fn">StartCoroutine</span>(<span class="fn">GreatSerpentRoutine</span>(ultimateRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">GreatSerpentRoutine</span>(<span class="kw">int</span> rank)
+    {
+        serpentUnleashed = <span class="kw">true</span>;
+        <span class="fn">EndAura</span>(); <span class="cm">// aura cancelled on serpent release</span>
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"ReleaseSerpent"</span>);
+
+        <span class="kw">float</span> duration   = heroDefinition.serpentDurations[rank - <span class="num">1</span>];
+        <span class="kw">float</span> healPerPass = heroDefinition.ultimate.<span class="fn">HealAtRank</span>(rank, stats.healPower) * VigilMultiplier;
+        <span class="kw">float</span> venomTick  = heroDefinition.venomDmgPerTick[rank - <span class="num">1</span>];
+
+        combatVfx.<span class="fn">StartGreatSerpent</span>(transform.position, duration);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.5f</span>); <span class="cm">// serpent grows and launches</span>
+
+        <span class="kw">float</span> elapsed  = <span class="num">0f</span>;
+        <span class="kw">float</span> orbitTick = <span class="num">0f</span>;
+
+        <span class="kw">while</span> (elapsed < duration)
+        {
+            orbitTick += <span class="cls">Time</span>.deltaTime;
+            <span class="kw">if</span> (orbitTick >= <span class="num">1.2f</span>) <span class="cm">// one orbit pass every 1.2s</span>
+            {
+                orbitTick = <span class="num">0f</span>;
+
+                <span class="cm">// Heal all allies in broad radius</span>
+                <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(transform.position, <span class="num">18f</span>, allyMask))
+                    col.<span class="fn">GetComponent</span>&lt;<span class="cls">AllyHealth</span>&gt;()?.<span class="fn">Heal</span>(healPerPass);
+
+                <span class="cm">// Venom tick on enemies</span>
+                <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(transform.position, <span class="num">15f</span>, enemyMask))
+                {
+                    col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;()?.<span class="fn">ApplyMagicDamage</span>(venomTick);
+                    col.<span class="fn">GetComponent</span>&lt;<span class="cls">StatusEffectReceiver</span>&gt;()?.<span class="fn">ApplyPoison</span>(venomTick * <span class="num">0.4f</span>, <span class="num">4f</span>);
+                }
+
+                combatVfx.<span class="fn">PlaySerpentOrbitPass</span>(transform.position);
+            }
+
+            elapsed += <span class="cls">Time</span>.deltaTime;
+            <span class="kw">yield return null</span>;
+        }
+
+        <span class="cm">// Rank III — check for revivable ally (died within revive window)</span>
+        <span class="kw">if</span> (rank >= <span class="num">3</span>)
+        {
+            <span class="cls">AllyHealth</span> reviveTarget = <span class="fn">FindRevivableAlly</span>();
+            <span class="kw">if</span> (reviveTarget != <span class="kw">null</span>)
+                <span class="fn">StartCoroutine</span>(<span class="fn">ReviveRoutine</span>(reviveTarget));
+        }
+
+        serpentUnleashed = <span class="kw">false</span>;
+        combatVfx.<span class="fn">StopGreatSerpent</span>();
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">ReviveRoutine</span>(<span class="cls">AllyHealth</span> target)
+    {
+        combatVfx.<span class="fn">PlayRevivePillar</span>(target.transform.position);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">1.5f</span>); <span class="cm">// serpent flies to location</span>
+        <span class="kw">float</span> reviveHp = target.MaxHp * heroDefinition.reviveHpPercent;
+        target.<span class="fn">Revive</span>(reviveHp);
+        recentDeaths.<span class="fn">Remove</span>(target);
+    }
+
+    <span class="cm">// Called by ally's Health component when they die — register for potential revive</span>
+    <span class="kw">public void</span> <span class="fn">RegisterAllyDeath</span>(<span class="cls">AllyHealth</span> ally)
+        => recentDeaths[ally] = <span class="cls">Time</span>.time + heroDefinition.reviveWindowSeconds;
+
+    <span class="kw">private</span> <span class="cls">AllyHealth</span> <span class="fn">FindRevivableAlly</span>()
+    {
+        <span class="kw">foreach</span> (<span class="kw">var</span> kv <span class="kw">in</span> recentDeaths)
+            <span class="kw">if</span> (<span class="cls">Time</span>.time <= kv.Value) <span class="kw">return</span> kv.Key;
+        <span class="kw">return null</span>;
+    }
+
+    <span class="kw">private void</span> <span class="fn">PruneExpiredDeaths</span>()
+    {
+        <span class="kw">var</span> expired = <span class="kw">new</span> <span class="cls">List</span>&lt;<span class="cls">AllyHealth</span>&gt;();
+        <span class="kw">foreach</span> (<span class="kw">var</span> kv <span class="kw">in</span> recentDeaths) <span class="kw">if</span> (<span class="cls">Time</span>.time > kv.Value) expired.<span class="fn">Add</span>(kv.Key);
+        <span class="kw">foreach</span> (<span class="kw">var</span> k  <span class="kw">in</span> expired)       recentDeaths.<span class="fn">Remove</span>(k);
+    }
+
+    <span class="cm">// ── DAMAGE RECEPTION — 8% passive reduction always active ─────────────</span>
+    <span class="kw">public void</span> <span class="fn">ReceiveDamage</span>(<span class="kw">float</span> amount)
+    {
+        <span class="kw">if</span> (isDead) <span class="kw">return</span>;
+        <span class="kw">float</span> reduced  = amount * (<span class="num">1f</span> - heroDefinition.passiveDamageReduction);
+        currentHp      = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, currentHp - reduced);
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"Hit"</span>);
+        combatVfx.<span class="fn">UpdateHeroState</span>(HpPercent, VitalityPercent, auraActive, <span class="kw">false</span>);
+        <span class="kw">if</span> (currentHp <= <span class="num">0f</span>) <span class="fn">StartCoroutine</span>(<span class="fn">DeathRoutine</span>());
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">DeathRoutine</span>()
+    {
+        isDead = <span class="kw">true</span>; <span class="fn">EndAura</span>();
+        agent.isStopped = <span class="kw">true</span>;
+        animator.<span class="fn">SetBool</span>(<span class="str">"IsDead"</span>, <span class="kw">true</span>);
+        combatVfx.<span class="fn">PlayDeath</span>(transform.position);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">4f</span>);
+        enabled = <span class="kw">false</span>;
+    }
+
+    <span class="cm">// ── PASSIVE — Crisis Surge self-heal at 30% HP ────────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">CheckCrisisPassive</span>()
+    {
+        <span class="kw">if</span> (crisisSurgeActive || crisisSurgeCooldown > <span class="num">0f</span>) <span class="kw">return</span>;
+        <span class="kw">if</span> (HpPercent < heroDefinition.crisisHpThreshold)
+        {
+            crisisSurgeActive = <span class="kw">true</span>;
+            combatVfx.<span class="fn">PlayCrisisGlow</span>(transform.position);
+            <span class="fn">StartCoroutine</span>(<span class="fn">CrisisSurgeRoutine</span>());
+        }
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">CrisisSurgeRoutine</span>()
+    {
+        <span class="kw">float</span> elapsed = <span class="num">0f</span>;
+        <span class="kw">while</span> (elapsed < heroDefinition.crisisSurgeDuration && !isDead)
+        {
+            <span class="kw">float</span> healTick = stats.maxHp * heroDefinition.crisisSurgeHealPerSec * <span class="cls">Time</span>.deltaTime;
+            currentHp = <span class="cls">Mathf</span>.Min(stats.maxHp, currentHp + healTick);
+            elapsed  += <span class="cls">Time</span>.deltaTime;
+            <span class="kw">yield return null</span>;
+        }
+        crisisSurgeActive   = <span class="kw">false</span>;
+        crisisSurgeCooldown = heroDefinition.crisisSurgeCooldown;
+    }
+
+    <span class="kw">private void</span> <span class="fn">GainVitality</span>(<span class="kw">float</span> a)  => currentVitality = <span class="cls">Mathf</span>.Min(stats.maxVitality, currentVitality + a);
+    <span class="kw">private void</span> <span class="fn">SpendVitality</span>(<span class="kw">float</span> a) => currentVitality = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, currentVitality - a);
+
+    <span class="kw">private void</span> <span class="fn">TickCooldowns</span>()
+    {
+        <span class="kw">float</span> dt = <span class="cls">Time</span>.deltaTime;
+        basicCooldown      = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, basicCooldown      - dt);
+        skillTwoCooldown   = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, skillTwoCooldown   - dt);
+        ultimateCooldown   = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, ultimateCooldown   - dt);
+        crisisSurgeCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, crisisSurgeCooldown - dt);
+        <span class="cm">// skillOneCooldown ticked only when aura ends (it's a toggle, not a timed CD)</span>
+        <span class="kw">if</span> (!auraActive) skillOneCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, skillOneCooldown - dt);
+    }
+
+    <span class="kw">private void</span> <span class="fn">RegenerateResources</span>()
+    {
+        currentHp       = <span class="cls">Mathf</span>.Min(stats.maxHp,       currentHp       + stats.hpRegen      * <span class="cls">Time</span>.deltaTime);
+        currentVitality = <span class="cls">Mathf</span>.Min(stats.maxVitality, currentVitality + stats.vitalityRegen * <span class="cls">Time</span>.deltaTime);
+        combatVfx.<span class="fn">UpdateHeroState</span>(HpPercent, VitalityPercent, auraActive, agent.velocity.sqrMagnitude > <span class="num">0.01f</span>);
+    }
+
+    <span class="kw">private void</span> <span class="fn">UpdateAnimator</span>()
+    {
+        <span class="cls">Vector3</span> vel = agent.velocity; vel.y = <span class="num">0f</span>;
+        animator.<span class="fn">SetFloat</span>(<span class="str">"MoveSpeed"</span>,       vel.magnitude);
+        animator.<span class="fn">SetFloat</span>(<span class="str">"VitalityPercent"</span>, VitalityPercent);
+        animator.<span class="fn">SetBool</span>(<span class="str">"AuraActive"</span>,      auraActive);
+        animator.<span class="fn">SetBool</span>(<span class="str">"CrisisActive"</span>,    crisisSurgeActive);
+        animator.<span class="fn">SetBool</span>(<span class="str">"SerpentOut"</span>,      serpentUnleashed);
+    }
+}
+
+<span class="cm">// ── Support interfaces ────────────────────────────────────────────────────</span>
+<span class="kw">public class</span> <span class="cls">AllyHealth</span> : <span class="cls">MonoBehaviour</span>
+{
+    <span class="kw">public float</span> MaxHp { <span class="kw">get</span>; <span class="kw">private set</span>; } = <span class="num">3000f</span>;
+    <span class="kw">private float</span> hp = <span class="num">3000f</span>;
+    <span class="kw">public float</span>  HpPercent => MaxHp > <span class="num">0f</span> ? hp / MaxHp : <span class="num">0f</span>;
+    <span class="kw">public bool</span>   IsDead    => hp <= <span class="num">0f</span>;
+
+    <span class="cm">/// Returns actual HP healed (may be less than raw if already near full).</span>
+    <span class="kw">public float</span> <span class="fn">Heal</span>(<span class="kw">float</span> amount)
+    {
+        <span class="kw">float</span> prev = hp;
+        hp = <span class="cls">Mathf</span>.Min(MaxHp, hp + amount);
+        <span class="kw">return</span> hp - prev;
+    }
+
+    <span class="kw">public void</span> <span class="fn">Revive</span>(<span class="kw">float</span> reviveHp)
+    {
+        hp = <span class="cls">Mathf</span>.Clamp(reviveHp, <span class="num">1f</span>, MaxHp);
+        <span class="cm">// Re-enable hero controller, animator, agent — called by revive logic</span>
+    }
+}
+
+<span class="kw">public class</span> <span class="cls">ShieldReceiver</span> : <span class="cls">MonoBehaviour</span>
+{
+    <span class="kw">public void</span> <span class="fn">ApplyShield</span>(<span class="kw">float</span> amount, <span class="kw">float</span> duration) { <span class="cm">/* absorb incoming damage for duration */</span> }
+}
+
+<span class="kw">public class</span> <span class="cls">DefenseBuffReceiver</span> : <span class="cls">MonoBehaviour</span>
+{
+    <span class="kw">public void</span> <span class="fn">ApplyDefBuff</span>(<span class="kw">float</span> amount, <span class="kw">float</span> duration) { <span class="cm">/* +amount% to physical and magic defense */</span> }
+}
+
+<span class="kw">public class</span> <span class="cls">StatusEffectReceiver</span> : <span class="cls">MonoBehaviour</span>
+{
+    <span class="kw">public void</span> <span class="fn">CleanseDebuffs</span>(<span class="kw">int</span> count)                         { <span class="cm">/* remove oldest `count` negative effects */</span> }
+    <span class="kw">public void</span> <span class="fn">ApplyWeaken</span>   (<span class="kw">float</span> amount, <span class="kw">float</span> dur)          { <span class="cm">/* reduce physical attack by amount */</span> }
+    <span class="kw">public void</span> <span class="fn">ApplyPoison</span>   (<span class="kw">float</span> dps,    <span class="kw">float</span> dur)          { <span class="cm">/* tick damage over duration */</span> }
+}
+
+<span class="kw">public class</span> <span class="cls">Health</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> hp = <span class="num">1000f</span>;
+    <span class="kw">public void</span> <span class="fn">ApplyPhysicalDamage</span>(<span class="kw">float</span> dmg) => hp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, hp - dmg);
+    <span class="kw">public void</span> <span class="fn">ApplyMagicDamage</span>   (<span class="kw">float</span> dmg) => hp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, hp - dmg);
+}</pre>
+    </div>
+
+    <!-- AsclepiusCombatVFX.cs -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> AsclepiusCombatVFX.cs</div>
+        <button class="copy-btn" onclick="copyCode('code3', this)">Copy</button>
+      </div>
+      <pre id="code3"><span class="cm">// AsclepiusCombatVFX.cs
+// VFX binder: rod serpent glow tied to VitalityPercent, pharmakeia aura ring,
+// serpent reach extend beam, great serpent orbit passes + heal beams + venom,
+// revival pillar of light, crisis glow, death dissolve.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+
+<span class="kw">public class</span> <span class="cls">AsclepiusCombatVFX</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Particle Systems"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> smiteFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> auraAmbientFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> auraPulseFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> healBurstFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> overflowShieldFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> serpentReachFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> greatSerpentFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> serpentHealBeamFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> serpentVenomFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> revivePillarFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> crisisGlowFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> deathDissolveFx;
+
+    [<span class="cls">Header</span>(<span class="str">"Materials using HLSL Shaders"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> armorRenderer;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> rodRenderer;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> serpentRenderer;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> auraGroundRenderer;
+
+    <span class="kw">private static readonly int</span> VitPercent   = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_VitPercent"</span>);
+    <span class="kw">private static readonly int</span> AuraActive   = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_AuraActive"</span>);
+    <span class="kw">private static readonly int</span> CrisisGlow   = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_CrisisGlow"</span>);
+    <span class="kw">private static readonly int</span> HpFade       = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_HpFade"</span>);
+    <span class="kw">private static readonly int</span> Dissolve     = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_Dissolve"</span>);
+    <span class="kw">private static readonly int</span> SerpentGlow  = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_SerpentGlow"</span>);
+    <span class="kw">private static readonly int</span> PulseRadius  = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_Radius"</span>);
+
+    <span class="kw">public void</span> <span class="fn">UpdateHeroState</span>(<span class="kw">float</span> hpPct, <span class="kw">float</span> vitPct, <span class="kw">bool</span> aura, <span class="kw">bool</span> isMoving)
+    {
+        <span class="kw">if</span> (armorRenderer  != <span class="kw">null</span>) { armorRenderer.material.<span class="fn">SetFloat</span>(HpFade, <span class="num">1f</span> - hpPct); armorRenderer.material.<span class="fn">SetFloat</span>(AuraActive, aura ? <span class="num">1f</span> : <span class="num">0f</span>); }
+        <span class="kw">if</span> (rodRenderer    != <span class="kw">null</span>) rodRenderer.material.<span class="fn">SetFloat</span>(VitPercent, vitPct);
+        <span class="kw">if</span> (serpentRenderer != <span class="kw">null</span>) serpentRenderer.material.<span class="fn">SetFloat</span>(SerpentGlow, vitPct);
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlaySmite</span>(<span class="cls">Vector3</span> pos)                        => <span class="fn">PlayAt</span>(smiteFx, pos);
+    <span class="kw">public void</span> <span class="fn">PlayHealBurst</span>(<span class="cls">Vector3</span> pos, <span class="kw">float</span> amount)       => <span class="fn">PlayAt</span>(healBurstFx, pos);
+    <span class="kw">public void</span> <span class="fn">PlayOverflowShield</span>(<span class="cls">Vector3</span> pos, <span class="kw">float</span> amount)  => <span class="fn">PlayAt</span>(overflowShieldFx, pos);
+    <span class="kw">public void</span> <span class="fn">PlayRevivePillar</span>(<span class="cls">Vector3</span> pos)                  => <span class="fn">PlayAt</span>(revivePillarFx, pos);
+    <span class="kw">public void</span> <span class="fn">PlayCrisisGlow</span>(<span class="cls">Vector3</span> pos)                    => <span class="fn">PlayAt</span>(crisisGlowFx, pos);
+    <span class="kw">public void</span> <span class="fn">PlaySerpentOrbitPass</span>(<span class="cls">Vector3</span> center)           => <span class="fn">PlayAt</span>(serpentHealBeamFx, center);
+
+    <span class="kw">public void</span> <span class="fn">StartAura</span>(<span class="cls">Vector3</span> pos, <span class="kw">float</span> radius)
+    {
+        <span class="kw">if</span> (auraAmbientFx != <span class="kw">null</span>) { auraAmbientFx.transform.position = pos; auraAmbientFx.<span class="fn">Play</span>(); }
+        <span class="kw">if</span> (auraGroundRenderer != <span class="kw">null</span>) auraGroundRenderer.material.<span class="fn">SetFloat</span>(PulseRadius, radius);
+        armorRenderer?.material.<span class="fn">SetFloat</span>(AuraActive, <span class="num">1f</span>);
+    }
+
+    <span class="kw">public void</span> <span class="fn">PulseAura</span>(<span class="cls">Vector3</span> pos, <span class="kw">float</span> radius)
+    {
+        <span class="kw">if</span> (auraPulseFx != <span class="kw">null</span>) { auraPulseFx.transform.position = pos; auraPulseFx.<span class="fn">Play</span>(); }
+        auraAmbientFx.transform.position = pos; <span class="cm">// follow Asclepius as he moves</span>
+    }
+
+    <span class="kw">public void</span> <span class="fn">StopAura</span>()
+    {
+        <span class="kw">if</span> (auraAmbientFx != <span class="kw">null</span>) auraAmbientFx.<span class="fn">Stop</span>();
+        armorRenderer?.material.<span class="fn">SetFloat</span>(AuraActive, <span class="num">0f</span>);
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlaySerpentReach</span>(<span class="cls">Vector3</span> origin, <span class="cls">Vector3</span> target)
+    {
+        <span class="kw">if</span> (serpentReachFx == <span class="kw">null</span>) <span class="kw">return</span>;
+        serpentReachFx.transform.position = origin;
+        serpentReachFx.transform.forward  = (target - origin).normalized;
+        serpentReachFx.<span class="fn">Play</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">StartGreatSerpent</span>(<span class="cls">Vector3</span> pos, <span class="kw">float</span> duration)
+    {
+        <span class="kw">if</span> (greatSerpentFx == <span class="kw">null</span>) <span class="kw">return</span>;
+        greatSerpentFx.transform.position = pos;
+        <span class="kw">var</span> main = greatSerpentFx.main; main.duration = duration;
+        greatSerpentFx.<span class="fn">Play</span>();
+        <span class="kw">if</span> (serpentVenomFx != <span class="kw">null</span>) { serpentVenomFx.transform.position = pos; serpentVenomFx.<span class="fn">Play</span>(); }
+    }
+
+    <span class="kw">public void</span> <span class="fn">StopGreatSerpent</span>()
+    {
+        <span class="kw">if</span> (greatSerpentFx  != <span class="kw">null</span>) greatSerpentFx.<span class="fn">Stop</span>();
+        <span class="kw">if</span> (serpentVenomFx  != <span class="kw">null</span>) serpentVenomFx.<span class="fn">Stop</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayDeath</span>(<span class="cls">Vector3</span> pos)
+    {
+        <span class="kw">if</span> (deathDissolveFx != <span class="kw">null</span>) { deathDissolveFx.transform.position = pos; deathDissolveFx.<span class="fn">Play</span>(); }
+        <span class="kw">if</span> (armorRenderer   != <span class="kw">null</span>) armorRenderer.material.<span class="fn">SetFloat</span>(Dissolve, <span class="num">1f</span>);
+        <span class="kw">if</span> (rodRenderer     != <span class="kw">null</span>) rodRenderer.material.<span class="fn">SetFloat</span>(Dissolve,   <span class="num">1f</span>);
+        <span class="kw">if</span> (serpentRenderer != <span class="kw">null</span>) serpentRenderer.material.<span class="fn">SetFloat</span>(Dissolve, <span class="num">0.5f</span>); <span class="cm">// serpent partially lingers</span>
+    }
+
+    <span class="kw">private void</span> <span class="fn">PlayAt</span>(<span class="cls">ParticleSystem</span> ps, <span class="cls">Vector3</span> pos)
+    {
+        <span class="kw">if</span> (ps == <span class="kw">null</span>) <span class="kw">return</span>;
+        ps.transform.position = pos; ps.<span class="fn">Play</span>();
+    }
+}</pre>
+    </div>
+
+    <!-- Meshy Prompt -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">TXT</span> MeshyAI_Prompt_Asclepius.txt</div>
+        <button class="copy-btn" onclick="copyCode('code4', this)">Copy</button>
+      </div>
+      <pre id="code4">MESHY AI PROMPT — ASCLEPIUS UNITY HERO (production version)
+
+Create a production-ready 3D humanoid hero for Unity, full body, clean topology, readable silhouette,
+divine Greek epic stylization. Tall broad-shouldered divine healer male — long dark curly hair, full
+dark beard, calm authoritative bearing, glowing amber-gold eyes. Wearing: heavy bronze-green patinated
+breastplate with raised Rod of Asclepius motif (serpent coiled on rod) embossed at center with faint
+jade emission zone; white physician chiton robe visible at collar and below armor hem; thick bronze
+greaves; broad pauldrons with serpent head detailing at each shoulder cap; leather bracers on
+forearms; small physician's satchel prop at left hip on leather strap; jade-glowing laurel wreath
+crown on head (no helmet — open face). Right hand holds tall dark wood rod (Rod of Asclepius) with
+a single living serpent coiled around it from base to top, serpent head at rod tip facing forward,
+scales with subtle jade glow emission at edges.
+
+Game-ready constraints: standard humanoid biped, tall broad proportions (~195cm), clearly separated
+arms and legs, rod as separate prop mesh with serpent as separate geometry (not fused), serpent mesh
+must support subtle undulation animation via vertex shader / blendshape, satchel as hip prop,
+chiton cloth as separate geometry element, laurel wreath as head geometry, pauldrons as shoulder
+attachment meshes. Clean deformation joints throughout.
+
+PBR textures: separate material zones for bronze-green armor, white chiton, dark leather, skin,
+dark curly hair, dark beard, rod dark wood, serpent scales (jade glow emission zone), gold emboss
+zones on armor, laurel wreath (jade glow emission), bracers, satchel leather.
+
+Animation intent: protective idle rod planted (rod tip on ground, serpent alert), calm deliberate
+walk, run forward lean, basic rod overhead smite (two-handed), pharmakeia aura activation (rod planted
+full slam on ground, energy ring expands from feet), serpent reach (rod extended toward target,
+serpent body extends outward 2m, head reaches), ultimate serpent release (serpent detaches and grows
+3x, launches skyward), revive kneel gesture, hit stumble stagger, death solemn kneel with rod falling.
+
+Export target: Unity humanoid FBX, bind pose friendly, retarget-ready, game animation compatible.</pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ HLSL SHADERS ══════════ -->
+<div class="section" id="tab-shader">
+
+  <!-- Armor Surface Shader -->
+  <div class="code-file">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> AsclepiusArmorSurface.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader1', this)">Copy</button>
+    </div>
+    <pre id="shader1">// AsclepiusArmorSurface.shader
+// Gameplay-aware paladin armor shader.
+// _VitPercent  : 0 = dim, 1 = full jade glow on emboss (ready to heal)
+// _AuraActive  : 0→1 — aura field active, armor pulses healing green
+// _CrisisGlow  : 0→1 — crisis surge triggered, gold burst from breastplate
+// _HpFade      : 0→1 — darkens as HP drops
+// _Dissolve    : death jade dissolve upward
+
+Shader "Asclepius/ArmorSurface"
+{
+    Properties
+    {
+        _BaseMap      ("Base Map", 2D)                    = "white" {}
+        _BaseColor    ("Base Color", Color)                = (0.22, 0.38, 0.26, 1.0)
+        _HealColor    ("Heal / Jade Glow Color", Color)   = (0.25, 0.90, 0.52, 1.0)
+        _CrisisColor  ("Crisis Gold Color", Color)         = (0.95, 0.75, 0.10, 1.0)
+        _VitPercent   ("Vitality %",    Range(0,1))        = 1.0
+        _AuraActive   ("Aura Active",   Range(0,1))        = 0.0
+        _CrisisGlow   ("Crisis Glow",   Range(0,1))        = 0.0
+        _HpFade       ("HP Fade",       Range(0,1))        = 0.0
+        _Dissolve     ("Dissolve",      Range(0,1))        = 0.0
+        _DissolveSoft ("Dissolve Soft", Range(0.001,0.2))  = 0.04
+        _NoiseScale   ("Noise Scale",   Range(1,25))       = 9
+        _PulseSpeed   ("Pulse Speed",   Range(0,8))        = 2.5
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="TransparentCutout" "Queue"="AlphaTest" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _BaseColor;
+                float4 _HealColor;
+                float4 _CrisisColor;
+                float  _VitPercent;
+                float  _AuraActive;
+                float  _CrisisGlow;
+                float  _HpFade;
+                float  _Dissolve;
+                float  _DissolveSoft;
+                float  _NoiseScale;
+                float  _PulseSpeed;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 worldPos : TEXCOORD1; float3 normalWS : TEXCOORD2; };
+
+            float hash21(float2 p) { p = frac(p * float2(127.1, 311.7)); p += dot(p, p + 34.345); return frac(p.x * p.y); }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.worldPos   = pos.positionWS;
+                OUT.normalWS   = normalize(nor.normalWS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Jade dissolve on death (rises upward)
+                float noise = hash21(floor(IN.worldPos.xz * _NoiseScale));
+                float dissolveBias = IN.worldPos.y * 0.06; // rises upward from feet
+                clip(noise - saturate((_Dissolve + dissolveBias) * (1.0 + _DissolveSoft)));
+
+                half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+
+                // Normal-based rim for emission masking
+                float rim = pow(1.0 - saturate(IN.normalWS.y), 2.0);
+
+                // Jade vitality glow — emboss pulses
+                float vitPulse  = (0.5 + 0.5 * sin(_Time.y * _PulseSpeed)) * _VitPercent;
+                // Aura active — soft green ambient across whole armor
+                float auraPulse = (0.4 + 0.6 * sin(_Time.y * _PulseSpeed * 0.7)) * _AuraActive;
+                // Crisis gold burst — brighter, faster
+                float crisisPulse = (0.3 + 0.7 * sin(_Time.y * _PulseSpeed * 2.5)) * _CrisisGlow;
+
+                half3 emission = _HealColor.rgb   * (rim * vitPulse    * 1.8 + auraPulse * 0.6)
+                               + _CrisisColor.rgb * crisisPulse * 2.5;
+
+                return half4(albedo.rgb + emission, albedo.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Serpent Scale Shader -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> SerpentScales.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader2', this)">Copy</button>
+    </div>
+    <pre id="shader2">// SerpentScales.shader
+// Applied to the living serpent mesh coiled on the Rod of Asclepius.
+// _SerpentGlow : 0 = resting dim scales, 1 = fully active bright jade (vit full)
+// _Unleashed   : 0→1 during Great Serpent ultimate — scales blaze gold-white
+// Vertex undulation via sine wave on Y-axis simulates the serpent's living motion.
+// Scale-edge Fresnel gives a defined edge-light that reads clearly in combat.
+
+Shader "Asclepius/SerpentScales"
+{
+    Properties
+    {
+        _BaseMap      ("Scale Texture", 2D)               = "white" {}
+        _ScaleColor   ("Scale Base Color", Color)          = (0.12, 0.28, 0.16, 1.0)
+        _GlowColor    ("Jade Glow Color",  Color)          = (0.25, 0.92, 0.55, 1.0)
+        _UnleashColor ("Unleashed Color",  Color)          = (0.90, 0.90, 0.30, 1.0)
+        _SerpentGlow  ("Serpent Glow",     Range(0,1))     = 0.5
+        _Unleashed    ("Unleashed",        Range(0,1))     = 0.0
+        _Intensity    ("Glow Intensity",   Range(0,10))    = 2.8
+        _FresnelPow   ("Fresnel Power",    Range(1,8))     = 3.0
+        _UndulateSpeed("Undulation Speed", Range(0,8))     = 3.5
+        _UndulateAmp  ("Undulation Amp",   Range(0,0.06))  = 0.018
+        _Dissolve     ("Dissolve",         Range(0,1))     = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _ScaleColor;
+                float4 _GlowColor;
+                float4 _UnleashColor;
+                float  _SerpentGlow;
+                float  _Unleashed;
+                float  _Intensity;
+                float  _FresnelPow;
+                float  _UndulateSpeed;
+                float  _UndulateAmp;
+                float  _Dissolve;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 normalWS : TEXCOORD1; float3 viewDirWS : TEXCOORD2; float3 worldPos : TEXCOORD3; };
+
+            float hash21(float2 p) { p = frac(p * float2(127.1, 311.7)); p += dot(p, p + 34.345); return frac(p.x * p.y); }
+
+            Varyings vert(Attributes IN)
+            {
+                // Living serpent undulation — sine wave along rod axis (Y in object space)
+                float wave = sin(_Time.y * _UndulateSpeed + IN.positionOS.y * 8.0) * _UndulateAmp;
+                float unleashWave = wave * (1.0 + _Unleashed * 4.0); // bigger motion when unleashed
+                float3 displaced = IN.positionOS.xyz;
+                displaced.x += unleashWave;
+                displaced.z += cos(_Time.y * _UndulateSpeed * 0.8 + IN.positionOS.y * 6.0) * _UndulateAmp * 0.6;
+
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(displaced);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.normalWS   = normalize(nor.normalWS);
+                OUT.viewDirWS  = GetWorldSpaceNormalizeViewDir(pos.positionWS);
+                OUT.worldPos   = pos.positionWS;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Jade dissolve (slightly slower than armor)
+                float noise = hash21(floor(IN.worldPos.xz * 10.0));
+                clip(noise - saturate(_Dissolve * 0.9));
+
+                half4 albedo  = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _ScaleColor;
+                float fresnel = pow(1.0 - saturate(dot(IN.normalWS, IN.viewDirWS)), _FresnelPow);
+
+                // Scale-edge glow — brighter as vitality fills
+                float pulse     = 0.55 + 0.45 * sin(_Time.y * <span class="num">3.5</span>);
+                half3 jadeEmit  = _GlowColor.rgb    * _Intensity * _SerpentGlow  * (fresnel * 0.7 + pulse * 0.3);
+                // Unleashed golden overclock
+                half3 unleashE  = _UnleashColor.rgb * _Intensity * _Unleashed * 2.5 * fresnel;
+
+                return half4(albedo.rgb + jadeEmit + unleashE, albedo.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Pharmakeia Aura Ground Ring -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> PharmakeiaAuraRing.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader3', this)">Copy</button>
+    </div>
+    <pre id="shader3">// PharmakeiaAuraRing.shader
+// Ground ring for the Pharmakeia Aura — a gentle healing circle.
+// Unlike damage zones it uses soft concentric rings with a warm jade fill,
+// breathing slowly to signal sustained healing rather than danger.
+// Follows Asclepius as he moves — applied to a disc quad parented to his feet.
+
+Shader "Asclepius/PharmakeiaAuraRing"
+{
+    Properties
+    {
+        _FillColor    ("Fill Color",  Color)         = (0.15, 0.75, 0.40, 0.22)
+        _RingColor    ("Ring Color",  Color)         = (0.30, 0.95, 0.60, 0.80)
+        _RuneColor    ("Rune Color",  Color)         = (0.60, 1.00, 0.78, 0.90)
+        _Radius       ("Radius",      Float)         = 7.0
+        _RingWidth    ("Ring Width",  Range(0.05,1)) = 0.30
+        _BreathSpeed  ("Breath Speed", Range(0,4))   = 1.2
+        _RuneSpeed    ("Rune Rotation", Range(-3,3)) = 0.8
+        _AuraStrength ("Aura Strength", Range(0,1))  = 1.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _FillColor;
+                float4 _RingColor;
+                float4 _RuneColor;
+                float  _Radius;
+                float  _RingWidth;
+                float  _BreathSpeed;
+                float  _RuneSpeed;
+                float  _AuraStrength;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            float2 RotUV(float2 uv, float a)
+            {
+                float s = sin(a); float c = cos(a); uv -= 0.5;
+                return float2(uv.x*c - uv.y*s, uv.x*s + uv.y*c) + 0.5;
+            }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
+                OUT.uv = IN.uv;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float2 centered = IN.uv * 2.0 - 1.0;
+                float dist = length(centered); // 0=center, 1=edge at radius
+
+                // Breathing fill — gentle sine pulse
+                float breath = 0.80 + 0.20 * sin(_Time.y * _BreathSpeed * 6.2831);
+
+                // Soft fill inside ring
+                float fill = smoothstep(1.0, 0.85, dist) * breath;
+
+                // Outer ring edge
+                float ring = smoothstep(1.0, 1.0 - _RingWidth * 0.8, dist)
+                           * (1.0 - smoothstep(1.0 - _RingWidth * 0.8, 1.0 - _RingWidth * 1.4, dist));
+
+                // Rotating rune pattern (simplified — concentric dotted ring)
+                float2 rotUv  = RotUV(IN.uv, _Time.y * _RuneSpeed);
+                float runeAngle = atan2(rotUv.y - 0.5, rotUv.x - 0.5);
+                float rune = pow(0.5 + 0.5 * sin(runeAngle * 12.0), 8.0) * smoothstep(0.90, 0.85, dist) * smoothstep(0.70, 0.80, dist);
+
+                half3 color = _FillColor.rgb   * fill
+                            + _RingColor.rgb   * ring
+                            + _RuneColor.rgb   * rune;
+                float alpha = (_FillColor.a * fill * 0.6 + _RingColor.a * ring + _RuneColor.a * rune * 0.8) * _AuraStrength;
+
+                return half4(color, saturate(alpha));
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Revival Pillar Beam -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> RevivalPillarBeam.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader4', this)">Copy</button>
+    </div>
+    <pre id="shader4">// RevivalPillarBeam.shader
+// The column of divine light that erupts when the Great Serpent resurrects a fallen ally.
+// Applied to a tall vertical cylinder mesh at the revival target's position.
+// Brilliant white-gold center, jade green fringe. Scrolls upward rapidly.
+// _ReviveProgress: 0 = beginning (small, faint), 1 = peak brilliance, fades back to 0.
+
+Shader "Asclepius/RevivalPillarBeam"
+{
+    Properties
+    {
+        _CoreColor    ("Core Color",   Color)           = (1.00, 1.00, 0.96, 1.0)
+        _JadeColor    ("Jade Color",   Color)           = (0.30, 0.95, 0.60, 0.90)
+        _GoldColor    ("Gold Fringe",  Color)           = (0.95, 0.80, 0.20, 0.80)
+        _Intensity    ("Intensity",    Range(0,20))     = 10.0
+        _ReviveProgress("Revive Progress", Range(0,1)) = 0.0
+        _ScrollSpeed  ("Scroll Speed", Range(0,16))    = 7.0
+        _FresnelPow   ("Fresnel Power", Range(1,6))    = 1.8
+        _Dissolve     ("Dissolve (fade out)", Range(0,1)) = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent+15" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha One
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _CoreColor;
+                float4 _JadeColor;
+                float4 _GoldColor;
+                float  _Intensity;
+                float  _ReviveProgress;
+                float  _ScrollSpeed;
+                float  _FresnelPow;
+                float  _Dissolve;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 normalWS : TEXCOORD1; float3 viewDirWS : TEXCOORD2; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = IN.uv;
+                OUT.normalWS   = normalize(nor.normalWS);
+                OUT.viewDirWS  = GetWorldSpaceNormalizeViewDir(pos.positionWS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Upward scroll — energy racing toward the sky
+                float2 uv = IN.uv;
+                uv.y -= _Time.y * _ScrollSpeed * 0.05; // normalized scroll
+
+                // Vertical energy bands scrolling upward
+                float band = frac(uv.y * 6.0 - _Time.y * _ScrollSpeed * 0.12);
+                float energy = smoothstep(0.0, 0.3, band) * (1.0 - smoothstep(0.3, 0.75, band));
+
+                // Radial falloff from pillar center (uv.x = 0.5 = center)
+                float radial = pow(1.0 - abs(IN.uv.x * 2.0 - 1.0), 2.5);
+
+                // Fresnel for edge glow on cylinder
+                float fresnel = pow(1.0 - saturate(dot(IN.normalWS, IN.viewDirWS)), _FresnelPow);
+
+                // Color blend: white core, jade mid, gold at outer fringe
+                half3 color;
+                float fRatio = saturate((1.0 - radial - 0.3) * 3.3);
+                if (fRatio < 0.5)
+                    color = lerp(_CoreColor.rgb, _JadeColor.rgb, fRatio * 2.0);
+                else
+                    color = lerp(_JadeColor.rgb, _GoldColor.rgb, (fRatio - 0.5) * 2.0);
+
+                float peakScale = _ReviveProgress * (1.0 - _Dissolve);
+                float alpha     = (radial * 0.6 + energy * 0.3 + fresnel * 0.5) * peakScale * _CoreColor.a;
+
+                return half4(color * _Intensity, saturate(alpha));
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+</div>
+
+<!-- ══════════ 3D AI TOOLS ══════════ -->
+<div class="section" id="tab-tools">
+  <div class="tools-grid">
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#e0f5e8">🧊</div><div><div class="tool-name">Meshy AI</div><div class="tool-cat">Text/Image → 3D Mesh</div></div></div>
+      <div class="tool-desc">Excellent for Asclepius's broad-shouldered armored humanoid form. The bronze-green armor segmentation and the chiton cloth below are within Meshy's generation strengths. Generate the main character mesh and the Rod of Asclepius as separate props. The serpent mesh should be generated independently for cleaner rigging — use the serpent prompt section from the Meshy prompt in the Scripts tab.</div>
+      <div class="tool-tags"><span class="tool-tag green">FBX Unity-ready</span><span class="tool-tag blue">Auto-rig humanoid</span><span class="tool-tag jade">Serpent prop</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#dbeafe">🎯</div><div><div class="tool-name">Kaedim</div><div class="tool-cat">Concept Art → 3D Game Asset</div></div></div>
+      <div class="tool-desc">The best path for production quality. Kaedim's conversion pipeline handles the complex layering of Asclepius's armor — breastplate emboss, pauldron serpent heads, chiton hem, bracers — and preserves the distinct material zone separation needed for the serpent scale emission shader. Pair with a Midjourney front/side/back concept sheet for best results.</div>
+      <div class="tool-tags"><span class="tool-tag green">Game topology</span><span class="tool-tag blue">2D→3D</span><span class="tool-tag orange">Pro tier</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#ede9fe">🌀</div><div><div class="tool-name">Luma AI — Genie</div><div class="tool-cat">Text → 3D fast</div></div></div>
+      <div class="tool-desc">Best for Asclepius's companion props and environment: the serpent as a standalone mesh (generated separately and then rigged to the rod), the physician's satchel prop, sacred temple environment dressing (healing altar, offering bowls, medicinal herb props), and the Great Serpent flight path geometry for the ultimate VFX system.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free tier</span><span class="tool-tag jade">Serpent mesh</span><span class="tool-tag blue">API</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#ffedd5">🎨</div><div><div class="tool-name">Midjourney + Blender</div><div class="tool-cat">Hybrid studio workflow</div></div></div>
+      <div class="tool-desc">The definitive pipeline. Midjourney generates Asclepius concept art (front/side/aura-active/serpent-unleashed states). Blender handles chiton cloth simulation, the serpent mesh retopology with undulation blendshapes for the vertex shader animation, breastplate emboss emission UV island, laurel wreath geo, and the serpent's bone rig for the reach extension animation.</div>
+      <div class="tool-tags"><span class="tool-tag purple">Best quality</span><span class="tool-tag orange">Artist required</span><span class="tool-tag jade">Serpent rig</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#d1fae5">⚡</div><div><div class="tool-name">Mixamo (Adobe)</div><div class="tool-cat">Auto-rig &amp; Animation</div></div></div>
+      <div class="tool-desc">Strong foundation for Asclepius's animation base: protective idle, deliberate walk, run, hit stagger, death. The broad humanoid proportions retarget cleanly. The aura activation (rod slam), serpent reach (unique arm extension with rod prop), Great Serpent release, and revival kneel are all distinctive enough to require manual Unity Animator custom layers — these define his character.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free with Adobe ID</span><span class="tool-tag blue">Auto-rig</span><span class="tool-tag purple">500+ animations</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#fef3c7">🦴</div><div><div class="tool-name">Spline AI</div><div class="tool-cat">3D interactive &amp; Environment</div></div></div>
+      <div class="tool-desc">Perfect for Asclepius's sacred healing environment: the temple of Epidaurus map environment (marble columns, healing altar, snake pits as arena features), the aura ring ground quad geometry, the revival pillar cylinder mesh, and the Great Serpent orbit path geometry. UI elements like the Vitality bar visualization and the ally health bars above heads can be prototyped quickly here.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free</span><span class="tool-tag blue">Web export</span><span class="tool-tag gold">Temple env</span></div>
+    </div>
+
+  </div>
+
+  <div class="workflow-box">
+    <h3>Recommended Pipeline for Asclepius in Unity</h3>
+    <div class="workflow-steps">
+      <div class="wstep"><div class="wnum">1</div><span><span style="color:#90e8b0">Claude</span> <span class="warrow">→</span> Prompt design + C# Scripts + HLSL Shaders (this package)</span></div>
+      <div class="wstep"><div class="wnum">2</div><span><span style="color:#f0d870">Midjourney</span> <span class="warrow">→</span> Asclepius concept art — front + side + aura active + serpent unleashed — from Design Brief prompt</span></div>
+      <div class="wstep"><div class="wnum">3</div><span><span style="color:#90e8b0">Meshy AI / Kaedim</span> <span class="warrow">→</span> Character mesh from Meshy prompt; rod + serpent + satchel as separate props via Luma AI</span></div>
+      <div class="wstep"><div class="wnum">4</div><span><span style="color:#80d8ff">Blender post-process</span> <span class="warrow">→</span> Serpent undulation blendshapes, chiton cloth sim, emboss emission UV, laurel wreath geo, serpent bone rig</span></div>
+      <div class="wstep"><div class="wnum">5</div><span><span style="color:#c8a0ff">Mixamo</span> <span class="warrow">→</span> Base rig + locomotion animations; Unity Animator custom layers for aura slam, serpent reach, Great Serpent release</span></div>
+      <div class="wstep"><div class="wnum">6</div><span><span style="color:#c8f0d0">Unity</span> <span class="warrow">→</span> FBX Humanoid + AsclepiusController + Animator + 4 Shaders + Ally/Enemy layer setup + Revival system</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function copyCode(id, btn) {
+  const pre = document.getElementById(id);
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyPrompt(btn) {
+  const box = btn.previousElementSibling;
+  navigator.clipboard.writeText(box.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>

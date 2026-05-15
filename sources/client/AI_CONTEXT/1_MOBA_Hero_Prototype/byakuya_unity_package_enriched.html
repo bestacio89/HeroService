@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Byakuya Kuchiki — Unity Package</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --surface2: #f0f2f8;
+    --border: #e2e5f0;
+    --border2: #c8ccde;
+    --text: #1a1b2e;
+    --muted: #5a5c7a;
+    --subtle: #9092b0;
+    --accent: #6366f1;
+    --accent2: #8b5cf6;
+    --pink: #ec4899;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+    --tag-bg: #ede9fe;
+    --tag-text: #5b21b6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .hero-header {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4c1d95 100%);
+    padding: 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .hero-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .hero-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-role { background: rgba(167,139,250,0.25); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.4); }
+  .badge-manga { background: rgba(236,72,153,0.2); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.35); }
+  .badge-unity { background: rgba(99,102,241,0.25); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.4); }
+
+  .hero-name {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    position: relative;
+    line-height: 1.1;
+  }
+
+  .hero-name span { color: #c4b5fd; }
+
+  .hero-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 8px;
+    position: relative;
+  }
+
+  .petal-deco {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.15;
+    font-size: 120px;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* TABS */
+  .tabs-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .tab-btn {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  /* SECTIONS */
+  .section { display: none; padding: 40px 48px; max-width: 1100px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* DESIGN BRIEF */
+  .brief-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .brief-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .brief-card.full { grid-column: 1 / -1; }
+
+  .brief-card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brief-card p { color: var(--muted); line-height: 1.7; font-size: 13px; }
+
+  .color-swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .swatch-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    flex-shrink: 0;
+  }
+
+  .prompt-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 8px;
+  }
+
+  .prompt-box p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #cdd6f4;
+    line-height: 1.8;
+  }
+
+  .prompt-box .kw { color: #cba6f7; }
+  .prompt-box .str { color: #a6e3a1; }
+  .prompt-box .num { color: #fab387; }
+
+  .copy-btn {
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    color: #a5b4fc;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all .15s;
+  }
+
+  .copy-btn:hover { background: rgba(99,102,241,0.25); }
+  .copy-btn.copied { color: #86efac; border-color: rgba(134,239,172,0.4); }
+
+  .stat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .stat-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border: 1px solid #ddd6fe;
+  }
+
+  .detail-list { list-style: none; }
+  .detail-list li {
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .detail-list li:last-child { border-bottom: none; }
+  .detail-list li::before { content: '→'; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+  /* SKILLS CARDS */
+  .skills-grid { display: flex; flex-direction: column; gap: 16px; }
+
+  .skill-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .skill-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-key {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .sk1 { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+  .sk2 { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+  .sku { background: #4c1d95; color: #e9d5ff; border: 1px solid #7c3aed; }
+
+  .skill-meta { flex: 1; }
+  .skill-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .skill-type { font-size: 11px; color: var(--subtle); margin-top: 2px; }
+
+  .ult-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #4c1d95;
+    color: #e9d5ff;
+    letter-spacing: 0.5px;
+  }
+
+  .skill-body { padding: 16px 20px; }
+  .skill-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
+
+  .skill-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .skill-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+  }
+
+  .skill-stat .label { font-size: 10px; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.5px; }
+  .skill-stat .value { font-size: 15px; font-weight: 700; color: var(--accent2); margin-top: 2px; }
+
+  /* CODE BLOCKS */
+  .code-section { margin-top: 0; }
+
+  .code-file {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .code-file-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .file-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .file-lang {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .lang-cs { background: #dbeafe; color: #1d4ed8; }
+  .lang-hlsl { background: #d1fae5; color: #065f46; }
+
+  pre {
+    margin: 0;
+    padding: 20px 24px;
+    overflow-x: auto;
+    background: var(--code-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--code-text);
+  }
+
+  .kw { color: #cba6f7; }
+  .cm { color: #6c7086; font-style: italic; }
+  .str { color: #a6e3a1; }
+  .num { color: #fab387; }
+  .cls { color: #89dceb; }
+  .fn { color: #89b4fa; }
+  .prop { color: #f5c2e7; }
+  .attr { color: #f38ba8; }
+
+  /* TOOLS SECTION */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color .15s, transform .1s;
+  }
+
+  .tool-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .tool-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+
+  .tool-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .tool-name { font-size: 15px; font-weight: 600; }
+  .tool-cat { font-size: 11px; color: var(--subtle); margin-top: 1px; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+  .tool-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tool-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .tool-tag.green { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+  .tool-tag.blue { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .tool-tag.orange { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+  .tool-tag.purple { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+
+  .workflow-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+
+  .workflow-box h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: #a6e3a1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .workflow-steps { display: flex; flex-direction: column; gap: 8px; }
+
+  .wstep {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 12px;
+    color: #cdd6f4;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.6;
+  }
+
+  .wnum {
+    width: 22px;
+    height: 22px;
+    background: rgba(99,102,241,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #a5b4fc;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .warrow { color: #6c7086; margin: 0 4px; }
+
+
+  .progression-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .progress-card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-note {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .stat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .stat-table th,
+  .stat-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .stat-table th {
+    color: var(--subtle);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .stat-table td strong {
+    color: var(--text);
+  }
+
+  .level-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .level-chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .level-chip.active {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-color: #ddd6fe;
+  }
+
+  .rank-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 12px;
+  }
+
+  .rank-table th,
+  .rank-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .rank-table th:first-child,
+  .rank-table td:first-child {
+    text-align: left;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .rank-table th {
+    color: var(--subtle);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .code-mini-note {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 700px) {
+    .hero-header { padding: 24px 20px; }
+    .tabs-bar { padding: 0 12px; }
+    .section { padding: 24px 16px; }
+    .brief-grid { grid-template-columns: 1fr; }
+    .petal-deco { display: none; }
+  }
+</style>
+</head>
+<body>
+<!-- HERO HEADER -->
+<div class="hero-header">
+<div class="hero-badge-row">
+<span class="hero-badge badge-manga">Bleach · 2001–2016</span>
+<span class="hero-badge badge-role">Assassin</span>
+<span class="hero-badge badge-unity">Unity Package</span>
+</div>
+<div class="hero-name">Byakuya <span>Kuchiki</span></div>
+<div class="hero-subtitle">6e Capitaine de la Gotei 13 · Bankai : Senbonzakura Kageyoshi</div>
+<div class="petal-deco">🌸</div>
+</div>
+<!-- TABS -->
+<div class="tabs-bar">
+<button class="tab-btn active" onclick="showTab('design', this)">🎨 Design Brief</button>
+<button class="tab-btn" onclick="showTab('skills', this)">⚔ Compétences</button>
+<button class="tab-btn" onclick="showTab('code', this)">{ } Script C#</button>
+<button class="tab-btn" onclick="showTab('shader', this)">✦ Shader HLSL</button>
+<button class="tab-btn" onclick="showTab('tools', this)">🛠 Outils IA 3D</button>
+</div>
+<!-- ═══════════════════════ DESIGN BRIEF ═══════════════════════ -->
+<div class="section active" id="tab-design">
+<div class="brief-grid">
+<div class="brief-card">
+<h3>Silhouette &amp; Morphologie</h3>
+<p>Homme japonais adulte, 28 ans apparent. Taille élancée (1m80), épaules étroites, posture parfaitement droite et rigide — il ne se courbe jamais. Corps mince mais athlétique, aucune masse musculaire visible. Silhouette en triangle inversé — épaules larges, taille fine.</p>
+</div>
+<div class="brief-card">
+<h3>Visage</h3>
+<p>Traits fins et aristocratiques. Pommettes hautes, mâchoire carrée, regard acéré gris-acier perpétuellement froid. Cheveux noirs de jais, lisses, attachés en queue de cheval basse avec un kenseikan blanc (épingle traditionnelle). Aucune expression — visage de marbre.</p>
+</div>
+<div class="brief-card">
+<h3>Costume — Shihakusho</h3>
+<p>Kimono shinigami noir mat (shihakusho) avec finitions propres. Pardessus de capitaine blanc immaculé avec le symbole du clan Kuchiki brodé en fil argenté dans le dos. Obi (ceinture) noir noué à la perfection. Tissu qui flotte légèrement mais jamais froissé.</p>
+</div>
+<div class="brief-card">
+<h3>Accessoires iconiques</h3>
+<p>Kenseikan blanc dans les cheveux (obligatoire — signe de noblesse). Scarf blanc long (ginpaku kazahana no uzuginu) autour du cou, tombant jusqu'aux genoux — tissu ultra-léger qui flotte en permanence. Zanpakuto (katana) à la ceinture gauche, garde simple argentée.</p>
+</div>
+<div class="brief-card full">
+<h3>Palette de couleurs — Swatches</h3>
+<div class="color-swatch-row">
+<div class="swatch"><div class="swatch-dot" style="background:#0a0a0f"></div> Noir profond — kimono</div>
+<div class="swatch"><div class="swatch-dot" style="background:#f8f8ff;border:1px solid #ddd"></div> Blanc pur — haori</div>
+<div class="swatch"><div class="swatch-dot" style="background:#c0c8d8"></div> Gris acier — yeux</div>
+<div class="swatch"><div class="swatch-dot" style="background:#e8c8d8"></div> Rose pâle — pétales Shikai</div>
+<div class="swatch"><div class="swatch-dot" style="background:#b060a0"></div> Violet-rose — pétales Bankai</div>
+<div class="swatch"><div class="swatch-dot" style="background:#e0d8f0"></div> Lavande — lueur Reiatsu</div>
+<div class="swatch"><div class="swatch-dot" style="background:#d4af70"></div> Or — ornements kenseikan</div>
+</div>
+</div>
+<div class="brief-card full">
+<h3>Effets visuels — VFX Unity Particle System</h3>
+<ul class="detail-list">
+<li>Shikai actif : petits pétales roses flottants en orbite permanente autour du héros (loop ambiant, 50–80 particules)</li>
+<li>Compétence 1 : tourbillon de pétales partant des mains, rayon AoE, chaque pétale = lame tranchante (billboards roses semi-transparents)</li>
+<li>Compétence 2 : flux concentré de pétales blanc-violets en ligne droite vers la cible (cone étroit, vitesse haute)</li>
+<li>Bankai activation : deux lames noires géantes tombent du ciel et se plantent dans le sol → explosion de millions de pétales rose-violet couvrant toute la zone, lumière ambiante violet pâle, brouillard léger</li>
+<li>Idle ambiant : scarf blanc qui flotte avec wind simulation, légère aura de Reiatsu lavande autour des pieds</li>
+</ul>
+</div>
+<div class="brief-card full">
+<h3>Prompt Midjourney — Concept Art 2D</h3>
+<div class="prompt-box">
+<p><span class="kw">byakuya kuchiki original character</span>, <span class="str">tall elegant japanese man, black shinigami kimono, pristine white captain haori with silver clan emblem, long white silk scarf floating in wind, white kenseikan hairpin, black hair low ponytail, sharp cold gray eyes, noble aristocratic face, expressionless</span>, <span class="kw">standing pose sword at hip</span>, <span class="str">sakura petals floating around him, pale pink and violet petal particles, soft lavender reiatsu glow at feet</span>, <span class="num">full body character sheet, front and side view, white background, concept art style, clean lineart, game character design, MOBA hero, high detail, 4K</span>, <span class="str">--ar 2:1 --style raw --q 2</span></p>
+</div>
+<button class="copy-btn" onclick="copyPrompt(this)">Copier le prompt</button>
+</div>
+<div class="brief-card full">
+<h3>Prompt Meshy / Kaedim — Génération 3D</h3>
+<div class="prompt-box">
+<p><span class="kw">stylized anime MOBA hero, standard humanoid biped male swordsman</span>, <span class="str">Byakuya-inspired noble japanese captain, tall slim athletic build, clean readable silhouette, clearly separated arms and legs, black shinigami kimono, pristine white captain haori, long floating white scarf, white kenseikan hair ornament, low black ponytail, katana on left hip, cold aristocratic face, pale sakura petals orbiting around body, lavender reiatsu glow</span>, <span class="kw">T-pose, front-facing neutral pose, full body, centered, symmetric proportions, hands open, fingers separated, feet flat, no merged cloth with legs, no fused accessories, clean joints for shoulders elbows wrists hips knees ankles</span>, <span class="str">game-ready character for Unity humanoid rig, animation-ready topology, textured PBR, clean edge flow, readable costume layers, separate scarf and sword, medium poly, FBX export</span>, <span class="num">needs to support locomotion set: idle, walk, run, strafe, combat stance, basic attack, skill cast 1, skill cast 2, ultimate cast, dash step, short teleport / flash step, hit reaction, death animation, respawn pose</span></p>
+</div>
+<button class="copy-btn" onclick="copyPrompt(this)">Copier le prompt</button>
+</div>
+</div>
+</div>
+<!-- ═══════════════════════ COMPÉTENCES ═══════════════════════ -->
+<div class="section" id="tab-skills">
+<div class="progression-grid">
+<div class="progress-card">
+<h3>Progression du héros — Niveau 1 → 15</h3>
+<table class="stat-table">
+<thead>
+<tr>
+<th>Attribut</th>
+<th>Niveau 1</th>
+<th>Niveau 15</th>
+<th>Croissance</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><strong>HP</strong></td><td>2580</td><td>5270</td><td>+192.1 / niv.</td></tr>
+<tr><td><strong>HP Regen</strong></td><td>7.2</td><td>15.6</td><td>+0.6 / niv.</td></tr>
+<tr><td><strong>Mana</strong></td><td>500</td><td>1900</td><td>+100 / niv.</td></tr>
+<tr><td><strong>Mana Regen</strong></td><td>4.0</td><td>6.8</td><td>+0.2 / niv.</td></tr>
+<tr><td><strong>Attaque physique</strong></td><td>121</td><td>247</td><td>+9 / niv.</td></tr>
+<tr><td><strong>Défense physique</strong></td><td>18</td><td>60</td><td>+3 / niv.</td></tr>
+<tr><td><strong>Défense magique</strong></td><td>15</td><td>50</td><td>+2.5 / niv.</td></tr>
+<tr><td><strong>Vitesse d'attaque</strong></td><td>1.03</td><td>1.31</td><td>+0.02 / niv.</td></tr>
+<tr><td><strong>Vitesse de déplacement</strong></td><td>255</td><td>255</td><td>Fixe</td></tr>
+<tr><td><strong>Portée attaque de base</strong></td><td>3.2m</td><td>3.2m</td><td>Fixe</td></tr>
+</tbody>
+</table>
+</div>
+<div class="progress-card">
+<h3>Proposition de système</h3>
+<div class="progress-note">
+        Je vous propose un fonctionnement <strong>MOBA 15 niveaux</strong> avec <strong>croissance linéaire</strong> des propriétés principales du héros et <strong>rangs de compétences séparés</strong>. Cela garde une lecture proche des fiches de héros type Mobile Legends, tout en restant simple à régler dans Unity via l'Inspector.<br/><br/>
+        La <strong>mana</strong> suit le standard 500 → 1900 avec régénération naturelle, tandis que les dégâts / coûts / cooldowns évoluent selon le <strong>rang de compétence</strong> et non selon le niveau brut du héros.
+      </div>
+<div class="level-row">
+<span class="level-chip active">Héros : 15 niveaux</span>
+<span class="level-chip">Skill 1 : 4 rangs</span>
+<span class="level-chip">Skill 2 : 4 rangs</span>
+<span class="level-chip">Ultime : 3 rangs</span>
+<span class="level-chip">Mana regen auto</span>
+<span class="level-chip">Stats calculées</span>
+</div>
+<div class="code-mini-note">
+        Dans le script, les stats de Byakuya sont maintenant dérivées d'un <strong>bloc de progression</strong> plutôt que codées en dur. Cela facilite la duplication du modèle pour d'autres héros qui auront eux aussi leurs propriétés.
+      </div>
+</div>
+</div>
+<div class="skills-grid">
+<div class="skill-card">
+<div class="skill-header">
+<div class="skill-key sk1">B</div>
+<div class="skill-meta">
+<div class="skill-name">Attaque basique — Estoc de Senbonzakura</div>
+<div class="skill-type">Physique · Courte portée · Instantané</div>
+</div>
+</div>
+<div class="skill-body">
+<div class="skill-desc">Byakuya effectue une frappe rapide au katana. Les dégâts de base évoluent naturellement avec l'Attaque physique du héros. Si Shikai est actif, l'impact ajoute une petite coupe de pétales sur 0.5s.</div>
+<div class="skill-stats">
+<div class="skill-stat"><div class="label">Formule</div><div class="value">ATQ × 1.00</div></div>
+<div class="skill-stat"><div class="label">Portée</div><div class="value">3.2m</div></div>
+<div class="skill-stat"><div class="label">Bonus Shikai</div><div class="value">+18 → +42</div></div>
+<div class="skill-stat"><div class="label">Cooldown</div><div class="value">0s</div></div>
+</div>
+<table class="rank-table">
+<thead>
+<tr><th>Échelle héros</th><th>Niv. 1</th><th>Niv. 8</th><th>Niv. 15</th></tr>
+</thead>
+<tbody>
+<tr><td>ATQ physique</td><td>121</td><td>184</td><td>247</td></tr>
+<tr><td>Bonus pétales Shikai</td><td>18</td><td>30</td><td>42</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="skill-card">
+<div class="skill-header">
+<div class="skill-key sk1">1</div>
+<div class="skill-meta">
+<div class="skill-name">Senbonzakura — Nuée de Lames</div>
+<div class="skill-type">Magique · AoE circulaire · Durée 3s</div>
+</div>
+</div>
+<div class="skill-body">
+<div class="skill-desc">Désintègre la lame en pétales tranchants tourbillonnant autour de Byakuya. Zone mobile de dégâts par tick, pensée pour du zoning agressif avec pression constante tout en laissant le héros se déplacer.</div>
+<div class="skill-stats">
+<div class="skill-stat"><div class="label">Durée</div><div class="value">3s</div></div>
+<div class="skill-stat"><div class="label">Rayon</div><div class="value">4m</div></div>
+<div class="skill-stat"><div class="label">Tick rate</div><div class="value">0.5s</div></div>
+<div class="skill-stat"><div class="label">Scaling</div><div class="value">+35% AP</div></div>
+</div>
+<table class="rank-table">
+<thead>
+<tr><th>Rang</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr>
+</thead>
+<tbody>
+<tr><td>Dégâts / tick</td><td>40</td><td>52</td><td>64</td><td>76</td></tr>
+<tr><td>Coût mana</td><td>55</td><td>60</td><td>65</td><td>70</td></tr>
+<tr><td>Cooldown</td><td>9s</td><td>8.5s</td><td>8s</td><td>7.5s</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="skill-card">
+<div class="skill-header">
+<div class="skill-key sk2">2</div>
+<div class="skill-meta">
+<div class="skill-name">Ikka Senjinka — Flux Concentré</div>
+<div class="skill-type">Magique · Ligne directe · Burst mono-cible</div>
+</div>
+</div>
+<div class="skill-body">
+<div class="skill-desc">Concentre les pétales sur un axe unique pour exécuter un burst en ligne. Le projectile reste lisible visuellement dans Unity, traverse les boucliers standards et gagne un bonus si la compétence 1 est déjà active.</div>
+<div class="skill-stats">
+<div class="skill-stat"><div class="label">Portée</div><div class="value">12m</div></div>
+<div class="skill-stat"><div class="label">Vitesse proj.</div><div class="value">22m/s</div></div>
+<div class="skill-stat"><div class="label">Bonus comp.1</div><div class="value">×1.4</div></div>
+<div class="skill-stat"><div class="label">Type</div><div class="value">Magic Burst</div></div>
+</div>
+<table class="rank-table">
+<thead>
+<tr><th>Rang</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr>
+</thead>
+<tbody>
+<tr><td>Dégâts</td><td>220</td><td>280</td><td>340</td><td>400</td></tr>
+<tr><td>Pénétration</td><td>20%</td><td>25%</td><td>30%</td><td>35%</td></tr>
+<tr><td>Coût mana</td><td>70</td><td>80</td><td>90</td><td>100</td></tr>
+<tr><td>Cooldown</td><td>12s</td><td>11s</td><td>10s</td><td>9s</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="skill-card">
+<div class="skill-header">
+<div class="skill-key sku">U</div>
+<div class="skill-meta">
+<div class="skill-name">Bankai — Senbonzakura Kageyoshi</div>
+<div class="skill-type">Ultime · AoE massive · Contrôle de zone</div>
+</div>
+<span class="ult-badge">ULTIME</span>
+</div>
+<div class="skill-body">
+<div class="skill-desc">Deux lames colossales frappent le sol puis éclatent en tempête de pétales. L'ultime crée une zone de domination, dévie une partie des attaques reçues et transforme Byakuya en menace de teamfight clairement identifiable.</div>
+<div class="skill-stats">
+<div class="skill-stat"><div class="label">Rayon</div><div class="value">18m</div></div>
+<div class="skill-stat"><div class="label">Ticks</div><div class="value">0.5s</div></div>
+<div class="skill-stat"><div class="label">Invulnérabilité</div><div class="value">Partielle</div></div>
+<div class="skill-stat"><div class="label">VFX</div><div class="value">Massif</div></div>
+</div>
+<table class="rank-table">
+<thead>
+<tr><th>Rang</th><th>I</th><th>II</th><th>III</th></tr>
+</thead>
+<tbody>
+<tr><td>Dégâts / sec.</td><td>100</td><td>140</td><td>180</td></tr>
+<tr><td>Durée</td><td>6s</td><td>7s</td><td>8s</td></tr>
+<tr><td>Déviation dégâts</td><td>50%</td><td>60%</td><td>70%</td></tr>
+<tr><td>Coût mana</td><td>120</td><td>150</td><td>180</td></tr>
+<tr><td>Cooldown</td><td>95s</td><td>90s</td><td>80s</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="workflow-box"><h3>Découpage Unity recommandé</h3>
+<div class="workflow-steps">
+<div class="wstep"><div class="wnum">1</div><span><span style="color:#cba6f7">HeroDefinition.asset</span> <span class="warrow">→</span> Stats niveau 1 → 15, mana, régénération, rangs de compétences</span></div>
+<div class="wstep"><div class="wnum">2</div><span><span style="color:#89b4fa">ByakuyaHeroController</span> <span class="warrow">→</span> Mouvement, cast, cooldowns, level up, consommation de mana</span></div>
+<div class="wstep"><div class="wnum">3</div><span><span style="color:#a6e3a1">ByakuyaCombatVFX</span> <span class="warrow">→</span> Liaison avec shaders et effets de téléportation / mort / ultime</span></div>
+<div class="wstep"><div class="wnum">4</div><span><span style="color:#fab387">Shaders URP</span> <span class="warrow">→</span> Pétales, surface héros, trail de téléportation, zone Bankai</span></div>
+</div></div></div>
+<!-- ═══════════════════════ SCRIPT C# ═══════════════════════ -->
+<div class="section" id="tab-code"><div class="code-section"><div class="code-file"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-cs">C#</span>
+        HeroDefinition.cs</div><button class="copy-btn" onclick="copyCode('code1', this)">Copier</button></div><pre id="code1">// HeroDefinition.cs
+// ScriptableObject data-driven pour respecter un modèle MOBA 15 niveaux
+// Chaque héros possède ses propres stats de base, croissance et rangs de compétences.
+
+using UnityEngine;
+using System;
+
+[CreateAssetMenu(menuName = "Game/Hero Definition", fileName = "HeroDefinition")]
+public class HeroDefinition : ScriptableObject
+{
+    [Header("Identity")]
+    public string heroId = "byakuya";
+    public string displayName = "Byakuya Kuchiki";
+    public HeroRole role = HeroRole.MageAssassin;
+
+    [Header("Core progression - Niveau 1 à 15")]
+    public ScaledStat maxHp = new(2580f, 5270f);
+    public ScaledStat hpRegen = new(7.2f, 15.6f);
+    public ScaledStat maxMana = new(500f, 1900f);
+    public ScaledStat manaRegen = new(4.0f, 6.8f);
+    public ScaledStat physicalAttack = new(121f, 247f);
+    public ScaledStat magicPower = new(0f, 0f);
+    public ScaledStat physicalDefense = new(18f, 60f);
+    public ScaledStat magicDefense = new(15f, 50f);
+    public ScaledStat attackSpeed = new(1.03f, 1.31f);
+
+    [Header("Fixed hero properties")]
+    public float moveSpeed = 255f;
+    public float basicAttackRange = 3.2f;
+    public float attackSpeedRatio = 1.0f;
+    public float criticalDamage = 2.0f;
+
+    [Header("Ability ranks")]
+    public AbilityRankData basicAttack = new("Basic", new[] { 75f }, new[] { 0f }, new[] { 0f }, 0f);
+    public AbilityRankData skillOne = new("Senbonzakura Shot", new[] { 110f, 150f, 190f, 230f }, new[] { 45f, 50f, 55f, 60f }, new[] { 8f, 7.5f, 7f, 6.5f }, 0.70f);
+    public AbilityRankData skillTwo = new("Shunpo Blossom", new[] { 90f, 130f, 170f, 210f }, new[] { 60f, 65f, 70f, 75f }, new[] { 13f, 12f, 11f, 10f }, 0.55f);
+    public AbilityRankData ultimate = new("Senkei: Bankai", new[] { 260f, 360f, 460f }, new[] { 120f, 140f, 160f }, new[] { 42f, 36f, 30f }, 1.05f);
+
+    public RuntimeHeroStats CreateRuntime(int level)
+    {
+        level = Mathf.Clamp(level, 1, 15);
+        return new RuntimeHeroStats
+        {
+            level = level,
+            maxHp = maxHp.Evaluate(level),
+            hpRegen = hpRegen.Evaluate(level),
+            maxMana = maxMana.Evaluate(level),
+            manaRegen = manaRegen.Evaluate(level),
+            physicalAttack = physicalAttack.Evaluate(level),
+            magicPower = magicPower.Evaluate(level),
+            physicalDefense = physicalDefense.Evaluate(level),
+            magicDefense = magicDefense.Evaluate(level),
+            attackSpeed = attackSpeed.Evaluate(level),
+            moveSpeed = moveSpeed,
+            basicAttackRange = basicAttackRange,
+            attackSpeedRatio = attackSpeedRatio,
+            criticalDamage = criticalDamage
+        };
+    }
+}
+
+public enum HeroRole
+{
+    Tank,
+    Fighter,
+    Assassin,
+    Mage,
+    Marksman,
+    Support,
+    MageAssassin
+}
+
+[Serializable]
+public struct ScaledStat
+{
+    public float level1;
+    public float level15;
+
+    public ScaledStat(float level1, float level15)
+    {
+        this.level1 = level1;
+        this.level15 = level15;
+    }
+
+    public float Evaluate(int level)
+    {
+        level = Mathf.Clamp(level, 1, 15);
+        if (level == 1) return level1;
+        float t = (level - 1f) / 14f;
+        return Mathf.Lerp(level1, level15, t);
+    }
+}
+
+[Serializable]
+public class AbilityRankData
+{
+    public string abilityName;
+    public float[] baseDamage;
+    public float[] manaCost;
+    public float[] cooldown;
+    public float scalingMagicPower;
+
+    public AbilityRankData(string abilityName, float[] baseDamage, float[] manaCost, float[] cooldown, float scalingMagicPower)
+    {
+        this.abilityName = abilityName;
+        this.baseDamage = baseDamage;
+        this.manaCost = manaCost;
+        this.cooldown = cooldown;
+        this.scalingMagicPower = scalingMagicPower;
+    }
+
+    public float DamageAtRank(int rank, float magicPower)
+        =&gt; baseDamage[Mathf.Clamp(rank - 1, 0, baseDamage.Length - 1)] + magicPower * scalingMagicPower;
+
+    public float ManaAtRank(int rank)
+        =&gt; manaCost[Mathf.Clamp(rank - 1, 0, manaCost.Length - 1)];
+
+    public float CooldownAtRank(int rank)
+        =&gt; cooldown[Mathf.Clamp(rank - 1, 0, cooldown.Length - 1)];
+}
+
+[Serializable]
+public struct RuntimeHeroStats
+{
+    public int level;
+    public float maxHp;
+    public float hpRegen;
+    public float maxMana;
+    public float manaRegen;
+    public float physicalAttack;
+    public float magicPower;
+    public float physicalDefense;
+    public float magicDefense;
+    public float attackSpeed;
+    public float moveSpeed;
+    public float basicAttackRange;
+    public float attackSpeedRatio;
+    public float criticalDamage;
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-cs">C#</span>
+        ByakuyaHeroController.cs</div><button class="copy-btn" onclick="copyCode('code2', this)">Copier</button></div><pre id="code2">// ByakuyaHeroController.cs
+// Contrôleur principal : mouvement, montée en niveau, régénération, cast et liens Animator/VFX.
+// Découpage conseillé Unity :
+// - HeroDefinition.asset pour les données
+// - ByakuyaHeroController sur le prefab du héros
+// - CharacterController ou NavMeshAgent selon votre mode de déplacement
+// - Animator sur le mesh 3D importé depuis Meshy
+
+using UnityEngine;
+using UnityEngine.AI;
+using System.Collections;
+
+[RequireComponent(typeof(NavMeshAgent))]
+public class ByakuyaHeroController : MonoBehaviour
+{
+    [Header("Data")]
+    [SerializeField] private HeroDefinition heroDefinition;
+    [SerializeField, Range(1, 15)] private int heroLevel = 1;
+
+    [Header("Ability Ranks")]
+    [SerializeField, Range(1, 4)] private int skillOneRank = 1;
+    [SerializeField, Range(1, 4)] private int skillTwoRank = 1;
+    [SerializeField, Range(1, 3)] private int ultimateRank = 1;
+
+    [Header("Scene References")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private NavMeshAgent agent;
+    [SerializeField] private ByakuyaCombatVFX combatVfx;
+    [SerializeField] private Transform skillSpawn;
+    [SerializeField] private LayerMask groundMask;
+
+    [Header("Runtime")]
+    [SerializeField] private RuntimeHeroStats stats;
+    [SerializeField] private float currentHp;
+    [SerializeField] private float currentMana;
+    [SerializeField] private bool isDead;
+
+    private float basicCooldown;
+    private float skillOneCooldown;
+    private float skillTwoCooldown;
+    private float ultimateCooldown;
+
+    public RuntimeHeroStats Stats =&gt; stats;
+    public float HpPercent =&gt; stats.maxHp &lt;= 0f ? 0f : currentHp / stats.maxHp;
+    public float ManaPercent =&gt; stats.maxMana &lt;= 0f ? 0f : currentMana / stats.maxMana;
+    public bool IsDead =&gt; isDead;
+
+    private void Reset()
+    {
+        agent = GetComponent&lt;NavMeshAgent&gt;();
+        animator = GetComponentInChildren&lt;Animator&gt;();
+    }
+
+    private void Awake()
+    {
+        if (agent == null) agent = GetComponent&lt;NavMeshAgent&gt;();
+        ApplyLevel(heroLevel, true);
+    }
+
+    private void Update()
+    {
+        if (isDead || heroDefinition == null) return;
+
+        TickCooldowns();
+        RegenerateResources();
+        UpdateAnimator();
+    }
+
+    public void ApplyLevel(int newLevel, bool fullRestore = false)
+    {
+        heroLevel = Mathf.Clamp(newLevel, 1, 15);
+        stats = heroDefinition.CreateRuntime(heroLevel);
+
+        agent.speed = stats.moveSpeed / 100f;
+        if (fullRestore)
+        {
+            currentHp = stats.maxHp;
+            currentMana = stats.maxMana;
+        }
+        else
+        {
+            currentHp = Mathf.Min(currentHp, stats.maxHp);
+            currentMana = Mathf.Min(currentMana, stats.maxMana);
+        }
+    }
+
+    public void MoveTo(Vector3 worldPoint)
+    {
+        if (isDead) return;
+        agent.isStopped = false;
+        agent.SetDestination(worldPoint);
+        animator.SetBool("IsMoving", true);
+    }
+
+    public bool TryCastSkillOne(Transform target)
+    {
+        if (!CanCast(heroDefinition.skillOne, skillOneRank, skillOneCooldown)) return false;
+
+        SpendMana(heroDefinition.skillOne.ManaAtRank(skillOneRank));
+        skillOneCooldown = heroDefinition.skillOne.CooldownAtRank(skillOneRank);
+        agent.isStopped = true;
+        transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
+        animator.SetTrigger("CastSkill01");
+        combatVfx.PlayPetalCast(skillSpawn.position, target.position);
+        return true;
+    }
+
+    public bool TryCastSkillTwo(Vector3 destination)
+    {
+        if (!CanCast(heroDefinition.skillTwo, skillTwoRank, skillTwoCooldown)) return false;
+
+        SpendMana(heroDefinition.skillTwo.ManaAtRank(skillTwoRank));
+        skillTwoCooldown = heroDefinition.skillTwo.CooldownAtRank(skillTwoRank);
+        StartCoroutine(ShunpoRoutine(destination));
+        return true;
+    }
+
+    public bool TryCastUltimate(Vector3 center)
+    {
+        if (!CanCast(heroDefinition.ultimate, ultimateRank, ultimateCooldown)) return false;
+
+        SpendMana(heroDefinition.ultimate.ManaAtRank(ultimateRank));
+        ultimateCooldown = heroDefinition.ultimate.CooldownAtRank(ultimateRank);
+        agent.isStopped = true;
+        animator.SetTrigger("CastUltimate");
+        combatVfx.PlayBankai(center, 5f + ultimateRank * 1.5f);
+        return true;
+    }
+
+    public void BasicAttack(Health target)
+    {
+        if (target == null || basicCooldown &gt; 0f || isDead) return;
+
+        float damage = heroDefinition.basicAttack.DamageAtRank(1, stats.magicPower) + stats.physicalAttack;
+        basicCooldown = 1f / Mathf.Max(0.1f, stats.attackSpeed * stats.attackSpeedRatio);
+        animator.SetTrigger("BasicAttack");
+        target.ApplyPhysicalDamage(damage);
+    }
+
+    public void ReceiveDamage(float amount)
+    {
+        if (isDead) return;
+        currentHp = Mathf.Max(0f, currentHp - amount);
+        animator.SetTrigger("Hit");
+        combatVfx.UpdateHeroState(HpPercent, ManaPercent, false);
+
+        if (currentHp &lt;= 0f)
+        {
+            StartCoroutine(DeathRoutine());
+        }
+    }
+
+    private IEnumerator ShunpoRoutine(Vector3 destination)
+    {
+        agent.isStopped = true;
+        animator.SetTrigger("Teleport");
+        combatVfx.PlayTeleportStart(transform.position);
+        yield return new WaitForSeconds(0.08f);
+        transform.position = destination;
+        combatVfx.PlayTeleportEnd(transform.position);
+        yield return new WaitForSeconds(0.05f);
+        agent.Warp(destination);
+        agent.isStopped = false;
+    }
+
+    private IEnumerator DeathRoutine()
+    {
+        isDead = true;
+        agent.isStopped = true;
+        animator.SetBool("IsDead", true);
+        combatVfx.PlayDeath(transform.position);
+        yield return new WaitForSeconds(3f);
+        enabled = false;
+    }
+
+    private void TickCooldowns()
+    {
+        basicCooldown = Mathf.Max(0f, basicCooldown - Time.deltaTime);
+        skillOneCooldown = Mathf.Max(0f, skillOneCooldown - Time.deltaTime);
+        skillTwoCooldown = Mathf.Max(0f, skillTwoCooldown - Time.deltaTime);
+        ultimateCooldown = Mathf.Max(0f, ultimateCooldown - Time.deltaTime);
+    }
+
+    private void RegenerateResources()
+    {
+        currentHp = Mathf.Min(stats.maxHp, currentHp + stats.hpRegen * Time.deltaTime);
+        currentMana = Mathf.Min(stats.maxMana, currentMana + stats.manaRegen * Time.deltaTime);
+        combatVfx.UpdateHeroState(HpPercent, ManaPercent, agent.velocity.sqrMagnitude &gt; 0.01f);
+    }
+
+    private void UpdateAnimator()
+    {
+        Vector3 planarVelocity = agent.velocity;
+        planarVelocity.y = 0f;
+        animator.SetFloat("MoveSpeed", planarVelocity.magnitude);
+        animator.SetFloat("AttackSpeed", stats.attackSpeed);
+    }
+
+    private bool CanCast(AbilityRankData ability, int rank, float currentCooldown)
+    {
+        if (heroDefinition == null || isDead || currentCooldown &gt; 0f) return false;
+        return currentMana &gt;= ability.ManaAtRank(rank);
+    }
+
+    private void SpendMana(float amount)
+    {
+        currentMana = Mathf.Max(0f, currentMana - amount);
+    }
+}
+
+public class Health : MonoBehaviour
+{
+    [SerializeField] private float hp = 1000f;
+
+    public void ApplyPhysicalDamage(float damage) =&gt; hp -= damage;
+    public void ApplyMagicDamage(float damage) =&gt; hp -= damage;
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-cs">C#</span>
+        ByakuyaCombatVFX.cs</div><button class="copy-btn" onclick="copyCode('code3', this)">Copier</button></div><pre id="code3">// ByakuyaCombatVFX.cs
+// Binder simple entre gameplay et matériaux/shaders pour déplacement, téléportation, mort et cast.
+// Important : ce script permet de tirer parti des shaders HLSL de l'onglet Shader sans coder la logique VFX dans le contrôleur.
+
+using UnityEngine;
+
+public class ByakuyaCombatVFX : MonoBehaviour
+{
+    [SerializeField] private ParticleSystem petalCast;
+    [SerializeField] private ParticleSystem teleportBurst;
+    [SerializeField] private ParticleSystem deathPetals;
+    [SerializeField] private ParticleSystem bankaiGroundFx;
+
+    [Header("Materials using HLSL shaders")]
+    [SerializeField] private Renderer heroRenderer;
+    [SerializeField] private Renderer teleportTrailRenderer;
+    [SerializeField] private Renderer bankaiGroundRenderer;
+
+    private static readonly int MoveBlend = Shader.PropertyToID("_MoveBlend");
+    private static readonly int HpFade = Shader.PropertyToID("_HpFade");
+    private static readonly int ManaGlow = Shader.PropertyToID("_ManaGlow");
+    private static readonly int Dissolve = Shader.PropertyToID("_Dissolve");
+    private static readonly int Radius = Shader.PropertyToID("_Radius");
+
+    public void UpdateHeroState(float hpPercent, float manaPercent, bool isMoving)
+    {
+        if (heroRenderer != null)
+        {
+            heroRenderer.material.SetFloat(MoveBlend, isMoving ? 1f : 0f);
+            heroRenderer.material.SetFloat(HpFade, 1f - hpPercent);
+            heroRenderer.material.SetFloat(ManaGlow, manaPercent);
+        }
+    }
+
+    public void PlayPetalCast(Vector3 origin, Vector3 target)
+    {
+        if (petalCast == null) return;
+        petalCast.transform.position = origin;
+        petalCast.transform.forward = (target - origin).normalized;
+        petalCast.Play();
+    }
+
+    public void PlayTeleportStart(Vector3 position)
+    {
+        if (teleportBurst != null)
+        {
+            teleportBurst.transform.position = position;
+            teleportBurst.Play();
+        }
+        if (teleportTrailRenderer != null)
+            teleportTrailRenderer.material.SetFloat(Dissolve, 0f);
+    }
+
+    public void PlayTeleportEnd(Vector3 position)
+    {
+        if (teleportBurst != null)
+        {
+            teleportBurst.transform.position = position;
+            teleportBurst.Play();
+        }
+        if (teleportTrailRenderer != null)
+            teleportTrailRenderer.material.SetFloat(Dissolve, 0.35f);
+    }
+
+    public void PlayBankai(Vector3 center, float radius)
+    {
+        if (bankaiGroundFx != null)
+        {
+            bankaiGroundFx.transform.position = center;
+            bankaiGroundFx.Play();
+        }
+        if (bankaiGroundRenderer != null)
+            bankaiGroundRenderer.material.SetFloat(Radius, radius);
+    }
+
+    public void PlayDeath(Vector3 position)
+    {
+        if (deathPetals != null)
+        {
+            deathPetals.transform.position = position;
+            deathPetals.Play();
+        }
+        if (heroRenderer != null)
+            heroRenderer.material.SetFloat(Dissolve, 1f);
+    }
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-cs">TXT</span>
+        MeshyAI_Prompt_Byakuya.txt</div><button class="copy-btn" onclick="copyCode('code4', this)">Copier</button></div><pre id="code4">PROMPT MESHY AI — BYAKUYA UNITY HERO (version production)
+
+Create a production-ready 3D humanoid hero for Unity, full body, clean topology, readable silhouette, anime-realistic stylization, noble Japanese male captain inspired by aristocratic shinigami aesthetics. Slim athletic body, straight posture, calm face, black tied hair, white kenseikan hairpiece, long white scarf, black kimono robe, white captain overcoat, katana at left hip. Strong contrast black / white / silver / pale violet. T-pose, centered, full body visible, no background props, no extra characters.
+
+Game-ready constraints: standard humanoid biped proportions, clearly separated arms and legs, clean hands with five fingers, readable feet, no fused cloth over joints, topology suitable for rigging, deformation-friendly shoulders/elbows/knees/hips, medium poly for real-time Unity, PBR textures, separate material zones for skin / hair / cloth / metal / scarf.
+
+Movement and animation intent: model must support locomotion set for idle, walk, run, strafe, stop, turn-in-place, dodge, short dash, flash-step teleport, hit reaction, knockback, death collapse, respawn pose, basic sword attack, ranged petal cast, ultimate cast with wide arm motion. Cloth and scarf silhouette should remain readable during motion. Katana must remain easy to rig to hand and hip sockets.
+
+VFX integration intent: leave clean readable surfaces for petal particles, teleport trail, dissolve-on-death effect, hand glow on cast, ground ultimate circle. Preserve clear chest, back and shoulder shapes for shader highlights and emission masks. No oversized accessories that clip through arms during locomotion.
+
+Export target: Unity humanoid FBX, bind pose friendly, retarget-ready, game animation compatible.</pre></div></div></div>
+<!-- ═══════════════════════ SHADER HLSL ═══════════════════════ -->
+<div class="section" id="tab-shader"><div class="code-file"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-hlsl">HLSL</span>
+        SenbonzakuraPetals.shader</div><button class="copy-btn" onclick="copyCode('shader1', this)">Copier</button></div><pre id="shader1">// SenbonzakuraPetals.shader
+// URP transparent VFX shader pour projectiles / cast petals.
+// Ajoute wobble, glow mana et fresnel pour un rendu plus utile en gameplay.
+
+Shader "Byakuya/SenbonzakuraPetals"
+{
+    Properties
+    {
+        _MainTex ("Petal Texture", 2D) = "white" {}
+        _PetalColor ("Petal Color", Color) = (0.85, 0.67, 0.92, 0.75)
+        _GlowColor ("Glow Color", Color) = (0.72, 0.44, 0.98, 1.0)
+        _GlowIntensity ("Glow Intensity", Range(0, 6)) = 1.8
+        _FlowSpeed ("Flow Speed", Range(0, 6)) = 2.2
+        _Distortion ("UV Distortion", Range(0, 0.2)) = 0.035
+        _FresnelPower ("Fresnel Power", Range(1, 8)) = 3.2
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                float4 _PetalColor;
+                float4 _GlowColor;
+                float _GlowIntensity;
+                float _FlowSpeed;
+                float _Distortion;
+                float _FresnelPower;
+            CBUFFER_END
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
+                float3 normalOS : NORMAL;
+            };
+
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                float3 normalWS : TEXCOORD1;
+                float3 viewDirWS : TEXCOORD2;
+            };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                VertexNormalInputs nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv = TRANSFORM_TEX(IN.uv, _MainTex);
+                OUT.normalWS = normalize(nor.normalWS);
+                OUT.viewDirWS = GetWorldSpaceNormalizeViewDir(pos.positionWS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float2 flowUv = IN.uv;
+                flowUv.x += sin(_Time.y * _FlowSpeed + IN.uv.y * 12.0) * _Distortion;
+                flowUv.y += cos(_Time.y * _FlowSpeed * 0.7 + IN.uv.x * 10.0) * _Distortion;
+
+                half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, flowUv);
+                float fresnel = pow(1.0 - saturate(dot(normalize(IN.normalWS), normalize(IN.viewDirWS))), _FresnelPower);
+                half3 emission = _GlowColor.rgb * (_GlowIntensity * tex.a + fresnel * 0.65);
+
+                half4 col;
+                col.rgb = tex.rgb * _PetalColor.rgb + emission;
+                col.a = tex.a * _PetalColor.a;
+                return col;
+            }
+            ENDHLSL
+        }
+    }
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-hlsl">HLSL</span>
+        ByakuyaHeroSurface.shader</div><button class="copy-btn" onclick="copyCode('shader2', this)">Copier</button></div><pre id="shader2">// ByakuyaHeroSurface.shader
+// Shader héros gameplay-aware : locomotion, mana glow, hit/damage, dissolve mort.
+// À appliquer au mesh principal du héros Unity pour relier animation + gameplay + VFX.
+
+Shader "Byakuya/HeroSurface"
+{
+    Properties
+    {
+        _BaseMap ("Base Map", 2D) = "white" {}
+        _BaseColor ("Base Color", Color) = (1,1,1,1)
+        _EmissionColor ("Emission Color", Color) = (0.75, 0.7, 1.0, 1)
+        _ManaGlow ("Mana Glow", Range(0,1)) = 1
+        _MoveBlend ("Move Blend", Range(0,1)) = 0
+        _HpFade ("HP Fade", Range(0,1)) = 0
+        _Dissolve ("Dissolve", Range(0,1)) = 0
+        _DissolveSoftness ("Dissolve Softness", Range(0.001,0.2)) = 0.04
+        _NoiseScale ("Noise Scale", Range(1,25)) = 8
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="TransparentCutout" "Queue"="AlphaTest" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _BaseColor;
+                float4 _EmissionColor;
+                float _ManaGlow;
+                float _MoveBlend;
+                float _HpFade;
+                float _Dissolve;
+                float _DissolveSoftness;
+                float _NoiseScale;
+            CBUFFER_END
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                float3 worldPos : TEXCOORD1;
+                float3 normalWS : TEXCOORD2;
+            };
+
+            float hash21(float2 p)
+            {
+                p = frac(p * float2(123.34, 345.45));
+                p += dot(p, p + 34.345);
+                return frac(p.x * p.y);
+            }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                float moveOffset = sin(_Time.y * 9.0 + IN.positionOS.y * 6.0) * 0.003 * _MoveBlend;
+                float3 displaced = IN.positionOS.xyz + IN.normalOS * moveOffset;
+                VertexPositionInputs pos = GetVertexPositionInputs(displaced);
+                VertexNormalInputs nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.worldPos = pos.positionWS;
+                OUT.normalWS = normalize(nor.normalWS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                float noise = hash21(floor(IN.worldPos.xz * _NoiseScale));
+                float dissolveThreshold = saturate(_Dissolve * (1.0 + _DissolveSoftness));
+                clip(noise - dissolveThreshold);
+
+                float rim = pow(1.0 - saturate(IN.normalWS.y), 2.5);
+                float manaPulse = (0.45 + 0.55 * sin(_Time.y * 5.0)) * _ManaGlow;
+                float lowHpPulse = (0.25 + 0.75 * sin(_Time.y * 8.0)) * _HpFade;
+                half3 emission = _EmissionColor.rgb * (rim * manaPulse + lowHpPulse);
+
+                return half4(albedo.rgb + emission, albedo.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-hlsl">HLSL</span>
+        ByakuyaTeleportTrail.shader</div><button class="copy-btn" onclick="copyCode('shader3', this)">Copier</button></div><pre id="shader3">// ByakuyaTeleportTrail.shader
+// Effet destiné aux dashs / flash-step / téléportation / respawn.
+// Utilisable sur un mesh trail, un quad ou une ribbon VFX.
+
+Shader "Byakuya/TeleportTrail"
+{
+    Properties
+    {
+        _MainColor ("Main Color", Color) = (0.85, 0.75, 1.0, 0.85)
+        _EdgeColor ("Edge Color", Color) = (1.0, 1.0, 1.0, 1.0)
+        _ScrollSpeed ("Scroll Speed", Range(0, 8)) = 3.5
+        _Dissolve ("Dissolve", Range(0, 1)) = 0
+        _Intensity ("Intensity", Range(0, 8)) = 2.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha One
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainColor;
+                float4 _EdgeColor;
+                float _ScrollSpeed;
+                float _Dissolve;
+                float _Intensity;
+            CBUFFER_END
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv = IN.uv;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float scan = frac(IN.uv.x - _Time.y * _ScrollSpeed);
+                float band = smoothstep(0.0, 0.2, scan) * (1.0 - smoothstep(0.2, 0.8, scan));
+                float edge = pow(saturate(1.0 - abs(IN.uv.y * 2.0 - 1.0)), 4.0);
+                float alpha = saturate((1.0 - _Dissolve) * (edge + band));
+                half3 color = (_MainColor.rgb * edge + _EdgeColor.rgb * band) * _Intensity;
+                return half4(color, alpha * _MainColor.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-hlsl">HLSL</span>
+        BankaiGround.shader</div><button class="copy-btn" onclick="copyCode('shader4', this)">Copier</button></div><pre id="shader4">// BankaiGround.shader
+// Zone ultime au sol : pulsation circulaire lisible en jeu et facile à régler dans l'Inspector.
+
+Shader "Byakuya/BankaiGroundEffect"
+{
+    Properties
+    {
+        _Color ("Zone Color", Color) = (0.55, 0.2, 0.85, 0.35)
+        _EdgeColor ("Edge Color", Color) = (0.95, 0.8, 1.0, 0.95)
+        _Radius ("Radius", Float) = 8.0
+        _RingWidth ("Ring Width", Range(0.05, 3)) = 0.45
+        _PulseSpeed ("Pulse Speed", Range(0, 5)) = 1.8
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _Color;
+                float4 _EdgeColor;
+                float _Radius;
+                float _RingWidth;
+                float _PulseSpeed;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv = IN.uv * 2.0 - 1.0;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float dist = length(IN.uv) * _Radius;
+                float pulse = 0.92 + 0.08 * sin(_Time.y * _PulseSpeed * 6.2831);
+                float ring = smoothstep(_Radius, _Radius - _RingWidth, dist * pulse);
+                float edge = smoothstep(_Radius, _Radius - (_RingWidth * 0.35), dist * pulse);
+                half3 color = lerp(_EdgeColor.rgb, _Color.rgb, ring);
+                float alpha = saturate(ring * _Color.a + edge * _EdgeColor.a * 0.45);
+                return half4(color, alpha);
+            }
+            ENDHLSL
+        }
+    }
+}</pre></div></div>
+<!-- ═══════════════════════ OUTILS IA 3D ═══════════════════════ -->
+<div class="section" id="tab-tools">
+<div class="tools-grid">
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#dbeafe">🧊</div>
+<div>
+<div class="tool-name">Meshy AI</div>
+<div class="tool-cat">Text/Image → Mesh 3D</div>
+</div>
+</div>
+<div class="tool-desc">Très pertinent pour ce test : génération de personnage 3D texturé, export compatible Unity, auto-rigging pour humanoïdes et bibliothèque d'animations utile pour les cycles de déplacement, cast, hit et death. À privilégier avec un personnage biped clair et une silhouette propre.</div>
+<div class="tool-tags">
+<span class="tool-tag green">FBX Unity-ready</span>
+<span class="tool-tag blue">Auto-rig humanoid</span>
+<span class="tool-tag purple">500+ motions</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#d1fae5">🎯</div>
+<div>
+<div class="tool-name">Kaedim</div>
+<div class="tool-cat">Concept Art → 3D Game Asset</div>
+</div>
+</div>
+<div class="tool-desc">Spécialisé dans la conversion d'illustrations 2D en assets 3D pour les jeux. Idéal si tu as d'abord généré le concept art via Midjourney. Optimise automatiquement la topologie pour le temps réel. Très utilisé en studio indé.</div>
+<div class="tool-tags">
+<span class="tool-tag green">Game topology</span>
+<span class="tool-tag blue">2D→3D</span>
+<span class="tool-tag orange">Pro</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#ede9fe">🌀</div>
+<div>
+<div class="tool-name">Luma AI — Genie</div>
+<div class="tool-cat">Text → 3D rapide</div>
+</div>
+</div>
+<div class="tool-desc">Génération 3D ultra-rapide depuis un prompt texte. Moins précis que Meshy pour les personnages mais excellent pour les props et environnements. API disponible pour intégration dans votre pipeline. Gratuit avec limites.</div>
+<div class="tool-tags">
+<span class="tool-tag green">Gratuit</span>
+<span class="tool-tag blue">API</span>
+<span class="tool-tag purple">Props &amp; Env</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#ffedd5">🎨</div>
+<div>
+<div class="tool-name">Midjourney + Blender</div>
+<div class="tool-cat">Workflow hybride studio</div>
+</div>
+</div>
+<div class="tool-desc">Workflow utilisé par la majorité des studios indés : Midjourney génère le concept art, un artiste ou l'outil Blender Reference Imager reconstruit le mesh 3D par-dessus. Résultat le plus contrôlé et le plus propre pour Unity.</div>
+<div class="tool-tags">
+<span class="tool-tag purple">Best quality</span>
+<span class="tool-tag orange">Artiste requis</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#d1fae5">⚡</div>
+<div>
+<div class="tool-name">Spline AI</div>
+<div class="tool-cat">3D interactif &amp; Web</div>
+</div>
+</div>
+<div class="tool-desc">Génère des objets 3D depuis un prompt, directement exportable. Moins orienté personnage mais très bon pour les UI 3D, les effets de particules statiques et les éléments de décor de MOBA (tours, bases, obstacles).</div>
+<div class="tool-tags">
+<span class="tool-tag green">Gratuit</span>
+<span class="tool-tag blue">Web export</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#fef3c7">🦴</div>
+<div>
+<div class="tool-name">Mixamo (Adobe)</div>
+<div class="tool-cat">Rigging &amp; Animation auto</div>
+</div>
+</div>
+<div class="tool-desc">Une fois ton mesh 3D généré, Mixamo auto-rig le personnage en quelques secondes et applique des centaines d'animations (marche, combat, dash, mort). Export FBX directement compatible Unity. Gratuit avec Adobe ID.</div>
+<div class="tool-tags">
+<span class="tool-tag green">Gratuit</span>
+<span class="tool-tag blue">Auto-rig</span>
+<span class="tool-tag purple">500+ animations</span>
+</div>
+</div>
+</div>
+<div class="workflow-box">
+<h3>Pipeline recommandé pour Byakuya dans Unity</h3>
+<div class="workflow-steps">
+<div class="wstep"><div class="wnum">1</div><span><span style="color:#cba6f7">Claude</span> <span class="warrow">→</span> Prompt design + Script C# + Shader HLSL</span></div>
+<div class="wstep"><div class="wnum">2</div><span><span style="color:#a6e3a1">Midjourney</span> <span class="warrow">→</span> Concept art 2D (front + side view) depuis le prompt Claude</span></div>
+<div class="wstep"><div class="wnum">3</div><span><span style="color:#89b4fa">Meshy AI</span> <span class="warrow">→</span> Génération du mesh 3D + textures PBR + structure humanoïde claire pour rigging</span></div>
+<div class="wstep"><div class="wnum">4</div><span><span style="color:#fab387">Meshy Rigging / Animation</span> <span class="warrow">→</span> Test des motions locomotion, cast, hit, death, teleport / flash step</span></div>
+<div class="wstep"><div class="wnum">5</div><span><span style="color:#f5c2e7">Mixamo</span> <span class="warrow">→</span> Option de secours / nettoyage si une animation est plus propre côté retarget</span></div>
+<div class="wstep"><div class="wnum">6</div><span><span style="color:#cdd6f4">Unity</span> <span class="warrow">→</span> Import FBX Humanoid + Animator Controller + Script C# + Shader/VFX</span></div>
+</div>
+</div>
+</div>
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function copyCode(id, btn) {
+  const pre = document.getElementById(id);
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copié !';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyPrompt(btn) {
+  const box = btn.previousElementSibling;
+  navigator.clipboard.writeText(box.innerText).then(() => {
+    btn.textContent = '✓ Copié !';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copier le prompt'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>

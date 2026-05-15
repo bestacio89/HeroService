@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOBA Manga — Roster & Vote</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --surface2: #f0f1f5;
+    --surface3: #e8eaf0;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.15);
+    --text: #1a1a2e;
+    --muted: #5a5a78;
+    --subtle: #9090aa;
+    --accent: #4a6ef5;
+    --tank: #1a7fe8;
+    --fighter: #e8501a;
+    --assassin: #7c5ce8;
+    --mage: #0faa6a;
+    --support: #2da84a;
+    --marksman: #c89010;
+    --voted: #16a34a;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 24px 32px 0;
+    border-bottom: 1px solid var(--border);
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+
+  .logo span { color: var(--accent); }
+
+  .vote-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .vote-count {
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    padding: 6px 14px;
+    border-radius: 999px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .vote-count span { color: var(--voted); font-weight: 700; }
+
+  .btn-reset {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all .15s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .btn-reset:hover { border-color: #ef4444; color: #ef4444; }
+
+  .btn-results {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: opacity .15s;
+  }
+
+  .btn-results:hover { opacity: 0.85; }
+
+  /* TABS */
+  .cat-tabs {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+  }
+
+  .cat-tab {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all .15s;
+    position: relative;
+  }
+
+  .cat-tab:hover { color: var(--text); }
+
+  .cat-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .cat-tab .tab-votes {
+    display: inline-block;
+    margin-left: 6px;
+    background: var(--voted);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 999px;
+    vertical-align: middle;
+  }
+
+  .cat-tab .tab-votes.hidden { display: none; }
+
+  /* CONTENT */
+  .content {
+    padding: 24px 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .cat-header {
+    margin-bottom: 20px;
+  }
+
+  .cat-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .cat-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* GRID */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 12px;
+  }
+
+  /* HERO CARD — exact format from image */
+  .hero-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color .15s, transform .1s;
+    position: relative;
+  }
+
+  .hero-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-1px);
+  }
+
+  .hero-card.voted {
+    border-color: var(--voted);
+  }
+
+  .voted-ribbon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--voted);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    display: none;
+  }
+
+  .hero-card.voted .voted-ribbon { display: block; }
+
+  /* Card Header */
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .hero-info { flex: 1; }
+
+  .hero-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .hero-origin {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .hero-origin em { font-style: italic; }
+
+  .role-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 4px;
+    margin-top: 5px;
+  }
+
+  /* Card Body */
+  .card-body { padding: 12px 16px 14px; }
+
+  .stats-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .stat-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .basic-atk {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .basic-atk strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Attack rows — exact card format */
+  .atk-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .atk-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .atk-key {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Rajdhani', sans-serif;
+    flex-shrink: 0;
+    border: 1px solid transparent;
+  }
+
+  .atk-body { flex: 1; }
+
+  .atk-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .ult-tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  .atk-desc {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 2px;
+  }
+
+  /* Vote button */
+  .card-footer {
+    padding: 0 16px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .vote-count-card {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .vote-count-card span {
+    color: var(--voted);
+    font-weight: 700;
+  }
+
+  .btn-vote {
+    padding: 7px 20px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all .15s;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .btn-vote:hover {
+    background: var(--surface3);
+    color: var(--text);
+  }
+
+  .btn-vote.active {
+    background: var(--voted);
+    border-color: var(--voted);
+    color: #000;
+    font-weight: 700;
+  }
+
+  /* RESULTS MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 100;
+    overflow-y: auto;
+    padding: 40px 20px;
+  }
+
+  .modal-overlay.show { display: block; }
+
+  .modal {
+    background: #ffffff;
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .modal-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .btn-close {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .result-cat {
+    margin-bottom: 20px;
+  }
+
+  .result-cat-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    font-size: 13px;
+  }
+
+  .result-name {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .result-bar-wrap {
+    width: 120px;
+    height: 6px;
+    background: var(--surface3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .result-bar {
+    height: 100%;
+    background: var(--voted);
+    border-radius: 3px;
+    transition: width .4s;
+  }
+
+  .result-votes {
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 20px;
+    text-align: right;
+  }
+
+  .result-votes.has-votes {
+    color: var(--voted);
+    font-weight: 700;
+  }
+
+  .empty-results {
+    text-align: center;
+    color: var(--muted);
+    padding: 32px;
+    font-size: 14px;
+  }
+
+  /* Color helpers per category */
+  .c-tank { color: var(--tank); }
+  .c-fighter { color: var(--fighter); }
+  .c-assassin { color: var(--assassin); }
+  .c-mage { color: var(--mage); }
+  .c-support { color: var(--support); }
+  .c-marksman { color: var(--marksman); }
+
+  @media (max-width: 600px) {
+    .header { padding: 16px; }
+    .content { padding: 16px; }
+    .hero-grid { grid-template-columns: 1fr; }
+    .header-top { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">MOBA <span>MANGA</span> — Roster</div>
+    <div class="vote-summary">
+      <div class="vote-count">Votes : <span id="total-votes">0</span></div>
+      <button class="btn-reset" onclick="resetVotes()">Réinitialiser</button>
+      <button class="btn-results" onclick="showResults()">Voir les résultats ↗</button>
+    </div>
+  </div>
+  <div class="cat-tabs" id="cat-tabs"></div>
+</div>
+
+<div class="content">
+  <div class="cat-header">
+    <div class="cat-title" id="cat-title"></div>
+    <div class="cat-desc" id="cat-desc"></div>
+  </div>
+  <div class="hero-grid" id="hero-grid"></div>
+</div>
+
+<!-- Results Modal -->
+<div class="modal-overlay" id="modal" onclick="hideResults(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Résultats du vote</div>
+      <button class="btn-close" onclick="hideResults()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const CATS = {
+  tank:     { label:"Tank",     emoji:"🛡", color:"var(--tank)",     desc:"Résistance maximale — initie, protège, encaisse." },
+  fighter:  { label:"Fighter",  emoji:"⚔",  color:"var(--fighter)",  desc:"Corps à corps — dégâts soutenus et robustesse." },
+  assassin: { label:"Assassin", emoji:"🗡", color:"var(--assassin)", desc:"Burst et mobilité — élimine et disparaît." },
+  mage:     { label:"Mage",     emoji:"✦",  color:"var(--mage)",     desc:"Dégâts magiques massifs — fragile mais dévastateur." },
+  support:  { label:"Support",  emoji:"✚",  color:"var(--support)",  desc:"Soin, boucliers, buffs — maintient l'équipe en vie." },
+  marksman: { label:"Marksman", emoji:"◎",  color:"var(--marksman)", desc:"DPS continu à distance — précis et fragile." }
+};
+
+const HEROES = {
+tank: [
+  { id:"wb", name:"Whitebeard", from:"One Piece", why:"Symbole du guerrier intouchable",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●○","Mobilité ●●○○○"],
+    basic:"Coup de Naginata créant une onde de choc à courte portée.",
+    atk:[
+      {k:"1",n:"Tremblements de Terre",u:false,d:"Crée une fissure sismique devant lui qui fait trébucher et étourdit les ennemis sur la ligne."},
+      {k:"2",n:"Muraille du Barbe Blanche",u:false,d:"Absorbe la prochaine attaque en zone et renvoie 50% des dégâts en onde de choc."},
+      {k:"U",n:"Pouvoir du Roi des Mers",u:true,d:"Déclenche un séisme massif — AoE géante, projette tout ennemi dans la zone, brise les boucliers et structures environnantes."}
+    ]},
+  { id:"gojo", name:"Gojo Satoru", from:"Jujutsu Kaisen", why:"Le sorcier le plus fort — phénomène mondial des années 2020",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Projectile d'Infini ralentissant légèrement les cibles.",
+    atk:[
+      {k:"1",n:"Infini",u:false,d:"Bouclier passif réduisant tous les dégâts physiques reçus de 70%. Les projectiles ennemis arrivent au ralenti."},
+      {k:"2",n:"Hollow Purple",u:false,d:"Fusionne Rouge et Bleu : projectile dévastateur en ligne droite qui efface tout sur son passage."},
+      {k:"U",n:"Infinity Vide — Domaine Étendu",u:true,d:"Zone circulaire massive : tous les ennemis à l'intérieur sont paralysés par surcharge de données sensorielles. Chaque frappe est garantie pendant 6s."}
+    ]},
+  { id:"meruem", name:"Meruem", from:"Hunter x Hunter", why:"Le roi des fourmis — puissance absolue, intelligence maximale",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Frappe de queue infligeant des dégâts massifs en mêlée.",
+    atk:[
+      {k:"1",n:"Vol de Nen",u:false,d:"Absorbe une partie du mana d'un ennemi frappé et renforce ses prochaines attaques."},
+      {k:"2",n:"Explosion de Nen Royal",u:false,d:"Onde AoE annulant les compétences actives de tous les ennemis touchés."},
+      {k:"U",n:"Mode Sage",u:true,d:"Régénération constante, dégâts doublés, immunité aux CC pendant 8s. Toute tentative de l'arrêter est annulée."}
+    ]},
+  { id:"escanor", name:"Escanor", from:"Seven Deadly Sins", why:"L'homme le plus fort à midi — concept inoubliable et unique",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●●","Mobilité ●●○○○"],
+    basic:"Coup de hache solaire brûlant légèrement la cible.",
+    atk:[
+      {k:"1",n:"Sunshine Aura",u:false,d:"Stats qui augmentent avec un cycle de 5 min en jeu. Au pic solaire, il est pratiquement intouchable."},
+      {k:"2",n:"Divine Sword Escanor",u:false,d:"Taille verticale géante coupant les buffs ennemis et infligeant un débuff de brûlure durable."},
+      {k:"U",n:"The One — Forme Absolue",u:true,d:"Invincibilité totale 10s, chaque frappe brûle et repousse. Se termine en explosion solaire massive. Escanor perd des HP après."}
+    ]},
+  { id:"madara", name:"Madara Uchiha", from:"Naruto", why:"L'antagoniste ultime de Naruto — Susanoo complet est légendaire",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Shuriken de chakra feu à longue portée.",
+    atk:[
+      {k:"1",n:"Susanoo Partiel",u:false,d:"Déploie un bras de Susanoo gigantesque qui frappe en zone et dévie les projectiles ennemis."},
+      {k:"2",n:"Météore — Tengai Shinsei",u:false,d:"Fait tomber un météore en zone désignée après 1.5s — impact dévastateur, zone massive."},
+      {k:"U",n:"Susanoo Complet — Forme Parfaite",u:true,d:"Madara est enveloppé dans un Susanoo géant 10s : immunité aux CC, chaque frappe est une onde de choc AoE."}
+    ]},
+  { id:"aizen", name:"Aizen Sosuke", from:"Bleach", why:"Le grand vilain indestructible — Bleach a marqué les années 2000–2010",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Frappe de sabre infligeant une courte illusion sur la cible.",
+    atk:[
+      {k:"1",n:"Kyoka Suigetsu",u:false,d:"Crée un miroir illusoire — le prochain ennemi qui l'attaque frappe une copie et se blesse lui-même."},
+      {k:"2",n:"Kurohitsugi",u:false,d:"Coffin Noir : emprisonne une cible dans une cage de ténèbres 2s avec dégâts continus."},
+      {k:"U",n:"Hogyoku — Forme Papillon",u:true,d:"Transformation ultime : invincibilité 3s puis explosion d'énergie massive. Régénère des HP pour chaque ennemi touché."}
+    ]},
+  { id:"toriko", name:"Toriko", from:"Toriko", why:"Le chasseur surhumain — pilier du shonen japonais des années 2010",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Fork — série de frappes ultra-rapides créant une barrière temporaire.",
+    atk:[
+      {k:"1",n:"Fork & Knife",u:false,d:"Combo de coups de poing et taillade simultanés — zone courte, dégâts massifs, repousse les ennemis."},
+      {k:"2",n:"Coin",u:false,d:"Coup de pied surpuissant projetant l'ennemi en l'air — stun à l'atterrissage."},
+      {k:"U",n:"Enbu — Synchronisation Totale",u:true,d:"Synchronise son corps avec l'environnement : chaque ennemi proche subit des dégâts basés sur sa propre force. Plus l'ennemi est puissant, plus il se blesse."}
+    ]},
+  { id:"kafka", name:"Kafka Hibino", from:"Kaiju No. 8", why:"Le phénomène manga des années 2020 — transformation Kaiju unique",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Poing monstrueux créant une onde de choc courte.",
+    atk:[
+      {k:"1",n:"Corne de Kaiju",u:false,d:"Tire un rayon d'énergie monstrueuse à longue portée — perce les boucliers."},
+      {k:"2",n:"Régénération Kaiju",u:false,d:"Récupère rapidement des HP et résiste aux CC pendant 3s après activation."},
+      {k:"U",n:"Kaiju No. 8 — Forme Complète",u:true,d:"Transformation totale : taille doublée, AoE à chaque frappe de base, régénération passive constante pendant 10s."}
+    ]}
+],
+fighter: [
+  { id:"goku", name:"Goku", from:"Dragon Ball Z", why:"LE héros de manga universel — connu dans le monde entier",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Combo de coups rapides en mêlée avec boost de Ki passif.",
+    atk:[
+      {k:"1",n:"Kamehameha",u:false,d:"Charge 0.8s puis tire un rayon de Ki en ligne droite — perce les boucliers, frappe tout sur la trajectoire."},
+      {k:"2",n:"Instant Transmission",u:false,d:"Téléportation instantanée sur une cible visible. Frappe garantie et critique à l'arrivée."},
+      {k:"U",n:"Ultra Instinct",u:true,d:"Esquive automatique toutes les attaques pendant 8s. Chaque contre-attaque est critique. Se termine par un coup droit dévastateur."}
+    ]},
+  { id:"kenshiro", name:"Kenshiro", from:"Fist of the North Star", why:"« Omae wa mou shindeiru » — la phrase la plus célèbre du manga old school",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Frappes sur les points vitaux — la cible explose 2s après.",
+    atk:[
+      {k:"1",n:"Hokuto Hyakuretsu Ken",u:false,d:"Avalanche de coups ultra-rapides sur les points vitaux — stun 1s, la cible explose après."},
+      {k:"2",n:"Hokuto Zankai Ken",u:false,d:"Touche un point vital précis : la cible est condamnée — explose après 3s, aucun soin possible."},
+      {k:"U",n:"Musô Tensei",u:true,d:"Invincibilité absolue 5s : Kenshiro entre dans le néant, chaque frappe est mortelle et ignore toute défense."}
+    ]},
+  { id:"kenshin", name:"Kenshin Himura", from:"Rurouni Kenshin", why:"Le sabreur retourné — icône du manga samouraï des années 90",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Frappe rapide en croix avec le sabre inversé.",
+    atk:[
+      {k:"1",n:"Ryûtsuisen",u:false,d:"Dash aérien + frappe plongeante qui envoie l'ennemi en l'air et l'étourdit."},
+      {k:"2",n:"Dô Ryûsen",u:false,d:"Frappe rase-sol créant une onde sismique courte qui renverse les ennemis proches."},
+      {k:"U",n:"Amakakeru Ryû no Hirameki",u:true,d:"Contre-attaque ultime : si une attaque ennemie est détectée, riposte à vitesse surhumaine traversant tous les boucliers."}
+    ]},
+  { id:"guts", name:"Guts", from:"Berserk", why:"Le guerrier solitaire ultime — icône du dark fantasy manga",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Balayage lent mais lourd avec Dragonslayer, repousse les ennemis.",
+    atk:[
+      {k:"1",n:"Tir du Canon de Bras",u:false,d:"Tir explosif à portée moyenne — étourdit les cibles touchées de plein fouet."},
+      {k:"2",n:"Rage Frénétique",u:false,d:"Série de coups rapides. Chaque coup recharge progressivement l'armure du Berserker."},
+      {k:"U",n:"Armure du Berserker",u:true,d:"Vitesse et dégâts maximaux pendant 12s. Immunité à la douleur. À la fin, Guts subit un retour de dégâts sur lui-même."}
+    ]},
+  { id:"tanjiro", name:"Tanjiro Kamado", from:"Demon Slayer", why:"Phénomène mondial — Mugen Train est le film le plus rentable du Japon",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●○","Mobilité ●●●●●"],
+    basic:"Frappe de lame en rotation créant une onde de feu courte.",
+    atk:[
+      {k:"1",n:"Danse des Dieux du Feu",u:false,d:"Série de rotations en combo — chaque coup inflige des dégâts de feu croissants."},
+      {k:"2",n:"Vague de Surface — Eau",u:false,d:"Dash courbe contournant les obstacles — repositionnement rapide avec dégâts."},
+      {k:"U",n:"Respiration du Soleil — Hinokami Kagura",u:true,d:"Enchaîne toutes les formes du Soleil en une séquence AoE dévastatrice. Brûle et ignore l'armure ennemie."}
+    ]},
+  { id:"inuyasha", name:"Inuyasha", from:"Inuyasha", why:"Pilier des années 2000 — a introduit une génération entière au manga",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Coup de griffe démoniaque en mêlée, repousse légèrement.",
+    atk:[
+      {k:"1",n:"Kaze no Kizu",u:false,d:"Frappe d'onde de vent tranchant en arc large — touche plusieurs ennemis en ligne."},
+      {k:"2",n:"Hijin Kesshô",u:false,d:"Projette les griffes comme des éclats tranchants à distance — dégâts multiples."},
+      {k:"U",n:"Bakuryuha — Retour de Tempête",u:true,d:"Retourne l'énergie ennemie contre ses propres alliés — dégâts basés sur la puissance des attaques reçues."}
+    ]},
+  { id:"ichigo", name:"Ichigo Kurosaki", from:"Bleach", why:"Bankai = frisson garanti — Bleach a marqué toute une génération",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Getsuga — tranche avec onde de Reiatsu noire à courte portée.",
+    atk:[
+      {k:"1",n:"Getsuga Tensho",u:false,d:"Lance une onde tranchante noire en arc devant lui — large rayon, dégâts moyens."},
+      {k:"2",n:"Sonido",u:false,d:"Dash ultra-rapide traversant les ennemis avec dégâts sur tout le passage."},
+      {k:"U",n:"Bankai — Tensa Zangetsu",u:true,d:"Vitesse et dégâts maximaux pendant 10s. Chaque frappe laisse une traînée de Reiatsu. Se termine par un Getsuga final colossal."}
+    ]},
+  { id:"asta", name:"Asta", from:"Black Clover", why:"Le héros sans magie dans un monde magique — dépassement de soi universel",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Frappe de lame anti-magie annulant les buffs ennemis au contact.",
+    atk:[
+      {k:"1",n:"Slash Anti-Magie",u:false,d:"Coupe et annule la prochaine compétence ennemie reçue — contre parfait contre les mages."},
+      {k:"2",n:"Demon-Slayer Sword",u:false,d:"Charge puis frappe dévastatrice repoussant en ligne droite, sillage anti-magie."},
+      {k:"U",n:"Black Asta — Transformation Démoniaque",u:true,d:"Toutes ses attaques annulent la magie dans une aura AoE constante 10s. Les sorts ennemis dans la zone sont absorbés et retournés."}
+    ]}
+],
+assassin: [
+  { id:"levi", name:"Levi Ackerman", from:"Attack on Titan", why:"Le soldat le plus fort de l'humanité — unanimement classé héros préféré",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Double lame — combo de deux frappes rapides en mêlée.",
+    atk:[
+      {k:"1",n:"Élan des Câbles",u:false,d:"Projette des câbles sur un ennemi et fonce dessus en spirale — dégâts multiples à l'arrivée."},
+      {k:"2",n:"Tourbillon de Lames",u:false,d:"Tourne à 360° en slash circulaire — zone AoE courte, dégâts massifs."},
+      {k:"U",n:"Style de Combat Ackerman",u:true,d:"Mode instinct 8s : esquive automatiquement la première frappe de chaque ennemi et contre-attaque instantanément."}
+    ]},
+  { id:"itachi", name:"Itachi Uchiha", from:"Naruto", why:"Le ninja tragique — la révélation d'Itachi est un monument du manga",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Kunai de genjutsu infligeant une confusion courte.",
+    atk:[
+      {k:"1",n:"Amaterasu",u:false,d:"Flammes noires inextinguibles sur la cible — dégâts continus 4s, impossible à soigner."},
+      {k:"2",n:"Tsukuyomi",u:false,d:"CC mental : la cible est immobilisée et subit 3s d'illusions infligeant des dégâts psychiques."},
+      {k:"U",n:"Susanoo — Totsuka & Yata",u:true,d:"Invulnérabilité totale 5s. L'épée de Totsuka emprisonne le prochain ennemi tué. Toutes les compétences remises à zéro."}
+    ]},
+  { id:"byakuya", name:"Byakuya Kuchiki", from:"Bleach", why:"Bankai Senbonzakura Kageyoshi — le plus beau et dévastateur de Bleach",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Frappe d'estoc de Senbonzakura à portée moyenne.",
+    atk:[
+      {k:"1",n:"Senbonzakura — Nuée de Lames",u:false,d:"Désintègre sa lame en milliers de pétales tranchants tourbillonnant autour de lui — AoE constante 3s, dégâts à tout ennemi proche."},
+      {k:"2",n:"Ikka Senjinka",u:false,d:"Concentre tous les pétales sur une seule cible en un flux dévastateur — dégâts massifs en ligne, ignore les boucliers."},
+      {k:"U",n:"Bankai — Senbonzakura Kageyoshi",u:true,d:"Deux lames géantes s'enfoncent dans le sol et libèrent une tempête de millions de pétales couvrant toute la zone 8s. Tout ennemi dans la zone subit des dégâts continus massifs. Byakuya est intouchable à l'intérieur."}
+    ]},
+  { id:"killua", name:"Killua Zoldyck", from:"Hunter x Hunter", why:"L'assassin parfait — design et pouvoir reconnus mondialement",
+    stats:["Durabilité ●●○○○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Griffes Godspeed — frappe quasi invisible à la vitesse de l'éclair.",
+    atk:[
+      {k:"1",n:"Narukami",u:false,d:"Décharge électrique en ligne directe — paralyse brièvement la cible touchée."},
+      {k:"2",n:"Mode Furtivité",u:false,d:"Invisibilité 2s. Le prochain coup est critique et exécute si la cible est sous 30% HP."},
+      {k:"U",n:"Godspeed",u:true,d:"Vitesse absolue pendant 6s : dash illimité, chaque frappe électrocute. Impossible à cibler pendant les dashes."}
+    ]},
+  { id:"hisoka", name:"Hisoka Morow", from:"Hunter x Hunter", why:"Le clown chasseur — design et imprévisibilité absolument inoubliables",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Carte tranchante lancée à portée moyenne.",
+    atk:[
+      {k:"1",n:"Bungee Gum",u:false,d:"Attache un ennemi à Hisoka — le ramène de force vers lui s'il s'éloigne trop."},
+      {k:"2",n:"Texture Surprise",u:false,d:"Applique une illusion sur une zone — les ennemis qui marchent dessus sont aveuglés 1s."},
+      {k:"U",n:"Sorcier Sanguinaire",u:true,d:"Cible le héros ennemi avec le plus de kills. Dégâts +80% contre lui pendant 10s. Régénère des HP sur chaque coup."}
+    ]},
+  { id:"zenitsu", name:"Zenitsu Agatsuma", from:"Demon Slayer", why:"Un seul coup de tonnerre — le personnage le plus surprenant du manga moderne",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Estoc rapide en ligne avec lame électrique dorée.",
+    atk:[
+      {k:"1",n:"Forme du Tonnerre — Premier",u:false,d:"Dash foudroyant en ligne droite — dégâts massifs sur tout ennemi traversé."},
+      {k:"2",n:"Vrille du Tonnerre",u:false,d:"Saut tournoyant électrique — zone réduite autour de lui, stun court."},
+      {k:"U",n:"Dieu du Tonnerre",u:true,d:"Trance endormie : 7 dashes foudroyants en étoile, chaque trajectoire inflige des dégâts AoE massifs. Couvre toute la zone."}
+    ]},
+  { id:"sukuna", name:"Ryomen Sukuna", from:"Jujutsu Kaisen", why:"Le roi des fléaux — antagoniste le plus iconique de la décennie 2020",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Flammes de malédiction ultra-rapides en mêlée.",
+    atk:[
+      {k:"1",n:"Dismantle",u:false,d:"Taille invisible pouvant frapper plusieurs cibles en ligne — impossible à anticiper visuellement."},
+      {k:"2",n:"Cleave",u:false,d:"Adapte ses dégâts à la résistance de la cible — plus l'ennemi est solide, plus les dégâts sont élevés."},
+      {k:"U",n:"Malevolent Shrine — Domaine Étendu",u:true,d:"Zone circulaire massive : toutes les cibles à l'intérieur subissent des tailladés automatiques constantes pendant 6s."}
+    ]},
+  { id:"thorfinn", name:"Thorfinn", from:"Vinland Saga", why:"Le guerrier viking — manga culte, crossover public manga et jeux épiques",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Double dague en mêlée — deux frappes rapides simultanées.",
+    atk:[
+      {k:"1",n:"Double Dague Éclair",u:false,d:"Deux frappes simultanées de dagues — critique automatique si dans le dos de la cible."},
+      {k:"2",n:"Feinte de Guerrier",u:false,d:"Esquive parfaite de la prochaine attaque puis contre-attaque immédiate garantissant un saignement."},
+      {k:"U",n:"Vitesse du Vent du Nord",u:true,d:"Invisible pendant 4s, vitesse maximale. À la sortie, le prochain coup est une exécution instantanée sur toute cible isolée de ses alliés."}
+    ]}
+],
+mage: [
+  { id:"saitama", name:"Saitama", from:"One Punch Man", why:"Un seul coup — concept devenu mème planétaire universel",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Jab normal — dégâts ridiculement élevés malgré l'air détaché.",
+    atk:[
+      {k:"1",n:"Serious Sideways Jumps",u:false,d:"Onde de choc en se déplaçant — repousse tous les ennemis dans la direction opposée."},
+      {k:"2",n:"Serious Table Flip",u:false,d:"Soulève et projette un pan entier du terrain comme un projectile géant."},
+      {k:"U",n:"Serious Punch",u:true,d:"Un seul coup : inflige des dégâts égaux à 100% des HP actuels de la cible principale. Les ennemis proches subissent l'onde de choc."}
+    ]},
+  { id:"ed", name:"Edward Elric", from:"Fullmetal Alchemist", why:"FMA — considéré parmi les meilleurs mangas de tous les temps",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●○","Mobilité ●●●●○"],
+    basic:"Frappe de bras mécanique infligeant des dégâts physiques directs.",
+    atk:[
+      {k:"1",n:"Alchimie — Mur de Métal",u:false,d:"Fait surgir un mur ou des pics de métal du sol — bloque les passages ou empale les ennemis."},
+      {k:"2",n:"Transmutation d'Arme",u:false,d:"Transforme son bras en lance, marteau ou bouclier selon la situation pendant 4s."},
+      {k:"U",n:"Cercle Inversé — Alchimie Totale",u:true,d:"Transmute tout le terrain autour de lui : zone massive de pics et de pièges. Immobilise et endommage tous les ennemis touchés."}
+    ]},
+  { id:"light", name:"Light Yagami", from:"Death Note", why:"Death Note a captivé des millions de personnes qui ne lisaient pas de manga",
+    stats:["Durabilité ●●○○○","Dégâts ●●●●●","Mobilité ●●○○○"],
+    basic:"Aucune attaque physique — identifie passivement le nom de la cible visée.",
+    atk:[
+      {k:"1",n:"Carnet de la Mort",u:false,d:"Marque un ennemi — s'il attaque un allié dans les 10s, il meurt instantanément."},
+      {k:"2",n:"Manipulation Psychologique",u:false,d:"Réduit les dégâts d'un ennemi de 50% pendant 4s — il se retourne involontairement vers ses propres alliés."},
+      {k:"U",n:"Jugement de Kira",u:true,d:"Exécute instantanément un ennemi sous 15% HP. Invisible, silencieux, impossible à bloquer."}
+    ]},
+  { id:"mob", name:"Mob (Shigeo Kageyama)", from:"Mob Psycho 100", why:"Le compteur d'émotions — mécanique unique, touchant et d'une puissance croissante",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Onde psychique courte repoussant légèrement les ennemis proches.",
+    atk:[
+      {k:"1",n:"Onde Psychique",u:false,d:"Repousse tous les ennemis autour de lui avec une explosion télékinétique."},
+      {k:"2",n:"Barrière de Sel",u:false,d:"Bouclier absorbant les projectiles et les renvoyant vers leur source."},
+      {k:"U",n:"Mob 100% — Explosion Émotionnelle",u:true,d:"Libère 100% de ses émotions : zone dévastatrice massive. Dégâts basés sur les HP perdus — plus il souffre, plus c'est fort."}
+    ]},
+  { id:"sailormoon", name:"Sailor Moon", from:"Sailor Moon", why:"Première héroïne de manga connue mondialement — a introduit des millions de filles au manga",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Projectile de lumière lunaire à portée moyenne.",
+    atk:[
+      {k:"1",n:"Moon Tiara Action",u:false,d:"Lance son diadème comme un disque tranchant — traverse plusieurs ennemis en ligne."},
+      {k:"2",n:"Lune Croissante",u:false,d:"Bouclier de lumière lunaire repoussant les ennemis proches et soignant un allié."},
+      {k:"U",n:"Moon Healing Escalation",u:true,d:"Purification AoE massive : les ennemis touchés perdent tous leurs buffs, ralentis 4s. Soigne simultanément tous les alliés proches."}
+    ]},
+  { id:"rimuru", name:"Rimuru Tempest", from:"Tensura", why:"Le slime devenu dieu — phénomène isekai incontournable des années 2010",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Projectile Prédateur absorbant les petits buffs ennemis.",
+    atk:[
+      {k:"1",n:"Ciel Noir",u:false,d:"Zone au sol : les ennemis qui y entrent sont ralentis et prennent des dégâts continus."},
+      {k:"2",n:"Clone de Brume",u:false,d:"Crée un double 4s qui imite les attaques basiques et distrait les ennemis."},
+      {k:"U",n:"Prédateur Ultime",u:true,d:"Copie le dernier ultime ennemi utilisé et le relance immédiatement avec 150% de puissance."}
+    ]},
+  { id:"tetsuo", name:"Tetsuo Shima", from:"Akira", why:"Akira a fondé le manga cyberpunk — référence absolue pour des générations",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Onde télékinétique courte repoussant violemment les ennemis proches.",
+    atk:[
+      {k:"1",n:"Télékinésie",u:false,d:"Soulève et projette les ennemis ou les objets du terrain — peut utiliser les décors comme projectiles."},
+      {k:"2",n:"Amplification Psychique",u:false,d:"Absorbe l'énergie environnante — ses dégâts augmentent de 10% à chaque seconde en combat, jusqu'à +50%."},
+      {k:"U",n:"Mutation Finale — Explosion Akira",u:true,d:"Tetsuo perd le contrôle : explosion psychique massive couvrant toute la zone. S'inflige aussi 20% de ses dégâts — plus il est fort, plus l'explosion est dévastatrice."}
+    ]},
+  { id:"ainz", name:"Ainz Ooal Gown", from:"Overlord", why:"Le seigneur des morts-vivants — parrain de l'isekai, culte mondial",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Projectile de magie noire à longue portée.",
+    atk:[
+      {k:"1",n:"Grasp Heart",u:false,d:"Mort instantanée sur une cible sous 20% HP. Ignore tous les boucliers et invulnérabilités."},
+      {k:"2",n:"Armée des Morts",u:false,d:"Invoque 3 squelettes guerriers qui attaquent automatiquement les ennemis proches pendant 6s."},
+      {k:"U",n:"Grand Catastrophe",u:true,d:"Pluie de météores de magie noire en zone massive. Chaque météore laisse une zone empoisonnée persistante."}
+    ]}
+],
+support: [
+  { id:"allm", name:"All Might", from:"My Hero Academia", why:"Le symbole de la paix — personnage le plus inspirant du manga moderne",
+    stats:["Durabilité ●●●●●","Dégâts ●●●●○","Mobilité ●●●●○"],
+    basic:"Coup de poing avec onde de choc repoussant les ennemis.",
+    atk:[
+      {k:"1",n:"Detroit Smash",u:false,d:"Onde de choc repoussant violemment tous les ennemis devant lui avec un stun court."},
+      {k:"2",n:"Présence du Héros",u:false,d:"Aura de buff : tous les alliés proches gagnent +30% vitesse d'attaque et +20% résistance pendant 5s."},
+      {k:"U",n:"United States of Smash",u:true,d:"One-shot la cible principale. All Might passe en forme décharnée mais remet à zéro les CD de toutes les compétences alliées."}
+    ]},
+  { id:"giorno", name:"Giorno Giovanna", from:"JoJo's Bizarre Adventure", why:"Gold Experience Requiem — JoJo est un phénomène culte mondial transgénérationnel",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●○","Mobilité ●●●○○"],
+    basic:"Frappe de Gold Experience transformant les objets en êtres vivants.",
+    atk:[
+      {k:"1",n:"Gold Experience — Vie",u:false,d:"Crée un être vivant qui soigne les alliés proches passivement pendant 5s."},
+      {k:"2",n:"Contre-attaque Vitale",u:false,d:"Transforme les dégâts reçus en étourdissement infligé à l'attaquant."},
+      {k:"U",n:"Gold Experience Requiem",u:true,d:"Annule l'ultime ennemi en cours. L'ennemi revient à zéro : buffs supprimés, ses 3 prochaines attaques ratent automatiquement."}
+    ]},
+  { id:"tsunade", name:"Tsunade", from:"Naruto", why:"La médecin légendaire — Sannin et pilier du support dans Naruto",
+    stats:["Durabilité ●●●●○","Dégâts ●●●○○","Mobilité ●●●○○"],
+    basic:"Poing de chakra — stun court en mêlée, dégâts élevés.",
+    atk:[
+      {k:"1",n:"Soin de Chakra",u:false,d:"Soigne massivement un allié ciblé et réduit le CD de ses compétences actives."},
+      {k:"2",n:"Frappe Sismikaté",u:false,d:"Poing AoE fracassant le sol — ralentit et brise l'armure des ennemis dans la zone."},
+      {k:"U",n:"Sceau du Front — Soin Total",u:true,d:"Libère le Sceau : soigne tous les alliés proches à 100% et leur donne un bouclier absorbant les 3 prochaines attaques."}
+    ]},
+  { id:"urahara", name:"Urahara Kisuke", from:"Bleach", why:"Le génie derrière tout dans Bleach — Bankai de reconstruction unique",
+    stats:["Durabilité ●●●○○","Dégâts ●●●○○","Mobilité ●●●●○"],
+    basic:"Coup de canne-sabre à courte portée.",
+    atk:[
+      {k:"1",n:"Cage de Benihime",u:false,d:"Filet Kidô emprisonnant un ennemi 1.5s — CC parfait pour protéger un allié."},
+      {k:"2",n:"Chant du Papillon",u:false,d:"Éclats de Reiatsu soignant les alliés proches et brûlant simultanément les ennemis."},
+      {k:"U",n:"Bankai — Kannonbiraki Benihime",u:true,d:"Remodèle la réalité : soigne instantanément tous les alliés au maximum et remet à zéro tous les cooldowns alliés."}
+    ]},
+  { id:"subaru", name:"Subaru Natsuki", from:"Re:Zero", why:"Return by Death — mécanique de résurrection d'équipe absolument unique dans un MOBA",
+    stats:["Durabilité ●●○○○","Dégâts ●●○○○","Mobilité ●●●○○"],
+    basic:"Aucune attaque physique — aura de la mort effrayant les ennemis proches.",
+    atk:[
+      {k:"1",n:"Aura de la Mort",u:false,d:"Sa présence réduit les dégâts des ennemis proches de 15% — ils sentent instinctivement qu'ils vont perdre."},
+      {k:"2",n:"Sacrifice",u:false,d:"Prend tous les dégâts destinés à un allié ciblé à sa place pendant 2s."},
+      {k:"U",n:"Return by Death",u:true,d:"Se sacrifie volontairement : tous les alliés morts réapparaissent avec 50% HP et tous les CD sont réinitialisés. Subaru réapparaît au spawn 10s après."}
+    ]},
+  { id:"sakura", name:"Sakura Haruno", from:"Naruto", why:"La ninja médecin — pilier du support dans la trilogie Naruto originale",
+    stats:["Durabilité ●●●○○","Dégâts ●●●○○","Mobilité ●●●○○"],
+    basic:"Poing de chakra — stun court sur la cible.",
+    atk:[
+      {k:"1",n:"Soin Mystique",u:false,d:"Soin ciblé rapide. Réduit aussi le CD de l'allié soigné si utilisé en combat actif."},
+      {k:"2",n:"Frappe Séismique",u:false,d:"Coup de poing AoE qui brise le terrain et ralentit les ennemis dans la zone."},
+      {k:"U",n:"Libération du Sceau du Front",u:true,d:"Soigne massivement tous les alliés proches + bouclier temporaire. Sakura passe en mode Berserker : dégâts doublés pendant 6s."}
+    ]},
+  { id:"chibi", name:"Sailor Chibi Moon", from:"Sailor Moon", why:"Duo jouable avec Sailor Moon — double l'audience et représente le public féminin",
+    stats:["Durabilité ●●○○○","Dégâts ●●●○○","Mobilité ●●●●○"],
+    basic:"Rayon de lumière rose soignant légèrement un allié au contact.",
+    atk:[
+      {k:"1",n:"Pink Sugar Heart Attack",u:false,d:"Éclats de lumière rose — soigne les alliés touchés et ralentit les ennemis."},
+      {k:"2",n:"Bouclier Lunaire",u:false,d:"Crée un bouclier rose autour d'un allié ciblé absorbant les 2 prochaines attaques."},
+      {k:"U",n:"Moon Gorgeous Meditation",u:true,d:"Canal de soin massif sur tous les alliés proches pendant 3s — les soigne intégralement et leur confère une brève invulnérabilité. Chibiusa est immobile pendant le canal."}
+    ]},
+  { id:"yuki", name:"Yuki Soma", from:"Fruits Basket", why:"Manga shojo culte — représente une audience féminine jamais ciblée par les MOBAs",
+    stats:["Durabilité ●●●○○","Dégâts ●●●○○","Mobilité ●●●●○"],
+    basic:"Frappe de Kung-Fu rapide désarmant légèrement la cible.",
+    atk:[
+      {k:"1",n:"Rat d'Argent — Agilité",u:false,d:"Boost de vitesse pour lui et tous les alliés proches pendant 3s — repositionnement de toute l'équipe."},
+      {k:"2",n:"Transformation du Zodiaque",u:false,d:"Devient insaisissable 2s, traverse les ennemis et réapparaît derrière eux."},
+      {k:"U",n:"Liens Brisés — Libération",u:true,d:"Supprime tous les debuffs de l'équipe et crée une aura protectrice pendant 6s qui réduit tous les dégâts reçus par les alliés de 40%."}
+    ]}
+],
+marksman: [
+  { id:"oliver", name:"Oliver (Tom)", from:"Captain Tsubasa", why:"A inspiré des générations de footballeurs — connu dans le monde entier",
+    stats:["Durabilité ●●○○○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Tir de pied fulgurant à longue portée — projectile en ligne droite.",
+    atk:[
+      {k:"1",n:"Drive Shot",u:false,d:"Tir courbe à effet déviant — contourne les obstacles et les boucliers ennemis."},
+      {k:"2",n:"Sprint de l'Éclair",u:false,d:"Dash en ligne droite ultra-rapide traversant les ennemis — repositionnement immédiat."},
+      {k:"U",n:"Tir de l'Ouragan",u:true,d:"Charge 1.5s puis déclenche un tir surhumain — traverse toute la carte, dégâts massifs sur chaque ennemi, projette le dernier frappé."}
+    ]},
+  { id:"yusuke", name:"Yusuke Urameshi", from:"Yu Yu Hakusho", why:"Spirit Gun — l'icône du shonen des années 90, pilier de l'anime old school",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Petit tir de Reiki rapide à longue portée.",
+    atk:[
+      {k:"1",n:"Tir de Reiki Concentré",u:false,d:"Charge 1s puis tire un rayon perforant traversant plusieurs ennemis en ligne."},
+      {k:"2",n:"Poing de Reiki",u:false,d:"Dash avant + punch chargé repoussant violemment la cible."},
+      {k:"U",n:"Spirit Gun Max",u:true,d:"Charge 2s puis tire un rayon colossal traversant toute la carte. Dégâts extrêmes sur tout ennemi sur la trajectoire."}
+    ]},
+  { id:"vash", name:"Vash the Stampede", from:"Trigun", why:"Le tireur légendaire avec 60 milliards de prime — culte des années 90–2000",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Double tir de revolver précis à longue portée.",
+    atk:[
+      {k:"1",n:"Double Eagle",u:false,d:"Double tir simultané touchant deux cibles différentes en même temps."},
+      {k:"2",n:"Dodge Parfait",u:false,d:"Esquive absolue de la prochaine attaque + contre-tir immédiat garantissant un critique."},
+      {k:"U",n:"Angel Arm",u:true,d:"Transforme son bras en canon géant — détruit tout sur une ligne entière de la carte. Dégâts colossaux."}
+    ]},
+  { id:"vegeta", name:"Vegeta", from:"Dragon Ball Z", why:"Le prince des Saiyans — rival légendaire de Goku, connu dans le monde entier",
+    stats:["Durabilité ●●●●○","Dégâts ●●●●●","Mobilité ●●●●○"],
+    basic:"Tir de Ki rapide à longue portée.",
+    atk:[
+      {k:"1",n:"Big Bang Attack",u:false,d:"Projectile de Ki à impact massif — explosion en zone à l'impact."},
+      {k:"2",n:"Ki Barrier",u:false,d:"Bouclier de Ki absorbant les prochains projectiles ennemis et les renvoyant."},
+      {k:"U",n:"Final Flash",u:true,d:"Canal de 2s : tire un rayon gigantesque dévastateur. Végéta est immobile mais invulnérable pendant le canal."}
+    ]},
+  { id:"minato", name:"Minato Namikaze", from:"Naruto", why:"Le Yondaime — le plus admiré dans Naruto, vitesse légendaire",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●○","Mobilité ●●●●●"],
+    basic:"Kunai marqué posant un sceau de téléportation.",
+    atk:[
+      {k:"1",n:"Rasengan",u:false,d:"Dash court + Rasengan au contact — dégâts élevés et recul important."},
+      {k:"2",n:"Hiraishin no Jutsu",u:false,d:"Téléportation instantanée sur le dernier kunai lancé. Repositionnement parfait."},
+      {k:"U",n:"Hiraishin Niveau 2",u:true,d:"Marque tous les ennemis visibles — se téléporte sur chacun en succession ultra-rapide, frappant chaque cible une fois."}
+    ]},
+  { id:"sanji", name:"Sanji", from:"One Piece", why:"Le cuisinier aux jambes de feu — toujours dans le top des personnages One Piece préférés",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Coup de pied enflammé infligeant des dégâts de feu.",
+    atk:[
+      {k:"1",n:"Diable Jambe — Flamme Rouge",u:false,d:"Coup de pied enflammé en rotation — zone courte, dégâts de brûlure continus."},
+      {k:"2",n:"Sky Walk",u:false,d:"Dash aérien traversant les ennemis et obstacles. Repositionnement vertical unique."},
+      {k:"U",n:"Ifrit Jambe",u:true,d:"Sanji s'embrase entièrement — chaque coup de pied inflige des dégâts massifs AoE de feu pendant 10s. Vitesse maximale."}
+    ]},
+  { id:"seiya", name:"Seiya (Pégase)", from:"Saint Seiya", why:"Les Chevaliers du Zodiaque — pilier absolu des années 80–90, générations entières en Europe et Japon",
+    stats:["Durabilité ●●●○○","Dégâts ●●●●●","Mobilité ●●●●●"],
+    basic:"Frappe cosmique à grande vitesse — grêle de coups à portée courte.",
+    atk:[
+      {k:"1",n:"Météore de Pégase",u:false,d:"Grêle de coups à la vitesse de la lumière — AoE courte, dégâts multiples ultra-rapides."},
+      {k:"2",n:"Résurrection du Cosmos",u:false,d:"Passif : si Seiya tombe sous 0 HP, se relève une fois avec 30% HP (CD long)."},
+      {k:"U",n:"Pégase Fulgur — Explosion Cosmique",u:true,d:"Libère tout son cosmos en une frappe éblouissante — dégâts massifs en ligne, aveugle tous les ennemis touchés 2s."}
+    ]},
+  { id:"ryo", name:"Ryo Saeba", from:"City Hunter", why:"Légende du manga d'action adulte des années 80–90 — culte en Europe et au Japon",
+    stats:["Durabilité ●●○○○","Dégâts ●●●●●","Mobilité ●●●○○"],
+    basic:"Tir Python précis à très longue portée — critique si la cible est immobile.",
+    atk:[
+      {k:"1",n:"Tir de Précision",u:false,d:"Balle unique à portée maximale — dégâts doublés si la cible n'a pas bougé depuis 1s."},
+      {k:"2",n:"Esquive du Chasseur",u:false,d:"Roule sur le côté en tirant simultanément — esquive la prochaine attaque et riposte avec un tir critique."},
+      {k:"U",n:"Tir Aveugle — Instinct du Chasseur",u:true,d:"Sans viser, Ryo touche instantanément tous les ennemis visibles avec une précision parfaite. Chaque touche inflige un saignement durable."}
+    ]}
+]
+};
+
+// Vote state
+let votes = {};
+let activeCat = 'tank';
+
+function catColor(cat) { return CATS[cat].color; }
+
+function getInitials(name) {
+  return name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+}
+
+function roleBadgeStyle(cat) {
+  const colors = {
+    tank:     '#dbeafe:#1a7fe8',
+    fighter:  '#fee2d5:#e8501a',
+    assassin: '#ede9fe:#7c5ce8',
+    mage:     '#d1fae5:#0faa6a',
+    support:  '#dcfce7:#2da84a',
+    marksman: '#fef3c7:#c89010'
+  };
+  const [bg, col] = colors[cat].split(':');
+  return `background:${bg};color:${col};border:1px solid ${col}44`;
+}
+
+function atkKeyStyle(cat, isUlt) {
+  const colors = { tank:'#1a7fe8', fighter:'#e8501a', assassin:'#7c5ce8', mage:'#0faa6a', support:'#2da84a', marksman:'#c89010' };
+  const c = colors[cat];
+  return isUlt
+    ? `background:${c}18;color:${c};border:1px solid ${c}66`
+    : `background:#f0f1f5;color:#5a5a78;border:1px solid #d0d0e0`;
+}
+
+function ultTagStyle(cat) {
+  const colors = { tank:'#1a7fe8', fighter:'#e8501a', assassin:'#7c5ce8', mage:'#0faa6a', support:'#2da84a', marksman:'#c89010' };
+  const c = colors[cat];
+  return `background:${c}15;color:${c};border:1px solid ${c}55`;
+}
+
+function totalVotesInCat(cat) {
+  return HEROES[cat].filter(h => votes[h.id]).length;
+}
+
+function renderTabs() {
+  document.getElementById('cat-tabs').innerHTML = Object.entries(CATS).map(([k,v]) => {
+    const n = totalVotesInCat(k);
+    return `<button class="cat-tab ${k===activeCat?'active':''}" onclick="selectCat('${k}')">
+      ${v.emoji} ${v.label}
+      <span class="tab-votes ${n===0?'hidden':''}">${n}</span>
+    </button>`;
+  }).join('');
+}
+
+function renderGrid() {
+  const cv = CATS[activeCat];
+  document.getElementById('cat-title').innerHTML = `<span style="color:${cv.color}">${cv.emoji}</span> ${cv.label}`;
+  document.getElementById('cat-desc').textContent = cv.desc;
+
+  document.getElementById('hero-grid').innerHTML = HEROES[activeCat].map(h => {
+    const voted = !!votes[h.id];
+    const vcount = votes[h.id] || 0;
+    return `<div class="hero-card ${voted?'voted':''}" id="card-${h.id}">
+      <span class="voted-ribbon">✓ Sélectionné</span>
+      <div class="card-header">
+        <div class="av" style="background:${catColor(activeCat)}22;color:${catColor(activeCat)}">${getInitials(h.name)}</div>
+        <div class="hero-info">
+          <div class="hero-name">${h.name}</div>
+          <div class="hero-origin">${h.from} · <em>${h.why}</em></div>
+          <span class="role-badge" style="${roleBadgeStyle(activeCat)}">${cv.label}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="stats-row">${h.stats.map(s=>`<span class="stat-pill">${s}</span>`).join('')}</div>
+        <div class="basic-atk"><strong>Attaque basique :</strong> ${h.basic}</div>
+        <div class="atk-list">
+          ${h.atk.map(a => `
+            <div class="atk-row">
+              <div class="atk-key" style="${atkKeyStyle(activeCat, a.u)}">${a.k}</div>
+              <div class="atk-body">
+                <div class="atk-name">
+                  ${a.n}
+                  ${a.u ? `<span class="ult-tag" style="${ultTagStyle(activeCat)}">ULTIME</span>` : ''}
+                </div>
+                <div class="atk-desc">${a.d}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="vote-count-card">${vcount > 0 ? `<span>${vcount}</span> vote${vcount>1?'s':''}` : '&nbsp;'}</div>
+        <button class="btn-vote ${voted?'active':''}" onclick="toggleVote('${h.id}')">
+          ${voted ? '✓ Sélectionné' : '+ Voter'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+
+  updateTotalCount();
+}
+
+function selectCat(cat) {
+  activeCat = cat;
+  renderTabs();
+  renderGrid();
+}
+
+function toggleVote(id) {
+  if (votes[id]) {
+    delete votes[id];
+  } else {
+    votes[id] = 1;
+  }
+  renderTabs();
+  renderGrid();
+}
+
+function updateTotalCount() {
+  document.getElementById('total-votes').textContent = Object.keys(votes).length;
+}
+
+function resetVotes() {
+  if (confirm('Réinitialiser tous les votes ?')) {
+    votes = {};
+    renderTabs();
+    renderGrid();
+  }
+}
+
+function showResults() {
+  const allVoted = Object.keys(votes);
+  const modal = document.getElementById('modal-body');
+
+  if (allVoted.length === 0) {
+    modal.innerHTML = '<div class="empty-results">Aucun vote enregistré pour le moment.</div>';
+  } else {
+    modal.innerHTML = Object.entries(CATS).map(([catKey, catVal]) => {
+      const catHeroes = HEROES[catKey];
+      const rows = catHeroes.map(h => {
+        const v = votes[h.id] || 0;
+        const max = 1;
+        return `<div class="result-row">
+          <div class="result-name" style="${v>0?'color:var(--text);font-weight:600':'color:var(--muted)'}">${h.name}</div>
+          <div style="font-size:11px;color:var(--subtle);flex:0 0 80px;font-style:italic">${h.from}</div>
+          <div class="result-bar-wrap"><div class="result-bar" style="width:${v*100}%"></div></div>
+          <div class="result-votes ${v>0?'has-votes':''}">${v>0?'✓':''}</div>
+        </div>`;
+      }).join('');
+      const catVotes = catHeroes.filter(h=>votes[h.id]).length;
+      return `<div class="result-cat">
+        <div class="result-cat-title" style="color:${catVal.color}">${catVal.emoji} ${catVal.label} — ${catVotes} sélectionné${catVotes>1?'s':''}</div>
+        ${rows}
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('modal').classList.add('show');
+}
+
+function hideResults(e) {
+  if (!e || e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('show');
+  }
+}
+
+// Init
+renderTabs();
+renderGrid();
+</script>
+</body>
+</html>

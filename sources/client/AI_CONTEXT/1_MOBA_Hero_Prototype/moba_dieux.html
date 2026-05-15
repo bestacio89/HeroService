@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panthéon — Compendium des Dieux</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:    #c9a84c;
+    --gold-lt: #e8c97a;
+    --gold-dk: #7a5c1e;
+    --bg:      #0b0c10;
+    --bg2:     #12141a;
+    --bg3:     #1a1d26;
+    --bg4:     #222536;
+    --text:    #d4cfc4;
+    --text-lt: #ece8df;
+    --text-dk: #8a8578;
+    --border:  rgba(201,168,76,0.18);
+    --border-s:rgba(201,168,76,0.45);
+
+    --teal:   #1a8c6e;
+    --teal-lt:#23c99e;
+    --coral:  #b84a28;
+    --coral-lt:#e8733a;
+    --purple: #6b4dc4;
+    --purple-lt:#9b7df0;
+    --blue:   #2060b0;
+    --blue-lt:#4a9be0;
+    --amber:  #a06010;
+    --amber-lt:#e08820;
+    --green:  #3a7020;
+    --green-lt:#5aaa30;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(107,77,196,0.05) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 72px 24px 56px;
+    z-index: 1;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(201,168,76,0.06) 0%, transparent 100%);
+  }
+
+  .header-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .ornament-line {
+    flex: 1;
+    max-width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold));
+  }
+
+  .ornament-line.right {
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+
+  .ornament-diamond {
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    transform: rotate(45deg);
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(36px, 6vw, 68px);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: var(--gold-lt);
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 10px;
+    text-shadow: 0 0 60px rgba(201,168,76,0.3);
+  }
+
+  header .subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(11px, 1.5vw, 14px);
+    letter-spacing: 0.35em;
+    color: var(--gold-dk);
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  /* Main layout */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Class tabs */
+  .class-tabs {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .class-tab {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 12px 20px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dk);
+    position: relative;
+    transition: color 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .class-tab::before {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+
+  .class-tab:hover { color: var(--text-lt); }
+  .class-tab:hover::before { transform: scaleX(0.5); }
+
+  .class-tab.active {
+    color: var(--gold-lt);
+    border-bottom-color: transparent;
+  }
+  .class-tab.active::before { transform: scaleX(1); }
+
+  .tab-icon { font-size: 16px; margin-right: 8px; }
+
+  /* Panel */
+  .class-panel { display: none; }
+  .class-panel.active { display: block; }
+
+  /* Class header banner */
+  .class-banner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+    padding: 20px 28px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .class-banner::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent, var(--gold));
+  }
+
+  .class-banner-icon { font-size: 32px; }
+
+  .class-banner-title {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-lt);
+    letter-spacing: 0.08em;
+  }
+
+  .class-banner-desc {
+    font-size: 14px;
+    color: var(--text-dk);
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  /* Gods grid */
+  .gods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+    gap: 28px;
+  }
+
+  @media (max-width: 580px) {
+    .gods-grid { grid-template-columns: 1fr; }
+  }
+
+  /* God card */
+  .god-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .god-card:hover {
+    border-color: var(--border-s);
+    transform: translateY(-2px);
+  }
+
+  .god-card-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    background: linear-gradient(135deg, var(--bg3) 0%, var(--bg2) 100%);
+  }
+
+  .god-name {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gold-lt);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+  }
+
+  .god-origin {
+    font-size: 13px;
+    color: var(--text-dk);
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  .god-class-badge {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 1px;
+    border: 1px solid;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 16px;
+    margin-top: 2px;
+  }
+
+  /* Abilities */
+  .abilities { padding: 20px 24px; display: grid; gap: 12px; }
+
+  .ability {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 14px;
+    align-items: start;
+  }
+
+  .ability-key {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 4px 8px;
+    border-radius: 2px;
+    border: 1px solid;
+    text-align: center;
+    min-width: 36px;
+    margin-top: 1px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .key-aa {
+    border-color: rgba(138,133,120,0.4);
+    color: var(--text-dk);
+    background: rgba(138,133,120,0.08);
+  }
+
+  .key-q {
+    border-color: rgba(26,140,110,0.5);
+    color: #23c99e;
+    background: rgba(26,140,110,0.1);
+  }
+
+  .key-w {
+    border-color: rgba(32,96,176,0.5);
+    color: #4a9be0;
+    background: rgba(32,96,176,0.1);
+  }
+
+  .key-r {
+    border-color: rgba(184,74,40,0.6);
+    color: #e8733a;
+    background: rgba(184,74,40,0.1);
+  }
+
+  .ability-content {}
+
+  .ability-name {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-lt);
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ultimate-badge {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    padding: 2px 7px;
+    border-radius: 1px;
+  }
+
+  .ability-desc {
+    font-size: 13.5px;
+    color: var(--text-dk);
+    line-height: 1.6;
+  }
+
+  /* Ultimate special styling */
+  .ability.ultimate {
+    background: var(--bg3);
+    border-radius: 2px;
+    padding: 14px;
+    border-left: 3px solid;
+    grid-column: 1 / -1;
+    grid-template-columns: auto 1fr;
+  }
+
+  .ability.ultimate .ability-desc {
+    color: var(--text);
+  }
+
+  /* Separator */
+  .god-separator {
+    grid-column: 1 / -1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-s), transparent);
+    margin: 4px 0;
+  }
+
+  /* Color variants per class */
+  .class-teal   { --accent: var(--teal-lt); }
+  .class-coral  { --accent: var(--coral-lt); }
+  .class-purple { --accent: var(--purple-lt); }
+  .class-blue   { --accent: var(--blue-lt); }
+  .class-amber  { --accent: var(--amber-lt); }
+  .class-green  { --accent: var(--green-lt); }
+
+  .badge-teal   { border-color: var(--teal-lt); color: var(--teal-lt); }
+  .badge-coral  { border-color: var(--coral-lt); color: var(--coral-lt); }
+  .badge-purple { border-color: var(--purple-lt); color: var(--purple-lt); }
+  .badge-blue   { border-color: var(--blue-lt); color: var(--blue-lt); }
+  .badge-amber  { border-color: var(--amber-lt); color: var(--amber-lt); }
+  .badge-green  { border-color: var(--green-lt); color: var(--green-lt); }
+
+  .ult-teal   { border-left-color: var(--teal-lt); background: rgba(26,140,110,0.07); }
+  .ult-coral  { border-left-color: var(--coral-lt); background: rgba(184,74,40,0.07); }
+  .ult-purple { border-left-color: var(--purple-lt); background: rgba(107,77,196,0.07); }
+  .ult-blue   { border-left-color: var(--blue-lt); background: rgba(32,96,176,0.07); }
+  .ult-amber  { border-left-color: var(--amber-lt); background: rgba(160,96,16,0.07); }
+  .ult-green  { border-left-color: var(--green-lt); background: rgba(58,112,32,0.07); }
+
+  .ubadge-teal   { background: rgba(26,140,110,0.2); color: var(--teal-lt); border: 1px solid rgba(35,201,158,0.3); }
+  .ubadge-coral  { background: rgba(184,74,40,0.2); color: var(--coral-lt); border: 1px solid rgba(232,115,58,0.3); }
+  .ubadge-purple { background: rgba(107,77,196,0.2); color: var(--purple-lt); border: 1px solid rgba(155,125,240,0.3); }
+  .ubadge-blue   { background: rgba(32,96,176,0.2); color: var(--blue-lt); border: 1px solid rgba(74,155,224,0.3); }
+  .ubadge-amber  { background: rgba(160,96,16,0.2); color: var(--amber-lt); border: 1px solid rgba(224,136,32,0.3); }
+  .ubadge-green  { background: rgba(58,112,32,0.2); color: var(--green-lt); border: 1px solid rgba(90,170,48,0.3); }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 32px 24px 48px;
+    border-top: 1px solid var(--border);
+  }
+
+  footer p {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold-dk);
+    text-transform: uppercase;
+  }
+
+  /* Animations */
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .class-panel.active { animation: fadeSlide 0.3s ease forwards; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dk); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-ornament">
+    <div class="ornament-line"></div>
+    <div class="ornament-diamond"></div>
+    <div class="ornament-line right"></div>
+  </div>
+  <h1>Panthéon</h1>
+  <p class="subtitle">Compendium des Dieux &mdash; MOBA</p>
+</header>
+
+<main>
+  <nav class="class-tabs" id="classTabs">
+    <button class="class-tab active" onclick="showClass('tank', this)"><span class="tab-icon">🛡</span>Tank</button>
+    <button class="class-tab" onclick="showClass('combattant', this)"><span class="tab-icon">⚔️</span>Combattant</button>
+    <button class="class-tab" onclick="showClass('assassin', this)"><span class="tab-icon">🗡</span>Assassin</button>
+    <button class="class-tab" onclick="showClass('mage', this)"><span class="tab-icon">✨</span>Mage</button>
+    <button class="class-tab" onclick="showClass('tireur', this)"><span class="tab-icon">🏹</span>Tireur</button>
+    <button class="class-tab" onclick="showClass('support', this)"><span class="tab-icon">💚</span>Support</button>
+  </nav>
+
+  <!-- ═══════════ TANK ═══════════ -->
+  <div id="tank" class="class-panel active">
+    <div class="class-banner class-teal">
+      <span class="class-banner-icon">🛡</span>
+      <div>
+        <div class="class-banner-title">Tank</div>
+        <div class="class-banner-desc">Dieux de la résistance — ligne de front implacable, absorbent les dégâts et protègent leurs alliés</div>
+      </div>
+    </div>
+    <div class="gods-grid">
+
+      <div class="god-card class-teal">
+        <div class="god-card-header">
+          <div><div class="god-name">Arès</div><div class="god-origin">Dieu grec de la guerre</div></div>
+          <span class="god-class-badge badge-teal">Tank</span>
+        </div>
+        <div class="abilities">
+          <div class="ability">
+            <span class="ability-key key-aa">AA</span>
+            <div class="ability-content">
+              <div class="ability-name">Coup de bouclier</div>
+              <div class="ability-desc">Frappe avec son bouclier — inflige des dégâts et réduit l'armure de la cible pendant 2s.</div>
+            </div>
+          </div>
+          <div class="ability">
+            <span class="ability-key key-q">Q</span>
+            <div class="ability-content">
+              <div class="ability-name">Furie de guerre</div>
+              <div class="ability-desc">Arès entre en transe : gagne 30% de résistance aux dégâts et provoque tous les ennemis proches pendant 3s.</div>
+            </div>
+          </div>
+          <div class="ability">
+            <span class="ability-key key-w">W</span>
+            <div class="ability-content">
+              <div class="ability-name">Charge brutale</div>
+              <div class="ability-desc">Fonce vers un ennemi ciblé, le renversant et le réduisant au silence pendant 1,5s. Parfait pour engager ou contre-attaquer.</div>
+            </div>
+          </div>
+          <div class="ability ultimate ult-teal">
+            <span class="ability-key key-r">R</span>
+            <div class="ability-content">
+              <div class="ability-name">Champs de bataille des dieux <span class="ultimate-badge ubadge-teal">Ultime</span></div>
+              <div class="ability-desc">Arès plante son étendard et invoque une zone de guerre sacrée. Tous les alliés dans la zone gagnent +40% d'attaque et deviennent insensibles aux CC pendant 6s. Les ennemis qui y entrent sont ralentis et subissent des dégâts pulsés. Arès lui-même régénère de la vie à chaque coup reçu.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="god-card class-teal">
+        <div class="god-card-header">
+          <div><div class="god-name">Thor</div><div class="god-origin">Dieu nordique du tonnerre</div></div>
+          <span class="god-class-badge badge-teal">Tank</span>
+        </div>
+        <div class="abilities">
+          <div class="ability">
+            <span class="ability-key key-aa">AA</span>
+            <div class="ability-content">
+              <div class="ability-name">Frappe de Mjolnir</div>
+              <div class="ability-desc">Coup de marteau qui fait trembler le sol — étourdit brièvement les ennemis très proches.</div>
+            </div>
+          </div>
+          <div class="ability">
+            <span class="ability-key key-q">Q</span>
+            <div class="ability-content">
+              <div class="ability-name">Ceinture de Megingjörð</div>
+              <div class="ability-desc">Active la ceinture divine : +50% de points de vie max pendant 4s et rend chaque coup de base impayable.</div>
+            </div>
+          </div>
+          <div class="ability">
+            <span class="ability-key key-w">W</span>
+            <div class="ability-content">
+              <div class="ability-name">Lancer de Mjolnir</div>
+              <div class="ability-desc">Lance son marteau en ligne droite : assomme le premier ennemi touché 1,5s, puis Mjolnir revient et frappe tous les ennemis sur son chemin retour.</div>
+            </div>
+          </div>
+          <div class="ability ultimate ult-teal">
+            <span class="ability-key key-r">R</span>
+            <div class="ability-content">
+              <div class="ability-name">Ragnarök personnel <span class="ultimate-badge ubadge-teal">Ultime</span></div>
+              <div class="ability-desc">Thor saute dans les airs, fait appel à la foudre divine et s'écrase au sol en un point ciblé. À l'impact, un cercle de tempête se forme : éclair en chaîne sur 5 ennemis max, sol électrifié pendant 5s. Thor est intouchable durant le saut.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="god-card class-teal">
+        <div class="god-card-header">
+          <div><div class="god-name">Bellone</div><div class="god-origin">Déesse romaine de la guerre</div></div>
+          <span class="god-class-badge badge-teal">Tank</span>
+        </div>
+        <div class="abilities">
+          <div class="ability">
+            <span class="ability-key key-aa">AA</span>
+            <div class="ability-content">
+              <div class="ability-name">Coup de lance</div>
+              <div class="ability-desc">Frappe avec sa lance de guerre — applique une légère saignée (DoT) sur 3s.</div>
+            </div>
+          </div>
+          <div class="ability">
+            <span class="ability-key key-q">Q</span>
+            <div class="ability-content">
+              <div class="ability-name">Aura de conquête</div>
+              <div class="ability-desc">Bellone dresse son bouclier et absorbe les projectiles pendant 2s. Les dégâts absorbés renforcent sa prochaine attaque de base.</div>
+            </div>
+          </div>
+          <div class="ability">
+            <span class="ability-key key-w">W</span>
+            <div class="ability-content">
+              <div class="ability-name">Percée de phalange</div>
+              <div class="ability-desc">Fonce en ligne, poussant tous les ennemis sur son passage et les regroupant. Idéal pour aligner des ennemis pour les alliés.</div>
+            </div>
+          </div>
+          <div class="ability ultimate ult-teal">
+            <span class="ability-key key-r">R</span>
+            <div class="ability-content">
+              <div class="ability-name">Fléau des nations <span class="ultimate-badge ubadge-teal">Ultime</span></div>
+              <div class="ability-desc">Bellone invoque l'armée fantôme de Rome : une légion de soldats spectraux charge dans la direction visée sur toute la longueur de la carte. Chaque soldat renverse et ralentit les ennemis traversés. Bellone elle-même devient invulnérable et galope en tête de charge.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="god-card class-teal">
+        <div class="god-card-header">
+          <div><div class="god-name">Héphaïstos</div><div class="god-origin">Dieu grec de la forge</div></div>
+          <span class="god-class-badge badge-teal">Tank</span>
+        </div>
+        <div class="abilities">
+          <div class="ability">
+            <span class="ability-key key-aa">AA</span>
+            <div class="ability-content">
+              <div class="ability-name">Marteau de forgeron</div>
+              <div class="ability-desc">Frappe lente mais dévastatrice — réduit l'armure de la cible à chaque coup successif (max 3 stacks).</div>
+            </div>
+          </div>
+          <div class="ability">
+            <span class="ability-key key-q">Q</span>
+            <div class="ability-content">
+              <div class="ability-name">Armure divine</div>
+              <div class="ability-desc">Héphaïstos se forge une armure temporaire : +80 points d'armure et renvoie 20% des dégâts physiques reçus pendant 4s.</div>
+            </div>
+          </div>
+          <div class="ability">
+            <span class="ability-key key-w">W</span>
+            <div class="ability-content">
+              <div class="ability-name">Filet d'Héphaïstos</div>
+              <div class="ability-desc">Lance un filet métallique sur une zone : immobilise tous les ennemis dans la zone pendant 2s. Aucune échappatoire possible.</div>
+            </div>
+          </div>
+          <div class="ability ultimate ult-teal">
+            <span class="ability-key key-r">R</span>
+            <div class="ability-content">
+              <div class="ability-name">Automate de bronze <span class="ultimate-badge ubadge-teal">Ultime</span></div>
+              <div class="ability-desc">Héphaïstos invoque Talos, son colosse d'airain légendaire. Talos est une tour mobile pendant 12s : attaque au corps-à-corps, bloque les passages et est invulnérable. Héphaïstos le contrôle à distance et peut le faire exploser manuellement, étourdissant tous les ennemis proches.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ COMBATTANT ═══════════ -->
+  <div id="combattant" class="class-panel">
+    <div class="class-banner class-coral">
+      <span class="class-banner-icon">⚔️</span>
+      <div>
+        <div class="class-banner-title">Combattant</div>
+        <div class="class-banner-desc">Dieux de la mêlée — puissance brute et polyvalence, dominent le corps-à-corps prolongé</div>
+      </div>
+    </div>
+    <div class="gods-grid">
+
+      <div class="god-card class-coral">
+        <div class="god-card-header">
+          <div><div class="god-name">Héraclès</div><div class="god-origin">Héros grec semi-divin</div></div>
+          <span class="god-class-badge badge-coral">Combattant</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Poing du lion</div><div class="ability-desc">Frappe puissante qui repousse légèrement l'ennemi. Le 3e coup consécutif déclenche un crochet qui assomme 0,75s.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Peau de l'Hydre</div><div class="ability-desc">Héraclès s'enveloppe de la peau de l'Hydre : chaque coup reçu génère une régénération de PV. Dure 4s — crucial pour les fights prolongés.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Bond du héros</div><div class="ability-desc">Héraclès bondit sur une cible et la plaque au sol, infligeant des dégâts et la rendant vulnérable (+15% dégâts subis) pendant 2s.</div></div></div>
+          <div class="ability ultimate ult-coral"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Les 12 travaux <span class="ultimate-badge ubadge-coral">Ultime</span></div><div class="ability-desc">Héraclès entre dans un état de furie divine de 10s : chaque attaque de base applique un effet aléatoire (poison de l'Hydre, brise-bouclier du lion, lenteur de l'Hydre de Lerne…). À chaque kill ou assist pendant l'ultime, la durée est prolongée de 2s — potentiellement illimité s'il domine.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-coral">
+        <div class="god-card-header">
+          <div><div class="god-name">Kali</div><div class="god-origin">Déesse hindoue de la destruction</div></div>
+          <span class="god-class-badge badge-coral">Combattant</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Griffes sacrées</div><div class="ability-desc">Frappe rapide avec ses griffes divines — applique un effet de saignée qui s'accumule jusqu'à 5 fois.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Danse de Tandava</div><div class="ability-desc">Kali tourbillonne autour d'elle, frappant tous les ennemis proches et gagnant +30% de vitesse d'attaque pendant 3s.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Saut de la déesse noire</div><div class="ability-desc">Kali plonge sur un ennemi depuis une grande distance, atterrit derrière lui et le désoriante (inversion des touches 1,5s). Outil de flank parfait.</div></div></div>
+          <div class="ability ultimate ult-coral"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Mahakali <span class="ultimate-badge ubadge-coral">Ultime</span></div><div class="ability-desc">Kali se transforme en sa forme cosmique : taille triple, 6 bras actifs, immune aux CC. Chaque bras attaque un ennemi différent simultanément. Au terme des 8s, elle libère un cri qui fait fuir tous les survivants pendant 2s. Impossible à fuir — ses bras ont un rayon de frappe massif.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-coral">
+        <div class="god-card-header">
+          <div><div class="god-name">Cú Chulainn</div><div class="god-origin">Héros guerrier celtique</div></div>
+          <span class="god-class-badge badge-coral">Combattant</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Frappe de Gáe Bulg</div><div class="ability-desc">Lance sa javeline magique — transperce l'ennemi et blesse tous ceux alignés derrière lui.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Contorsion de héros</div><div class="ability-desc">Cú Chulainn entre en ríastrad : esquive le prochain CC ennemi et contre-attaque instantanément.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Galopade de l'Autre Monde</div><div class="ability-desc">Charge en zigzag entre plusieurs ennemis (max 3 cibles), frappant chacun et rebondissant. Idéal pour déstructurer une ligne ennemie.</div></div></div>
+          <div class="ability ultimate ult-coral"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">La transe du héros <span class="ultimate-badge ubadge-coral">Ultime</span></div><div class="ability-desc">Cú Chulainn bascule dans sa ríastrad complète : corps tordu, yeux révulsés. Il devient incontrôlable mais ultra-puissant — sprint permanent, frappe tout ce qui bouge. Immune aux CC pendant 12s. À la fin, il s'effondre et se régénère massivement.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-coral">
+        <div class="god-card-header">
+          <div><div class="god-name">Odin</div><div class="god-origin">Dieu nordique de la guerre</div></div>
+          <span class="god-class-badge badge-coral">Combattant</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Gungnir</div><div class="ability-desc">Lance sa lance divine — elle revient toujours, passant à travers les ennemis. Frappe sur l'aller et au retour.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Œil du sacrifice</div><div class="ability-desc">Odin sacrifie 10% de sa vie max pour révéler et marquer tous les ennemis dans une zone. Les cibles marquées subissent +20% de dégâts pendant 4s.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Chevauchée de Sleipnir</div><div class="ability-desc">Monte Sleipnir pour charger : parcourt une longue distance, renversant les ennemis sur son passage et ignorant les obstacles du terrain.</div></div></div>
+          <div class="ability ultimate ult-coral"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Cercle des corbeaux <span class="ultimate-badge ubadge-coral">Ultime</span></div><div class="ability-desc">Odin invoque Hugin et Munin qui encerclent une zone ciblée de murs de corbeaux impénétrables pendant 6s. Les ennemis enfermés ne peuvent fuir, perdent leur régénération et subissent des dégâts croissants. Odin peut traverser les murs librement. Redoutable sur objectifs.</div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ ASSASSIN ═══════════ -->
+  <div id="assassin" class="class-panel">
+    <div class="class-banner class-purple">
+      <span class="class-banner-icon">🗡</span>
+      <div>
+        <div class="class-banner-title">Assassin</div>
+        <div class="class-banner-desc">Dieux de l'ombre — ruse, tromperie et mort soudaine, maîtres de l'embuscade</div>
+      </div>
+    </div>
+    <div class="gods-grid">
+
+      <div class="god-card class-purple">
+        <div class="god-card-header">
+          <div><div class="god-name">Loki</div><div class="god-origin">Dieu nordique de la ruse</div></div>
+          <span class="god-class-badge badge-purple">Assassin</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Lame trompeuse</div><div class="ability-desc">Coup furtif — inflige +30% de dégâts si Loki attaque dans le dos de la cible.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Voile d'illusion</div><div class="ability-desc">Loki devient invisible pendant 3s. La prochaine attaque de base depuis l'invisibilité inflige des dégâts critiques garantis et silence la cible 1s.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Double illusoire</div><div class="ability-desc">Crée un clone de Loki qui court dans la direction visée. Le clone explose au contact d'un ennemi, désorientant et ralentissant ceux à portée.</div></div></div>
+          <div class="ability ultimate ult-purple"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Forme des mensonges <span class="ultimate-badge ubadge-purple">Ultime</span></div><div class="ability-desc">Loki prend l'apparence exacte d'un allié choisi — apparence, barre de vie, nom. Il se déplace parmi les ennemis pendant 8s sans être ciblé. À tout moment, il révèle sa vraie forme et déclenche une explosion de lames dévastatrice. Terreur psychologique garantie.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-purple">
+        <div class="god-card-header">
+          <div><div class="god-name">Set</div><div class="god-origin">Dieu égyptien du chaos</div></div>
+          <span class="god-class-badge badge-purple">Assassin</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Griffe du désert</div><div class="ability-desc">Frappe rapide qui applique une marque. Trois marques sur la même cible déclenchent une explosion de sable aveuglante.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Tempête de sable</div><div class="ability-desc">Set génère un tourbillon de sable autour de lui pendant 2s : réduit la précision des ennemis proches à 0 et leur bloque la vision.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Plongée du chaos</div><div class="ability-desc">Set se transforme en nuage de sable, se téléporte derrière sa cible et frappe dans le dos. Traverse obstacles et murs.</div></div></div>
+          <div class="ability ultimate ult-purple"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Meurtre d'Osiris <span class="ultimate-badge ubadge-purple">Ultime</span></div><div class="ability-desc">Set cible un ennemi et rejoue son crime mythologique : il le démembre symboliquement en 7 temps, infligeant 7 vagues de dégâts croissants en 4s. La cible ne peut ni utiliser ses compétences ni se soigner. Si elle meurt, les fragments explosent sur les ennemis alentour.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-purple">
+        <div class="god-card-header">
+          <div><div class="god-name">Hadès</div><div class="god-origin">Dieu grec des enfers</div></div>
+          <span class="god-class-badge badge-purple">Assassin</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Souffle des morts</div><div class="ability-desc">Souffle de nécromancie — vole 5% de PV max à la cible à chaque coup (vol de vie permanent).</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Ombre du Styx</div><div class="ability-desc">Hadès plonge dans le sol et émerge à une position ciblée dans un rayon court. Peut traverser les murs — mobilité souterraine pure.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Chaînes d'Érèbe</div><div class="ability-desc">Lance des chaînes spectrales sur une cible : l'immobilise 2s et lui bloque téléportations et dash pendant la durée.</div></div></div>
+          <div class="ability ultimate ult-purple"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Portail des Enfers <span class="ultimate-badge ubadge-purple">Ultime</span></div><div class="ability-desc">Hadès ouvre un portail béant sous une zone ciblée : toute unité ennemie est aspirée aux Enfers pendant 5s (disparaissent de la carte). Hadès peut descendre pour les frapper en tête-à-tête. À la fin, ils réapparaissent affaiblis et spectraux (−40% de stats pendant 3s).</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-purple">
+        <div class="god-card-header">
+          <div><div class="god-name">Susanoo</div><div class="god-origin">Dieu shinto des tempêtes</div></div>
+          <span class="god-class-badge badge-purple">Assassin</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Tranche-vent</div><div class="ability-desc">Slash d'épée rapide qui envoie une lame d'air en courte portée — frappe aussi les ennemis derrière la cible principale.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Danse de la tempête</div><div class="ability-desc">Susanoo enchaîne 3 slashs en rotation rapide autour de lui — chaque slash repousse projectiles et ennemis proches.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Frappe du typhon</div><div class="ability-desc">Dash ultra-rapide vers une cible, slash en passant et ressort de l'autre côté. Laisse un vide d'air qui attire les ennemis proches vers le point de passage.</div></div></div>
+          <div class="ability ultimate ult-purple"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Yamata-no-Orochi <span class="ultimate-badge ubadge-purple">Ultime</span></div><div class="ability-desc">Susanoo se fusionne avec le dragon-serpent à 8 têtes pendant 10s — chaque tête attaque un ennemi différent simultanément. Il peut encore se déplacer et utiliser ses compétences. Les ennemis tués font apparaître des fleurs de cerisier qui soignent les alliés, comme dans le mythe originel.</div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ MAGE ═══════════ -->
+  <div id="mage" class="class-panel">
+    <div class="class-banner class-blue">
+      <span class="class-banner-icon">✨</span>
+      <div>
+        <div class="class-banner-title">Mage</div>
+        <div class="class-banner-desc">Dieux du savoir et du pouvoir — magie dévastante et contrôle absolu du champ de bataille</div>
+      </div>
+    </div>
+    <div class="gods-grid">
+
+      <div class="god-card class-blue">
+        <div class="god-card-header">
+          <div><div class="god-name">Thot</div><div class="god-origin">Dieu égyptien du savoir</div></div>
+          <span class="god-class-badge badge-blue">Mage</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Hiéroglyphe vivant</div><div class="ability-desc">Lance un glyphe magique à longue portée — chaque hit accumule un « savoir » qui renforce la prochaine compétence.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Livre des morts</div><div class="ability-desc">Ouvre le Livre des morts sur une cible : révèle ses compétences, sa position sur la mini-map et réduit ses résistances magiques de 25% pendant 4s.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Vol d'ibis</div><div class="ability-desc">Thot se transforme en ibis et vole vers une position ciblée très loin — traverse tous les obstacles. Insensible aux dégâts pendant le vol.</div></div></div>
+          <div class="ability ultimate ult-blue"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Réécriture du destin <span class="ultimate-badge ubadge-blue">Ultime</span></div><div class="ability-desc">Thot choisit une cible et réécrit son destin : si la cible meurt dans les 8 prochaines secondes, elle meurt définitivement sans pouvoir être ressuscitée ce round. Si elle survit, elle est téléportée à sa base et perd 50% de ses cooldowns. Counter ultime des résurrections.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-blue">
+        <div class="god-card-header">
+          <div><div class="god-name">Hécate</div><div class="god-origin">Déesse grecque de la magie</div></div>
+          <span class="god-class-badge badge-blue">Mage</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Torche des carrefours</div><div class="ability-desc">Lance une torche magique — explose au sol en un cercle de feu qui brûle pendant 2s.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Malédiction d'Hécate</div><div class="ability-desc">Maudit un ennemi : toute compétence qu'il utilise dans les 3s se retourne contre lui.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Portail du carrefour</div><div class="ability-desc">Ouvre deux portails reliés n'importe où sur la carte. Alliés et Hécate peuvent les traverser pendant 5s. Outil de rotation dévastateur.</div></div></div>
+          <div class="ability ultimate ult-blue"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Triple Hécate <span class="ultimate-badge ubadge-blue">Ultime</span></div><div class="ability-desc">Hécate invoque ses deux formes alternatives pendant 10s. La vieille sage lance des malédictions, la jeune fille des éclairs. Hécate elle-même concentre sa puissance sur la cible principale. Trois dieux en un.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-blue">
+        <div class="god-card-header">
+          <div><div class="god-name">Ra</div><div class="god-origin">Dieu égyptien du soleil</div></div>
+          <span class="god-class-badge badge-blue">Mage</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Rayon solaire</div><div class="ability-desc">Faisceau de lumière en ligne droite — aveugle brièvement les ennemis touchés (0,5s).</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Ardeur du zénith</div><div class="ability-desc">Ra concentre l'énergie solaire sur sa position pendant 2s : inflige des brûlures croissantes à tous les ennemis dans la zone.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Barque solaire</div><div class="ability-desc">Ra monte sur sa barque céleste et glisse à très haute vitesse en ligne droite, intangible. Laisse un sillage de feu sur son chemin.</div></div></div>
+          <div class="ability ultimate ult-blue"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Jugement du soleil <span class="ultimate-badge ubadge-blue">Ultime</span></div><div class="ability-desc">Ra invoque le disque d'Aton au-dessus du champ de bataille : une colonne de lumière brûle une zone massive pendant 6s. Les dégâts ennemis doublent chaque seconde. Les alliés dans la lumière sont soignés et accélérés. Ra est immunisé et se déplace librement dans la colonne.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-blue">
+        <div class="god-card-header">
+          <div><div class="god-name">Merlin</div><div class="god-origin">Mage arthurien légendaire</div></div>
+          <span class="god-class-badge badge-blue">Mage</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Orbe de cristal</div><div class="ability-desc">Lance un orbe de magie pure — rebondit sur les murs jusqu'à 2 fois, gagnant de la puissance à chaque rebond.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Prescience</div><div class="ability-desc">Merlin voit 3s dans le futur : révèle la prochaine compétence que chaque ennemi va utiliser. Parfait pour anticiper une engage.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Invocation des éléments</div><div class="ability-desc">Merlin invoque un élément aléatoire : feu (zone brûlante), glace (ralentissement de zone) ou foudre (chaîne d'éclairs). L'imprévisibilité rend son kit difficile à contrer.</div></div></div>
+          <div class="ability ultimate ult-blue"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Enchantement d'Avalon <span class="ultimate-badge ubadge-blue">Ultime</span></div><div class="ability-desc">Merlin transforme une zone de la map en Avalon pendant 15s : les ennemis dans la zone perdent 40% de leurs stats et sont ralentis. Les alliés gagnent régénération, vitesse et dégâts. Merlin maîtrise le terrain de bataille comme nul autre.</div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ TIREUR ═══════════ -->
+  <div id="tireur" class="class-panel">
+    <div class="class-banner class-amber">
+      <span class="class-banner-icon">🏹</span>
+      <div>
+        <div class="class-banner-title">Tireur</div>
+        <div class="class-banner-desc">Dieux de la précision — portée extrême, dégâts constants, maîtres du kiting et de la distance</div>
+      </div>
+    </div>
+    <div class="gods-grid">
+
+      <div class="god-card class-amber">
+        <div class="god-card-header">
+          <div><div class="god-name">Artémis</div><div class="god-origin">Déesse grecque de la chasse</div></div>
+          <span class="god-class-badge badge-amber">Tireur</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Flèche chasseresse</div><div class="ability-desc">Tir précis à longue portée — chaque 4e tir consécutif sur la même cible est une flèche empoisonnée (DoT 3s).</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Buisson de lune</div><div class="ability-desc">Artémis place un buisson magique n'importe où sur la map pendant 8s. Ses tirs depuis l'intérieur ne révèlent pas sa position.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Recul de chasseresse</div><div class="ability-desc">Artémis fait un backflip rapide tout en tirant une rafale de 3 flèches vers l'avant. Parfait pour kiter et maintenir la distance.</div></div></div>
+          <div class="ability ultimate ult-amber"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Chasse à la lune <span class="ultimate-badge ubadge-amber">Ultime</span></div><div class="ability-desc">Artémis invoque ses chiens divins qui traquent chaque ennemi visible sur la map. Chaque ennemi est suivi par un chien qui révèle sa position et inflige des dégâts toutes les 2s. 5 touches d'un même chien = immobilisation. Aucun ennemi ne peut se cacher pendant 12s.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-amber">
+        <div class="god-card-header">
+          <div><div class="god-name">Apollon</div><div class="god-origin">Dieu grec des arts et du soleil</div></div>
+          <span class="god-class-badge badge-amber">Tireur</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Corde d'or</div><div class="ability-desc">Tir d'arc enchanté — les 3 premières attaques après un dash infligent +50% de dégâts.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Accord parfait</div><div class="ability-desc">Apollon joue un accord sur sa lyre dorée : les alliés proches gagnent +25% de vitesse d'attaque pendant 4s. Un soutien offensif unique pour un tireur.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Flèche solaire</div><div class="ability-desc">Tire une flèche enflammée sur très longue portée — brûle les ennemis sur son passage et explose à l'impact en zone.</div></div></div>
+          <div class="ability ultimate ult-amber"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Char d'Hélios <span class="ultimate-badge ubadge-amber">Ultime</span></div><div class="ability-desc">Apollon prend les rênes du char solaire et le conduit sur toute la longueur de la map, laissant une traînée de feu divine. Les ennemis sont brûlés, aveuglés et repoussés. Apollon peut sauter du char à tout moment pour sniper depuis les airs avant l'atterrissage.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-amber">
+        <div class="god-card-header">
+          <div><div class="god-name">Éros</div><div class="god-origin">Dieu grec de l'amour</div></div>
+          <span class="god-class-badge badge-amber">Tireur</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Flèche du désir</div><div class="ability-desc">Tir aérien depuis les airs (Éros vole en permanence). Si la flèche touche dans le dos, l'ennemi court vers Éros pendant 1s.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Attachement fatal</div><div class="ability-desc">Lie Éros à un allié : si l'allié prend des dégâts mortels dans les 4s, Éros les absorbe à sa place (jusqu'à 40% de ses PV max).</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Volée d'amour</div><div class="ability-desc">Éros vole rapidement vers une position ciblée en hauteur, hors de portée pendant 1,5s. Depuis les airs, ses attaques ont +30% de portée.</div></div></div>
+          <div class="ability ultimate ult-amber"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Psyché et Éros <span class="ultimate-badge ubadge-amber">Ultime</span></div><div class="ability-desc">Éros unit divinement un allié pendant 8s : les deux partagent leurs PV, leurs dégâts sur la même cible se cumulent, et ils sont insensibles aux CC de séparation. Si l'allié est tué pendant l'union, le coupable reçoit une malédiction permanente (−50% de stats jusqu'à sa propre mort).</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-amber">
+        <div class="god-card-header">
+          <div><div class="god-name">Ullr</div><div class="god-origin">Dieu nordique de la chasse</div></div>
+          <span class="god-class-badge badge-amber">Tireur</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Arc de if</div><div class="ability-desc">Tir précis — chaque flèche plantée dans le sol crée un piège invisible. Maximum 3 pièges actifs simultanément.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Skis runiques</div><div class="ability-desc">Ullr chausse ses skis magiques : glisse à grande vitesse pendant 2s, laissant une traînée glacée qui ralentit les ennemis qui la traversent.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Tir à travers les arbres</div><div class="ability-desc">Tire une flèche qui traverse les murs et obstacles — révèle les ennemis cachés dans les buissons et les frappe même derrière un mur.</div></div></div>
+          <div class="ability ultimate ult-amber"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Chasse du chasseur parfait <span class="ultimate-badge ubadge-amber">Ultime</span></div><div class="ability-desc">Ullr cible un ennemi et devient son prédateur absolu pendant 20s : vision à travers les murs, +50% de vitesse en sa direction, et chaque flèche sur cet ennemi inflige +100% de dégâts. La cible est marquée d'une rune visible de tous. Si Ullr échoue à le tuer en 20s, il perd 50% de ses PV.</div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ SUPPORT ═══════════ -->
+  <div id="support" class="class-panel">
+    <div class="class-banner class-green">
+      <span class="class-banner-icon">💚</span>
+      <div>
+        <div class="class-banner-title">Support</div>
+        <div class="class-banner-desc">Dieux de la vie et du destin — soins, protection et vision globale, piliers de toute équipe</div>
+      </div>
+    </div>
+    <div class="gods-grid">
+
+      <div class="god-card class-green">
+        <div class="god-card-header">
+          <div><div class="god-name">Asclépios</div><div class="god-origin">Dieu grec de la médecine</div></div>
+          <span class="god-class-badge badge-green">Support</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Bâton de l'Asclépiéion</div><div class="ability-desc">Frappe avec son bâton sacré — chaque coup soigne légèrement l'allié le plus proche (3% PV max).</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Herbes d'Épidaure</div><div class="ability-desc">Dépose une plante médicinale sur le sol pendant 6s : les alliés qui passent dessus récupèrent 15% de PV max instantanément. Un seul usage par allié.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Purification divine</div><div class="ability-desc">Cible un allié et retire immédiatement tous ses CC et états négatifs. L'allié gagne +20% de vitesse pendant 2s. Contre-jeu absolu aux CC ennemis.</div></div></div>
+          <div class="ability ultimate ult-green"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Résurrection d'Hippolyte <span class="ultimate-badge ubadge-green">Ultime</span></div><div class="ability-desc">Asclépios canalise 2s sur un allié mort récemment (dans les 8s) et le ressuscite avec 60% de ses PV. L'allié ressuscité est invulnérable pendant 2s et gagne +30% à toutes ses stats pendant 5s. Asclépios est intouchable pendant la canalisation. Un ultime capable de renverser n'importe quel teamfight.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-green">
+        <div class="god-card-header">
+          <div><div class="god-name">Theia</div><div class="god-origin">Déesse grecque de la lumière divine</div></div>
+          <span class="god-class-badge badge-green">Support</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Éclat céleste</div><div class="ability-desc">Tir de lumière pure à distance — aveugle la cible 0,5s et donne une vision étendue de la zone autour d'elle.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Aura de Theia</div><div class="ability-desc">Génère un champ lumineux : tous les alliés dans le champ gagnent +15% de résistances et bénéficient d'un bouclier de 200 PV.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Flash aveuglant</div><div class="ability-desc">Projette un flash de lumière divine dans une direction : aveugle tous les ennemis touchés pendant 2s et révèle les unités invisibles dans la zone pendant 5s.</div></div></div>
+          <div class="ability ultimate ult-green"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Lumière d'origine <span class="ultimate-badge ubadge-green">Ultime</span></div><div class="ability-desc">Theia illumine toute la carte pendant 10s : toutes les unités invisibles sont révélées, tous les pièges et wards ennemis apparaissent, les alliés voient à travers les murs. Chaque allié sur la map reçoit un bouclier de 300 PV. Supériorité informationnelle totale.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-green">
+        <div class="god-card-header">
+          <div><div class="god-name">Isis</div><div class="god-origin">Déesse égyptienne de la magie et de la vie</div></div>
+          <span class="god-class-badge badge-green">Support</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Aile d'Isis</div><div class="ability-desc">Frappe avec une aile divine — génère une brise qui repousse légèrement les projectiles ennemis proches.</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Hiéroglyphe de protection</div><div class="ability-desc">Grave un glyphe sur un allié : absorbe les 3 prochains CC ennemis ciblant cet allié. Quand le glyphe est brisé, il explose et ralentit les ennemis proches.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Vol d'Isis</div><div class="ability-desc">Isis se télétransporte auprès d'un allié en danger n'importe où sur la map, lui accordant instantanément un bouclier de 500 PV. Portée globale.</div></div></div>
+          <div class="ability ultimate ult-green"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Résurrection d'Osiris <span class="ultimate-badge ubadge-green">Ultime</span></div><div class="ability-desc">Isis rassemble les fragments de l'âme d'Osiris : pendant 8s, tous les alliés morts récemment reviennent sous forme de spectres combattants, pouvant attaquer et utiliser une compétence. Les alliés vivants régénèrent 10% de PV par seconde. Un miracle de résurrection collective unique.</div></div></div>
+        </div>
+      </div>
+
+      <div class="god-card class-green">
+        <div class="god-card-header">
+          <div><div class="god-name">Frigg</div><div class="god-origin">Déesse nordique de la famille et du destin</div></div>
+          <span class="god-class-badge badge-green">Support</span>
+        </div>
+        <div class="abilities">
+          <div class="ability"><span class="ability-key key-aa">AA</span><div class="ability-content"><div class="ability-name">Quenouille du destin</div><div class="ability-desc">Lance un fil de destin sur un ennemi — réduit ses dégâts de 10% pendant 3s (peut s'appliquer sur plusieurs ennemis).</div></div></div>
+          <div class="ability"><span class="ability-key key-q">Q</span><div class="ability-content"><div class="ability-name">Tisseuse de destins</div><div class="ability-desc">Relie deux alliés par un fil : pendant 5s, les dégâts reçus par l'un sont répartis sur les deux. Protège massivement le carry le plus fragile.</div></div></div>
+          <div class="ability"><span class="ability-key key-w">W</span><div class="ability-content"><div class="ability-name">Manteau de Frigg</div><div class="ability-desc">Rend un allié totalement invisible et invulnérable pendant 2s. Il ne peut pas attaquer mais peut se repositionner librement. Sauve des situations désespérées.</div></div></div>
+          <div class="ability ultimate ult-green"><span class="ability-key key-r">R</span><div class="ability-content"><div class="ability-name">Mort de Baldr <span class="ultimate-badge ubadge-green">Ultime</span></div><div class="ability-desc">Frigg prédit la mort d'un ennemi ciblé : pendant 12s, cet ennemi ne peut blesser aucun allié — ses attaques deviennent inoffensives, comme dans le mythe où tout avait juré de ne pas blesser Baldr. L'ennemi ne sait pas qu'il est affecté. Si l'ultime est brisé, il subit la totalité des dégâts accumulés en une seule explosion.</div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="header-ornament" style="justify-content:center;margin-bottom:16px;">
+    <div class="ornament-line" style="max-width:80px;"></div>
+    <div class="ornament-diamond"></div>
+    <div class="ornament-line right" style="max-width:80px;"></div>
+  </div>
+  <p>Panthéon &mdash; Compendium des Dieux &mdash; MOBA</p>
+</footer>
+
+<script>
+function showClass(id, btn) {
+  document.querySelectorAll('.class-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.class-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+Prompts Midjourney — Icônes UI MOBA
+AttackButton — Estoc de Senbonzakura
+game UI icon, japanese katana sword, single strike, 
+clean blade with subtle pink petal particles, 
+square format, dark purple background circle, 
+gold rim, mobile MOBA style, 2D flat painterly, 
+high contrast, transparent background, 
+512x512 --v 6 --style raw --q 2
+
+
+SkillOneButton — Senbonzakura AoE
+game UI icon, thousand cherry blossom petals 
+swirling in circle formation, pink and white, 
+magical aura, square format, dark purple 
+background circle, gold rim, mobile MOBA style, 
+2D flat painterly, high contrast, 
+transparent background, 512x512 --v 6 --style raw --q 2
+
+
+SkillTwoButton — Ikka Senjinka
+game UI icon, concentrated beam of razor petals, 
+linear burst, blue-white energy, japanese shinigami 
+style, square format, dark purple background circle, 
+gold rim, mobile MOBA style, 2D flat painterly, 
+high contrast, transparent background, 
+512x512 --v 6 --style raw --q 2
+
+
+UltimateButton — Bankai
+game UI icon, bankai release, two giant black blades 
+erupting from ground, thousands of cherry petals 
+explosion, purple dark energy, epic scale, 
+square format, dark background circle, gold rim, 
+mobile MOBA style, 2D flat painterly, 
+high contrast, transparent background, 
+512x512 --v 6 --style raw --q 2

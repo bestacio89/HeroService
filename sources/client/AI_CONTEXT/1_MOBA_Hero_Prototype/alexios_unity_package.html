@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Alexios — Unity Package</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f5f2eb;
+    --surface: #ffffff;
+    --surface2: #ede8da;
+    --border: #ddd5be;
+    --border2: #b8a87a;
+    --text: #1a1508;
+    --muted: #564830;
+    --subtle: #9a8660;
+    --accent: #8b6914;
+    --accent2: #b8860b;
+    --gold: #d4a017;
+    --code-bg: #0a0804;
+    --code-text: #e8d8a0;
+    --tag-bg: #fdf5dc;
+    --tag-text: #6b4c04;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .hero-header {
+    background: linear-gradient(135deg, #0d0a02 0%, #1f1800 40%, #2e2200 70%, #1a2800 100%);
+    padding: 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* subtle Aegean wave pattern overlay */
+  .hero-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #c8a040, #e8c060, #c8a040, transparent);
+    opacity: 0.6;
+  }
+
+  .hero-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .hero-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-game  { background: rgba(180,140,20,0.30); color: #f5d880; border: 1px solid rgba(180,140,20,0.50); }
+  .badge-role  { background: rgba(60,130,80,0.25);  color: #86efb4; border: 1px solid rgba(60,130,80,0.40); }
+  .badge-unity { background: rgba(99,102,241,0.25); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.40); }
+
+  .hero-name {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    position: relative;
+    line-height: 1.1;
+  }
+
+  .hero-name span { color: #f5d880; }
+
+  .hero-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.48);
+    margin-top: 8px;
+    position: relative;
+  }
+
+  .deco {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.10;
+    font-size: 120px;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* ── TABS ── */
+  .tabs-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .tab-btn {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 40px 48px; max-width: 1100px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* ── DESIGN BRIEF ── */
+  .brief-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .brief-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .brief-card.full { grid-column: 1 / -1; }
+
+  .brief-card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brief-card p { color: var(--muted); line-height: 1.7; font-size: 13px; }
+
+  .color-swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .swatch { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .swatch-dot { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); flex-shrink: 0; }
+
+  .prompt-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 8px;
+  }
+
+  .prompt-box p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #e8d8a0;
+    line-height: 1.8;
+  }
+
+  .prompt-box .kw  { color: #f5d880; }
+  .prompt-box .str { color: #a8d8a0; }
+  .prompt-box .num { color: #aad4f5; }
+
+  .copy-btn {
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: rgba(139,105,20,0.14);
+    border: 1px solid rgba(139,105,20,0.32);
+    color: #f5d880;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all .15s;
+  }
+
+  .copy-btn:hover { background: rgba(139,105,20,0.26); }
+  .copy-btn.copied { color: #86efac; border-color: rgba(134,239,172,0.4); }
+
+  .detail-list { list-style: none; }
+  .detail-list li {
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .detail-list li:last-child { border-bottom: none; }
+  .detail-list li::before { content: '→'; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+  /* ── SKILLS ── */
+  .skills-grid { display: flex; flex-direction: column; gap: 16px; }
+
+  .skill-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .skill-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-key {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .sk1 { background: #fdf5dc; color: #6b4c04; border: 1px solid #e8c878; }
+  .sk2 { background: #fdf5dc; color: #6b4c04; border: 1px solid #e8c878; }
+  .skp { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+  .sku { background: #1f1800; color: #f5d880; border: 1px solid #8b6914; }
+
+  .skill-meta { flex: 1; }
+  .skill-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .skill-type { font-size: 11px; color: var(--subtle); margin-top: 2px; }
+
+  .ult-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #1f1800;
+    color: #f5d880;
+    letter-spacing: 0.5px;
+  }
+
+  .skill-body { padding: 16px 20px; }
+  .skill-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
+
+  .skill-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .skill-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+  }
+
+  .skill-stat .label { font-size: 10px; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.5px; }
+  .skill-stat .value { font-size: 15px; font-weight: 700; color: var(--accent2); margin-top: 2px; }
+
+  /* ── CODE ── */
+  .code-section { margin-top: 0; }
+
+  .code-file {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .code-file-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .file-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .file-lang {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .lang-cs   { background: #dbeafe; color: #1d4ed8; }
+  .lang-hlsl { background: #fdf5dc; color: #6b4c04; }
+
+  pre {
+    margin: 0;
+    padding: 20px 24px;
+    overflow-x: auto;
+    background: var(--code-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--code-text);
+  }
+
+  .kw   { color: #f5d880; }
+  .cm   { color: #5a4a28; font-style: italic; }
+  .str  { color: #a8d8a0; }
+  .num  { color: #aad4f5; }
+  .cls  { color: #f5c518; }
+  .fn   { color: #d4a5f5; }
+  .prop { color: #f0883e; }
+  .attr { color: #f85149; }
+
+  /* ── TOOLS ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color .15s, transform .1s;
+  }
+
+  .tool-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .tool-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+
+  .tool-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+
+  .tool-name { font-size: 15px; font-weight: 600; }
+  .tool-cat  { font-size: 11px; color: var(--subtle); margin-top: 1px; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+  .tool-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tool-tag {
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+    background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+  }
+  .tool-tag.green  { background: #dcfce7; color: #14532d; border-color: #bbf7d0; }
+  .tool-tag.blue   { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .tool-tag.orange { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+  .tool-tag.purple { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+  .tool-tag.gold   { background: #fdf5dc; color: #6b4c04; border-color: #e8c878; }
+
+  /* ── WORKFLOW ── */
+  .workflow-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+
+  .workflow-box h3 {
+    font-size: 12px; font-weight: 600; color: #f5d880;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+  }
+
+  .workflow-steps { display: flex; flex-direction: column; gap: 8px; }
+
+  .wstep {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 12px; color: #e8d8a0;
+    font-family: 'JetBrains Mono', monospace; line-height: 1.6;
+  }
+
+  .wnum {
+    width: 22px; height: 22px;
+    background: rgba(139,105,20,0.30); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #f5d880;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  .warrow { color: #5a4a28; margin: 0 4px; }
+
+  /* ── PROGRESSION ── */
+  .progression-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .progress-card h3 {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-note { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  .stat-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+  .stat-table th, .stat-table td {
+    padding: 9px 10px; border-bottom: 1px solid var(--border);
+    text-align: left; vertical-align: top;
+  }
+
+  .stat-table th {
+    color: var(--subtle); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .stat-table td strong { color: var(--text); }
+
+  .level-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .level-chip {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 999px; background: var(--surface2);
+    color: var(--muted); border: 1px solid var(--border);
+  }
+
+  .level-chip.active { background: var(--tag-bg); color: var(--tag-text); border-color: #e8c878; }
+
+  .rank-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+
+  .rank-table th, .rank-table td {
+    padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: center;
+  }
+
+  .rank-table th:first-child, .rank-table td:first-child {
+    text-align: left; color: var(--muted); font-weight: 600;
+  }
+
+  .rank-table th {
+    color: var(--subtle); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .code-mini-note { margin-top: 14px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  @media (max-width: 700px) {
+    .hero-header { padding: 24px 20px; }
+    .tabs-bar { padding: 0 12px; }
+    .section { padding: 24px 16px; }
+    .brief-grid { grid-template-columns: 1fr; }
+    .deco { display: none; }
+    .progression-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="hero-header">
+  <div class="hero-badge-row">
+    <span class="hero-badge badge-game">AC Odyssey · 2018</span>
+    <span class="hero-badge badge-role">Fighter · Assassin</span>
+    <span class="hero-badge badge-unity">Unity Package</span>
+  </div>
+  <div class="hero-name">Alexios <span>of Sparta</span></div>
+  <div class="hero-subtitle">Eagle Bearer · Misthios · Staff of Hermes Trismegistus · Isu Bloodline</div>
+  <div class="deco">🦅</div>
+</div>
+
+<!-- ══════════ TABS ══════════ -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('design', this)">🎨 Design Brief</button>
+  <button class="tab-btn" onclick="showTab('skills', this)">⚔️ Abilities</button>
+  <button class="tab-btn" onclick="showTab('code', this)">{ } C# Scripts</button>
+  <button class="tab-btn" onclick="showTab('shader', this)">✦ HLSL Shaders</button>
+  <button class="tab-btn" onclick="showTab('tools', this)">🛠 3D AI Tools</button>
+</div>
+
+<!-- ══════════ DESIGN BRIEF ══════════ -->
+<div class="section active" id="tab-design">
+  <div class="brief-grid">
+
+    <div class="brief-card">
+      <h3>Silhouette &amp; Morphology</h3>
+      <p>Powerfully built Spartan mercenary — tall, muscular, broad-shouldered. ~1.90m. Scarred, sun-bronzed skin from years of Aegean warfare. Thick dark beard, intense amber-gold eyes reflecting Isu heritage. Moves with a warrior's confident aggression — heavy strikes, explosive lunges, no wasted motion. Carries the weight of a demigod in every stance.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Armor — Spartan Mercenary</h3>
+      <p>Layered Greek warrior armor: bronze cuirass with engraved Spartan lambda (Λ) on the breastplate, leather pteruges (hanging strips) at hips and shoulders, greaves on the shins, sandaled boots. Worn crimson-red cloak over the left shoulder. Crested Spartan helmet optional (off during standard play — worn for ultimate). Brown leather straps and bracers. Battle-worn with dents and scratches.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Iconic Weapon — Spear of Leonidas</h3>
+      <p>The broken Spear of Leonidas — legendary Isu artifact. A short, gleaming blade mounted on a broken haft — not a full spear but a half-spear used as a blade-on-a-stick. Gold Isu glyphs running up the shaft, crackling with amber energy. The broken tip pulses with otherworldly power during abilities. Primary weapon — used for both melee strikes and the iconic energy-channel abilities that define Alexios's kit.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Secondary — Spartan Shield &amp; Sword</h3>
+      <p>Hoplon shield — round bronze Greek shield with Spartan lambda embossed at center, red rim, worn leather back grip. Xiphos shortsword at the hip for close-quarters quick strikes. The shield doubles as an offensive tool: barge, bash, and the Spartan Kick (the iconic "THIS IS SPARTA" boot that sends enemies flying). Both weapons active in the basic attack combo chain.</p>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Color Palette — Swatches</h3>
+      <div class="color-swatch-row">
+        <div class="swatch"><div class="swatch-dot" style="background:#7a5c1e"></div> Bronze amber — cuirass</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#8b0000"></div> Spartan crimson — cloak</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#c8a040"></div> Leonidas gold — Isu glyph</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#2c1e0a"></div> Dark leather — straps</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#e8d080;border:1px solid #ddd"></div> Pale amber — Isu energy</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1a3a28"></div> Deep aegean green — shadow cloak</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#c0b090"></div> Pale stone — marble / granite env</div>
+      </div>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Visual Effects — Unity Particle System</h3>
+      <ul class="detail-list">
+        <li>Idle ambient: subtle amber Isu glyph glow pulsing along the Spear shaft, faint golden energy motes drifting from the broken tip, Ikaros the eagle circles overhead (environmental prop)</li>
+        <li>Basic combo chain: sword swing slash trails (white-silver), spear strike leaves burning amber scar on enemies, shield bash sends a short shockwave burst on impact</li>
+        <li>Skill 1 — Spear Throw: spear launches as a physical projectile trailing golden fire, impact creates a burst of amber spark shards, spear returns to hand via golden energy tether</li>
+        <li>Skill 2 — Bull Rush (Spartan Kick): Alexios charges forward, boot connects with enemy chest — explosive shockwave burst on hit, enemies sent flying backward with physics ragdoll, dust shockwave on landing</li>
+        <li>Passive — Isu Bloodline: golden shimmer rim on Alexios's skin when below 40% HP (Isu regeneration activating), subtle eagle feather particles drift at feet</li>
+        <li>Ultimate — Staff of Hermes: Staff of Hermes Trismegistus manifests in Alexios's hand, reality cracks around him (gold fissure lines), he channels godlike energy through the staff and detonates a massive Isu shockwave ring, immense golden explosion, screen bleach at peak</li>
+        <li>Death: body dissolves upward in amber Isu light particles — noble warrior's end, no gruesome collapse</li>
+      </ul>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Midjourney Prompt — 2D Concept Art</h3>
+      <div class="prompt-box">
+        <p><span class="kw">alexios spartan mercenary original character</span>, <span class="str">tall muscular greek warrior, dark beard, amber gold eyes, bronze Spartan cuirass with lambda symbol, red worn cloak over left shoulder, leather pteruges, bronze greaves, sandaled boots, broken Spear of Leonidas glowing with Isu amber energy in right hand, round hoplon shield in left hand</span>, <span class="kw">aggressive combat stance</span>, <span class="str">ancient Greece Aegean setting, golden sunlight, Isu glyphs floating around spear shaft, crackling amber energy field, eagle Ikaros silhouette in sky, marble ruins in background</span>, <span class="num">full body character sheet front and side view, white background option, realistic Greek epic concept art style, clean lineart, MOBA hero design, high detail, 4K, --ar 2:1 --style raw --q 2</span></p>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Meshy / Kaedim Prompt — 3D Generation</h3>
+      <div class="prompt-box">
+        <p><span class="kw">realistic historical MOBA hero, humanoid biped male Greek warrior fighter-assassin</span>, <span class="str">Assassin's Creed Odyssey inspired Spartan mercenary, tall heavily muscular build, dark beard, bronze layered cuirass armor with Spartan lambda embossing, red fabric cloak draped over left shoulder, leather pteruges hanging from waist and shoulders, bronze greaves on shins, sandaled combat boots, leather bracers, broken spear half-blade glowing with gold energy in right hand, round bronze hoplon shield strapped to left arm</span>, <span class="kw">T-pose, front-facing neutral pose, full body, centered, clearly separated arms and legs, clean joints at all deformation points, no fused cloak with arms, shield as separate mesh, spear as separate prop mesh</span>, <span class="str">game-ready for Unity humanoid rig, PBR textures, separate material zones for bronze armor, red cloak, dark leather, skin, Isu glowing spear, shield face and rim, medium-high poly, FBX export</span>, <span class="num">must support animations: idle combat, walk, run, sprint lunge, basic combo 3-hit (sword-spear-shield), spear throw and return, spartan kick charge, ultimate staff channel + shockwave, hit reaction, death dissolve</span></p>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ ABILITIES ══════════ -->
+<div class="section" id="tab-skills">
+  <div class="progression-grid">
+    <div class="progress-card">
+      <h3>Hero Progression — Level 1 → 15</h3>
+      <table class="stat-table">
+        <thead>
+          <tr><th>Attribute</th><th>Level 1</th><th>Level 15</th><th>Growth</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>HP</strong></td><td>3600</td><td>7400</td><td>+271.4 / lvl</td></tr>
+          <tr><td><strong>HP Regen</strong></td><td>11.0</td><td>24.0</td><td>+0.93 / lvl</td></tr>
+          <tr><td><strong>Adrenaline (resource)</strong></td><td>100</td><td>100</td><td>Fixed</td></tr>
+          <tr><td><strong>Adrenaline Regen</strong></td><td>12 / s</td><td>22 / s</td><td>+0.71 / lvl</td></tr>
+          <tr><td><strong>Physical Attack</strong></td><td>175</td><td>360</td><td>+13.2 / lvl</td></tr>
+          <tr><td><strong>Physical Defense</strong></td><td>48</td><td>110</td><td>+4.4 / lvl</td></tr>
+          <tr><td><strong>Magic Defense</strong></td><td>30</td><td>72</td><td>+3.0 / lvl</td></tr>
+          <tr><td><strong>Attack Speed</strong></td><td>0.95</td><td>1.20</td><td>+0.018 / lvl</td></tr>
+          <tr><td><strong>Move Speed</strong></td><td>245</td><td>245</td><td>Fixed</td></tr>
+          <tr><td><strong>Basic Attack Range</strong></td><td>2.8m</td><td>2.8m</td><td>Fixed (melee)</td></tr>
+          <tr><td><strong>Armor Penetration</strong></td><td>8%</td><td>22%</td><td>+1.0% / lvl</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="progress-card">
+      <h3>System Proposal</h3>
+      <div class="progress-note">
+        Alexios is a <strong>bruiser Fighter/Assassin</strong> — high HP for a melee fighter, excellent physical defense from the hoplon shield, outstanding burst damage from Isu-powered abilities. He uses an <strong>Adrenaline</strong> resource that regenerates continuously and surges on kills — rewarding aggressive play.<br/><br/>
+        His iconic <strong>Spear of Leonidas</strong> drives all three active abilities. His basic attack chains spear, sword, and shield in a 3-hit combo with the third hit always being the <strong>Spartan Shield Bash</strong>, which briefly stuns. The passive <strong>Isu Bloodline</strong> grants escalating power at low HP — a true cornered warrior becomes more dangerous.
+      </div>
+      <div class="level-row">
+        <span class="level-chip active">Hero: 15 Levels</span>
+        <span class="level-chip">Skill 1: 4 Ranks</span>
+        <span class="level-chip">Skill 2: 4 Ranks</span>
+        <span class="level-chip">Ultimate: 3 Ranks</span>
+        <span class="level-chip">Adrenaline System</span>
+        <span class="level-chip">Isu Passive</span>
+      </div>
+      <div class="code-mini-note">
+        <strong>Adrenaline</strong> replaces mana — regenerates at a fixed rate and gains a +30 burst on any kill. Stored as a float in <code>AlexiosController</code>. All abilities cost adrenaline except the ultimate, which requires <strong>100 full Adrenaline</strong> — forcing Alexios to build up before unleashing godlike power.
+      </div>
+    </div>
+  </div>
+
+  <div class="skills-grid">
+
+    <!-- BASIC ATTACK -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk1">B</div>
+        <div class="skill-meta">
+          <div class="skill-name">Basic Attack — Spartan Combo</div>
+          <div class="skill-type">Physical · 3-hit melee chain · Stun on 3rd hit</div>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">A 3-hit melee combo cycling through Alexios's arsenal: <strong>Hit 1</strong> — Xiphos shortsword quick slash (fast, low damage); <strong>Hit 2</strong> — Spear of Leonidas thrust (medium, Isu ember on impact); <strong>Hit 3</strong> — Hoplon Shield Bash (heavy, briefly stuns target for 0.5s and generates +15 Adrenaline). The combo auto-resets after a short pause. Third-hit stun sets up ability combos. Each hit scales with Physical Attack.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Hit 1 mult</div><div class="value">×0.70</div></div>
+          <div class="skill-stat"><div class="label">Hit 2 mult</div><div class="value">×1.10</div></div>
+          <div class="skill-stat"><div class="label">Hit 3 mult</div><div class="value">×1.40</div></div>
+          <div class="skill-stat"><div class="label">Stun (hit 3)</div><div class="value">0.5s</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Hero Scale</th><th>Lvl 1</th><th>Lvl 8</th><th>Lvl 15</th></tr></thead>
+          <tbody>
+            <tr><td>Physical Attack</td><td>175</td><td>268</td><td>360</td></tr>
+            <tr><td>Full combo damage</td><td>560</td><td>857</td><td>1152</td></tr>
+            <tr><td>Adrenaline gain (hit 3)</td><td>+15</td><td>+15</td><td>+15</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SKILL 1 -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk1">1</div>
+        <div class="skill-meta">
+          <div class="skill-name">Spear Throw — Lance of Leonidas</div>
+          <div class="skill-type">Physical · Long-range projectile · Pierce + Isu Burn DoT</div>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">Alexios hurls the Spear of Leonidas with both hands — the legendary artifact blazes through the air as a golden fire projectile that <strong>pierces through all enemies in its path</strong> in a straight line. Each enemy struck takes physical damage and is set <strong>Burning</strong> with Isu energy for 3s (damage over time). After the throw, the spear snaps back to Alexios's hand via a glowing golden tether — the return arc can also <strong>hit enemies</strong> on the way back. True to the game: range, pierce, and the iconic return mechanic.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Range</div><div class="value">14m</div></div>
+          <div class="skill-stat"><div class="label">Pierce</div><div class="value">Full line</div></div>
+          <div class="skill-stat"><div class="label">Isu Burn</div><div class="value">3s DoT</div></div>
+          <div class="skill-stat"><div class="label">Adrenaline</div><div class="value">28 cost</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead>
+          <tbody>
+            <tr><td>Impact damage</td><td>280</td><td>350</td><td>420</td><td>490</td></tr>
+            <tr><td>Isu Burn / sec</td><td>55</td><td>70</td><td>85</td><td>100</td></tr>
+            <tr><td>Return hit dmg</td><td>140</td><td>175</td><td>210</td><td>245</td></tr>
+            <tr><td>Cooldown</td><td>9s</td><td>8s</td><td>7s</td><td>6s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SKILL 2 -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk2">2</div>
+        <div class="skill-meta">
+          <div class="skill-name">Bull Rush — Spartan Kick</div>
+          <div class="skill-type">Physical · Charge + Knockback · Airborne CC + Wall Slam bonus</div>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">The most iconic Spartan move in the game. Alexios lowers his shoulder and charges forward in a straight line — on contact he delivers a devastating <strong>Spartan Kick</strong>, sending the enemy flying backward with brutal knockback force. The target is <strong>Airborne for 1.2s</strong>. If the target collides with a wall, pillar, or boundary during knockback, they take <strong>bonus wall-slam damage</strong> and are briefly Stunned for an additional 0.6s. Generates +20 Adrenaline on a successful kick. The ultimate gap-closer and engagement tool — also great for saving teammates by kicking enemies away.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Charge range</div><div class="value">7m</div></div>
+          <div class="skill-stat"><div class="label">Knockback</div><div class="value">5m launch</div></div>
+          <div class="skill-stat"><div class="label">Airborne</div><div class="value">1.2s</div></div>
+          <div class="skill-stat"><div class="label">Adrenaline</div><div class="value">24 cost</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead>
+          <tbody>
+            <tr><td>Kick damage</td><td>220</td><td>280</td><td>340</td><td>400</td></tr>
+            <tr><td>Knockback dist.</td><td>5m</td><td>5.5m</td><td>6m</td><td>6.5m</td></tr>
+            <tr><td>Wall-slam bonus</td><td>+120</td><td>+155</td><td>+190</td><td>+225</td></tr>
+            <tr><td>Adrenaline gain</td><td>+20</td><td>+20</td><td>+20</td><td>+20</td></tr>
+            <tr><td>Cooldown</td><td>12s</td><td>11s</td><td>10s</td><td>9s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PASSIVE -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key skp">P</div>
+        <div class="skill-meta">
+          <div class="skill-name">Passive — Isu Bloodline</div>
+          <div class="skill-type">Passive · Low-HP power surge · Adrenaline on kill</div>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">Alexios carries Isu god blood — the closer to death he gets, the more his heritage awakens. When Alexios drops below <strong>40% HP</strong>, his Physical Attack increases by <strong>+18%</strong>, his Armor Penetration doubles, and all ability cooldowns tick <strong>20% faster</strong>. Additionally, every kill Alexios lands instantly grants <strong>+30 Adrenaline</strong> — making aggressive play the fastest path to the ultimate. This passive rewards high-risk, high-reward play and mirrors AC Odyssey's escalating power fantasy.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">HP trigger</div><div class="value">40%</div></div>
+          <div class="skill-stat"><div class="label">ATQ bonus</div><div class="value">+18%</div></div>
+          <div class="skill-stat"><div class="label">CD reduction</div><div class="value">20% faster</div></div>
+          <div class="skill-stat"><div class="label">Kill adrenaline</div><div class="value">+30</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ULTIMATE -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sku">U</div>
+        <div class="skill-meta">
+          <div class="skill-name">Staff of Hermes — Wrath of the Isu</div>
+          <div class="skill-type">Ultimate · Massive radial Isu shockwave · Full Adrenaline cost · Reality fracture</div>
+        </div>
+      </div>
+      <span class="ult-badge">ULTIMATE</span>
+      <div class="skill-body">
+        <div class="skill-desc">Alexios channels the full power of his Isu heritage — the <strong>Staff of Hermes Trismegistus</strong> materialises in his grip, reality fracturing with gold fissure lines around him. He drives the Staff into the ground and detonates a catastrophic radial <strong>Isu shockwave</strong> that deals devastating damage to all enemies in range, <strong>launches them airborne</strong> for 1.5s, and leaves a burning Isu energy field on the ground for 4s dealing continuous damage. Requires <strong>100 Adrenaline</strong> (full bar) to cast — Alexios drains every last drop. Post-cast, Alexios enters a 2s cooldown window where he cannot cast abilities but movement is unrestricted. The ultimate is the culmination of his Isu god-blood and turns any teamfight he walks into.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Blast radius</div><div class="value">16m</div></div>
+          <div class="skill-stat"><div class="label">Airborne</div><div class="value">1.5s</div></div>
+          <div class="skill-stat"><div class="label">Ground field</div><div class="value">4s burn</div></div>
+          <div class="skill-stat"><div class="label">Adrenaline cost</div><div class="value">100 (full)</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th></tr></thead>
+          <tbody>
+            <tr><td>Blast damage</td><td>800</td><td>1100</td><td>1450</td></tr>
+            <tr><td>Ground burn / sec</td><td>100</td><td>135</td><td>175</td></tr>
+            <tr><td>Field radius</td><td>16m</td><td>18m</td><td>20m</td></tr>
+            <tr><td>Field duration</td><td>4s</td><td>4s</td><td>5s</td></tr>
+            <tr><td>Cooldown</td><td>95s</td><td>85s</td><td>75s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="workflow-box">
+    <h3>Recommended Unity Architecture</h3>
+    <div class="workflow-steps">
+      <div class="wstep"><div class="wnum">1</div><span><span style="color:#f5d880">HeroDefinition.asset</span> <span class="warrow">→</span> Stats level 1→15, adrenaline regen curve, armor penetration, passive thresholds</span></div>
+      <div class="wstep"><div class="wnum">2</div><span><span style="color:#d4a5f5">AlexiosController</span> <span class="warrow">→</span> 3-hit combo state machine, adrenaline float, Isu passive tracker, wall-slam detection, ultimate gate</span></div>
+      <div class="wstep"><div class="wnum">3</div><span><span style="color:#a8d8a0">AlexiosCombatVFX</span> <span class="warrow">→</span> Spear Isu glow binder, spear throw projectile + return tether, bull rush trail, staff unfold, Isu ground field</span></div>
+      <div class="wstep"><div class="wnum">4</div><span><span style="color:#aad4f5">URP Shaders</span> <span class="warrow">→</span> Armor surface + Isu passive glow, Spear Isu energy, shockwave ground ring, death amber dissolve</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ C# SCRIPTS ══════════ -->
+<div class="section" id="tab-code">
+  <div class="code-section">
+
+    <!-- HeroDefinition.cs -->
+    <div class="code-file">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> HeroDefinition.cs</div>
+        <button class="copy-btn" onclick="copyCode('code1', this)">Copy</button>
+      </div>
+      <pre id="code1"><span class="cm">// HeroDefinition.cs
+// ScriptableObject — MOBA 15-level hero data.
+// Extended for Alexios: Adrenaline resource, armor penetration, Isu passive thresholds.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+<span class="kw">using</span> System;
+
+[<span class="cls">CreateAssetMenu</span>(menuName = <span class="str">"Game/Hero Definition"</span>, fileName = <span class="str">"HeroDefinition"</span>)]
+<span class="kw">public class</span> <span class="cls">HeroDefinition</span> : <span class="cls">ScriptableObject</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Identity"</span>)]
+    <span class="kw">public</span> <span class="kw">string</span>   heroId      = <span class="str">"alexios"</span>;
+    <span class="kw">public</span> <span class="kw">string</span>   displayName = <span class="str">"Alexios of Sparta"</span>;
+    <span class="kw">public</span> <span class="cls">HeroRole</span> role        = <span class="cls">HeroRole</span>.Fighter;
+
+    [<span class="cls">Header</span>(<span class="str">"Core progression — Level 1 to 15"</span>)]
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> maxHp           = <span class="kw">new</span>(<span class="num">3600f</span>, <span class="num">7400f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> hpRegen          = <span class="kw">new</span>(<span class="num">11.0f</span>, <span class="num">24.0f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> adrenalineRegen  = <span class="kw">new</span>(<span class="num">12.0f</span>, <span class="num">22.0f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> physicalAttack   = <span class="kw">new</span>(<span class="num">175f</span>,  <span class="num">360f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> physicalDefense  = <span class="kw">new</span>(<span class="num">48f</span>,   <span class="num">110f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> magicDefense     = <span class="kw">new</span>(<span class="num">30f</span>,   <span class="num">72f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> attackSpeed      = <span class="kw">new</span>(<span class="num">0.95f</span>, <span class="num">1.20f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> armorPenetration = <span class="kw">new</span>(<span class="num">0.08f</span>, <span class="num">0.22f</span>); <span class="cm">// 8% → 22%</span>
+
+    [<span class="cls">Header</span>(<span class="str">"Fixed properties"</span>)]
+    <span class="kw">public float</span> moveSpeed         = <span class="num">245f</span>;
+    <span class="kw">public float</span> basicAttackRange  = <span class="num">2.8f</span>;
+    <span class="kw">public float</span> attackSpeedRatio  = <span class="num">1.0f</span>;
+    <span class="kw">public float</span> maxAdrenaline     = <span class="num">100f</span>;
+    <span class="kw">public float</span> killAdrenalineBonus = <span class="num">30f</span>;
+    <span class="kw">public float</span> shieldBashAdrenaline = <span class="num">15f</span>;
+    <span class="kw">public float</span> spartanKickAdrenaline = <span class="num">20f</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Isu Bloodline Passive"</span>)]
+    <span class="kw">public float</span> isuHpThreshold     = <span class="num">0.40f</span>; <span class="cm">// 40% HP</span>
+    <span class="kw">public float</span> isuAttackBonus     = <span class="num">0.18f</span>; <span class="cm">// +18% physical attack</span>
+    <span class="kw">public float</span> isuCdReduction     = <span class="num">0.20f</span>; <span class="cm">// cooldowns tick 20% faster</span>
+    <span class="kw">public float</span> isuPenMultiplier   = <span class="num">2.0f</span>;  <span class="cm">// double armor penetration</span>
+
+    [<span class="cls">Header</span>(<span class="str">"Ability ranks"</span>)]
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> basicAttack = <span class="kw">new</span>(<span class="str">"Spartan Combo"</span>,
+        <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="num">0f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> skillOne = <span class="kw">new</span>(<span class="str">"Spear Throw"</span>,
+        <span class="kw">new</span>[] { <span class="num">280f</span>, <span class="num">350f</span>, <span class="num">420f</span>, <span class="num">490f</span> },
+        <span class="kw">new</span>[] { <span class="num">28f</span>, <span class="num">28f</span>, <span class="num">28f</span>, <span class="num">28f</span> },
+        <span class="kw">new</span>[] { <span class="num">9f</span>, <span class="num">8f</span>, <span class="num">7f</span>, <span class="num">6f</span> }, <span class="num">0.50f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> skillTwo = <span class="kw">new</span>(<span class="str">"Bull Rush"</span>,
+        <span class="kw">new</span>[] { <span class="num">220f</span>, <span class="num">280f</span>, <span class="num">340f</span>, <span class="num">400f</span> },
+        <span class="kw">new</span>[] { <span class="num">24f</span>, <span class="num">24f</span>, <span class="num">24f</span>, <span class="num">24f</span> },
+        <span class="kw">new</span>[] { <span class="num">12f</span>, <span class="num">11f</span>, <span class="num">10f</span>, <span class="num">9f</span> }, <span class="num">0.60f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> ultimate = <span class="kw">new</span>(<span class="str">"Wrath of the Isu"</span>,
+        <span class="kw">new</span>[] { <span class="num">800f</span>, <span class="num">1100f</span>, <span class="num">1450f</span> },
+        <span class="kw">new</span>[] { <span class="num">100f</span>, <span class="num">100f</span>, <span class="num">100f</span> }, <span class="cm">// always costs full bar</span>
+        <span class="kw">new</span>[] { <span class="num">95f</span>, <span class="num">85f</span>, <span class="num">75f</span> }, <span class="num">0.70f</span>);
+
+    <span class="kw">public</span> <span class="cls">RuntimeHeroStats</span> <span class="fn">CreateRuntime</span>(<span class="kw">int</span> level)
+    {
+        level = <span class="cls">Mathf</span>.Clamp(level, <span class="num">1</span>, <span class="num">15</span>);
+        <span class="kw">return new</span> <span class="cls">RuntimeHeroStats</span>
+        {
+            level            = level,
+            maxHp            = maxHp.<span class="fn">Evaluate</span>(level),
+            hpRegen          = hpRegen.<span class="fn">Evaluate</span>(level),
+            adrenalineRegen  = adrenalineRegen.<span class="fn">Evaluate</span>(level),
+            physicalAttack   = physicalAttack.<span class="fn">Evaluate</span>(level),
+            physicalDefense  = physicalDefense.<span class="fn">Evaluate</span>(level),
+            magicDefense     = magicDefense.<span class="fn">Evaluate</span>(level),
+            attackSpeed      = attackSpeed.<span class="fn">Evaluate</span>(level),
+            armorPenetration = armorPenetration.<span class="fn">Evaluate</span>(level),
+            moveSpeed        = moveSpeed,
+            basicAttackRange = basicAttackRange,
+            attackSpeedRatio = attackSpeedRatio,
+            maxAdrenaline    = maxAdrenaline
+        };
+    }
+}
+
+<span class="kw">public enum</span> <span class="cls">HeroRole</span> { Tank, Fighter, Assassin, Mage, Marksman, Support, MageAssassin }
+
+[Serializable]
+<span class="kw">public struct</span> <span class="cls">ScaledStat</span>
+{
+    <span class="kw">public float</span> level1, level15;
+    <span class="kw">public</span> <span class="cls">ScaledStat</span>(<span class="kw">float</span> l1, <span class="kw">float</span> l15) { level1 = l1; level15 = l15; }
+    <span class="kw">public float</span> <span class="fn">Evaluate</span>(<span class="kw">int</span> level)
+    {
+        level = <span class="cls">Mathf</span>.Clamp(level, <span class="num">1</span>, <span class="num">15</span>);
+        <span class="kw">return</span> level == <span class="num">1</span> ? level1 : <span class="cls">Mathf</span>.Lerp(level1, level15, (level - <span class="num">1f</span>) / <span class="num">14f</span>);
+    }
+}
+
+[Serializable]
+<span class="kw">public class</span> <span class="cls">AbilityRankData</span>
+{
+    <span class="kw">public string</span>  abilityName;
+    <span class="kw">public float</span>[] baseDamage;
+    <span class="kw">public float</span>[] adrenalineCost;
+    <span class="kw">public float</span>[] cooldown;
+    <span class="kw">public float</span>   scalingPhysical;
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span>(<span class="kw">string</span> n, <span class="kw">float</span>[] dmg, <span class="kw">float</span>[] cost, <span class="kw">float</span>[] cd, <span class="kw">float</span> scale)
+    { abilityName = n; baseDamage = dmg; adrenalineCost = cost; cooldown = cd; scalingPhysical = scale; }
+
+    <span class="kw">public float</span> <span class="fn">DamageAtRank</span>    (<span class="kw">int</span> r, <span class="kw">float</span> atq) => baseDamage     [<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,baseDamage.Length-<span class="num">1</span>)]     + atq * scalingPhysical;
+    <span class="kw">public float</span> <span class="fn">AdrenalineAtRank</span>(<span class="kw">int</span> r)          => adrenalineCost  [<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,adrenalineCost.Length-<span class="num">1</span>)];
+    <span class="kw">public float</span> <span class="fn">CooldownAtRank</span>  (<span class="kw">int</span> r)          => cooldown         [<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,cooldown.Length-<span class="num">1</span>)];
+}
+
+[Serializable]
+<span class="kw">public struct</span> <span class="cls">RuntimeHeroStats</span>
+{
+    <span class="kw">public int</span>   level;
+    <span class="kw">public float</span> maxHp, hpRegen;
+    <span class="kw">public float</span> adrenalineRegen, maxAdrenaline;
+    <span class="kw">public float</span> physicalAttack, physicalDefense, magicDefense;
+    <span class="kw">public float</span> attackSpeed, moveSpeed, basicAttackRange, attackSpeedRatio;
+    <span class="kw">public float</span> armorPenetration;
+}</pre>
+    </div>
+
+    <!-- AlexiosController.cs -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> AlexiosController.cs</div>
+        <button class="copy-btn" onclick="copyCode('code2', this)">Copy</button>
+      </div>
+      <pre id="code2"><span class="cm">// AlexiosController.cs
+// Main controller: 3-hit combo state machine, Adrenaline resource,
+// Isu Bloodline passive, Spear Throw with return arc,
+// Bull Rush wall-slam detection, Staff of Hermes ultimate gate (full adrenaline).</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+<span class="kw">using</span> <span class="cls">UnityEngine</span>.AI;
+<span class="kw">using</span> System.Collections;
+
+[<span class="cls">RequireComponent</span>(<span class="kw">typeof</span>(<span class="cls">NavMeshAgent</span>))]
+<span class="kw">public class</span> <span class="cls">AlexiosController</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Data"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">HeroDefinition</span> heroDefinition;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">15</span>)] <span class="kw">private int</span> heroLevel = <span class="num">1</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Ability Ranks"</span>)]
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">4</span>)] <span class="kw">private int</span> skillOneRank = <span class="num">1</span>;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">4</span>)] <span class="kw">private int</span> skillTwoRank = <span class="num">1</span>;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">3</span>)] <span class="kw">private int</span> ultimateRank = <span class="num">1</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Scene References"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Animator</span>         animator;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">NavMeshAgent</span>     agent;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">AlexiosCombatVFX</span> combatVfx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Transform</span>         spearTip;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Transform</span>         staffMount;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LayerMask</span>         enemyMask;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LayerMask</span>         wallMask;
+
+    [<span class="cls">Header</span>(<span class="str">"Runtime"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">RuntimeHeroStats</span> stats;
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> currentHp;
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> currentAdrenaline;
+    [<span class="cls">SerializeField</span>] <span class="kw">private bool</span>  isDead;
+
+    <span class="cm">// 3-hit combo state</span>
+    <span class="kw">private int</span>   comboStep      = <span class="num">0</span>; <span class="cm">// 0=sword, 1=spear, 2=shield bash</span>
+    <span class="kw">private float</span> comboResetTimer = <span class="num">0f</span>;
+    <span class="kw">private const float</span> COMBO_RESET_TIME = <span class="num">1.6f</span>;
+
+    <span class="kw">private float</span> basicCooldown, skillOneCooldown, skillTwoCooldown, ultimateCooldown;
+    <span class="kw">private bool</span>  isuPassiveActive;
+    <span class="kw">private bool</span>  isUltimateChanneling;
+
+    <span class="kw">public float</span> HpPercent         => stats.maxHp        > <span class="num">0f</span> ? currentHp         / stats.maxHp        : <span class="num">0f</span>;
+    <span class="kw">public float</span> AdrenalinePercent  => stats.maxAdrenaline > <span class="num">0f</span> ? currentAdrenaline / stats.maxAdrenaline : <span class="num">0f</span>;
+    <span class="kw">public bool</span>  IsuActive          => isuPassiveActive;
+    <span class="kw">public bool</span>  IsDead             => isDead;
+
+    <span class="kw">private void</span> <span class="fn">Reset</span>() { agent = <span class="fn">GetComponent</span>&lt;<span class="cls">NavMeshAgent</span>&gt;(); animator = <span class="fn">GetComponentInChildren</span>&lt;<span class="cls">Animator</span>&gt;(); }
+    <span class="kw">private void</span> <span class="fn">Awake</span>() { <span class="kw">if</span> (agent == <span class="kw">null</span>) agent = <span class="fn">GetComponent</span>&lt;<span class="cls">NavMeshAgent</span>&gt;(); <span class="fn">ApplyLevel</span>(heroLevel, <span class="kw">true</span>); }
+
+    <span class="kw">private void</span> <span class="fn">Update</span>()
+    {
+        <span class="kw">if</span> (isDead || heroDefinition == <span class="kw">null</span>) <span class="kw">return</span>;
+        <span class="fn">TickCooldowns</span>();
+        <span class="fn">RegenerateResources</span>();
+        <span class="fn">CheckIsuPassive</span>();
+        <span class="fn">TickComboReset</span>();
+        <span class="fn">UpdateAnimator</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">ApplyLevel</span>(<span class="kw">int</span> newLevel, <span class="kw">bool</span> fullRestore = <span class="kw">false</span>)
+    {
+        heroLevel = <span class="cls">Mathf</span>.Clamp(newLevel, <span class="num">1</span>, <span class="num">15</span>);
+        stats = heroDefinition.<span class="fn">CreateRuntime</span>(heroLevel);
+        agent.speed = stats.moveSpeed / <span class="num">100f</span>;
+        <span class="kw">if</span> (fullRestore) { currentHp = stats.maxHp; currentAdrenaline = <span class="num">0f</span>; }
+        <span class="kw">else</span> currentHp = <span class="cls">Mathf</span>.Min(currentHp, stats.maxHp);
+    }
+
+    <span class="kw">public void</span> <span class="fn">MoveTo</span>(<span class="cls">Vector3</span> worldPoint)
+    {
+        <span class="kw">if</span> (isDead) <span class="kw">return</span>;
+        agent.isStopped = <span class="kw">false</span>;
+        agent.<span class="fn">SetDestination</span>(worldPoint);
+    }
+
+    <span class="cm">// ── BASIC ATTACK — 3-hit combo ────────────────────────────────────────</span>
+    <span class="kw">public void</span> <span class="fn">BasicAttack</span>(<span class="cls">Health</span> target)
+    {
+        <span class="kw">if</span> (isDead || basicCooldown > <span class="num">0f</span> || target == <span class="kw">null</span>) <span class="kw">return</span>;
+
+        comboResetTimer = COMBO_RESET_TIME;
+        <span class="kw">float</span> atq = <span class="fn">GetEffectiveAttack</span>();
+
+        <span class="kw">switch</span> (comboStep)
+        {
+            <span class="kw">case</span> <span class="num">0</span>: <span class="cm">// Xiphos sword slash</span>
+                basicCooldown = <span class="num">1f</span> / <span class="cls">Mathf</span>.Max(<span class="num">0.1f</span>, stats.attackSpeed * stats.attackSpeedRatio);
+                target.<span class="fn">ApplyPhysicalDamage</span>(<span class="fn">ApplyPen</span>(atq * <span class="num">0.70f</span>));
+                animator.<span class="fn">SetTrigger</span>(<span class="str">"Attack1"</span>);
+                combatVfx.<span class="fn">PlaySwordSlash</span>(spearTip.position);
+                <span class="kw">break</span>;
+            <span class="kw">case</span> <span class="num">1</span>: <span class="cm">// Spear thrust</span>
+                basicCooldown = <span class="num">1f</span> / <span class="cls">Mathf</span>.Max(<span class="num">0.1f</span>, stats.attackSpeed * stats.attackSpeedRatio);
+                target.<span class="fn">ApplyPhysicalDamage</span>(<span class="fn">ApplyPen</span>(atq * <span class="num">1.10f</span>));
+                animator.<span class="fn">SetTrigger</span>(<span class="str">"Attack2"</span>);
+                combatVfx.<span class="fn">PlaySpearThrust</span>(spearTip.position);
+                <span class="kw">break</span>;
+            <span class="kw">case</span> <span class="num">2</span>: <span class="cm">// Hoplon shield bash — stun + adrenaline gain</span>
+                basicCooldown = <span class="num">1f</span> / <span class="cls">Mathf</span>.Max(<span class="num">0.1f</span>, stats.attackSpeed * stats.attackSpeedRatio);
+                target.<span class="fn">ApplyPhysicalDamage</span>(<span class="fn">ApplyPen</span>(atq * <span class="num">1.40f</span>));
+                target.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplyStun</span>(<span class="num">0.5f</span>);
+                <span class="fn">GainAdrenaline</span>(heroDefinition.shieldBashAdrenaline);
+                animator.<span class="fn">SetTrigger</span>(<span class="str">"Attack3"</span>);
+                combatVfx.<span class="fn">PlayShieldBash</span>(spearTip.position);
+                <span class="kw">break</span>;
+        }
+        comboStep = (comboStep + <span class="num">1</span>) % <span class="num">3</span>;
+    }
+
+    <span class="cm">// ── SKILL 1 — Spear Throw: pierce line + Isu Burn + return arc ─────────</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastSkillOne</span>(<span class="cls">Vector3</span> direction)
+    {
+        <span class="kw">if</span> (!<span class="fn">CanCast</span>(heroDefinition.skillOne, skillOneRank, skillOneCooldown)) <span class="kw">return false</span>;
+        <span class="fn">SpendAdrenaline</span>(heroDefinition.skillOne.<span class="fn">AdrenalineAtRank</span>(skillOneRank));
+        skillOneCooldown = <span class="fn">GetCooldown</span>(heroDefinition.skillOne.<span class="fn">CooldownAtRank</span>(skillOneRank));
+        agent.isStopped = <span class="kw">true</span>;
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"SpearThrow"</span>);
+        <span class="fn">StartCoroutine</span>(<span class="fn">SpearThrowRoutine</span>(direction, skillOneRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">SpearThrowRoutine</span>(<span class="cls">Vector3</span> dir, <span class="kw">int</span> rank)
+    {
+        <span class="kw">float</span> range     = <span class="num">14f</span>;
+        <span class="kw">float</span> burnDmg   = <span class="num">50f</span> + rank * <span class="num">15f</span>;     <span class="cm">// per second Isu burn</span>
+        <span class="kw">float</span> burnTime  = <span class="num">3f</span>;
+        <span class="kw">float</span> impactDmg = heroDefinition.skillOne.<span class="fn">DamageAtRank</span>(rank, <span class="fn">GetEffectiveAttack</span>());
+        <span class="kw">float</span> returnDmg = impactDmg * <span class="num">0.5f</span>;
+
+        combatVfx.<span class="fn">PlaySpearThrowFx</span>(spearTip.position, dir.normalized * range);
+
+        <span class="cm">// Forward pierce — raycastAll equivalent</span>
+        <span class="kw">var</span> hits = <span class="cls">Physics</span>.<span class="fn">RaycastAll</span>(spearTip.position, dir.normalized, range, enemyMask);
+        System.Array.<span class="fn">Sort</span>(hits, (a, b) => a.distance.CompareTo(b.distance));
+        <span class="kw">foreach</span> (<span class="kw">var</span> h <span class="kw">in</span> hits)
+        {
+            <span class="kw">var</span> hp = h.collider.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;();
+            <span class="kw">if</span> (hp != <span class="kw">null</span>)
+            {
+                hp.<span class="fn">ApplyPhysicalDamage</span>(<span class="fn">ApplyPen</span>(impactDmg));
+                hp.<span class="fn">GetComponent</span>&lt;<span class="cls">StatusEffectReceiver</span>&gt;()?.<span class="fn">ApplyBurn</span>(burnDmg, burnTime);
+            }
+        }
+
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.55f</span>); <span class="cm">// spear flight time out</span>
+
+        <span class="cm">// Return arc — hits enemies near the return path</span>
+        <span class="cls">Vector3</span> returnOrigin = spearTip.position + dir.normalized * range;
+        combatVfx.<span class="fn">PlaySpearReturnFx</span>(returnOrigin, spearTip.position);
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapCapsule</span>(returnOrigin, spearTip.position, <span class="num">1.2f</span>, enemyMask))
+            col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;()?.<span class="fn">ApplyPhysicalDamage</span>(<span class="fn">ApplyPen</span>(returnDmg));
+
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.3f</span>);
+        agent.isStopped = <span class="kw">false</span>;
+    }
+
+    <span class="cm">// ── SKILL 2 — Bull Rush / Spartan Kick: charge + knockback + wall slam ─</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastSkillTwo</span>(<span class="cls">Vector3</span> direction)
+    {
+        <span class="kw">if</span> (!<span class="fn">CanCast</span>(heroDefinition.skillTwo, skillTwoRank, skillTwoCooldown)) <span class="kw">return false</span>;
+        <span class="fn">SpendAdrenaline</span>(heroDefinition.skillTwo.<span class="fn">AdrenalineAtRank</span>(skillTwoRank));
+        skillTwoCooldown = <span class="fn">GetCooldown</span>(heroDefinition.skillTwo.<span class="fn">CooldownAtRank</span>(skillTwoRank));
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"BullRush"</span>);
+        <span class="fn">StartCoroutine</span>(<span class="fn">BullRushRoutine</span>(direction, skillTwoRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">BullRushRoutine</span>(<span class="cls">Vector3</span> dir, <span class="kw">int</span> rank)
+    {
+        agent.isStopped = <span class="kw">true</span>;
+        dir = <span class="kw">new</span> <span class="cls">Vector3</span>(dir.x, <span class="num">0</span>, dir.z).normalized;
+        <span class="kw">float</span> chargeRange = <span class="num">7f</span>;
+        <span class="kw">float</span> chargeSpeed = <span class="num">16f</span>;
+        <span class="kw">float</span> elapsed = <span class="num">0f</span>;
+        <span class="kw">float</span> duration = chargeRange / chargeSpeed;
+        <span class="kw">bool</span>  kicked = <span class="kw">false</span>;
+
+        combatVfx.<span class="fn">PlayBullRushCharge</span>(transform.position, dir);
+
+        <span class="kw">while</span> (elapsed < duration && !kicked)
+        {
+            transform.<span class="fn">Translate</span>(dir * chargeSpeed * <span class="cls">Time</span>.deltaTime, <span class="cls">Space</span>.World);
+            <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(transform.position, <span class="num">1.6f</span>, enemyMask))
+            {
+                <span class="kw">var</span> hp = col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;();
+                <span class="kw">if</span> (hp == <span class="kw">null</span>) <span class="kw">continue</span>;
+
+                <span class="kw">float</span> kickDmg = heroDefinition.skillTwo.<span class="fn">DamageAtRank</span>(rank, <span class="fn">GetEffectiveAttack</span>());
+                hp.<span class="fn">ApplyPhysicalDamage</span>(<span class="fn">ApplyPen</span>(kickDmg));
+                animator.<span class="fn">SetTrigger</span>(<span class="str">"SpartanKick"</span>);
+                combatVfx.<span class="fn">PlaySpartanKick</span>(col.transform.position);
+
+                <span class="kw">float</span> knockDist = <span class="num">4.5f</span> + rank * <span class="num">0.5f</span>;
+                <span class="kw">var</span>   cc = col.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;();
+                <span class="kw">if</span> (cc != <span class="kw">null</span>)
+                {
+                    cc.<span class="fn">ApplyKnockback</span>(dir, knockDist);
+                    cc.<span class="fn">ApplyAirborne</span>(<span class="num">1.2f</span>);
+
+                    <span class="cm">// Wall-slam detection — check if target lands near a wall</span>
+                    <span class="cls">Vector3</span> predictedLand = col.transform.position + dir * knockDist;
+                    <span class="kw">if</span> (<span class="cls">Physics</span>.<span class="fn">CheckSphere</span>(predictedLand, <span class="num">1.0f</span>, wallMask))
+                    {
+                        <span class="kw">float</span> wallDmg = <span class="num">100f</span> + rank * <span class="num">35f</span>;
+                        hp.<span class="fn">ApplyPhysicalDamage</span>(<span class="fn">ApplyPen</span>(wallDmg));
+                        cc.<span class="fn">ApplyStun</span>(<span class="num">0.6f</span>);
+                        combatVfx.<span class="fn">PlayWallSlam</span>(predictedLand);
+                    }
+                }
+                <span class="fn">GainAdrenaline</span>(heroDefinition.spartanKickAdrenaline);
+                kicked = <span class="kw">true</span>;
+            }
+            elapsed += <span class="cls">Time</span>.deltaTime;
+            <span class="kw">yield return null</span>;
+        }
+
+        agent.<span class="fn">Warp</span>(transform.position);
+        agent.isStopped = <span class="kw">false</span>;
+    }
+
+    <span class="cm">// ── ULTIMATE — Staff of Hermes: full adrenaline cost + massive AoE ────</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastUltimate</span>()
+    {
+        <span class="kw">if</span> (isDead || ultimateCooldown > <span class="num">0f</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (currentAdrenaline < stats.maxAdrenaline) <span class="kw">return false</span>; <span class="cm">// must be full</span>
+
+        ultimateCooldown    = heroDefinition.ultimate.<span class="fn">CooldownAtRank</span>(ultimateRank);
+        currentAdrenaline   = <span class="num">0f</span>; <span class="cm">// drain entire bar</span>
+        isUltimateChanneling = <span class="kw">true</span>;
+        agent.isStopped     = <span class="kw">true</span>;
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"CastUltimate"</span>);
+        <span class="fn">StartCoroutine</span>(<span class="fn">IshuWrathRoutine</span>(ultimateRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">IshuWrathRoutine</span>(<span class="kw">int</span> rank)
+    {
+        <span class="cm">// Wind-up: Staff materialises</span>
+        combatVfx.<span class="fn">PlayStaffSummon</span>(staffMount.position);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">1.0f</span>);
+
+        <span class="kw">float</span> blastRadius  = <span class="num">14f</span> + rank * <span class="num">2f</span>;
+        <span class="kw">float</span> blastDmg     = heroDefinition.ultimate.<span class="fn">DamageAtRank</span>(rank, <span class="fn">GetEffectiveAttack</span>());
+        <span class="kw">float</span> fieldBurnDps = <span class="num">90f</span> + rank * <span class="num">40f</span>;
+        <span class="kw">float</span> fieldDuration = <span class="num">4f</span> + (rank == <span class="num">3</span> ? <span class="num">1f</span> : <span class="num">0f</span>);
+
+        combatVfx.<span class="fn">PlayIshuBlast</span>(transform.position, blastRadius);
+
+        <span class="cm">// Burst damage + airborne launch</span>
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(transform.position, blastRadius, enemyMask))
+        {
+            col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;()?.<span class="fn">ApplyPhysicalDamage</span>(<span class="fn">ApplyPen</span>(blastDmg));
+            col.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplyAirborne</span>(<span class="num">1.5f</span>);
+        }
+
+        <span class="cm">// Sustained ground field (ticks every 0.5s)</span>
+        <span class="fn">StartCoroutine</span>(<span class="fn">IshuGroundFieldRoutine</span>(transform.position, blastRadius, fieldBurnDps, fieldDuration));
+
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.4f</span>);
+        isUltimateChanneling = <span class="kw">false</span>;
+
+        <span class="cm">// 2s post-cast window — can move but not cast</span>
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">2.0f</span>);
+        agent.isStopped = <span class="kw">false</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">IshuGroundFieldRoutine</span>(<span class="cls">Vector3</span> center, <span class="kw">float</span> radius, <span class="kw">float</span> dps, <span class="kw">float</span> duration)
+    {
+        <span class="kw">float</span> elapsed = <span class="num">0f</span>, tick = <span class="num">0f</span>;
+        <span class="kw">while</span> (elapsed < duration)
+        {
+            tick += <span class="cls">Time</span>.deltaTime;
+            <span class="kw">if</span> (tick >= <span class="num">0.5f</span>)
+            {
+                tick = <span class="num">0f</span>;
+                <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(center, radius, enemyMask))
+                    col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;()?.<span class="fn">ApplyPhysicalDamage</span>(dps * <span class="num">0.5f</span>);
+            }
+            elapsed += <span class="cls">Time</span>.deltaTime;
+            <span class="kw">yield return null</span>;
+        }
+        combatVfx.<span class="fn">StopIshuField</span>();
+    }
+
+    <span class="cm">// ── DAMAGE RECEPTION ─────────────────────────────────────────────────</span>
+    <span class="kw">public void</span> <span class="fn">ReceiveDamage</span>(<span class="kw">float</span> amount)
+    {
+        <span class="kw">if</span> (isDead) <span class="kw">return</span>;
+        currentHp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, currentHp - amount);
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"Hit"</span>);
+        combatVfx.<span class="fn">UpdateHeroState</span>(HpPercent, AdrenalinePercent, isuPassiveActive, <span class="kw">false</span>);
+        <span class="kw">if</span> (currentHp <= <span class="num">0f</span>) <span class="fn">StartCoroutine</span>(<span class="fn">DeathRoutine</span>());
+    }
+
+    <span class="kw">public void</span> <span class="fn">OnKill</span>()
+    {
+        <span class="fn">GainAdrenaline</span>(heroDefinition.killAdrenalineBonus);
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">DeathRoutine</span>()
+    {
+        isDead = <span class="kw">true</span>;
+        agent.isStopped = <span class="kw">true</span>;
+        animator.<span class="fn">SetBool</span>(<span class="str">"IsDead"</span>, <span class="kw">true</span>);
+        combatVfx.<span class="fn">PlayDeath</span>(transform.position);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">3f</span>);
+        enabled = <span class="kw">false</span>;
+    }
+
+    <span class="cm">// ── ISU BLOODLINE PASSIVE ─────────────────────────────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">CheckIsuPassive</span>()
+    {
+        <span class="kw">bool</span> shouldBeActive = HpPercent < heroDefinition.isuHpThreshold;
+        <span class="kw">if</span> (shouldBeActive != isuPassiveActive)
+        {
+            isuPassiveActive = shouldBeActive;
+            combatVfx.<span class="fn">SetIsuPassiveGlow</span>(isuPassiveActive);
+        }
+    }
+
+    <span class="cm">// Returns attack value with Isu bonus if passive is active</span>
+    <span class="kw">private float</span> <span class="fn">GetEffectiveAttack</span>()
+    {
+        <span class="kw">float</span> atq = stats.physicalAttack;
+        <span class="kw">if</span> (isuPassiveActive) atq *= (<span class="num">1f</span> + heroDefinition.isuAttackBonus);
+        <span class="kw">return</span> atq;
+    }
+
+    <span class="cm">// Returns cooldown value, reduced if Isu passive is active</span>
+    <span class="kw">private float</span> <span class="fn">GetCooldown</span>(<span class="kw">float</span> baseCd)
+        => isuPassiveActive ? baseCd * (<span class="num">1f</span> - heroDefinition.isuCdReduction) : baseCd;
+
+    <span class="cm">// Applies armor penetration to an outgoing damage value</span>
+    <span class="kw">private float</span> <span class="fn">ApplyPen</span>(<span class="kw">float</span> damage)
+    {
+        <span class="kw">float</span> pen = isuPassiveActive
+            ? stats.armorPenetration * heroDefinition.isuPenMultiplier
+            : stats.armorPenetration;
+        <span class="kw">return</span> damage * (<span class="num">1f</span> + pen);
+    }
+
+    <span class="kw">private void</span> <span class="fn">GainAdrenaline</span>(<span class="kw">float</span> amount)
+        => currentAdrenaline = <span class="cls">Mathf</span>.Min(stats.maxAdrenaline, currentAdrenaline + amount);
+
+    <span class="kw">private bool</span> <span class="fn">CanCast</span>(<span class="cls">AbilityRankData</span> ability, <span class="kw">int</span> rank, <span class="kw">float</span> cd)
+        => !isDead && cd <= <span class="num">0f</span> && currentAdrenaline >= ability.<span class="fn">AdrenalineAtRank</span>(rank);
+
+    <span class="kw">private void</span> <span class="fn">SpendAdrenaline</span>(<span class="kw">float</span> amount)
+        => currentAdrenaline = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, currentAdrenaline - amount);
+
+    <span class="kw">private void</span> <span class="fn">TickCooldowns</span>()
+    {
+        <span class="kw">float</span> dt = <span class="cls">Time</span>.deltaTime;
+        basicCooldown    = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, basicCooldown    - dt);
+        skillOneCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, skillOneCooldown - dt);
+        skillTwoCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, skillTwoCooldown - dt);
+        ultimateCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, ultimateCooldown - dt);
+    }
+
+    <span class="kw">private void</span> <span class="fn">TickComboReset</span>()
+    {
+        <span class="kw">if</span> (comboStep == <span class="num">0</span>) <span class="kw">return</span>;
+        comboResetTimer -= <span class="cls">Time</span>.deltaTime;
+        <span class="kw">if</span> (comboResetTimer <= <span class="num">0f</span>) comboStep = <span class="num">0</span>;
+    }
+
+    <span class="kw">private void</span> <span class="fn">RegenerateResources</span>()
+    {
+        currentHp = <span class="cls">Mathf</span>.Min(stats.maxHp, currentHp + stats.hpRegen * <span class="cls">Time</span>.deltaTime);
+        currentAdrenaline = <span class="cls">Mathf</span>.Min(stats.maxAdrenaline, currentAdrenaline + stats.adrenalineRegen * <span class="cls">Time</span>.deltaTime);
+        combatVfx.<span class="fn">UpdateHeroState</span>(HpPercent, AdrenalinePercent, isuPassiveActive, agent.velocity.sqrMagnitude > <span class="num">0.01f</span>);
+    }
+
+    <span class="kw">private void</span> <span class="fn">UpdateAnimator</span>()
+    {
+        <span class="cls">Vector3</span> vel = agent.velocity; vel.y = <span class="num">0f</span>;
+        animator.<span class="fn">SetFloat</span>(<span class="str">"MoveSpeed"</span>,       vel.magnitude);
+        animator.<span class="fn">SetFloat</span>(<span class="str">"AttackSpeed"</span>,     stats.attackSpeed);
+        animator.<span class="fn">SetFloat</span>(<span class="str">"AdrenalinePercent"</span>, AdrenalinePercent);
+        animator.<span class="fn">SetBool</span>(<span class="str">"IsuActive"</span>,        isuPassiveActive);
+    }
+}
+
+<span class="kw">public class</span> <span class="cls">StatusEffectReceiver</span> : <span class="cls">MonoBehaviour</span>
+{
+    <span class="kw">public void</span> <span class="fn">ApplyBurn</span>(<span class="kw">float</span> dps, <span class="kw">float</span> duration) { <span class="cm">/* tick damage over duration via coroutine */</span> }
+}
+
+<span class="kw">public class</span> <span class="cls">CrowdControlReceiver</span> : <span class="cls">MonoBehaviour</span>
+{
+    <span class="kw">public void</span> <span class="fn">ApplyKnockback</span>(<span class="cls">Vector3</span> dir, <span class="kw">float</span> dist) { <span class="cm">/* push via NavMeshAgent or Rigidbody */</span> }
+    <span class="kw">public void</span> <span class="fn">ApplyAirborne</span> (<span class="kw">float</span> duration)           { <span class="cm">/* interrupt movement, play airborne anim */</span> }
+    <span class="kw">public void</span> <span class="fn">ApplyStun</span>     (<span class="kw">float</span> duration)           { <span class="cm">/* freeze input, play stun anim */</span> }
+}
+
+<span class="kw">public class</span> <span class="cls">Health</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> hp = <span class="num">1000f</span>, maxHp = <span class="num">1000f</span>;
+    <span class="kw">public float</span> HpPercent => maxHp > <span class="num">0f</span> ? hp / maxHp : <span class="num">0f</span>;
+    <span class="kw">public void</span>  <span class="fn">ApplyPhysicalDamage</span>(<span class="kw">float</span> dmg) => hp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, hp - dmg);
+    <span class="kw">public void</span>  <span class="fn">ApplyMagicDamage</span>   (<span class="kw">float</span> dmg) => hp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, hp - dmg);
+}</pre>
+    </div>
+
+    <!-- AlexiosCombatVFX.cs -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> AlexiosCombatVFX.cs</div>
+        <button class="copy-btn" onclick="copyCode('code3', this)">Copy</button>
+      </div>
+      <pre id="code3"><span class="cm">// AlexiosCombatVFX.cs
+// VFX binder: spear Isu glow, sword/spear/shield combo hits,
+// spear throw + return tether, Spartan kick shockwave, wall slam impact,
+// Staff of Hermes summon, Isu blast, ground burn field, death dissolve.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+
+<span class="kw">public class</span> <span class="cls">AlexiosCombatVFX</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Particle Systems"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> swordSlashFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> spearThrustFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> shieldBashFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> spearThrowTrailFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> spearBurnFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> bullRushTrailFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> spartanKickBlastFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> wallSlamFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> staffSummonFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> isuBlastFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> isuGroundFieldFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> deathDissolveFx;
+
+    [<span class="cls">Header</span>(<span class="str">"Line Renderers"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LineRenderer</span> spearReturnTether;
+
+    [<span class="cls">Header</span>(<span class="str">"Materials using HLSL Shaders"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> armorRenderer;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> spearRenderer;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> isuGroundRenderer;
+
+    <span class="kw">private static readonly int</span> HpFade     = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_HpFade"</span>);
+    <span class="kw">private static readonly int</span> IsuGlow    = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_IsuGlow"</span>);
+    <span class="kw">private static readonly int</span> AdrPercent = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_AdrPercent"</span>);
+    <span class="kw">private static readonly int</span> Dissolve   = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_Dissolve"</span>);
+    <span class="kw">private static readonly int</span> MoveBlend  = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_MoveBlend"</span>);
+    <span class="kw">private static readonly int</span> PulseRadius = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_Radius"</span>);
+
+    <span class="kw">public void</span> <span class="fn">UpdateHeroState</span>(<span class="kw">float</span> hpPct, <span class="kw">float</span> adrPct, <span class="kw">bool</span> isuActive, <span class="kw">bool</span> isMoving)
+    {
+        <span class="kw">if</span> (armorRenderer != <span class="kw">null</span>)
+        {
+            armorRenderer.material.<span class="fn">SetFloat</span>(HpFade,    <span class="num">1f</span> - hpPct);
+            armorRenderer.material.<span class="fn">SetFloat</span>(IsuGlow,   isuActive ? <span class="num">1f</span> : <span class="num">0f</span>);
+            armorRenderer.material.<span class="fn">SetFloat</span>(MoveBlend, isMoving ? <span class="num">1f</span> : <span class="num">0f</span>);
+        }
+        <span class="kw">if</span> (spearRenderer != <span class="kw">null</span>)
+            spearRenderer.material.<span class="fn">SetFloat</span>(AdrPercent, adrPct);
+    }
+
+    <span class="kw">public void</span> <span class="fn">SetIsuPassiveGlow</span>(<span class="kw">bool</span> active)
+    {
+        <span class="kw">if</span> (armorRenderer != <span class="kw">null</span>) armorRenderer.material.<span class="fn">SetFloat</span>(IsuGlow, active ? <span class="num">1f</span> : <span class="num">0f</span>);
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlaySwordSlash</span>   (<span class="cls">Vector3</span> p) => <span class="fn">PlayAt</span>(swordSlashFx,    p);
+    <span class="kw">public void</span> <span class="fn">PlaySpearThrust</span>  (<span class="cls">Vector3</span> p) => <span class="fn">PlayAt</span>(spearThrustFx,   p);
+    <span class="kw">public void</span> <span class="fn">PlayShieldBash</span>   (<span class="cls">Vector3</span> p) => <span class="fn">PlayAt</span>(shieldBashFx,    p);
+    <span class="kw">public void</span> <span class="fn">PlaySpartanKick</span>  (<span class="cls">Vector3</span> p) => <span class="fn">PlayAt</span>(spartanKickBlastFx, p);
+    <span class="kw">public void</span> <span class="fn">PlayWallSlam</span>     (<span class="cls">Vector3</span> p) => <span class="fn">PlayAt</span>(wallSlamFx,       p);
+    <span class="kw">public void</span> <span class="fn">PlayStaffSummon</span>  (<span class="cls">Vector3</span> p) => <span class="fn">PlayAt</span>(staffSummonFx,    p);
+
+    <span class="kw">public void</span> <span class="fn">PlaySpearThrowFx</span>(<span class="cls">Vector3</span> origin, <span class="cls">Vector3</span> destination)
+    {
+        <span class="kw">if</span> (spearThrowTrailFx != <span class="kw">null</span>)
+        {
+            spearThrowTrailFx.transform.position = origin;
+            spearThrowTrailFx.transform.forward  = (destination - origin).normalized;
+            spearThrowTrailFx.<span class="fn">Play</span>();
+        }
+        <span class="kw">if</span> (spearBurnFx != <span class="kw">null</span>) { spearBurnFx.transform.position = destination; spearBurnFx.<span class="fn">Play</span>(); }
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlaySpearReturnFx</span>(<span class="cls">Vector3</span> from, <span class="cls">Vector3</span> to)
+    {
+        <span class="kw">if</span> (spearReturnTether != <span class="kw">null</span>)
+        {
+            spearReturnTether.SetPosition(<span class="num">0</span>, from);
+            spearReturnTether.SetPosition(<span class="num">1</span>, to);
+            <span class="fn">StartCoroutine</span>(<span class="fn">FadeTether</span>(<span class="num">0.35f</span>));
+        }
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayBullRushCharge</span>(<span class="cls">Vector3</span> origin, <span class="cls">Vector3</span> dir)
+    {
+        <span class="kw">if</span> (bullRushTrailFx == <span class="kw">null</span>) <span class="kw">return</span>;
+        bullRushTrailFx.transform.position = origin;
+        bullRushTrailFx.transform.forward  = dir;
+        bullRushTrailFx.<span class="fn">Play</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayIshuBlast</span>(<span class="cls">Vector3</span> center, <span class="kw">float</span> radius)
+    {
+        <span class="kw">if</span> (isuBlastFx != <span class="kw">null</span>) { isuBlastFx.transform.position = center; isuBlastFx.<span class="fn">Play</span>(); }
+        <span class="kw">if</span> (isuGroundFieldFx != <span class="kw">null</span>) { isuGroundFieldFx.transform.position = center; isuGroundFieldFx.<span class="fn">Play</span>(); }
+        <span class="kw">if</span> (isuGroundRenderer != <span class="kw">null</span>) isuGroundRenderer.material.<span class="fn">SetFloat</span>(PulseRadius, radius);
+    }
+
+    <span class="kw">public void</span> <span class="fn">StopIshuField</span>()
+    {
+        <span class="kw">if</span> (isuGroundFieldFx != <span class="kw">null</span>) isuGroundFieldFx.<span class="fn">Stop</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayDeath</span>(<span class="cls">Vector3</span> pos)
+    {
+        <span class="kw">if</span> (deathDissolveFx != <span class="kw">null</span>) { deathDissolveFx.transform.position = pos; deathDissolveFx.<span class="fn">Play</span>(); }
+        <span class="kw">if</span> (armorRenderer   != <span class="kw">null</span>) armorRenderer.material.<span class="fn">SetFloat</span>(Dissolve, <span class="num">1f</span>);
+        <span class="kw">if</span> (spearRenderer   != <span class="kw">null</span>) spearRenderer.material.<span class="fn">SetFloat</span>(Dissolve, <span class="num">1f</span>);
+    }
+
+    <span class="kw">private void</span> <span class="fn">PlayAt</span>(<span class="cls">ParticleSystem</span> ps, <span class="cls">Vector3</span> pos)
+    {
+        <span class="kw">if</span> (ps == <span class="kw">null</span>) <span class="kw">return</span>;
+        ps.transform.position = pos;
+        ps.<span class="fn">Play</span>();
+    }
+
+    <span class="kw">private</span> System.Collections.<span class="cls">IEnumerator</span> <span class="fn">FadeTether</span>(<span class="kw">float</span> duration)
+    {
+        <span class="kw">float</span> t = <span class="num">0f</span>;
+        <span class="cls">Color</span> start = spearReturnTether.startColor;
+        <span class="kw">while</span> (t < duration) { t += <span class="cls">Time</span>.deltaTime; <span class="kw">float</span> a = <span class="num">1f</span> - t / duration; spearReturnTether.startColor = spearReturnTether.endColor = <span class="kw">new</span> <span class="cls">Color</span>(start.r, start.g, start.b, a); <span class="kw">yield return null</span>; }
+        spearReturnTether.startColor = spearReturnTether.endColor = <span class="cls">Color</span>.clear;
+    }
+}</pre>
+    </div>
+
+    <!-- Meshy Prompt -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">TXT</span> MeshyAI_Prompt_Alexios.txt</div>
+        <button class="copy-btn" onclick="copyCode('code4', this)">Copy</button>
+      </div>
+      <pre id="code4">MESHY AI PROMPT — ALEXIOS UNITY HERO (production version)
+
+Create a production-ready 3D humanoid hero for Unity, full body, clean topology, readable silhouette,
+realistic ancient Greek epic stylization. Powerfully muscular male Greek warrior — dark beard, intense
+eyes, sun-bronzed scarred skin. Layered bronze cuirass with Spartan lambda (Λ) embossing on chest,
+leather pteruges hanging from waist and shoulders (separate strips of leather, not fused), bronze
+greaves on shins, sandaled combat boots, leather bracers. Short worn crimson-red cloak draped over
+left shoulder as separate cloth geometry. Right hand holds the broken Spear of Leonidas — short
+half-spear haft with amber-glowing Isu-inscribed blade tip. Left arm carries a round hoplon shield
+with lambda on face. Xiphos shortsword sheathed at left hip.
+
+Game-ready constraints: standard humanoid biped, heavy athletic build, clearly separated arms and
+legs, pteruges as separate geometry segments for animation-friendly topology, shield as separate mesh
+prop with grip on back face, spear as separate prop with clean Isu emission zone at blade tip, cloak
+as separate cloth-simulation ready mesh, no fused armor pieces over joints. Clean deformation at
+shoulders / elbows / wrists / hips / knees / ankles.
+
+PBR textures: separate material zones for bronze armor, red cloak, leather straps/pteruges, skin,
+dark beard, Isu amber glowing spear tip, shield bronze face/rim, xiphos blade.
+
+Animation intent: idle combat stance (shield raised), heavy walk, aggressive run, 3-hit combo
+(sword slash / spear thrust / shield bash), spear throw overhead cast, bull rush charge and kick,
+ultimate staff channel (new weapon in hand), Isu ground slam, hit reaction, death fall forward.
+
+Export target: Unity humanoid FBX, bind pose friendly, retarget-ready, game animation compatible.</pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ HLSL SHADERS ══════════ -->
+<div class="section" id="tab-shader">
+
+  <!-- Armor Surface -->
+  <div class="code-file">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> AlexiosArmorSurface.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader1', this)">Copy</button>
+    </div>
+    <pre id="shader1">// AlexiosArmorSurface.shader
+// Gameplay-aware bronze armor shader.
+// _IsuGlow  = 0→1 when Isu Bloodline passive activates (sub-40% HP)
+// _HpFade   = 0→1 as HP drops (adds damage edge darkening + amber rim)
+// _MoveBlend = 0→1 for micro jitter on movement
+// _Dissolve  = 0→1 for death amber dissolve
+
+Shader "Alexios/ArmorSurface"
+{
+    Properties
+    {
+        _BaseMap      ("Base Map", 2D)              = "white" {}
+        _BaseColor    ("Base Color", Color)          = (0.48, 0.36, 0.12, 1)
+        _IsuColor     ("Isu Glow Color", Color)      = (1.0, 0.85, 0.30, 1.0)
+        _DamageColor  ("Damage Color", Color)        = (0.6, 0.15, 0.0, 1.0)
+        _IsuGlow      ("Isu Glow",   Range(0,1))     = 0.0
+        _HpFade       ("HP Fade",    Range(0,1))     = 0.0
+        _MoveBlend    ("Move Blend", Range(0,1))     = 0.0
+        _Dissolve     ("Dissolve",   Range(0,1))     = 0.0
+        _DissolveSoft ("Dissolve Softness", Range(0.001,0.2)) = 0.04
+        _NoiseScale   ("Noise Scale", Range(1,25))   = 9
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="TransparentCutout" "Queue"="AlphaTest" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _BaseColor;
+                float4 _IsuColor;
+                float4 _DamageColor;
+                float  _IsuGlow;
+                float  _HpFade;
+                float  _MoveBlend;
+                float  _Dissolve;
+                float  _DissolveSoft;
+                float  _NoiseScale;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 worldPos : TEXCOORD1; float3 normalWS : TEXCOORD2; };
+
+            float hash21(float2 p)
+            {
+                p = frac(p * float2(127.1, 311.7));
+                p += dot(p, p + 34.345);
+                return frac(p.x * p.y);
+            }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                // Micro vibration on movement
+                float shake = sin(_Time.y * 12.0 + IN.positionOS.y * 7.0) * 0.002 * _MoveBlend;
+                float3 displaced = IN.positionOS.xyz + IN.normalOS * shake;
+                VertexPositionInputs pos = GetVertexPositionInputs(displaced);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.worldPos   = pos.positionWS;
+                OUT.normalWS   = normalize(nor.normalWS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Amber Isu dissolve on death
+                float noise = hash21(floor(IN.worldPos.xz * _NoiseScale));
+                clip(noise - saturate(_Dissolve * (1.0 + _DissolveSoft)));
+
+                half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+
+                float rim = pow(1.0 - saturate(IN.normalWS.y), 2.5);
+
+                // Isu Bloodline glow — amber pulsing rim (active below 40% HP)
+                float isuPulse   = (0.5 + 0.5 * sin(_Time.y * 6.0)) * _IsuGlow;
+                // HP fade — damage edge darkening
+                float damagePulse = (0.3 + 0.7 * sin(_Time.y * 7.5)) * _HpFade;
+
+                half3 emission = _IsuColor.rgb    * rim * isuPulse    * 2.2
+                               + _DamageColor.rgb * rim * damagePulse * 1.4;
+
+                return half4(albedo.rgb + emission, albedo.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Spear of Leonidas -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> SpearOfLeonidas.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader2', this)">Copy</button>
+    </div>
+    <pre id="shader2">// SpearOfLeonidas.shader
+// Isu artifact energy shader for the Spear of Leonidas.
+// _AdrPercent drives glyph intensity (0=empty adrenaline, 1=full bar ready).
+// Scrolling Isu glyphs, amber Fresnel rim, gold energy flow bands.
+
+Shader "Alexios/SpearOfLeonidas"
+{
+    Properties
+    {
+        _BaseMap     ("Base Map", 2D)               = "white" {}
+        _BaseColor   ("Base Color", Color)           = (0.55, 0.45, 0.18, 1)
+        _GlyphColor  ("Glyph / Isu Color", Color)   = (1.0, 0.88, 0.32, 1.0)
+        _AdrPercent  ("Adrenaline %", Range(0,1))   = 0.0
+        _FlowSpeed   ("Glyph Scroll Speed", Range(0,6)) = 1.8
+        _GlowIntensity ("Glow Intensity", Range(0,12)) = 5.0
+        _FresnelPow  ("Fresnel Power", Range(1,8))  = 2.8
+        _Distortion  ("UV Distortion", Range(0,0.2)) = 0.04
+        _Dissolve    ("Dissolve", Range(0,1))        = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _BaseColor;
+                float4 _GlyphColor;
+                float  _AdrPercent;
+                float  _FlowSpeed;
+                float  _GlowIntensity;
+                float  _FresnelPow;
+                float  _Distortion;
+                float  _Dissolve;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 normalWS : TEXCOORD1; float3 viewDirWS : TEXCOORD2; float3 worldPos : TEXCOORD3; };
+
+            float hash21(float2 p) { p = frac(p * float2(127.1, 311.7)); p += dot(p, p + 34.345); return frac(p.x * p.y); }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.normalWS   = normalize(nor.normalWS);
+                OUT.viewDirWS  = GetWorldSpaceNormalizeViewDir(pos.positionWS);
+                OUT.worldPos   = pos.positionWS;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Amber dissolve on death
+                float noise = hash21(floor(IN.worldPos.xz * 9.0));
+                clip(noise - saturate(_Dissolve * 1.05));
+
+                half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+
+                // Scrolling Isu glyph bands up the spear shaft
+                float2 glyphUv = IN.uv;
+                glyphUv.y -= _Time.y * _FlowSpeed * 0.3;
+                glyphUv.x += sin(_Time.y * _FlowSpeed + IN.uv.y * 10.0) * _Distortion;
+                float band  = frac(glyphUv.y * 6.0);
+                float glyph = smoothstep(0.0, 0.25, band) * (1.0 - smoothstep(0.25, 0.65, band));
+
+                float fresnel = pow(1.0 - saturate(dot(IN.normalWS, IN.viewDirWS)), _FresnelPow);
+
+                // Glow scales with Adrenaline percent — bright when full bar is ready
+                float intensity = _GlowIntensity * (0.25 + 0.75 * _AdrPercent);
+                half3 emission  = _GlyphColor.rgb * intensity * (glyph * 0.8 + fresnel * 0.6);
+
+                return half4(albedo.rgb + emission, albedo.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Isu Shockwave Ground Ring -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> IsuGroundRing.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader3', this)">Copy</button>
+    </div>
+    <pre id="shader3">// IsuGroundRing.shader
+// Radial ground ring for both Spear Throw impact and the Staff of Hermes ultimate.
+// Reused across both abilities by changing _Radius and _Color at runtime.
+// Amber-gold inner fill, bright white-gold edge pulse.
+
+Shader "Alexios/IsuGroundRing"
+{
+    Properties
+    {
+        _Color      ("Zone Color",  Color)         = (0.72, 0.52, 0.08, 0.45)
+        _EdgeColor  ("Edge Color",  Color)         = (1.0, 0.92, 0.5, 0.95)
+        _Radius     ("Radius",      Float)         = 8.0
+        _RingWidth  ("Ring Width",  Range(0.05,3)) = 0.6
+        _PulseSpeed ("Pulse Speed", Range(0,5))    = 2.4
+        _EdgeGlow   ("Edge Glow",   Range(0,4))    = 2.0
+        _FadeOut    ("Fade Out (0=active, 1=gone)", Range(0,1)) = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _Color;
+                float4 _EdgeColor;
+                float  _Radius;
+                float  _RingWidth;
+                float  _PulseSpeed;
+                float  _EdgeGlow;
+                float  _FadeOut;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
+                OUT.uv = IN.uv * 2.0 - 1.0;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float dist  = length(IN.uv) * _Radius;
+                float pulse = 0.91 + 0.09 * sin(_Time.y * _PulseSpeed * 6.2831);
+
+                float ring  = smoothstep(_Radius, _Radius - _RingWidth,           dist * pulse);
+                float edge  = smoothstep(_Radius, _Radius - (_RingWidth * 0.28),  dist * pulse);
+
+                half3 color = lerp(_EdgeColor.rgb * _EdgeGlow, _Color.rgb, ring);
+                float alpha = saturate(ring * _Color.a + edge * _EdgeColor.a * 0.55);
+                alpha *= saturate(1.0 - _FadeOut);
+
+                return half4(color, alpha);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Spear Return Tether / Trail -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> SpearReturnTether.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader4', this)">Copy</button>
+    </div>
+    <pre id="shader4">// SpearReturnTether.shader
+// Additive golden energy tether for the Spear of Leonidas return arc.
+// Applied to the LineRenderer that snaps the spear back to Alexios's hand.
+// Bright amber core, warm edge falloff, quick scroll animation, CPU-driven fade.
+
+Shader "Alexios/SpearReturnTether"
+{
+    Properties
+    {
+        _CoreColor  ("Core Color",  Color)         = (1.0, 0.90, 0.40, 1.0)
+        _EdgeColor  ("Edge Color",  Color)         = (0.85, 0.55, 0.08, 0.6)
+        _Intensity  ("Intensity",   Range(0,10))   = 5.5
+        _ScrollSpeed("Scroll Speed", Range(0,10))  = 6.0
+        _WidthFalloff("Width Falloff", Range(1,8)) = 3.5
+        _Alpha      ("Alpha override", Range(0,1)) = 1.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha One
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _CoreColor;
+                float4 _EdgeColor;
+                float  _Intensity;
+                float  _ScrollSpeed;
+                float  _WidthFalloff;
+                float  _Alpha;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
+                OUT.uv = IN.uv;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Width falloff — bright central spine
+                float centreW = pow(1.0 - abs(IN.uv.y * 2.0 - 1.0), _WidthFalloff);
+
+                // Energy scroll along tether length
+                float scroll = frac(IN.uv.x - _Time.y * _ScrollSpeed * 0.12);
+                float band   = smoothstep(0.0, 0.3, scroll) * (1.0 - smoothstep(0.3, 0.8, scroll));
+
+                half3 color = lerp(_EdgeColor.rgb, _CoreColor.rgb, centreW) * _Intensity;
+                float alpha = centreW * (0.55 + 0.45 * band) * _Alpha * _CoreColor.a;
+
+                return half4(color, alpha);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+</div>
+
+<!-- ══════════ 3D AI TOOLS ══════════ -->
+<div class="section" id="tab-tools">
+  <div class="tools-grid">
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#fdf5dc">🧊</div><div><div class="tool-name">Meshy AI</div><div class="tool-cat">Text/Image → 3D Mesh</div></div></div>
+      <div class="tool-desc">Strong choice for Alexios: the armored muscular humanoid silhouette with clear segmented bronze plates is well-suited to Meshy's generation strengths. The Spear of Leonidas glowing artifact can be generated as a separate prop. Use the dedicated Meshy prompt in the Scripts tab. Cloak and pteruges may need Blender post-processing for cloth separation.</div>
+      <div class="tool-tags"><span class="tool-tag green">FBX Unity-ready</span><span class="tool-tag blue">Auto-rig humanoid</span><span class="tool-tag gold">Artifact props</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#dbeafe">🎯</div><div><div class="tool-name">Kaedim</div><div class="tool-cat">Concept Art → 3D Game Asset</div></div></div>
+      <div class="tool-desc">Ideal for converting Midjourney Alexios concept art into clean game-ready topology. Kaedim excels at converting layered armor designs with distinct material zones — exactly what the bronze cuirass, leather straps, greaves, and cloak system requires. Best choice for production-quality armor detail.</div>
+      <div class="tool-tags"><span class="tool-tag green">Game topology</span><span class="tool-tag blue">2D→3D</span><span class="tool-tag orange">Pro tier</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#ede9fe">🌀</div><div><div class="tool-name">Luma AI — Genie</div><div class="tool-cat">Text → 3D fast</div></div></div>
+      <div class="tool-desc">Best used for individual Greek prop assets: the Hoplon shield as a standalone mesh, the Xiphos shortsword, broken marble columns for the arena environment, Isu artifact pedestals, and environmental rubble. Frees up budget for cleaner character work in Meshy or Kaedim.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free tier</span><span class="tool-tag blue">API</span><span class="tool-tag purple">Weapons &amp; Props</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#ffedd5">🎨</div><div><div class="tool-name">Midjourney + Blender</div><div class="tool-cat">Hybrid studio workflow</div></div></div>
+      <div class="tool-desc">The definitive path for Alexios. Midjourney generates full-body Spartan warrior concept art (front + side + Isu power-up state). Blender handles mesh retopology, pteruges cloth simulation, Spear artifact emission mask UVs, and the shield secondary mesh. The amber Isu energy look requires careful emission texture work best done in Blender.</div>
+      <div class="tool-tags"><span class="tool-tag purple">Best quality</span><span class="tool-tag orange">Artist required</span><span class="tool-tag gold">Isu UV work</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#d1fae5">⚡</div><div><div class="tool-name">Mixamo (Adobe)</div><div class="tool-cat">Auto-rig &amp; Animation</div></div></div>
+      <div class="tool-desc">Excellent for Alexios's broad animation needs: heavy combat walk, sword combos, shield raise, running lunge. The muscular humanoid proportions work cleanly with Mixamo's humanoid retargeter. Manual keyframing needed for the 3-hit combo third strike (shield bash) and the ultimate Staff of Hermes arm raise — these are unique enough to require Unity Animator custom layers.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free with Adobe ID</span><span class="tool-tag blue">Auto-rig</span><span class="tool-tag purple">500+ animations</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#fef3c7">🦴</div><div><div class="tool-name">Spline AI</div><div class="tool-cat">3D interactive &amp; Environment</div></div></div>
+      <div class="tool-desc">Great for generating the ancient Greek MOBA environment: marble temple ruins, broken columns, Aegean coastal cliffs, Isu vault floor tiles with glowing glyphs. The UI adrenaline bar visualization and the Isu ground ring VFX geometry can also be prototyped here before shader implementation in Unity.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free</span><span class="tool-tag blue">Web export</span><span class="tool-tag gold">Isu env dressing</span></div>
+    </div>
+
+  </div>
+
+  <div class="workflow-box">
+    <h3>Recommended Pipeline for Alexios in Unity</h3>
+    <div class="workflow-steps">
+      <div class="wstep"><div class="wnum">1</div><span><span style="color:#f5d880">Claude</span> <span class="warrow">→</span> Prompt design + C# Scripts + HLSL Shaders (this package)</span></div>
+      <div class="wstep"><div class="wnum">2</div><span><span style="color:#a8d8a0">Midjourney</span> <span class="warrow">→</span> Alexios concept art front + side + Isu power state — from Design Brief prompt</span></div>
+      <div class="wstep"><div class="wnum">3</div><span><span style="color:#f5d880">Meshy AI / Kaedim</span> <span class="warrow">→</span> Generate main character mesh from Meshy prompt in Scripts tab; Spear + Shield as separate props</span></div>
+      <div class="wstep"><div class="wnum">4</div><span><span style="color:#aad4f5">Blender post-process</span> <span class="warrow">→</span> Pteruges cloth separation, cloak sim-ready mesh, Spear Isu emission UV island, shield grip rig point</span></div>
+      <div class="wstep"><div class="wnum">5</div><span><span style="color:#d4a5f5">Mixamo</span> <span class="warrow">→</span> Auto-rig + base combat animations; custom Unity Animator layers for 3-hit combo + ultimate</span></div>
+      <div class="wstep"><div class="wnum">6</div><span><span style="color:#e8d8a0">Unity</span> <span class="warrow">→</span> FBX Humanoid import + AlexiosController + Animator Controller + 4 Shaders + Particle Systems</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function copyCode(id, btn) {
+  const pre = document.getElementById(id);
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyPrompt(btn) {
+  const box = btn.previousElementSibling;
+  navigator.clipboard.writeText(box.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>

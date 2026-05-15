@@ -1,0 +1,210 @@
+V18 — état complet, historique consolidé et prochain contexte de reprise
+
+Résumé exécutif
+Le prototype Unity MOBA 5v5 dispose désormais d'un socle runtime stabilisé, d'une minimap V1.1 validée, d'un flux pré-match MVP relié au runtime, d'une transition UX propre vers le gameplay, d'un vrai start flow runtime avec countdown UI et d'un HUD gameplay complet pour le héros local.
+
+Depuis V17, les validations suivantes ont été ajoutées sans casser le socle existant :
+- `CountdownUIPresenter` affiche le countdown `3, 2, 1, GO` centré à l'écran dans le HUD runtime
+- `CountdownUIPresenter` se masque automatiquement après le GO (HideAfterDelay)
+- `MatchStartFlowController` orchestre le presenter : Show() avant le countdown, Hide() en sécurité à l'entrée InGame
+- `LocalHeroHUDPresenter` résout les composants du héros local via GameManager.OnMatchStarted
+- barres HP et mana affichées avec valeurs numériques exactes et fill horizontal
+- niveau du héros local affiché
+- overlays de cooldown radiaux sur SkillOneButton, SkillTwoButton, UltimateButton
+- timers numériques de cooldown sur les boutons skills (entiers, style Mobile Legends)
+- AttackButton sans overlay/timer — décision de design validée (CD trop court, non pertinent)
+- `HeroWorldUI` (world space) coexiste avec le HUD screen space — les deux sont actifs
+
+Ce document doit être considéré comme la vérité opérationnelle pour reprendre le projet dans une nouvelle conversation IA.
+
+==================================================
+1) ÉTAT ROADMAP ACTUEL
+==================================================
+1.1 ✅ Spawn système 10 héros — fait
+1.2 ✅ Player local parmi les 10 — fait
+1.3 ✅ IA basique sur les 9 autres héros — faite
+1.4 ✅ Hero Selection / Match Entry Flow — MVP runtime-connectée, start flow clôturé
+1.5 ✅ GameManager — socle terminé et stabilisé
+1.6 ✅ Minimap — terminée en V1.1 validée
+1.7 ✅ Mort & Respawn pour tous les NPC — faite en version prototype validée
+1.8 ✅ Gameplay HUD — HP, mana, niveau, cooldowns validés
+
+==================================================
+2) CE QUI EST VALIDÉ À DATE
+==================================================
+
+A. Runtime match
+- `GameManager` reste la source de vérité du match
+- `HeroSpawner` reste l'orchestrateur runtime des 10 héros
+- `NpcHeroAI`, `NpcHeroRespawn`, le HUD minimal et la minimap V1.1 restent validés
+- le flow spawn → combat → mort → respawn → fin de match reste intact
+
+B. Pré-match / bootstrap / transition
+- `GameModeType` validé
+- `LanePreferenceType` validé comme donnée transportée
+- `HeroSelectionSessionData` validé
+- `MatchLaunchContext` validé
+- `HeroAvailabilityService` validé
+- `HeroSelectionSessionService` validé
+- `ModeSelectionPresenter` validé
+- `HeroSelectionItemView` validé
+- `HeroSelectionPanelPresenter` validé
+- `MatchBootstrapper` validé
+- `PreMatchRuntimeTransitionController` validé
+
+C. Flow Match Entry validé
+- lancement → `ModeSelectionPanel` visible
+- clic mode → `HeroSelectionPanel` visible
+- clic héros → sélection visuelle + session mise à jour
+- `Confirm` activé seulement après sélection
+- confirmation → `IsConfirmed = true`
+- `MatchBootstrapper` prépare et applique le `MatchLaunchContext`
+- `PreMatchRuntimeTransitionController` ferme le pré-match
+- `CombatUI` apparaît
+- la caméra suit le héros local
+
+D. Start Flow runtime validé
+- `MatchStartFlowController.TryEnterPreGame()` validé
+- `CountdownController` validé
+- `GameManager.StartMatch()` appelé à la fin du countdown
+- `InGame` atteint seulement après `GO`
+
+E. Input lock validé
+- `PlayerInputGate` ajouté sur le héros runtime local
+- mouvement bloqué avant `GO`
+- attaque de base bloquée avant `GO`
+- mouvement et attaque disponibles après `GO`
+
+F. Countdown UI validé
+- `CountdownUIPresenter` affiche `3, 2, 1, GO` centré à l'écran
+- masquage automatique après GO via HideAfterDelay (1.2s)
+- masquage de sécurité dans `TryEnterInGame()`
+- `CountdownUI` placé directement sous `Canvas` (pas dans `CombatUI`)
+
+G. Gameplay HUD validé
+- `LocalHeroHUDPresenter` résout le héros local via `GameManager.OnMatchStarted`
+- barres HP et mana avec fill horizontal + texte numérique exact
+- niveau affiché
+- overlays radiaux de cooldown sur Skill1, Skill2, Ultimate
+- timers numériques de cooldown (entiers ≥ 3s, entiers < 3s — style Mobile Legends)
+- AttackButton sans overlay ni timer — décision de design validée
+- `HeroWorldUI` (world space, au-dessus des héros) coexiste avec le HUD screen space
+- `LocalHeroHUD` ancré bottom/center dans `CombatUI`
+
+H. Décisions d'architecture critiques
+- `GameManager` = source de vérité match-level
+- `HeroSpawner` = orchestrateur runtime
+- `HeroSelectionSessionService` = source de vérité pré-match
+- `MatchBootstrapper` = passerelle pré-match → runtime
+- `PreMatchRuntimeTransitionController` = transition UX/runtime uniquement
+- `MatchFlowSystem` = propriétaire du start flow runtime
+- `CountdownController` = exécution technique du countdown
+- `CountdownUIPresenter` = affichage passif du countdown, piloté par MatchStartFlowController
+- `LocalHeroHUDPresenter` = affichage passif du HUD héros local, résolution via GameManager
+- `PlayerInputGate` = autorisation d'input gameplay locale
+- UI = lecture / orchestration passive
+- pas de logique gameplay métier dans les vues UI
+- slots résolus par nom (transform.Find) — jamais par GetComponents sans ordre garanti
+
+==================================================
+3) HISTORIQUE COMPLET DES STEPS
+==================================================
+
+STEP 1 → 4 : ✅ validés
+- création des données de session et du mode
+- création des services pré-match
+- `ModeSelectionPresenter` fonctionnel
+- transition UI vers `HeroSelectionPanel` validée
+
+STEP 5.1 → 5.4 : ✅ validés
+- création du prefab `HeroSelectionItemView`
+- génération dynamique de la liste de héros MVP
+- sélection visuelle valide
+
+STEP 5.5 : ✅ validée
+- `HeroSelectionPanelPresenter` connecté à `HeroSelectionSessionService`
+- `selectedHeroId` persisté dans la session
+
+STEP 5.6 : ✅ validée
+- bouton `Confirm` ajouté
+- confirmation session validée
+- verrouillage post-confirm validé
+
+STEP 5.7 : ✅ validée
+- `MatchBootstrapper` ajouté
+- `BuildMatchLaunchContext()` validé
+- contexte préparé après confirmation
+
+STEP 5.8 : ✅ validée
+- `HeroSpawner` mis à jour pour résoudre `selectionHeroId` → `HeroDefinition`
+- `MatchBootstrapper` applique le contexte préparé au runtime
+- héros local runtime aligné sur la sélection confirmée
+
+STEP 5.9 : ✅ validée
+- `PreMatchRuntimeTransitionController` ajouté
+- fermeture propre du pré-match après `Confirm`
+- activation du HUD runtime
+- binding caméra sur le héros local runtime
+
+STEP 5.10.A : ✅ validée
+- création de `MatchFlowSystem`
+- `MatchStartFlowController` ajouté
+- phase `PreGame` ajoutée
+
+STEP 5.10.B : ✅ validée
+- `CountdownController` ajouté
+- `GameManager.InitializeMatch()` n'appelle plus `StartMatch()` immédiatement
+- countdown `3, 2, 1, GO` validé
+
+STEP 5.10.C : ✅ validée
+- `PlayerInputGate` ajouté
+- mouvement bloqué avant `GO`
+- attaque de base bloquée avant `GO`
+- inputs réactivés en `InGame`
+
+STEP 5.10.D : ✅ validée
+- `CountdownUIPresenter` ajouté dans Assets/Scripts/UI/Runtime/
+- `CountdownUI` GameObject créé sous Canvas (pas dans CombatUI)
+- `CountdownText` enfant TMP_Text, Font Size 130, centré
+- ancré center/middle, Width=300, Height=300
+- masquage automatique après GO
+
+STEP 6 : ✅ validée
+- `LocalHeroHUDPresenter` ajouté dans Assets/Scripts/UI/Runtime/
+- `LocalHeroHUD` GameObject créé dans CombatUI, ancré bottom/center
+- HPBar + HPFill (rouge, Horizontal) + HPText
+- ManaBar + ManaFill (bleu, Horizontal) + ManaText
+- LevelText
+- CooldownOverlay (Radial360, UISprite, Fill Amount=0) sur Skill1/Skill2/Ultimate
+- CooldownText (TMP, Font 28, gras, LiberationSans SDF - Outline) sur Skill1/Skill2/Ultimate
+- AttackButton sans overlay/timer — CD trop court, non pertinent
+
+==================================================
+4) POSITION ACTUELLE
+==================================================
+
+👉 STEP 6 VALIDÉE — STEP 7 À VENIR
+
+==================================================
+5) CE QU'IL FAUT ABSOLUMENT CONSERVER
+==================================================
+- `GameManager` reste propriétaire du match
+- `HeroSpawner` reste propriétaire du runtime
+- `HeroSelectionSessionService` reste propriétaire de la session
+- `MatchBootstrapper` reste la passerelle vers le runtime
+- `PreMatchRuntimeTransitionController` reste un pont UX/runtime uniquement
+- `MatchFlowSystem` reste propriétaire du start flow runtime
+- `PlayerInputGate` reste la vérité locale de l'autorisation d'input gameplay
+- `LocalHeroHUDPresenter` résout toujours le héros local via GameManager — jamais FindGameObjectWithTag
+- pas de logique gameplay dans les presenters UI
+- pas de retour aux scripts legacy `EnemyAI` / `EnemyMovement` / `EnemyAttack`
+
+==================================================
+6) PROCHAINES ÉTAPES LOGIQUES
+==================================================
+1. `STEP 7` — Vraie condition de victoire (Wonder / Core / objectif principal destructible)
+2. `STEP 8` — Écran de fin de match enrichi (Victory / Defeat, stats basiques)
+3. Itérations Hero Selection : lane réelle, disponibilité réelle, source de données non statique, polish
+4. Éventuel passage vers une scène match dédiée si le projet l'exige
+
+Fin du contexte V18.

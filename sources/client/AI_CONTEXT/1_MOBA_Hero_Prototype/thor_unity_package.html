@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Thor — Unity Package</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f0f2f7;
+    --surface: #ffffff;
+    --surface2: #e8ecf5;
+    --border: #c8d0e8;
+    --border2: #8090c0;
+    --text: #080a18;
+    --muted: #1c2448;
+    --subtle: #5868a0;
+    --accent: #2244c0;
+    --accent2: #3060e0;
+    --lightning: #f0d020;
+    --code-bg: #04050e;
+    --code-text: #d8e0ff;
+    --tag-bg: #e8ecff;
+    --tag-text: #0c1860;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .hero-header {
+    background: linear-gradient(135deg, #040508 0%, #080c20 25%, #0c1438 50%, #060820 75%, #04060e 100%);
+    padding: 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Norse rune grid pattern */
+  .hero-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1'%3E%3Cpath d='M20 10 L20 30 M14 15 L26 15 M14 25 L26 25'/%3E%3Cpath d='M60 10 L60 30 M54 20 L66 20'/%3E%3Cpath d='M20 50 L20 70 M14 55 L26 65 M14 65 L26 55'/%3E%3Cpath d='M60 50 L60 70 M54 55 L60 60 L66 55 M54 65 L66 65'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Electric lightning crack at bottom */
+  .hero-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, transparent, #2244c0, #8090e0, #f0d020, #fff8c0, #f0d020, #8090e0, #2244c0, transparent);
+    opacity: 0.80;
+  }
+
+  .hero-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .hero-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-myth  { background: rgba(100,130,240,0.22); color: #a8c0ff; border: 1px solid rgba(100,130,240,0.42); }
+  .badge-role  { background: rgba(240,208,20,0.22);  color: #f8e060; border: 1px solid rgba(240,208,20,0.42); }
+  .badge-unity { background: rgba(99,102,241,0.25);  color: #a5b4fc; border: 1px solid rgba(99,102,241,0.40); }
+
+  .hero-name {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    position: relative;
+    line-height: 1.1;
+  }
+
+  .hero-name span { color: #f0d020; }
+
+  .hero-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 8px;
+    position: relative;
+  }
+
+  .deco {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.09;
+    font-size: 120px;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* ── TABS ── */
+  .tabs-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .tab-btn {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 40px 48px; max-width: 1100px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* ── DESIGN BRIEF ── */
+  .brief-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .brief-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .brief-card.full { grid-column: 1 / -1; }
+
+  .brief-card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brief-card p { color: var(--muted); line-height: 1.7; font-size: 13px; }
+
+  .color-swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .swatch { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .swatch-dot { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); flex-shrink: 0; }
+
+  .prompt-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 8px;
+  }
+
+  .prompt-box p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #d8e0ff;
+    line-height: 1.8;
+  }
+
+  .prompt-box .kw  { color: #a8c0ff; }
+  .prompt-box .str { color: #f0d870; }
+  .prompt-box .num { color: #80f0d0; }
+
+  .copy-btn {
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: rgba(34,68,192,0.14);
+    border: 1px solid rgba(34,68,192,0.32);
+    color: #a8c0ff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all .15s;
+  }
+
+  .copy-btn:hover { background: rgba(34,68,192,0.26); }
+  .copy-btn.copied { color: #86efac; border-color: rgba(134,239,172,0.4); }
+
+  .detail-list { list-style: none; }
+  .detail-list li {
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .detail-list li:last-child { border-bottom: none; }
+  .detail-list li::before { content: '→'; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+  /* ── SKILLS ── */
+  .skills-grid { display: flex; flex-direction: column; gap: 16px; }
+
+  .skill-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .skill-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-key {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .sk1 { background: #e8ecff; color: #0c1860; border: 1px solid #9090d8; }
+  .sk2 { background: #e8ecff; color: #0c1860; border: 1px solid #9090d8; }
+  .skp { background: #fff8d8; color: #403000; border: 1px solid #d8b020; }
+  .sku { background: #04050e; color: #f0d020; border: 1px solid #2244c0; }
+
+  .skill-meta { flex: 1; }
+  .skill-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .skill-type { font-size: 11px; color: var(--subtle); margin-top: 2px; }
+
+  .ult-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #04050e;
+    color: #f0d020;
+    letter-spacing: 0.5px;
+  }
+
+  .storm-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #1c2448;
+    color: #a8c0ff;
+    letter-spacing: 0.5px;
+    margin-left: 4px;
+    border: 1px solid #4060b0;
+  }
+
+  .skill-body { padding: 16px 20px; }
+  .skill-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
+
+  .skill-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .skill-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+  }
+
+  .skill-stat .label { font-size: 10px; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.5px; }
+  .skill-stat .value { font-size: 15px; font-weight: 700; color: var(--accent2); margin-top: 2px; }
+  .skill-stat.lightning { background: #fff8d8; border-color: #d8b020; }
+  .skill-stat.lightning .value { color: #5a3c00; }
+  .skill-stat.storm { background: #e8ecff; border-color: #9090d8; }
+  .skill-stat.storm .value { color: #0c1860; }
+
+  /* ── CODE ── */
+  .code-section { margin-top: 0; }
+
+  .code-file {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .code-file-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .file-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .file-lang {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .lang-cs   { background: #dbeafe; color: #1d4ed8; }
+  .lang-hlsl { background: #e8ecff; color: #0c1860; }
+
+  pre {
+    margin: 0;
+    padding: 20px 24px;
+    overflow-x: auto;
+    background: var(--code-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--code-text);
+  }
+
+  .kw   { color: #a8c0ff; }
+  .cm   { color: #202840; font-style: italic; }
+  .str  { color: #f0d870; }
+  .num  { color: #80f0d0; }
+  .cls  { color: #80c8ff; }
+  .fn   { color: #c0a0ff; }
+  .prop { color: #f0a060; }
+  .attr { color: #f07070; }
+
+  /* ── TOOLS ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color .15s, transform .1s;
+  }
+
+  .tool-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .tool-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+
+  .tool-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+
+  .tool-name { font-size: 15px; font-weight: 600; }
+  .tool-cat  { font-size: 11px; color: var(--subtle); margin-top: 1px; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+  .tool-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tool-tag {
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+    background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+  }
+  .tool-tag.green  { background: #dcfce7; color: #14532d; border-color: #bbf7d0; }
+  .tool-tag.blue   { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .tool-tag.orange { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+  .tool-tag.purple { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+  .tool-tag.storm  { background: #e8ecff; color: #0c1860; border-color: #9090d8; }
+  .tool-tag.gold   { background: #fff8d8; color: #403000; border-color: #d8b020; }
+
+  /* ── WORKFLOW ── */
+  .workflow-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+
+  .workflow-box h3 {
+    font-size: 12px; font-weight: 600; color: #f0d020;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+  }
+
+  .workflow-steps { display: flex; flex-direction: column; gap: 8px; }
+
+  .wstep {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 12px; color: #d8e0ff;
+    font-family: 'JetBrains Mono', monospace; line-height: 1.6;
+  }
+
+  .wnum {
+    width: 22px; height: 22px;
+    background: rgba(34,68,192,0.35); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #a8c0ff;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  .warrow { color: #202840; margin: 0 4px; }
+
+  /* ── PROGRESSION ── */
+  .progression-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .progress-card h3 {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-note { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  .stat-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+  .stat-table th, .stat-table td {
+    padding: 9px 10px; border-bottom: 1px solid var(--border);
+    text-align: left; vertical-align: top;
+  }
+
+  .stat-table th {
+    color: var(--subtle); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .stat-table td strong { color: var(--text); }
+  .stat-table td.bolt  { color: #2244c0; font-weight: 600; }
+  .stat-table td.gold  { color: #6a4800; font-weight: 600; }
+
+  .level-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .level-chip {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 999px; background: var(--surface2);
+    color: var(--muted); border: 1px solid var(--border);
+  }
+
+  .level-chip.active  { background: var(--tag-bg); color: var(--tag-text); border-color: #9090d8; }
+  .level-chip.storm   { background: #e8ecff; color: #0c1860; border-color: #9090d8; }
+  .level-chip.gold    { background: #fff8d8; color: #403000; border-color: #d8b020; }
+
+  .rank-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+
+  .rank-table th, .rank-table td {
+    padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: center;
+  }
+
+  .rank-table th:first-child, .rank-table td:first-child {
+    text-align: left; color: var(--muted); font-weight: 600;
+  }
+
+  .rank-table th {
+    color: var(--subtle); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .rank-table td.bolt { color: var(--accent2); font-weight: 700; }
+  .rank-table td.gold { color: #8a6000; font-weight: 700; }
+
+  .code-mini-note { margin-top: 14px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  @media (max-width: 700px) {
+    .hero-header { padding: 24px 20px; }
+    .tabs-bar { padding: 0 12px; }
+    .section { padding: 24px 16px; }
+    .brief-grid { grid-template-columns: 1fr; }
+    .deco { display: none; }
+    .progression-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="hero-header">
+  <div class="hero-badge-row">
+    <span class="hero-badge badge-myth">Norse Mythology · Asgardian God</span>
+    <span class="hero-badge badge-role">Fighter · Warrior · Storm Bringer</span>
+    <span class="hero-badge badge-unity">Unity Package</span>
+  </div>
+  <div class="hero-name">Thor <span>— God of Thunder</span></div>
+  <div class="hero-subtitle">Son of Odin · Wielder of Mjölnir · Protector of Midgard · God of Storms &amp; Battle</div>
+  <div class="deco">⚡</div>
+</div>
+
+<!-- ══════════ TABS ══════════ -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('design', this)">🎨 Design Brief</button>
+  <button class="tab-btn" onclick="showTab('skills', this)">⚡ Abilities</button>
+  <button class="tab-btn" onclick="showTab('code', this)">{ } C# Scripts</button>
+  <button class="tab-btn" onclick="showTab('shader', this)">✦ HLSL Shaders</button>
+  <button class="tab-btn" onclick="showTab('tools', this)">🛠 3D AI Tools</button>
+</div>
+
+<!-- ══════════ DESIGN BRIEF ══════════ -->
+<div class="section active" id="tab-design">
+  <div class="brief-grid">
+
+    <div class="brief-card">
+      <h3>Silhouette &amp; Morphology</h3>
+      <p>Massively built divine warrior — ~2.05m, broad beyond reason, every inch of him built for war. Thick neck, barrel chest, arms that swing Mjölnir like a toy. Norse myth Thor is not the lean Marvel figure — he is the crushing weight of a thunderstorm made flesh: immense, unstoppable, loud. Short dark-auburn beard, fierce blue storm-grey eyes that crackle with lightning when enraged. Walks like the ground owes him deference. His mass is pure aggression in motion.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Armor — Asgardian Warrior</h3>
+      <p>Battle-worn Norse plate: deep storm-grey iron breastplate engraved with Valknut and Vegvísir (Norse compass) symbols that pulse with embedded lightning channels. Heavy fur-trimmed pauldrons — bear pelts over iron caps. Chainmail underlayer visible at joints. Norse leather bracers with rune-carved iron studs. Heavy iron greaves, thick battle boots. A deep storm-blue short cloak billowing with electrical charge. The <strong>Belt of Strength (Megingjörð)</strong> at the waist — a wide leather war belt glowing faintly gold, doubling his might. Iron war helm with a simple noseguard — not fully face-covering; his expression of fury must be visible.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Sacred Weapon — Mjölnir</h3>
+      <p>The war hammer Mjölnir — short-handled (historically accurate), devastatingly heavy head engraved with Norse knotwork. The head crackles with arcing blue-white electricity at all times. When thrown it leaves a tumbling end-over-end arc of lightning bolts across the air, strikes with explosive thunder impact, and returns to Thor's outstretched hand via a crackling electric recall tether — the hammer always comes back. A second weapon: the <strong>iron war axe Járngreipr</strong> at the hip, used in the basic attack combo's final strike when Mjölnir is away during a throw.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Storm Charge — The Core Resource</h3>
+      <p>Thor does not use mana. He uses <strong>Storm Charge</strong> — electrical energy that builds as he fights. Every melee hit, every lightning strike landed, every kill generates Storm Charge. At max charge (100%) his armor crackles visibly, his eyes glow white, the sky above the arena visibly darkens, and he enters <strong>Storm Fury</strong> — a passive overclock state that empowers all abilities. The Ultimate requires maximum Storm Charge, drains it entirely, and calls the full fury of Midgard's storms down on the battlefield in one catastrophic event.</p>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Color Palette — Swatches</h3>
+      <div class="color-swatch-row">
+        <div class="swatch"><div class="swatch-dot" style="background:#3a3c50"></div> Storm iron grey — armor plates</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1a2a60"></div> Deep Norse navy — cloak</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#d8b020"></div> Battle gold — rune engravings</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#e8f0ff;border:1px solid #ccc"></div> Electric white — lightning core</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#4060e0"></div> Storm blue — lightning fringe</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#6a3818"></div> Dark auburn — fur trim &amp; beard</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#c8a040"></div> Megingjörð gold — belt glow</div>
+      </div>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Visual Effects — Unity Particle System</h3>
+      <ul class="detail-list">
+        <li>Idle ambient: Mjölnir head continuously arcs small lightning between the knotwork engravings, blue-white sparks drift from arm, rune channels on breastplate pulse slow gold at low charge — accelerate as Storm Charge fills</li>
+        <li>Storm Fury state (full charge): visible storm vortex forms above Thor in the skybox, ground darkens, his eyes blaze white, the Megingjörð belt blazes gold, armor crackles continuously, every footstep leaves a brief electric ground scar</li>
+        <li>Basic combo: fist+axe first two hits create kinetic impact bursts, third hit (Mjölnir overhead slam) creates a shockwave ring on the ground + thunder crack audio pulse + lightning arc to nearest enemy</li>
+        <li>Skill 1 — Mjölnir Throw: hammer launches spinning with tumbling end-over-end lightning trail, massive thunder impact explosion at strike point, electric arc to up to 3 nearby enemies, crackling return tether pulls hammer back to gauntlet</li>
+        <li>Skill 2 — Thunder Stride: ground-impact shockwave ring expanding from landing point, sustained electric field on ground for duration, enemies in field are briefly lifted and shocked, storm clouds briefly coalesce overhead</li>
+        <li>Storm Fury visual: belt blazes, armor plates vent electric discharge, eyes white-hot, every ability gains an extra lightning arc secondary hit during this state</li>
+        <li>Ultimate — Ragnarök Strike: Thor leaps skyward (briefly off-screen), clouds ignite, then he descends at terminal velocity with Mjölnir point-first into a target zone — the largest explosion in the roster, ground crater, lightning pillars in a ring around impact, shockwave expands outward at speed of sound, screen bleach</li>
+        <li>Death: Thor falls to one knee, Mjölnir drops with a resonant impact, a single lightning bolt strikes it from the sky — he slumps, but the hammer remains, glowing, waiting</li>
+      </ul>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Midjourney Prompt — 2D Concept Art</h3>
+      <div class="prompt-box">
+        <p><span class="kw">thor god of thunder norse warrior original character</span>, <span class="str">massively built divine asgardian warrior, short dark auburn beard, fierce storm-grey eyes crackling with lightning, deep storm-grey iron breastplate with Valknut and Vegvísir Norse rune engravings glowing electric blue, heavy fur-trimmed iron pauldrons with bear pelt, chainmail underlayer at joints, Norse leather bracers with rune-carved iron studs, Megingjörð gold war belt glowing at waist, iron greaves, thick battle boots, deep storm-blue short cloak billowing with electrical energy, simple iron war helm with noseguard, Mjölnir short-handled war hammer crackling with intense blue-white lightning in right hand, iron axe at hip</span>, <span class="kw">aggressive charging combat stance with Mjölnir raised</span>, <span class="str">Norse battlefield at stormy night, massive thunderstorm overhead, lightning bolts striking in background, storm vortex forming above him, electric ground scars at his feet, dramatic low angle, epic divine warrior energy</span>, <span class="num">full body character sheet front and side view, white background option, Norse epic fantasy concept art style, clean lineart, MOBA fighter hero design, high detail, 4K, --ar 2:1 --style raw --q 2</span></p>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Meshy / Kaedim Prompt — 3D Generation</h3>
+      <div class="prompt-box">
+        <p><span class="kw">Norse epic fantasy MOBA hero, humanoid biped male divine warrior fighter</span>, <span class="str">Thor god of thunder inspired Asgardian warrior, massively broad-shouldered heavy muscular build (~205cm), short dark auburn beard, fierce eyes, deep storm-grey iron breastplate with Norse knotwork and rune channel engravings (Valknut center symbol), heavy fur-trimmed iron pauldrons with bear pelt details at shoulder caps, chainmail visible at elbow and knee joints, Norse leather bracers with iron rune studs on forearms, wide leather war belt (Megingjörð) with gold rune clasp at waist, iron greaves, thick combat boots, storm-blue short battle cloak draped from left shoulder — separate cloth geometry, iron war helm with simple noseguard on head, short-handled Mjölnir war hammer with knotwork-engraved head in right hand — hammer as separate prop mesh with emission zone across entire head face, iron axe (Járngreipr) at left hip — separate prop</span>, <span class="kw">T-pose, front-facing neutral pose, full body, centered, clearly separated arms and legs, cloak as separate cloth-simulation ready geometry, hammer as separate prop with clean electric emission UV, axe as hip prop mesh, clean deformation joints throughout, no fused fur to arm geometry</span>, <span class="str">game-ready Unity humanoid rig, PBR textures, separate material zones for iron armor, fur trim, blue cloak, chainmail, skin, auburn hair/beard, hammer iron head, hammer emission zone, axe head, leather belt with gold clasp, medium-high poly, FBX export</span>, <span class="num">must support animations: aggressive combat idle, heavy stomp walk, full sprint charge lean, basic combo 3-hit (left hook + axe slash + Mjölnir overhead slam), Mjölnir throw windup + release, thunder stride leap + ground slam landing, Storm Fury activation wide-arm pose, ultimate skyward leap + descent impact, hit reaction stagger backward, death kneel Mjölnir drop</span></p>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ ABILITIES ══════════ -->
+<div class="section" id="tab-skills">
+  <div class="progression-grid">
+    <div class="progress-card">
+      <h3>Hero Progression — Level 1 → 15</h3>
+      <table class="stat-table">
+        <thead>
+          <tr><th>Attribute</th><th>Level 1</th><th>Level 15</th><th>Growth</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>HP</strong></td><td>4000</td><td>8400</td><td>+314.3 / lvl</td></tr>
+          <tr><td><strong>HP Regen</strong></td><td>12.0</td><td>26.0</td><td>+1.0 / lvl</td></tr>
+          <tr><td><strong>Storm Charge</strong></td><td>0</td><td>0</td><td class="bolt">Built in combat</td></tr>
+          <tr><td><strong>Storm Charge Regen</strong></td><td>6 / s</td><td>10 / s</td><td>+0.29 / lvl</td></tr>
+          <tr><td><strong>Physical Attack</strong></td><td>185</td><td>390</td><td>+14.6 / lvl</td></tr>
+          <tr><td><strong>Magic Power (lightning)</strong></td><td>60</td><td>160</td><td>+7.1 / lvl</td></tr>
+          <tr><td><strong>Physical Defense</strong></td><td>52</td><td>120</td><td>+4.86 / lvl</td></tr>
+          <tr><td><strong>Magic Defense</strong></td><td>30</td><td>75</td><td>+3.21 / lvl</td></tr>
+          <tr><td><strong>Attack Speed</strong></td><td>0.85</td><td>1.10</td><td>+0.018 / lvl</td></tr>
+          <tr><td><strong>Move Speed</strong></td><td>250</td><td>250</td><td>Fixed</td></tr>
+          <tr><td><strong>Basic Attack Range</strong></td><td>3.2m</td><td>3.2m</td><td>Fixed (melee)</td></tr>
+          <tr><td><strong>Armor Penetration</strong></td><td>10%</td><td>25%</td><td>+1.07% / lvl</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="progress-card">
+      <h3>System Proposal</h3>
+      <div class="progress-note">
+        Thor is a <strong>pure Fighter/Warrior</strong> — the highest physical attack in the roster, no healing, no utility, total aggression. He uses <strong>Storm Charge</strong> (0–100), a resource that only builds through combat: basic attacks, ability hits, and kills all generate charge. It does not regenerate safely out of combat — he must stay in the fight.<br/><br/>
+        At <strong>100 Storm Charge</strong> he enters <strong>Storm Fury</strong>, passively overclock state: every ability costs less, attack speed surges, and lightning arcs secondary-hit nearby enemies on every swing. The <strong>Ultimate requires full charge</strong> to activate — so managing when to spend Fury versus when to save it for Ragnarök Strike defines his moment-to-moment game.
+      </div>
+      <div class="level-row">
+        <span class="level-chip active">Hero: 15 Levels</span>
+        <span class="level-chip">Skill 1: 4 Ranks</span>
+        <span class="level-chip">Skill 2: 4 Ranks</span>
+        <span class="level-chip">Ultimate: 3 Ranks</span>
+        <span class="level-chip storm">Storm Charge</span>
+        <span class="level-chip gold">Storm Fury State</span>
+      </div>
+      <div class="code-mini-note">
+        <strong>Storm Charge</strong> is a float 0–100 in <code>ThorController</code>. Passive regen is slow (6–10/s). Active gains: <strong>+12 per basic hit, +20 per ability hit, +30 per kill</strong>. Storm Fury activates at 100 and persists until the Ultimate fires (draining to 0) or 15s elapses (it decays back to 80 if unused). The Fury state is a <em>boolean flag</em> that augments damage calculation and ability costs throughout the controller.
+      </div>
+    </div>
+  </div>
+
+  <div class="skills-grid">
+
+    <!-- BASIC ATTACK -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk1">B</div>
+        <div class="skill-meta">
+          <div class="skill-name">Basic Attack — Warrior's Triad</div>
+          <div class="skill-type">Physical · 3-hit combo chain · Storm Charge on every hit</div>
+        </div>
+        <span class="storm-badge">+12 CHARGE / HIT</span>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">A brutal 3-hit melee combo cycling through Thor's arsenal: <strong>Hit 1 — Iron Fist</strong>: crushing gauntlet punch (fast, Megingjörð-boosted blunt force). <strong>Hit 2 — Járngreipr Slash</strong>: wide axe arc hitting all enemies in a 120° cone. <strong>Hit 3 — Mjölnir Slam</strong>: overhead hammer smash with a radial ground shockwave (2.5m AoE) that stuns the primary target for 0.4s. Each hit generates <strong>+12 Storm Charge</strong>. In Storm Fury, each hit also arcs a secondary lightning bolt to the nearest enemy within 5m dealing bonus magic damage. The full combo deals <strong>3.50× total Physical Attack</strong> — the hardest-hitting basic chain in the roster.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Hit 1 mult</div><div class="value">×0.90</div></div>
+          <div class="skill-stat"><div class="label">Hit 2 mult</div><div class="value">×1.10</div></div>
+          <div class="skill-stat"><div class="label">Hit 3 mult</div><div class="value">×1.50</div></div>
+          <div class="skill-stat storm"><div class="label">Charge / hit</div><div class="value">+12</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Hero Scale</th><th>Lvl 1</th><th>Lvl 8</th><th>Lvl 15</th></tr></thead>
+          <tbody>
+            <tr><td>Physical Attack</td><td>185</td><td>287</td><td>390</td></tr>
+            <tr><td>Full combo (3 hits)</td><td>648</td><td>1007</td><td>1365</td></tr>
+            <tr><td>Fury arc bonus (MP)</td><td>+72</td><td>+144</td><td>+224</td></tr>
+            <tr><td>Charge per full combo</td><td>+36</td><td>+36</td><td>+36</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SKILL 1 -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk1">1</div>
+        <div class="skill-meta">
+          <div class="skill-name">Mjölnir Throw — Hammer of the Gods</div>
+          <div class="skill-type">Physical · Projectile pierce · Chain arc · Return hit · Charge generation</div>
+        </div>
+        <span class="storm-badge">+20 CHARGE / HIT</span>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">Thor hurls Mjölnir in a straight line — the hammer spins end-over-end trailing a ribbon of lightning. It <strong>pierces all enemies</strong> in its path, dealing physical damage to each. On impact with the farthest enemy or at maximum range it <strong>explodes</strong>, arcing electricity to up to <strong>3 nearby enemies</strong> within 5m. Then Mjölnir streaks back to Thor's hand — the <strong>return arc also deals damage</strong> to any enemy in its path. While Mjölnir is in flight Thor fights with Járngreipr (no hammer penalty — he is Asgardian). Each enemy hit generates <strong>+20 Storm Charge</strong>. In Storm Fury the arc chain reaches 5 targets instead of 3. This is his primary long-range threat and Storm Charge engine.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Throw range</div><div class="value">12m</div></div>
+          <div class="skill-stat"><div class="label">Arc targets</div><div class="value">×3 (×5 Fury)</div></div>
+          <div class="skill-stat storm"><div class="label">Charge / enemy</div><div class="value">+20</div></div>
+          <div class="skill-stat"><div class="label">Charge cost</div><div class="value">30</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead>
+          <tbody>
+            <tr><td>Throw damage</td><td>300</td><td>380</td><td>460</td><td>540</td></tr>
+            <tr><td>Return damage</td><td>150</td><td>190</td><td>230</td><td>270</td></tr>
+            <tr><td>Arc damage / target</td><td>120</td><td>155</td><td>190</td><td>225</td></tr>
+            <tr><td>AP scaling (arc)</td><td>40%</td><td>45%</td><td>50%</td><td>55%</td></tr>
+            <tr><td>Charge cost</td><td>30</td><td>30</td><td>30</td><td>30</td></tr>
+            <tr><td>Cooldown</td><td>9s</td><td>8s</td><td>7s</td><td>6s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SKILL 2 -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk2">2</div>
+        <div class="skill-meta">
+          <div class="skill-name">Thunder Stride — Storm Leap</div>
+          <div class="skill-type">Physical + Magic · Leap + Ground Slam · Sustained Lightning Field · Airborne CC</div>
+        </div>
+        <span class="storm-badge">+20 CHARGE ON LAND</span>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">Thor charges Mjölnir with storm energy and <strong>leaps forward</strong> up to 9m, crashing down with thunderous force. On landing, a radial <strong>shockwave</strong> erupts dealing physical damage and <strong>launching all nearby enemies airborne</strong> for 1.2s. The impact point leaves a crackling <strong>Lightning Field</strong> on the ground for 4s — any enemy standing in it takes continuous magic damage per tick and has their movement speed reduced by 30%. Thor's own movement through the field generates <strong>+5 Storm Charge per second</strong>. In Storm Fury the Lightning Field radius doubles and the airborne duration extends to 1.8s. His primary engagement tool and area denial combined.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Leap range</div><div class="value">9m</div></div>
+          <div class="skill-stat"><div class="label">Airborne</div><div class="value">1.2s (1.8 Fury)</div></div>
+          <div class="skill-stat storm"><div class="label">Field duration</div><div class="value">4s</div></div>
+          <div class="skill-stat"><div class="label">Charge cost</div><div class="value">35</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead>
+          <tbody>
+            <tr><td>Landing damage</td><td>280</td><td>355</td><td>430</td><td>505</td></tr>
+            <tr><td>Field radius</td><td>5m</td><td>5.5m</td><td>6m</td><td>6.5m</td></tr>
+            <tr><td>Field dmg / sec</td><td>80</td><td>105</td><td>130</td><td>155</td></tr>
+            <tr><td>Field AP scaling</td><td>35%</td><td>40%</td><td>45%</td><td>50%</td></tr>
+            <tr><td>Airborne (Fury)</td><td>1.8s</td><td>1.8s</td><td>1.8s</td><td>1.8s</td></tr>
+            <tr><td>Charge cost</td><td>35</td><td>35</td><td>35</td><td>35</td></tr>
+            <tr><td>Cooldown</td><td>13s</td><td>12s</td><td>11s</td><td>10s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PASSIVE -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key skp">P</div>
+        <div class="skill-meta">
+          <div class="skill-name">Passive — Storm Fury</div>
+          <div class="skill-type">Passive · Full charge overclock · Lightning arc secondary hits · Kill surge</div>
+        </div>
+        <span class="storm-badge">ACTIVATES AT 100 CHARGE</span>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">The passive heart of Thor's kit. When Storm Charge reaches 100, Storm Fury activates automatically — a state of divine battle rage channelling the full power of Asgard's storms. While active: <strong>(1) Lightning Arcs</strong> — every melee hit and every ability hit arcs a secondary bolt to the nearest enemy within 5m dealing <strong>+18% physical attack</strong> as magic damage; <strong>(2) Ability Overclock</strong> — all ability Storm Charge costs are halved; <strong>(3) Attack Speed Surge</strong> — attack speed increases by <strong>+30%</strong>; <strong>(4) Fury Footsteps</strong> — each step leaves a brief electrical ground scar. Storm Fury lasts 15s or until the Ultimate fires (draining charge to 0). Kills during Fury always extend it by 3s. The counter: Fury decays from 100 to 80 after 15s if the Ultimate is not used — the god of thunder cannot sustain divine wrath forever without releasing it.</div>
+        <div class="skill-stats">
+          <div class="skill-stat gold"><div class="label">Fury threshold</div><div class="value">100 charge</div></div>
+          <div class="skill-stat lightning"><div class="label">Arc bonus</div><div class="value">+18% ATQ</div></div>
+          <div class="skill-stat storm"><div class="label">ATK spd boost</div><div class="value">+30%</div></div>
+          <div class="skill-stat"><div class="label">Fury duration</div><div class="value">15s</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ULTIMATE -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sku">U</div>
+        <div class="skill-meta">
+          <div class="skill-name">Ragnarök Strike — Wrath of Midgard</div>
+          <div class="skill-type">Ultimate · Skyward leap + terminal descent · Crater AoE · Lightning pillar ring · Full charge drain</div>
+        </div>
+      </div>
+      <span class="ult-badge">ULTIMATE</span>
+      <span class="storm-badge">REQUIRES 100 CHARGE</span>
+      <div class="skill-body">
+        <div class="skill-desc">The culmination of every Storm Charge built in battle. Thor throws Mjölnir skyward, <strong>leaps after it into the storm clouds</strong> (1.8s brief off-screen — he becomes untargetable in the sky), then <strong>descends at terminal velocity</strong> Mjölnir-first into a targeted ground zone within 18m. The impact detonates a <strong>catastrophic AoE explosion</strong> at the landing point with no damage fall-off inside the crater. Six <strong>lightning pillars</strong> simultaneously strike the ground in a ring around the crater edge, each dealing magic damage to enemies within 3m. A shockwave ring then expands outward dealing further damage. All Storm Charge is drained. The entire sequence from leap to impact lasts 2.3s — opponents can see it coming, but stopping 6 tons of Norse god falling from the sky is another matter entirely. At Rank III the descent also triggers a <strong>brief EMP stun</strong> (1.2s) on all enemies within the blast radius — all abilities are locked while they reel from divine impact.</div>
+        <div class="skill-stats">
+          <div class="skill-stat storm"><div class="label">Crater radius</div><div class="value">10m</div></div>
+          <div class="skill-stat lightning"><div class="label">Pillar count</div><div class="value">6 strikes</div></div>
+          <div class="skill-stat"><div class="label">Air time</div><div class="value">1.8s</div></div>
+          <div class="skill-stat gold"><div class="label">Charge cost</div><div class="value">100 (all)</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th></tr></thead>
+          <tbody>
+            <tr><td>Crater impact dmg</td><td class="bolt">1100</td><td class="bolt">1500</td><td class="bolt">2000</td></tr>
+            <tr><td>Shockwave ring dmg</td><td>380</td><td>510</td><td>680</td></tr>
+            <tr><td>Lightning pillar (×6)</td><td>200</td><td>275</td><td>365</td></tr>
+            <tr><td>Total max (all pillars hit)</td><td class="gold">2680</td><td class="gold">3660</td><td class="gold">4870</td></tr>
+            <tr><td>EMP stun (Rank III)</td><td>—</td><td>—</td><td class="bolt">1.2s</td></tr>
+            <tr><td>Air time (untargetable)</td><td>1.8s</td><td>1.8s</td><td>1.8s</td></tr>
+            <tr><td>Cooldown</td><td>105s</td><td>90s</td><td>78s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="workflow-box">
+    <h3>Recommended Unity Architecture</h3>
+    <div class="workflow-steps">
+      <div class="wstep"><div class="wnum">1</div><span><span style="color:#f0d020">HeroDefinition.asset</span> <span class="warrow">→</span> Stats level 1→15, Storm Charge gains (hit/kill), Fury thresholds, arc damage formula, Fury decay timer</span></div>
+      <div class="wstep"><div class="wnum">2</div><span><span style="color:#c0a0ff">ThorController</span> <span class="warrow">→</span> Storm Charge float, Storm Fury bool + 15s timer, 3-hit combo state machine, hammer in-flight flag, Ragnarök air phase</span></div>
+      <div class="wstep"><div class="wnum">3</div><span><span style="color:#f0d870">ThorCombatVFX</span> <span class="warrow">→</span> Armor charge glow binder (_StormPercent), arc bolt line renderer, lightning field ring, crater explosion + pillar spawner, skyward leap FX</span></div>
+      <div class="wstep"><div class="wnum">4</div><span><span style="color:#80f0d0">URP Shaders</span> <span class="warrow">→</span> Armor storm rune glow, Mjölnir charge emission, lightning field ground shader, crater scorch + pillar beam, death dissolve</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ C# SCRIPTS ══════════ -->
+<div class="section" id="tab-code">
+  <div class="code-section">
+
+    <!-- HeroDefinition.cs -->
+    <div class="code-file">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> HeroDefinition.cs</div>
+        <button class="copy-btn" onclick="copyCode('code1', this)">Copy</button>
+      </div>
+      <pre id="code1"><span class="cm">// HeroDefinition.cs
+// ScriptableObject — MOBA 15-level hero data.
+// Extended for Thor: Storm Charge resource, Storm Fury state parameters,
+// Fury arc damage formula, hammer-in-flight flag, Ragnarök pillar count.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+<span class="kw">using</span> System;
+
+[<span class="cls">CreateAssetMenu</span>(menuName = <span class="str">"Game/Hero Definition"</span>, fileName = <span class="str">"HeroDefinition"</span>)]
+<span class="kw">public class</span> <span class="cls">HeroDefinition</span> : <span class="cls">ScriptableObject</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Identity"</span>)]
+    <span class="kw">public</span> <span class="kw">string</span>   heroId      = <span class="str">"thor"</span>;
+    <span class="kw">public</span> <span class="kw">string</span>   displayName = <span class="str">"Thor"</span>;
+    <span class="kw">public</span> <span class="cls">HeroRole</span> role        = <span class="cls">HeroRole</span>.Fighter;
+
+    [<span class="cls">Header</span>(<span class="str">"Core progression — Level 1 to 15"</span>)]
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> maxHp          = <span class="kw">new</span>(<span class="num">4000f</span>, <span class="num">8400f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> hpRegen         = <span class="kw">new</span>(<span class="num">12.0f</span>, <span class="num">26.0f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> stormChargeRegen = <span class="kw">new</span>(<span class="num">6.0f</span>,  <span class="num">10.0f</span>); <span class="cm">// passive baseline regen</span>
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> physicalAttack  = <span class="kw">new</span>(<span class="num">185f</span>,  <span class="num">390f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> magicPower      = <span class="kw">new</span>(<span class="num">60f</span>,   <span class="num">160f</span>); <span class="cm">// lightning secondary</span>
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> physicalDefense = <span class="kw">new</span>(<span class="num">52f</span>,   <span class="num">120f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> magicDefense    = <span class="kw">new</span>(<span class="num">30f</span>,   <span class="num">75f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> attackSpeed     = <span class="kw">new</span>(<span class="num">0.85f</span>, <span class="num">1.10f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> armorPen        = <span class="kw">new</span>(<span class="num">0.10f</span>, <span class="num">0.25f</span>);
+
+    [<span class="cls">Header</span>(<span class="str">"Fixed properties"</span>)]
+    <span class="kw">public float</span> moveSpeed         = <span class="num">250f</span>;
+    <span class="kw">public float</span> basicAttackRange  = <span class="num">3.2f</span>;
+    <span class="kw">public float</span> attackSpeedRatio  = <span class="num">1.0f</span>;
+    <span class="kw">public float</span> maxStormCharge    = <span class="num">100f</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Storm Charge generation"</span>)]
+    <span class="kw">public float</span> chargeOnBasicHit  = <span class="num">12f</span>;
+    <span class="kw">public float</span> chargeOnAbilityHit = <span class="num">20f</span>;
+    <span class="kw">public float</span> chargeOnKill       = <span class="num">30f</span>;
+    <span class="kw">public float</span> chargeOnFieldTick  = <span class="num">5f</span>;  <span class="cm">// per second while standing in own field</span>
+
+    [<span class="cls">Header</span>(<span class="str">"Passive — Storm Fury"</span>)]
+    <span class="kw">public float</span> furyArcRangeM      = <span class="num">5.0f</span>;
+    <span class="kw">public float</span> furyArcDamagePct   = <span class="num">0.18f</span>; <span class="cm">// 18% physical attack as magic damage</span>
+    <span class="kw">public float</span> furyAttackSpeedBonus = <span class="num">0.30f</span>;
+    <span class="kw">public float</span> furyCostReduction   = <span class="num">0.50f</span>; <span class="cm">// all costs halved</span>
+    <span class="kw">public float</span> furyDuration        = <span class="num">15f</span>;
+    <span class="kw">public float</span> furyDecayThreshold  = <span class="num">80f</span>;   <span class="cm">// decays to this if not used</span>
+    <span class="kw">public float</span> furyKillExtension   = <span class="num">3f</span>;    <span class="cm">// seconds added per kill during Fury</span>
+
+    [<span class="cls">Header</span>(<span class="str">"Ability ranks"</span>)]
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> basicAttack = <span class="kw">new</span>(<span class="str">"Warrior's Triad"</span>,
+        <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="num">0f</span>); <span class="cm">// multipliers in controller</span>
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> skillOne = <span class="kw">new</span>(<span class="str">"Mjölnir Throw"</span>,
+        <span class="kw">new</span>[] { <span class="num">300f</span>, <span class="num">380f</span>, <span class="num">460f</span>, <span class="num">540f</span> },
+        <span class="kw">new</span>[] { <span class="num">30f</span>,  <span class="num">30f</span>,  <span class="num">30f</span>,  <span class="num">30f</span>  },
+        <span class="kw">new</span>[] { <span class="num">9f</span>,   <span class="num">8f</span>,   <span class="num">7f</span>,   <span class="num">6f</span>   }, <span class="num">0.55f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> skillTwo = <span class="kw">new</span>(<span class="str">"Thunder Stride"</span>,
+        <span class="kw">new</span>[] { <span class="num">280f</span>, <span class="num">355f</span>, <span class="num">430f</span>, <span class="num">505f</span> },
+        <span class="kw">new</span>[] { <span class="num">35f</span>,  <span class="num">35f</span>,  <span class="num">35f</span>,  <span class="num">35f</span>  },
+        <span class="kw">new</span>[] { <span class="num">13f</span>,  <span class="num">12f</span>,  <span class="num">11f</span>,  <span class="num">10f</span>  }, <span class="num">0.60f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> ultimate = <span class="kw">new</span>(<span class="str">"Ragnarök Strike"</span>,
+        <span class="kw">new</span>[] { <span class="num">1100f</span>, <span class="num">1500f</span>, <span class="num">2000f</span> }, <span class="cm">// crater damage</span>
+        <span class="kw">new</span>[] { <span class="num">100f</span>,  <span class="num">100f</span>,  <span class="num">100f</span>  }, <span class="cm">// always full charge</span>
+        <span class="kw">new</span>[] { <span class="num">105f</span>,  <span class="num">90f</span>,   <span class="num">78f</span>   }, <span class="num">0.70f</span>);
+
+    [<span class="cls">Header</span>(<span class="str">"Ragnarök — pillar config"</span>)]
+    <span class="kw">public int</span>   pillarCount          = <span class="num">6</span>;
+    <span class="kw">public float</span> pillarRadius         = <span class="num">10f</span>; <span class="cm">// ring radius around crater</span>
+    <span class="kw">public float</span>[] pillarDamage       = { <span class="num">200f</span>, <span class="num">275f</span>, <span class="num">365f</span> };
+    <span class="kw">public float</span>[] shockwaveDamage    = { <span class="num">380f</span>, <span class="num">510f</span>, <span class="num">680f</span> };
+    <span class="kw">public float</span>   empStunDuration    = <span class="num">1.2f</span>; <span class="cm">// Rank III only</span>
+
+    <span class="kw">public</span> <span class="cls">RuntimeHeroStats</span> <span class="fn">CreateRuntime</span>(<span class="kw">int</span> level)
+    {
+        level = <span class="cls">Mathf</span>.Clamp(level, <span class="num">1</span>, <span class="num">15</span>);
+        <span class="kw">return new</span> <span class="cls">RuntimeHeroStats</span>
+        {
+            level            = level,
+            maxHp            = maxHp.<span class="fn">Evaluate</span>(level),
+            hpRegen          = hpRegen.<span class="fn">Evaluate</span>(level),
+            stormChargeRegen = stormChargeRegen.<span class="fn">Evaluate</span>(level),
+            physicalAttack   = physicalAttack.<span class="fn">Evaluate</span>(level),
+            magicPower       = magicPower.<span class="fn">Evaluate</span>(level),
+            physicalDefense  = physicalDefense.<span class="fn">Evaluate</span>(level),
+            magicDefense     = magicDefense.<span class="fn">Evaluate</span>(level),
+            attackSpeed      = attackSpeed.<span class="fn">Evaluate</span>(level),
+            armorPen         = armorPen.<span class="fn">Evaluate</span>(level),
+            moveSpeed        = moveSpeed,
+            basicAttackRange = basicAttackRange,
+            attackSpeedRatio = attackSpeedRatio,
+            maxStormCharge   = maxStormCharge
+        };
+    }
+}
+
+<span class="kw">public enum</span> <span class="cls">HeroRole</span> { Tank, Fighter, Assassin, Mage, Marksman, Support, MageAssassin }
+
+[Serializable]
+<span class="kw">public struct</span> <span class="cls">ScaledStat</span>
+{
+    <span class="kw">public float</span> level1, level15;
+    <span class="kw">public</span> <span class="cls">ScaledStat</span>(<span class="kw">float</span> l1, <span class="kw">float</span> l15) { level1 = l1; level15 = l15; }
+    <span class="kw">public float</span> <span class="fn">Evaluate</span>(<span class="kw">int</span> level)
+    {
+        level = <span class="cls">Mathf</span>.Clamp(level, <span class="num">1</span>, <span class="num">15</span>);
+        <span class="kw">return</span> level == <span class="num">1</span> ? level1 : <span class="cls">Mathf</span>.Lerp(level1, level15, (level - <span class="num">1f</span>) / <span class="num">14f</span>);
+    }
+}
+
+[Serializable]
+<span class="kw">public class</span> <span class="cls">AbilityRankData</span>
+{
+    <span class="kw">public string</span>  abilityName;
+    <span class="kw">public float</span>[] baseDamage;
+    <span class="kw">public float</span>[] chargeCost;
+    <span class="kw">public float</span>[] cooldown;
+    <span class="kw">public float</span>   scalingPhysical;
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span>(<span class="kw">string</span> n, <span class="kw">float</span>[] dmg, <span class="kw">float</span>[] cost, <span class="kw">float</span>[] cd, <span class="kw">float</span> scale)
+    { abilityName = n; baseDamage = dmg; chargeCost = cost; cooldown = cd; scalingPhysical = scale; }
+
+    <span class="kw">public float</span> <span class="fn">DamageAtRank</span>   (<span class="kw">int</span> r, <span class="kw">float</span> atq) => baseDamage[<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,baseDamage.Length-<span class="num">1</span>)] + atq * scalingPhysical;
+    <span class="kw">public float</span> <span class="fn">ChargeCostAtRank</span>(<span class="kw">int</span> r)          => chargeCost[<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,chargeCost.Length-<span class="num">1</span>)];
+    <span class="kw">public float</span> <span class="fn">CooldownAtRank</span>  (<span class="kw">int</span> r)          => cooldown  [<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,cooldown.Length-<span class="num">1</span>)];
+}
+
+[Serializable]
+<span class="kw">public struct</span> <span class="cls">RuntimeHeroStats</span>
+{
+    <span class="kw">public int</span>   level;
+    <span class="kw">public float</span> maxHp, hpRegen;
+    <span class="kw">public float</span> maxStormCharge, stormChargeRegen;
+    <span class="kw">public float</span> physicalAttack, magicPower, physicalDefense, magicDefense;
+    <span class="kw">public float</span> attackSpeed, moveSpeed, basicAttackRange, attackSpeedRatio, armorPen;
+}</pre>
+    </div>
+
+    <!-- ThorController.cs -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> ThorController.cs</div>
+        <button class="copy-btn" onclick="copyCode('code2', this)">Copy</button>
+      </div>
+      <pre id="code2"><span class="cm">// ThorController.cs
+// Main controller: Storm Charge float (builds in combat, passive slow regen),
+// Storm Fury bool + 15s timer + kill extension, 3-hit combo state machine,
+// hammer-in-flight flag (fights with axe during throw), Mjölnir return arc,
+// Thunder Stride leap + sustained lightning field, Ragnarök untargetable air phase
+// + crater AoE + 6 pillar strikes + optional Rank III EMP stun.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+<span class="kw">using</span> <span class="cls">UnityEngine</span>.AI;
+<span class="kw">using</span> System.Collections;
+<span class="kw">using</span> System.Collections.Generic;
+
+[<span class="cls">RequireComponent</span>(<span class="kw">typeof</span>(<span class="cls">NavMeshAgent</span>))]
+<span class="kw">public class</span> <span class="cls">ThorController</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Data"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">HeroDefinition</span> heroDefinition;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">15</span>)] <span class="kw">private int</span> heroLevel = <span class="num">1</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Ability Ranks"</span>)]
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">4</span>)] <span class="kw">private int</span> skillOneRank = <span class="num">1</span>;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">4</span>)] <span class="kw">private int</span> skillTwoRank = <span class="num">1</span>;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">3</span>)] <span class="kw">private int</span> ultimateRank = <span class="num">1</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Scene References"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Animator</span>       animator;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">NavMeshAgent</span>   agent;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ThorCombatVFX</span>  combatVfx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Transform</span>       hammerGrip;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Transform</span>       axeGrip;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LayerMask</span>       enemyMask;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LayerMask</span>       wallMask;
+
+    [<span class="cls">Header</span>(<span class="str">"Runtime"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">RuntimeHeroStats</span> stats;
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> currentHp;
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> currentCharge;
+    [<span class="cls">SerializeField</span>] <span class="kw">private bool</span>  isDead;
+    [<span class="cls">SerializeField</span>] <span class="kw">private bool</span>  stormFuryActive;
+    [<span class="cls">SerializeField</span>] <span class="kw">private bool</span>  hammerInFlight;
+    [<span class="cls">SerializeField</span>] <span class="kw">private bool</span>  isUntargetable; <span class="cm">// during Ragnarök air phase</span>
+
+    <span class="kw">private float</span> furyTimer;
+    <span class="kw">private float</span> basicCooldown, skillOneCooldown, skillTwoCooldown, ultimateCooldown;
+
+    <span class="cm">// 3-hit combo state</span>
+    <span class="kw">private int</span>   comboStep       = <span class="num">0</span>;
+    <span class="kw">private float</span> comboResetTimer = <span class="num">0f</span>;
+    <span class="kw">private const float</span> COMBO_RESET = <span class="num">1.8f</span>;
+
+    <span class="kw">public float</span> HpPercent     => stats.maxHp          > <span class="num">0f</span> ? currentHp     / stats.maxHp          : <span class="num">0f</span>;
+    <span class="kw">public float</span> ChargePercent => stats.maxStormCharge > <span class="num">0f</span> ? currentCharge / stats.maxStormCharge : <span class="num">0f</span>;
+    <span class="kw">public bool</span>  StormFury     => stormFuryActive;
+    <span class="kw">public bool</span>  IsDead        => isDead;
+
+    <span class="cm">// Fury halves ability costs when active</span>
+    <span class="kw">private float</span> <span class="fn">FuryCost</span>(<span class="kw">float</span> baseCost)
+        => stormFuryActive ? baseCost * (<span class="num">1f</span> - heroDefinition.furyCostReduction) : baseCost;
+
+    <span class="kw">private float</span> <span class="fn">GetEffectiveAttackSpeed</span>()
+        => stormFuryActive ? stats.attackSpeed * (<span class="num">1f</span> + heroDefinition.furyAttackSpeedBonus) : stats.attackSpeed;
+
+    <span class="kw">private void</span> <span class="fn">Reset</span>() { agent = <span class="fn">GetComponent</span>&lt;<span class="cls">NavMeshAgent</span>&gt;(); animator = <span class="fn">GetComponentInChildren</span>&lt;<span class="cls">Animator</span>&gt;(); }
+    <span class="kw">private void</span> <span class="fn">Awake</span>() { <span class="kw">if</span> (agent == <span class="kw">null</span>) agent = <span class="fn">GetComponent</span>&lt;<span class="cls">NavMeshAgent</span>&gt;(); <span class="fn">ApplyLevel</span>(heroLevel, <span class="kw">true</span>); }
+
+    <span class="kw">private void</span> <span class="fn">Update</span>()
+    {
+        <span class="kw">if</span> (isDead || heroDefinition == <span class="kw">null</span>) <span class="kw">return</span>;
+        <span class="fn">TickCooldowns</span>();
+        <span class="fn">RegenerateResources</span>();
+        <span class="fn">TickFury</span>();
+        <span class="fn">TickComboReset</span>();
+        <span class="fn">UpdateAnimator</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">ApplyLevel</span>(<span class="kw">int</span> newLevel, <span class="kw">bool</span> fullRestore = <span class="kw">false</span>)
+    {
+        heroLevel = <span class="cls">Mathf</span>.Clamp(newLevel, <span class="num">1</span>, <span class="num">15</span>);
+        stats     = heroDefinition.<span class="fn">CreateRuntime</span>(heroLevel);
+        agent.speed = stats.moveSpeed / <span class="num">100f</span>;
+        <span class="kw">if</span> (fullRestore) { currentHp = stats.maxHp; currentCharge = <span class="num">0f</span>; }
+        <span class="kw">else</span> currentHp = <span class="cls">Mathf</span>.Min(currentHp, stats.maxHp);
+    }
+
+    <span class="kw">public void</span> <span class="fn">MoveTo</span>(<span class="cls">Vector3</span> worldPoint)
+    {
+        <span class="kw">if</span> (isDead || isUntargetable) <span class="kw">return</span>;
+        agent.isStopped = <span class="kw">false</span>;
+        agent.<span class="fn">SetDestination</span>(worldPoint);
+    }
+
+    <span class="cm">// ── BASIC ATTACK — 3-hit combo ────────────────────────────────────────</span>
+    <span class="kw">public void</span> <span class="fn">BasicAttack</span>(<span class="cls">Health</span> primaryTarget)
+    {
+        <span class="kw">if</span> (isDead || isUntargetable || basicCooldown > <span class="num">0f</span> || primaryTarget == <span class="kw">null</span>) <span class="kw">return</span>;
+
+        comboResetTimer = COMBO_RESET;
+        basicCooldown   = <span class="num">1f</span> / <span class="cls">Mathf</span>.Max(<span class="num">0.1f</span>, <span class="fn">GetEffectiveAttackSpeed</span>() * stats.attackSpeedRatio);
+        <span class="kw">float</span> atq = stats.physicalAttack * (<span class="num">1f</span> + stats.armorPen);
+
+        <span class="kw">switch</span> (comboStep)
+        {
+            <span class="kw">case</span> <span class="num">0</span>: <span class="cm">// Iron Fist</span>
+                <span class="fn">ApplyHit</span>(primaryTarget, atq * <span class="num">0.90f</span>, <span class="kw">false</span>);
+                animator.<span class="fn">SetTrigger</span>(<span class="str">"Attack1"</span>);
+                combatVfx.<span class="fn">PlayFistImpact</span>(primaryTarget.transform.position);
+                <span class="kw">break</span>;
+            <span class="kw">case</span> <span class="num">1</span>: <span class="cm">// Járngreipr axe sweep — AoE cone</span>
+                animator.<span class="fn">SetTrigger</span>(<span class="str">"Attack2"</span>);
+                combatVfx.<span class="fn">PlayAxeSlash</span>(transform.position, transform.forward);
+                <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(transform.position, stats.basicAttackRange, enemyMask))
+                {
+                    <span class="cls">Vector3</span> dir = (col.transform.position - transform.position).normalized;
+                    <span class="kw">if</span> (<span class="cls">Vector3</span>.<span class="fn">Angle</span>(transform.forward, dir) <= <span class="num">60f</span>)
+                        <span class="fn">ApplyHit</span>(col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;(), atq * <span class="num">1.10f</span>, <span class="kw">false</span>);
+                }
+                <span class="kw">break</span>;
+            <span class="kw">case</span> <span class="num">2</span>: <span class="cm">// Mjölnir overhead slam — ground shockwave, stun primary</span>
+                animator.<span class="fn">SetTrigger</span>(<span class="str">"Attack3"</span>);
+                combatVfx.<span class="fn">PlayHammerSlam</span>(primaryTarget.transform.position);
+                <span class="fn">ApplyHit</span>(primaryTarget, atq * <span class="num">1.50f</span>, <span class="kw">false</span>);
+                primaryTarget.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplyStun</span>(<span class="num">0.4f</span>);
+                <span class="cm">// shockwave ring hits nearby</span>
+                <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(primaryTarget.transform.position, <span class="num">2.5f</span>, enemyMask))
+                    <span class="kw">if</span> (col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;() != primaryTarget) <span class="fn">ApplyHit</span>(col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;(), atq * <span class="num">0.55f</span>, <span class="kw">false</span>);
+                <span class="kw">break</span>;
+        }
+        comboStep = (comboStep + <span class="num">1</span>) % <span class="num">3</span>;
+    }
+
+    <span class="cm">// ── SKILL 1 — Mjölnir Throw ───────────────────────────────────────────</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastSkillOne</span>(<span class="cls">Vector3</span> direction)
+    {
+        <span class="kw">if</span> (isDead || isUntargetable || skillOneCooldown > <span class="num">0f</span> || hammerInFlight) <span class="kw">return false</span>;
+        <span class="kw">float</span> cost = <span class="fn">FuryCost</span>(heroDefinition.skillOne.<span class="fn">ChargeCostAtRank</span>(skillOneRank));
+        <span class="kw">if</span> (currentCharge < cost) <span class="kw">return false</span>;
+        <span class="fn">SpendCharge</span>(cost);
+        skillOneCooldown = heroDefinition.skillOne.<span class="fn">CooldownAtRank</span>(skillOneRank);
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"ThrowHammer"</span>);
+        <span class="fn">StartCoroutine</span>(<span class="fn">MjölnirThrowRoutine</span>(direction.normalized, skillOneRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">MjölnirThrowRoutine</span>(<span class="cls">Vector3</span> dir, <span class="kw">int</span> rank)
+    {
+        hammerInFlight = <span class="kw">true</span>;
+        <span class="kw">float</span> throwRange  = <span class="num">12f</span>;
+        <span class="kw">float</span> throwSpeed  = <span class="num">22f</span>;
+        <span class="kw">float</span> travelTime  = throwRange / throwSpeed;
+        <span class="kw">float</span> throwDmg    = heroDefinition.skillOne.<span class="fn">DamageAtRank</span>(rank, stats.physicalAttack);
+        <span class="kw">float</span> returnDmg   = throwDmg * <span class="num">0.5f</span>;
+        <span class="kw">float</span> arcDmg      = <span class="num">100f</span> + rank * <span class="num">30f</span> + stats.magicPower * (<span class="num">0.35f</span> + rank * <span class="num">0.05f</span>);
+        <span class="kw">int</span>   arcTargets  = stormFuryActive ? <span class="num">5</span> : <span class="num">3</span>;
+        <span class="cls">Vector3</span> origin    = hammerGrip.position;
+
+        combatVfx.<span class="fn">PlayHammerThrow</span>(origin, dir, throwRange);
+
+        <span class="cm">// Forward pierce cast</span>
+        <span class="kw">var</span> hits = <span class="cls">Physics</span>.<span class="fn">RaycastAll</span>(origin, dir, throwRange, enemyMask);
+        System.Array.<span class="fn">Sort</span>(hits, (a, b) => a.distance.CompareTo(b.distance));
+        <span class="cls">Vector3</span> impactPoint = origin + dir * throwRange;
+        <span class="kw">foreach</span> (<span class="kw">var</span> h <span class="kw">in</span> hits)
+        {
+            <span class="fn">ApplyHit</span>(h.collider.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;(), throwDmg, <span class="kw">true</span>);
+            impactPoint = h.point;
+        }
+
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(travelTime);
+
+        <span class="cm">// Arc lightning at impact point</span>
+        <span class="fn">StartCoroutine</span>(<span class="fn">ChainArcRoutine</span>(impactPoint, arcDmg, arcTargets, <span class="kw">new</span> <span class="cls">HashSet</span>&lt;<span class="cls">Health</span>&gt;()));
+
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.4f</span>); <span class="cm">// brief pause before return</span>
+
+        <span class="cm">// Return arc — hits enemies along return path</span>
+        combatVfx.<span class="fn">PlayHammerReturn</span>(impactPoint, hammerGrip.position);
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapCapsule</span>(impactPoint, hammerGrip.position, <span class="num">1.5f</span>, enemyMask))
+            <span class="fn">ApplyHit</span>(col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;(), returnDmg, <span class="kw">true</span>);
+
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.35f</span>);
+        hammerInFlight = <span class="kw">false</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">ChainArcRoutine</span>(<span class="cls">Vector3</span> origin, <span class="kw">float</span> arcDmg, <span class="kw">int</span> maxTargets, <span class="cls">HashSet</span>&lt;<span class="cls">Health</span>&gt; already)
+    {
+        <span class="kw">int</span> arced = <span class="num">0</span>;
+        <span class="cls">Vector3</span> pos = origin;
+        <span class="kw">while</span> (arced < maxTargets)
+        {
+            <span class="cls">Health</span> next = <span class="kw">null</span>; <span class="kw">float</span> best = <span class="num">6f</span>;
+            <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(pos, best, enemyMask))
+            {
+                <span class="kw">var</span> h = col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;();
+                <span class="kw">if</span> (h == <span class="kw">null</span> || already.<span class="fn">Contains</span>(h)) <span class="kw">continue</span>;
+                <span class="kw">float</span> d = <span class="cls">Vector3</span>.<span class="fn">Distance</span>(pos, col.transform.position);
+                <span class="kw">if</span> (d < best) { best = d; next = h; }
+            }
+            <span class="kw">if</span> (next == <span class="kw">null</span>) <span class="kw">break</span>;
+            combatVfx.<span class="fn">PlayLightningArc</span>(pos, next.transform.position);
+            <span class="fn">ApplyHit</span>(next, arcDmg, <span class="kw">true</span>);
+            already.<span class="fn">Add</span>(next);
+            pos = next.transform.position;
+            arced++;
+            <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.06f</span>);
+        }
+    }
+
+    <span class="cm">// ── SKILL 2 — Thunder Stride ──────────────────────────────────────────</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastSkillTwo</span>(<span class="cls">Vector3</span> targetPoint)
+    {
+        <span class="kw">if</span> (isDead || isUntargetable || skillTwoCooldown > <span class="num">0f</span>) <span class="kw">return false</span>;
+        <span class="kw">float</span> cost = <span class="fn">FuryCost</span>(heroDefinition.skillTwo.<span class="fn">ChargeCostAtRank</span>(skillTwoRank));
+        <span class="kw">if</span> (currentCharge < cost) <span class="kw">return false</span>;
+        <span class="fn">SpendCharge</span>(cost);
+        skillTwoCooldown = heroDefinition.skillTwo.<span class="fn">CooldownAtRank</span>(skillTwoRank);
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"ThunderStride"</span>);
+        <span class="fn">StartCoroutine</span>(<span class="fn">ThunderStrideRoutine</span>(targetPoint, skillTwoRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">ThunderStrideRoutine</span>(<span class="cls">Vector3</span> dest, <span class="kw">int</span> rank)
+    {
+        <span class="cls">Vector3</span> dir   = (dest - transform.position).normalized;
+        <span class="kw">float</span> dist    = <span class="cls">Mathf</span>.Min(<span class="cls">Vector3</span>.<span class="fn">Distance</span>(transform.position, dest), <span class="num">9f</span>);
+        <span class="cls">Vector3</span> land  = transform.position + dir * dist;
+        land.y        = dest.y;
+
+        agent.isStopped = <span class="kw">true</span>;
+        combatVfx.<span class="fn">PlayLeapStart</span>(transform.position);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.35f</span>); <span class="cm">// leap arc time</span>
+
+        transform.position = land;
+        agent.<span class="fn">Warp</span>(land);
+
+        <span class="kw">float</span> landDmg      = heroDefinition.skillTwo.<span class="fn">DamageAtRank</span>(rank, stats.physicalAttack);
+        <span class="kw">float</span> fieldRadius  = <span class="num">4.5f</span> + rank * <span class="num">0.5f</span>;
+        <span class="kw">if</span> (stormFuryActive) fieldRadius *= <span class="num">2f</span>;
+        <span class="kw">float</span> airborne     = stormFuryActive ? <span class="num">1.8f</span> : <span class="num">1.2f</span>;
+        <span class="kw">float</span> fieldDmgSec  = heroDefinition.skillTwo.baseDamage[<span class="cls">Mathf</span>.Clamp(rank-<span class="num">1</span>,<span class="num">0</span>,<span class="num">3</span>)] * <span class="num">0.25f</span>;
+        <span class="kw">float</span> fieldDuration = <span class="num">4f</span>;
+
+        combatVfx.<span class="fn">PlayThunderLand</span>(land, fieldRadius, fieldDuration);
+        <span class="fn">GainCharge</span>(heroDefinition.chargeOnAbilityHit);
+
+        <span class="cm">// Impact AoE</span>
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(land, fieldRadius, enemyMask))
+        {
+            <span class="fn">ApplyHit</span>(col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;(), landDmg, <span class="kw">true</span>);
+            col.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplyAirborne</span>(airborne);
+        }
+
+        agent.isStopped = <span class="kw">false</span>;
+
+        <span class="cm">// Sustained Lightning Field — ticks enemies + charges Thor if he stays inside</span>
+        <span class="fn">StartCoroutine</span>(<span class="fn">LightningFieldRoutine</span>(land, fieldRadius, fieldDmgSec, fieldDuration, rank));
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">LightningFieldRoutine</span>(<span class="cls">Vector3</span> center, <span class="kw">float</span> radius, <span class="kw">float</span> dps, <span class="kw">float</span> dur, <span class="kw">int</span> rank)
+    {
+        <span class="kw">float</span> elapsed = <span class="num">0f</span>, tick = <span class="num">0f</span>;
+        <span class="kw">while</span> (elapsed < dur)
+        {
+            tick += <span class="cls">Time</span>.deltaTime;
+            <span class="cm">// Thor gains charge if he stands in his own field</span>
+            <span class="kw">if</span> (<span class="cls">Vector3</span>.<span class="fn">Distance</span>(transform.position, center) <= radius)
+                <span class="fn">GainCharge</span>(heroDefinition.chargeOnFieldTick * <span class="cls">Time</span>.deltaTime);
+            <span class="kw">if</span> (tick >= <span class="num">0.5f</span>)
+            {
+                tick = <span class="num">0f</span>;
+                <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(center, radius, enemyMask))
+                {
+                    <span class="fn">ApplyHit</span>(col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;(), dps * <span class="num">0.5f</span>, <span class="kw">true</span>);
+                    col.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplySlow</span>(<span class="num">0.30f</span>, <span class="num">0.6f</span>);
+                }
+            }
+            elapsed += <span class="cls">Time</span>.deltaTime;
+            <span class="kw">yield return null</span>;
+        }
+    }
+
+    <span class="cm">// ── ULTIMATE — Ragnarök Strike ────────────────────────────────────────</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastUltimate</span>(<span class="cls">Vector3</span> targetZone)
+    {
+        <span class="kw">if</span> (isDead || ultimateCooldown > <span class="num">0f</span> || isUntargetable) <span class="kw">return false</span>;
+        <span class="kw">if</span> (currentCharge < stats.maxStormCharge) <span class="kw">return false</span>; <span class="cm">// must be full charge</span>
+
+        ultimateCooldown = heroDefinition.ultimate.<span class="fn">CooldownAtRank</span>(ultimateRank);
+        currentCharge    = <span class="num">0f</span>; <span class="cm">// drain all charge</span>
+        stormFuryActive  = <span class="kw">false</span>;
+        furyTimer        = <span class="num">0f</span>;
+        <span class="fn">StartCoroutine</span>(<span class="fn">RagnarökRoutine</span>(targetZone, ultimateRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">RagnarökRoutine</span>(<span class="cls">Vector3</span> target, <span class="kw">int</span> rank)
+    {
+        <span class="cm">// Throw Mjölnir skyward, then leap</span>
+        isUntargetable  = <span class="kw">true</span>;
+        agent.isStopped = <span class="kw">true</span>;
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"RagnarökLeap"</span>);
+        combatVfx.<span class="fn">PlaySkywardLeap</span>(transform.position);
+
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">1.8f</span>); <span class="cm">// airborne — untargetable</span>
+
+        <span class="cm">// Crash down at target zone</span>
+        transform.position = target;
+        agent.<span class="fn">Warp</span>(target);
+        isUntargetable = <span class="kw">false</span>;
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"RagnarökImpact"</span>);
+
+        <span class="kw">float</span> craterDmg   = heroDefinition.ultimate.<span class="fn">DamageAtRank</span>(rank, stats.physicalAttack);
+        <span class="kw">float</span> craterR     = <span class="num">10f</span>;
+        <span class="kw">float</span> shockR      = <span class="num">16f</span>;
+        <span class="kw">float</span> swDmg       = heroDefinition.shockwaveDamage[rank - <span class="num">1</span>];
+        <span class="kw">float</span> pillarDmg   = heroDefinition.pillarDamage[rank - <span class="num">1</span>];
+        <span class="kw">bool</span>  empRank     = rank >= <span class="num">3</span>;
+
+        combatVfx.<span class="fn">PlayRagnarökImpact</span>(target, craterR, shockR);
+
+        <span class="cm">// Crater damage — no fall-off</span>
+        <span class="kw">var</span> craterHit = <span class="kw">new</span> <span class="cls">HashSet</span>&lt;<span class="cls">Health</span>&gt;();
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(target, craterR, enemyMask))
+        {
+            <span class="kw">var</span> h = col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;();
+            <span class="kw">if</span> (h != <span class="kw">null</span> && craterHit.<span class="fn">Add</span>(h))
+            {
+                <span class="fn">ApplyHit</span>(h, craterDmg, <span class="kw">false</span>);
+                <span class="kw">if</span> (empRank) col.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplyEmpStun</span>(heroDefinition.empStunDuration);
+            }
+        }
+
+        <span class="cm">// 6 Lightning pillars in ring around crater</span>
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i < heroDefinition.pillarCount; i++)
+        {
+            <span class="kw">float</span> angle = i * (<span class="num">360f</span> / heroDefinition.pillarCount) * <span class="cls">Mathf</span>.Deg2Rad;
+            <span class="cls">Vector3</span> pillarPos = target + <span class="kw">new</span> <span class="cls">Vector3</span>(<span class="cls">Mathf</span>.Cos(angle), <span class="num">0</span>, <span class="cls">Mathf</span>.Sin(angle)) * heroDefinition.pillarRadius;
+            combatVfx.<span class="fn">PlayLightningPillar</span>(pillarPos);
+            <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(pillarPos, <span class="num">3.0f</span>, enemyMask))
+                <span class="fn">ApplyHit</span>(col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;(), pillarDmg, <span class="kw">false</span>);
+            <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.06f</span>);
+        }
+
+        <span class="cm">// Shockwave ring expanding outward</span>
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(target, shockR, enemyMask))
+            <span class="kw">if</span> (!craterHit.<span class="fn">Contains</span>(col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;()))
+                <span class="fn">ApplyHit</span>(col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;(), swDmg, <span class="kw">false</span>);
+
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.8f</span>);
+        agent.isStopped = <span class="kw">false</span>;
+    }
+
+    <span class="cm">// ── DAMAGE ───────────────────────────────────────────────────────────</span>
+    <span class="kw">public void</span> <span class="fn">ReceiveDamage</span>(<span class="kw">float</span> amount)
+    {
+        <span class="kw">if</span> (isDead || isUntargetable) <span class="kw">return</span>;
+        currentHp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, currentHp - amount);
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"Hit"</span>);
+        combatVfx.<span class="fn">UpdateHeroState</span>(HpPercent, ChargePercent, stormFuryActive, <span class="kw">false</span>);
+        <span class="kw">if</span> (currentHp <= <span class="num">0f</span>) <span class="fn">StartCoroutine</span>(<span class="fn">DeathRoutine</span>());
+    }
+
+    <span class="kw">public void</span> <span class="fn">OnKill</span>()
+    {
+        <span class="fn">GainCharge</span>(heroDefinition.chargeOnKill);
+        <span class="kw">if</span> (stormFuryActive) furyTimer += heroDefinition.furyKillExtension;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">DeathRoutine</span>()
+    {
+        isDead          = <span class="kw">true</span>;
+        stormFuryActive = <span class="kw">false</span>;
+        agent.isStopped = <span class="kw">true</span>;
+        animator.<span class="fn">SetBool</span>(<span class="str">"IsDead"</span>, <span class="kw">true</span>);
+        combatVfx.<span class="fn">PlayDeath</span>(transform.position);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">3.5f</span>);
+        enabled = <span class="kw">false</span>;
+    }
+
+    <span class="cm">// ── FURY MANAGEMENT ──────────────────────────────────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">TickFury</span>()
+    {
+        <span class="kw">if</span> (!stormFuryActive) <span class="kw">return</span>;
+        furyTimer -= <span class="cls">Time</span>.deltaTime;
+        <span class="kw">if</span> (furyTimer <= <span class="num">0f</span>)
+        {
+            stormFuryActive = <span class="kw">false</span>;
+            furyTimer       = <span class="num">0f</span>;
+            <span class="cm">// Decay charge from 100 to 80</span>
+            currentCharge = heroDefinition.furyDecayThreshold;
+            combatVfx.<span class="fn">SetFuryState</span>(<span class="kw">false</span>);
+        }
+    }
+
+    <span class="cm">// Central damage-apply helper — fires arc if Fury active</span>
+    <span class="kw">private void</span> <span class="fn">ApplyHit</span>(<span class="cls">Health</span> target, <span class="kw">float</span> damage, <span class="kw">bool</span> isAbility)
+    {
+        <span class="kw">if</span> (target == <span class="kw">null</span>) <span class="kw">return</span>;
+        target.<span class="fn">ApplyPhysicalDamage</span>(damage);
+        <span class="fn">GainCharge</span>(isAbility ? heroDefinition.chargeOnAbilityHit : heroDefinition.chargeOnBasicHit);
+        <span class="cm">// Storm Fury secondary arc</span>
+        <span class="kw">if</span> (stormFuryActive)
+        {
+            <span class="kw">float</span> arcDmg = stats.physicalAttack * heroDefinition.furyArcDamagePct;
+            <span class="cls">Health</span> nearest = <span class="fn">FindNearestEnemy</span>(target.transform.position, heroDefinition.furyArcRangeM, target);
+            <span class="kw">if</span> (nearest != <span class="kw">null</span>)
+            {
+                nearest.<span class="fn">ApplyMagicDamage</span>(arcDmg);
+                combatVfx.<span class="fn">PlayLightningArc</span>(target.transform.position, nearest.transform.position);
+            }
+        }
+    }
+
+    <span class="kw">private void</span> <span class="fn">GainCharge</span>(<span class="kw">float</span> amount)
+    {
+        <span class="kw">bool</span> wasFull = currentCharge >= stats.maxStormCharge;
+        currentCharge = <span class="cls">Mathf</span>.Min(stats.maxStormCharge, currentCharge + amount);
+        <span class="kw">if</span> (!stormFuryActive && currentCharge >= stats.maxStormCharge && !wasFull)
+        {
+            stormFuryActive = <span class="kw">true</span>;
+            furyTimer       = heroDefinition.furyDuration;
+            combatVfx.<span class="fn">SetFuryState</span>(<span class="kw">true</span>);
+        }
+    }
+
+    <span class="kw">private void</span> <span class="fn">SpendCharge</span>(<span class="kw">float</span> amount)
+        => currentCharge = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, currentCharge - amount);
+
+    <span class="kw">private</span> <span class="cls">Health</span> <span class="fn">FindNearestEnemy</span>(<span class="cls">Vector3</span> origin, <span class="kw">float</span> radius, <span class="cls">Health</span> exclude)
+    {
+        <span class="cls">Health</span> best = <span class="kw">null</span>; <span class="kw">float</span> d = radius;
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(origin, radius, enemyMask))
+        {
+            <span class="kw">var</span> h = col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;();
+            <span class="kw">if</span> (h == <span class="kw">null</span> || h == exclude) <span class="kw">continue</span>;
+            <span class="kw">float</span> dist = <span class="cls">Vector3</span>.<span class="fn">Distance</span>(origin, col.transform.position);
+            <span class="kw">if</span> (dist < d) { d = dist; best = h; }
+        }
+        <span class="kw">return</span> best;
+    }
+
+    <span class="kw">private void</span> <span class="fn">TickComboReset</span>()
+    {
+        <span class="kw">if</span> (comboStep == <span class="num">0</span>) <span class="kw">return</span>;
+        comboResetTimer -= <span class="cls">Time</span>.deltaTime;
+        <span class="kw">if</span> (comboResetTimer <= <span class="num">0f</span>) comboStep = <span class="num">0</span>;
+    }
+
+    <span class="kw">private void</span> <span class="fn">RegenerateResources</span>()
+    {
+        currentHp     = <span class="cls">Mathf</span>.Min(stats.maxHp, currentHp + stats.hpRegen * <span class="cls">Time</span>.deltaTime);
+        <span class="cm">// Storm Charge passively regenerates slowly — only meaningful sustained by combat</span>
+        <span class="fn">GainCharge</span>(stats.stormChargeRegen * <span class="cls">Time</span>.deltaTime);
+        combatVfx.<span class="fn">UpdateHeroState</span>(HpPercent, ChargePercent, stormFuryActive, agent.velocity.sqrMagnitude > <span class="num">0.01f</span>);
+    }
+
+    <span class="kw">private void</span> <span class="fn">TickCooldowns</span>()
+    {
+        basicCooldown    = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, basicCooldown    - <span class="cls">Time</span>.deltaTime);
+        skillOneCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, skillOneCooldown - <span class="cls">Time</span>.deltaTime);
+        skillTwoCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, skillTwoCooldown - <span class="cls">Time</span>.deltaTime);
+        ultimateCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, ultimateCooldown - <span class="cls">Time</span>.deltaTime);
+    }
+
+    <span class="kw">private void</span> <span class="fn">UpdateAnimator</span>()
+    {
+        <span class="cls">Vector3</span> vel = agent.velocity; vel.y = <span class="num">0f</span>;
+        animator.<span class="fn">SetFloat</span>(<span class="str">"MoveSpeed"</span>,      vel.magnitude);
+        animator.<span class="fn">SetFloat</span>(<span class="str">"AttackSpeed"</span>,    <span class="fn">GetEffectiveAttackSpeed</span>());
+        animator.<span class="fn">SetFloat</span>(<span class="str">"ChargePercent"</span>,  ChargePercent);
+        animator.<span class="fn">SetBool</span>(<span class="str">"StormFury"</span>,      stormFuryActive);
+        animator.<span class="fn">SetBool</span>(<span class="str">"HammerInFlight"</span>, hammerInFlight);
+        animator.<span class="fn">SetBool</span>(<span class="str">"IsAirborne"</span>,     isUntargetable);
+    }
+}
+
+<span class="kw">public class</span> <span class="cls">CrowdControlReceiver</span> : <span class="cls">MonoBehaviour</span>
+{
+    <span class="kw">public void</span> <span class="fn">ApplyStun</span>    (<span class="kw">float</span> duration)               { <span class="cm">/* freeze movement + abilities */</span> }
+    <span class="kw">public void</span> <span class="fn">ApplyAirborne</span>(<span class="kw">float</span> duration)               { <span class="cm">/* launch upward, no control */</span> }
+    <span class="kw">public void</span> <span class="fn">ApplySlow</span>    (<span class="kw">float</span> factor, <span class="kw">float</span> duration)  { <span class="cm">/* reduce move speed by factor */</span> }
+    <span class="kw">public void</span> <span class="fn">ApplyEmpStun</span> (<span class="kw">float</span> duration)               { <span class="cm">/* stun + ability lock, Rank III Ragnarök */</span> }
+}
+
+<span class="kw">public class</span> <span class="cls">Health</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> hp = <span class="num">1000f</span>;
+    <span class="kw">public void</span> <span class="fn">ApplyPhysicalDamage</span>(<span class="kw">float</span> dmg) => hp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, hp - dmg);
+    <span class="kw">public void</span> <span class="fn">ApplyMagicDamage</span>   (<span class="kw">float</span> dmg) => hp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, hp - dmg);
+}</pre>
+    </div>
+
+    <!-- ThorCombatVFX.cs -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> ThorCombatVFX.cs</div>
+        <button class="copy-btn" onclick="copyCode('code3', this)">Copy</button>
+      </div>
+      <pre id="code3"><span class="cm">// ThorCombatVFX.cs
+// VFX binder: armor rune glow tied to ChargePercent, Fury state crackle,
+// Mjölnir throw + return tether, arc chain line renderers,
+// thunder stride leap + lightning field ring, Ragnarök sky leap + impact + pillar spawns,
+// death Mjölnir-drop + lightning strike.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+
+<span class="kw">public class</span> <span class="cls">ThorCombatVFX</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Particle Systems"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> fistImpactFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> axeSlashFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> hammerSlamFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> hammerThrowFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> leapStartFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> thunderLandFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> furyAmbientFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> skywardLeapFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> ragnarökCraterFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> lightningPillarFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> shockwaveRingFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> deathFx;
+
+    [<span class="cls">Header</span>(<span class="str">"Line Renderers"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LineRenderer</span> hammerReturnTether;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LineRenderer</span> lightningArcLine;
+
+    [<span class="cls">Header</span>(<span class="str">"Materials using HLSL Shaders"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> armorRenderer;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> mjölnirRenderer;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> lightningFieldRenderer;
+
+    <span class="kw">private static readonly int</span> ChargePercent = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_ChargePercent"</span>);
+    <span class="kw">private static readonly int</span> FuryActive    = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_FuryActive"</span>);
+    <span class="kw">private static readonly int</span> HpFade        = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_HpFade"</span>);
+    <span class="kw">private static readonly int</span> Dissolve      = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_Dissolve"</span>);
+    <span class="kw">private static readonly int</span> PulseRadius   = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_Radius"</span>);
+
+    <span class="kw">public void</span> <span class="fn">UpdateHeroState</span>(<span class="kw">float</span> hpPct, <span class="kw">float</span> chargePct, <span class="kw">bool</span> fury, <span class="kw">bool</span> isMoving)
+    {
+        <span class="kw">if</span> (armorRenderer   != <span class="kw">null</span>) { armorRenderer.material.<span class="fn">SetFloat</span>(ChargePercent, chargePct); armorRenderer.material.<span class="fn">SetFloat</span>(HpFade, <span class="num">1f</span> - hpPct); armorRenderer.material.<span class="fn">SetFloat</span>(FuryActive, fury ? <span class="num">1f</span> : <span class="num">0f</span>); }
+        <span class="kw">if</span> (mjölnirRenderer != <span class="kw">null</span>) { mjölnirRenderer.material.<span class="fn">SetFloat</span>(ChargePercent, chargePct); mjölnirRenderer.material.<span class="fn">SetFloat</span>(FuryActive, fury ? <span class="num">1f</span> : <span class="num">0f</span>); }
+    }
+
+    <span class="kw">public void</span> <span class="fn">SetFuryState</span>(<span class="kw">bool</span> active)
+    {
+        <span class="kw">if</span> (active) { <span class="kw">if</span> (furyAmbientFx != <span class="kw">null</span>) furyAmbientFx.<span class="fn">Play</span>(); }
+        <span class="kw">else</span>        { <span class="kw">if</span> (furyAmbientFx != <span class="kw">null</span>) furyAmbientFx.<span class="fn">Stop</span>(); }
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayFistImpact</span>  (<span class="cls">Vector3</span> pos) => <span class="fn">PlayAt</span>(fistImpactFx, pos);
+    <span class="kw">public void</span> <span class="fn">PlayHammerSlam</span>  (<span class="cls">Vector3</span> pos) => <span class="fn">PlayAt</span>(hammerSlamFx, pos);
+    <span class="kw">public void</span> <span class="fn">PlayLeapStart</span>   (<span class="cls">Vector3</span> pos) => <span class="fn">PlayAt</span>(leapStartFx,  pos);
+    <span class="kw">public void</span> <span class="fn">PlayLightningPillar</span>(<span class="cls">Vector3</span> pos) => <span class="fn">PlayAt</span>(lightningPillarFx, pos);
+    <span class="kw">public void</span> <span class="fn">PlaySkywardLeap</span> (<span class="cls">Vector3</span> pos) => <span class="fn">PlayAt</span>(skywardLeapFx,  pos);
+
+    <span class="kw">public void</span> <span class="fn">PlayAxeSlash</span>(<span class="cls">Vector3</span> pos, <span class="cls">Vector3</span> dir)
+    {
+        <span class="kw">if</span> (axeSlashFx == <span class="kw">null</span>) <span class="kw">return</span>;
+        axeSlashFx.transform.position = pos; axeSlashFx.transform.forward = dir; axeSlashFx.<span class="fn">Play</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayHammerThrow</span>(<span class="cls">Vector3</span> from, <span class="cls">Vector3</span> dir, <span class="kw">float</span> range)
+    {
+        <span class="kw">if</span> (hammerThrowFx == <span class="kw">null</span>) <span class="kw">return</span>;
+        hammerThrowFx.transform.position = from; hammerThrowFx.transform.forward = dir; hammerThrowFx.<span class="fn">Play</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayHammerReturn</span>(<span class="cls">Vector3</span> from, <span class="cls">Vector3</span> to)
+    {
+        <span class="kw">if</span> (hammerReturnTether == <span class="kw">null</span>) <span class="kw">return</span>;
+        hammerReturnTether.SetPosition(<span class="num">0</span>, from); hammerReturnTether.SetPosition(<span class="num">1</span>, to);
+        <span class="fn">StartCoroutine</span>(<span class="fn">FadeLineRenderer</span>(hammerReturnTether, <span class="num">0.4f</span>));
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayLightningArc</span>(<span class="cls">Vector3</span> from, <span class="cls">Vector3</span> to)
+    {
+        <span class="kw">if</span> (lightningArcLine == <span class="kw">null</span>) <span class="kw">return</span>;
+        lightningArcLine.SetPosition(<span class="num">0</span>, from); lightningArcLine.SetPosition(<span class="num">1</span>, to);
+        <span class="fn">StartCoroutine</span>(<span class="fn">FadeLineRenderer</span>(lightningArcLine, <span class="num">0.10f</span>));
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayThunderLand</span>(<span class="cls">Vector3</span> center, <span class="kw">float</span> radius, <span class="kw">float</span> duration)
+    {
+        <span class="kw">if</span> (thunderLandFx != <span class="kw">null</span>) { thunderLandFx.transform.position = center; thunderLandFx.<span class="fn">Play</span>(); }
+        <span class="kw">if</span> (lightningFieldRenderer != <span class="kw">null</span>) { lightningFieldRenderer.transform.position = center; lightningFieldRenderer.material.<span class="fn">SetFloat</span>(PulseRadius, radius); }
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayRagnarökImpact</span>(<span class="cls">Vector3</span> center, <span class="kw">float</span> craterR, <span class="kw">float</span> shockR)
+    {
+        <span class="kw">if</span> (ragnarökCraterFx != <span class="kw">null</span>) { ragnarökCraterFx.transform.position = center; ragnarökCraterFx.<span class="fn">Play</span>(); }
+        <span class="kw">if</span> (shockwaveRingFx != <span class="kw">null</span>)  { shockwaveRingFx.transform.position  = center; shockwaveRingFx.<span class="fn">Play</span>(); }
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayDeath</span>(<span class="cls">Vector3</span> pos)
+    {
+        <span class="kw">if</span> (deathFx        != <span class="kw">null</span>) { deathFx.transform.position = pos; deathFx.<span class="fn">Play</span>(); }
+        <span class="kw">if</span> (armorRenderer  != <span class="kw">null</span>) armorRenderer.material.<span class="fn">SetFloat</span>(Dissolve, <span class="num">1f</span>);
+        <span class="kw">if</span> (mjölnirRenderer != <span class="kw">null</span>) mjölnirRenderer.material.<span class="fn">SetFloat</span>(Dissolve, <span class="num">0f</span>); <span class="cm">// Mjölnir stays</span>
+    }
+
+    <span class="kw">private void</span> <span class="fn">PlayAt</span>(<span class="cls">ParticleSystem</span> ps, <span class="cls">Vector3</span> pos)
+    { <span class="kw">if</span> (ps == <span class="kw">null</span>) <span class="kw">return</span>; ps.transform.position = pos; ps.<span class="fn">Play</span>(); }
+
+    <span class="kw">private</span> System.Collections.<span class="cls">IEnumerator</span> <span class="fn">FadeLineRenderer</span>(<span class="cls">LineRenderer</span> lr, <span class="kw">float</span> dur)
+    {
+        <span class="kw">float</span> t = <span class="num">0f</span>; <span class="cls">Color</span> s = lr.startColor;
+        <span class="kw">while</span> (t < dur) { t += <span class="cls">Time</span>.deltaTime; <span class="kw">float</span> a = <span class="num">1f</span>-t/dur; lr.startColor = lr.endColor = <span class="kw">new</span> <span class="cls">Color</span>(s.r,s.g,s.b,a); <span class="kw">yield return null</span>; }
+        lr.startColor = lr.endColor = <span class="cls">Color</span>.clear;
+    }
+}</pre>
+    </div>
+
+    <!-- Meshy Prompt -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">TXT</span> MeshyAI_Prompt_Thor.txt</div>
+        <button class="copy-btn" onclick="copyCode('code4', this)">Copy</button>
+      </div>
+      <pre id="code4">MESHY AI PROMPT — THOR UNITY HERO (production version)
+
+Create a production-ready 3D humanoid hero for Unity, full body, clean topology, readable silhouette,
+Norse epic fantasy stylization. Massively built divine warrior male — short dark auburn beard, fierce
+storm-grey eyes, broad beyond reason. Wearing: heavy storm-grey iron breastplate with Valknut symbol
+at center and Norse knotwork rune channel engravings running along the plate edges (emission zones);
+heavy fur-trimmed iron pauldrons with bear pelt detail at shoulder caps (pelt as separate geometry);
+chainmail visible at elbow and knee joint gaps; Norse leather bracers with iron rune stud rows on
+forearms; wide leather war belt (Megingjörð) with gold rune clasp at waist; iron greaves; thick
+battle boots; short storm-blue battle cloak from left shoulder only — separate cloth geometry.
+Iron war helm with simple noseguard on head — open face showing beard. Right hand holds short-handled
+Mjölnir war hammer with broad head — knotwork engravings across the face, entire hammer head as
+emission zone, crackling with electrical discharge. Left hip carries an iron war axe (Járngreipr)
+as a separate hip prop mesh.
+
+Game-ready: standard humanoid biped, massively broad proportions (~205cm), clearly separated arms
+and legs, fur pelt as separate geometry not fused to pauldron, cloak as cloth-simulation ready
+separate mesh, Mjölnir as separate prop mesh with hammer head as dedicated emission UV island,
+axe as secondary hip prop, clean deformation joints throughout, chainmail at elbows/knees as
+visible separate mesh layer.
+
+PBR textures: separate material zones for storm-grey armor plates, fur trim, blue cloak, chainmail,
+skin, auburn beard/hair, hammer iron body, hammer head emission zone, axe head, leather belt with
+gold clasp, rune engraving zones (gold emission channels on armor).
+
+Animation intent: aggressive wide-stance combat idle, heavy stomp walk, full sprint forward lean,
+3-hit combo (left hook / axe slash / hammer overhead slam), Mjölnir throw windup + release spin,
+thunder stride leap + crash landing, Storm Fury activation stance (arms wide, body arcs with energy),
+Ragnarök skyward leap + descent crash, hit reaction stumble backward, death kneel with hammer drop
+and single lightning strike on hammer.
+
+Export target: Unity humanoid FBX, bind pose friendly, retarget-ready, game animation compatible.</pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ HLSL SHADERS ══════════ -->
+<div class="section" id="tab-shader">
+
+  <!-- Armor Storm Rune Shader -->
+  <div class="code-file">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> ThorArmorStormRune.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader1', this)">Copy</button>
+    </div>
+    <pre id="shader1">// ThorArmorStormRune.shader
+// Norse rune channels on the armor glow brighter as Storm Charge builds.
+// At full charge (Storm Fury) the armor blazes with fierce electric-gold brilliance.
+// _ChargePercent : 0 = dark runes (barely visible), 1 = full storm energy visible
+// _FuryActive    : 0→1 — overclock crackle, armor vents arcs, everything surges
+// _HpFade        : 0→1 as HP drops (armor darkens)
+// _Dissolve      : death upward dissolve
+
+Shader "Thor/ArmorStormRune"
+{
+    Properties
+    {
+        _BaseMap       ("Base Map", 2D)                    = "white" {}
+        _BaseColor     ("Base Color", Color)                = (0.22, 0.24, 0.30, 1.0)
+        _RuneColor     ("Rune Glow Color", Color)           = (0.30, 0.55, 1.00, 1.0)
+        _FuryColor     ("Fury Overclock Color", Color)      = (0.95, 0.85, 0.20, 1.0)
+        _ChargePercent ("Charge %",    Range(0,1))          = 0.0
+        _FuryActive    ("Fury Active", Range(0,1))          = 0.0
+        _HpFade        ("HP Fade",     Range(0,1))          = 0.0
+        _Dissolve      ("Dissolve",    Range(0,1))          = 0.0
+        _DissolveSoft  ("Dissolve Softness", Range(0.001,0.2)) = 0.04
+        _NoiseScale    ("Noise Scale", Range(1,25))          = 10
+        _RuneIntensity ("Rune Intensity",  Range(0,8))       = 2.0
+        _FuryIntensity ("Fury Intensity",  Range(0,16))      = 7.0
+        _PulseSpeed    ("Pulse Speed",     Range(0,10))      = 4.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="TransparentCutout" "Queue"="AlphaTest" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _BaseColor;
+                float4 _RuneColor;
+                float4 _FuryColor;
+                float  _ChargePercent;
+                float  _FuryActive;
+                float  _HpFade;
+                float  _Dissolve;
+                float  _DissolveSoft;
+                float  _NoiseScale;
+                float  _RuneIntensity;
+                float  _FuryIntensity;
+                float  _PulseSpeed;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 worldPos : TEXCOORD1; float3 normalWS : TEXCOORD2; float3 viewDirWS : TEXCOORD3; };
+
+            float hash21(float2 p) { p = frac(p * float2(127.1, 311.7)); p += dot(p, p + 34.345); return frac(p.x * p.y); }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                // Fury micro-vibration — armor plates rattle with storm energy
+                float furyShake = sin(_Time.y * 18.0 + IN.positionOS.y * 10.0) * 0.003 * _FuryActive;
+                float3 displaced = IN.positionOS.xyz + IN.normalOS * furyShake;
+                VertexPositionInputs pos = GetVertexPositionInputs(displaced);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.worldPos   = pos.positionWS;
+                OUT.normalWS   = normalize(nor.normalWS);
+                OUT.viewDirWS  = GetWorldSpaceNormalizeViewDir(pos.positionWS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Storm dissolve on death — rises upward with lightning scatter
+                float noise = hash21(floor(IN.worldPos.xz * _NoiseScale));
+                float dissolveBias = IN.worldPos.y * 0.05;
+                clip(noise - saturate((_Dissolve + dissolveBias) * (1.0 + _DissolveSoft)));
+
+                half4 albedo  = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                float fresnel = pow(1.0 - saturate(dot(IN.normalWS, IN.viewDirWS)), 2.5);
+
+                // Norse rune scrolling pattern along UV
+                float runeScroll = frac(IN.uv.y * 5.0 - _Time.y * _PulseSpeed * 0.08);
+                float runeband   = smoothstep(0.0, 0.2, runeScroll) * (1.0 - smoothstep(0.2, 0.6, runeScroll));
+
+                // Charge ramp — runes brighten as charge fills
+                float chargePulse = (0.5 + 0.5 * sin(_Time.y * _PulseSpeed)) * _ChargePercent;
+                // Full charge = extra flash at peak
+                float fullFlash   = saturate((_ChargePercent - 0.88) * 8.0) * (0.5 + 0.5 * sin(_Time.y * _PulseSpeed * 3.0));
+                // Fury overclock — everything goes gold-electric
+                float furyPulse   = (0.4 + 0.6 * sin(_Time.y * _PulseSpeed * 2.2)) * _FuryActive;
+
+                half3 runeEmit  = _RuneColor.rgb  * _RuneIntensity * (runeband * chargePulse + fresnel * chargePulse * 0.4 + fullFlash);
+                half3 furyEmit  = _FuryColor.rgb  * _FuryIntensity * furyPulse * (fresnel * 0.6 + runeband * 0.4);
+
+                // Darken when HP drops
+                albedo.rgb *= (1.0 - _HpFade * 0.4);
+
+                return half4(albedo.rgb + runeEmit + furyEmit, albedo.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Mjölnir Charge Shader -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> MjölnirCharge.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader2', this)">Copy</button>
+    </div>
+    <pre id="shader2">// MjölnirCharge.shader
+// Applied to the Mjölnir hammer head emission zone.
+// _ChargePercent : dim knotwork → blazing blue-white arc field
+// _FuryActive    : hammer head becomes a supernova of electric gold
+// Vertex arc bolts: UV-driven spark tendrils that intensify with charge.
+
+Shader "Thor/MjölnirCharge"
+{
+    Properties
+    {
+        _BaseMap       ("Base Map", 2D)               = "white" {}
+        _BaseColor     ("Iron Color", Color)           = (0.28, 0.30, 0.35, 1.0)
+        _ArcColor      ("Arc Color", Color)            = (0.50, 0.75, 1.00, 1.0)
+        _FuryColor     ("Fury Arc Color", Color)       = (1.00, 0.88, 0.20, 1.0)
+        _ChargePercent ("Charge %",    Range(0,1))     = 0.0
+        _FuryActive    ("Fury Active", Range(0,1))     = 0.0
+        _Intensity     ("Arc Intensity",   Range(0,14)) = 4.0
+        _ArcSpeed      ("Arc Speed",       Range(0,12)) = 5.0
+        _ArcDensity    ("Arc Density",     Range(2,20)) = 8.0
+        _FresnelPow    ("Fresnel Power",   Range(1,8))  = 2.0
+        _Dissolve      ("Dissolve",        Range(0,1))  = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _BaseColor;
+                float4 _ArcColor;
+                float4 _FuryColor;
+                float  _ChargePercent;
+                float  _FuryActive;
+                float  _Intensity;
+                float  _ArcSpeed;
+                float  _ArcDensity;
+                float  _FresnelPow;
+                float  _Dissolve;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 normalWS : TEXCOORD1; float3 viewDirWS : TEXCOORD2; float3 worldPos : TEXCOORD3; };
+
+            float hash21(float2 p) { p = frac(p * float2(127.1, 311.7)); p += dot(p, p + 34.345); return frac(p.x * p.y); }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.normalWS   = normalize(nor.normalWS);
+                OUT.viewDirWS  = GetWorldSpaceNormalizeViewDir(pos.positionWS);
+                OUT.worldPos   = pos.positionWS;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Death — Mjölnir stays (Dissolve stays at 0 on death for the hammer)
+                float noiseD = hash21(floor(IN.worldPos.xz * 10.0));
+                clip(noiseD - saturate(_Dissolve * 1.05));
+
+                half4 albedo  = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                float fresnel = pow(1.0 - saturate(dot(IN.normalWS, IN.viewDirWS)), _FresnelPow);
+
+                // Arc tendrils across hammer face — animated with charge
+                float2 arcUv  = IN.uv;
+                arcUv.x += sin(_Time.y * _ArcSpeed + IN.uv.y * _ArcDensity) * 0.04;
+                arcUv.y += cos(_Time.y * _ArcSpeed * 0.7 + IN.uv.x * _ArcDensity * 0.8) * 0.04;
+                float arc = frac(arcUv.x * _ArcDensity * 0.5 + arcUv.y * _ArcDensity);
+                arc = pow(smoothstep(0.0, 0.35, arc) * (1.0 - smoothstep(0.35, 0.8, arc)), 1.5);
+
+                float chargeMult = _ChargePercent;
+                float fullFlash  = saturate((_ChargePercent - 0.85) * 6.67) * (0.6 + 0.4 * sin(_Time.y * _ArcSpeed * 2.5));
+                float furyBoost  = (0.5 + 0.5 * sin(_Time.y * _ArcSpeed * 1.8)) * _FuryActive;
+
+                half3 arcEmit  = _ArcColor.rgb   * _Intensity * (arc * chargeMult + fresnel * chargeMult * 0.5 + fullFlash * 0.8);
+                half3 furyEmit = _FuryColor.rgb  * _Intensity * furyBoost * (arc * 1.5 + fresnel);
+
+                return half4(albedo.rgb + arcEmit + furyEmit, albedo.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Lightning Field Ground Shader -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> LightningFieldGround.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader3', this)">Copy</button>
+    </div>
+    <pre id="shader3">// LightningFieldGround.shader
+// Applied to a disc quad at the Thunder Stride landing point.
+// Crackling electric-blue fill with jagged ring edge — communicates DANGER, not healing.
+// Visually opposite to the Pharmakeia Aura: harsh, jagged, electric.
+// _FuryActive doubles the radius (handled CPU-side on _Radius set).
+
+Shader "Thor/LightningFieldGround"
+{
+    Properties
+    {
+        _CoreColor  ("Core Color",  Color)          = (0.15, 0.35, 0.90, 0.35)
+        _EdgeColor  ("Edge Color",  Color)          = (0.70, 0.90, 1.00, 0.95)
+        _BoltColor  ("Bolt Color",  Color)          = (1.00, 1.00, 1.00, 1.00)
+        _Radius     ("Radius",      Float)          = 5.0
+        _BoltDensity("Bolt Density", Range(2,20))   = 8.0
+        _BoltSpeed  ("Bolt Speed",   Range(0,10))   = 6.5
+        _PulseSpeed ("Pulse Speed",  Range(0,6))    = 3.5
+        _FadeOut    ("Fade Out",     Range(0,1))    = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _CoreColor;
+                float4 _EdgeColor;
+                float4 _BoltColor;
+                float  _Radius;
+                float  _BoltDensity;
+                float  _BoltSpeed;
+                float  _PulseSpeed;
+                float  _FadeOut;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
+                OUT.uv = IN.uv * 2.0 - 1.0;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float dist = length(IN.uv);
+                float pulse = 0.85 + 0.15 * sin(_Time.y * _PulseSpeed * 6.2831);
+
+                // Zone fill
+                float fill = smoothstep(1.0, 0.80, dist) * pulse;
+
+                // Jagged bolt pattern — unlike the smooth healing ring
+                float angle = atan2(IN.uv.y, IN.uv.x);
+                float boltWave = 0.5 + 0.5 * sin(angle * _BoltDensity + _Time.y * _BoltSpeed);
+                float bolt = pow(boltWave, 5.0) * smoothstep(0.85, 0.65, dist) * smoothstep(0.30, 0.65, dist);
+
+                // Outer edge crackle ring
+                float ring = smoothstep(1.0, 0.90, dist) * smoothstep(0.82, 1.0, dist) * pulse;
+
+                float fade   = saturate(1.0 - _FadeOut);
+                half3 color  = _CoreColor.rgb * fill + _EdgeColor.rgb * ring + _BoltColor.rgb * bolt;
+                float alpha  = (fill * _CoreColor.a * 0.5 + bolt * 0.7 + ring * _EdgeColor.a) * fade;
+
+                return half4(color, saturate(alpha));
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Ragnarök Crater Scorch Shader -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> RagnarökCraterScorch.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader4', this)">Copy</button>
+    </div>
+    <pre id="shader4">// RagnarökCraterScorch.shader
+// Ground scorch from the Ragnarök Strike impact — the largest ground decal in the roster.
+// Full circle, charred black core, electric-gold and blue outer ring, slowly fading.
+// Six bright pillar strike marks are separate instances of LightningPillarBeam.shader
+// placed at pillar positions — this shader handles only the central crater fill.
+
+Shader "Thor/RagnarökCraterScorch"
+{
+    Properties
+    {
+        _CraterColor ("Crater Center",  Color)        = (0.05, 0.04, 0.06, 0.98)
+        _EmberColor  ("Ember Ring",     Color)        = (0.30, 0.60, 1.00, 0.90)
+        _GoldEdge    ("Gold Edge",      Color)        = (0.90, 0.78, 0.15, 0.80)
+        _Radius      ("Crater Radius",  Float)        = 10.0
+        _ScorchDepth ("Scorch Depth",   Range(0.1,1)) = 0.50
+        _PulseSpeed  ("Ember Pulse",    Range(0,5))   = 2.2
+        _FadeOut     ("Fade Out",       Range(0,1))   = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _CraterColor;
+                float4 _EmberColor;
+                float4 _GoldEdge;
+                float  _Radius;
+                float  _ScorchDepth;
+                float  _PulseSpeed;
+                float  _FadeOut;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
+                OUT.uv = IN.uv * 2.0 - 1.0;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float dist = length(IN.uv);
+
+                // Scorch fill
+                float scorch = smoothstep(_ScorchDepth + 0.05, _ScorchDepth - 0.05, dist);
+
+                // Electric-blue ember ring at scorch boundary
+                float ember  = smoothstep(_ScorchDepth - 0.20, _ScorchDepth, dist)
+                             * (1.0 - smoothstep(_ScorchDepth, _ScorchDepth + 0.12, dist));
+                float pulse  = 0.75 + 0.25 * sin(_Time.y * _PulseSpeed * 6.2831);
+
+                // Gold outer glow ring (further out — pillar ring position)
+                float gold   = smoothstep(1.0, 0.88, dist) * (1.0 - smoothstep(0.70, 1.0, dist));
+
+                float fade   = saturate(1.0 - _FadeOut);
+                half3 color  = _CraterColor.rgb * scorch + _EmberColor.rgb * ember * pulse + _GoldEdge.rgb * gold;
+                float alpha  = (scorch * _CraterColor.a + ember * _EmberColor.a * pulse + gold * _GoldEdge.a * 0.55) * fade;
+
+                return half4(color, saturate(alpha));
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+</div>
+
+<!-- ══════════ 3D AI TOOLS ══════════ -->
+<div class="section" id="tab-tools">
+  <div class="tools-grid">
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#e8ecff">🧊</div><div><div class="tool-name">Meshy AI</div><div class="tool-cat">Text/Image → 3D Mesh</div></div></div>
+      <div class="tool-desc">Strong choice for Thor's massively armored humanoid form. The Norse plate armor, fur pauldrons, and cloak are within Meshy's generation capabilities. Generate Mjölnir and Járngreipr as entirely separate prop meshes for dedicated emission UV work. The hammer head knotwork requires special attention — use the hammer-specific section of the Meshy prompt in the Scripts tab as a standalone generation prompt.</div>
+      <div class="tool-tags"><span class="tool-tag green">FBX Unity-ready</span><span class="tool-tag blue">Auto-rig humanoid</span><span class="tool-tag gold">Mjölnir prop</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#dbeafe">🎯</div><div><div class="tool-name">Kaedim</div><div class="tool-cat">Concept Art → 3D Game Asset</div></div></div>
+      <div class="tool-desc">The best production path. Kaedim's concept-to-3D conversion preserves the critical Norse knotwork detail on the armor rune channels and Mjölnir face — those engravings are the emission UV source for the storm rune shader. Pair with a Midjourney front/side/Storm Fury state concept sheet. Strongly recommended for Mjölnir as a hero-quality standalone prop.</div>
+      <div class="tool-tags"><span class="tool-tag green">Game topology</span><span class="tool-tag blue">2D→3D</span><span class="tool-tag orange">Pro tier</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#ede9fe">🌀</div><div><div class="tool-name">Luma AI — Genie</div><div class="tool-cat">Text → 3D fast</div></div></div>
+      <div class="tool-desc">Best for Thor's environment assets and secondary props: Járngreipr the war axe as a standalone mesh, Norse longship environment dressing, rune stone arena features, Yggdrasil bark texture props, and the lightning pillar geometry cylinders used in the Ragnarök Strike visual. Fast iteration without touching the main character rig.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free tier</span><span class="tool-tag storm">Axe prop</span><span class="tool-tag blue">API</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#ffedd5">🎨</div><div><div class="tool-name">Midjourney + Blender</div><div class="tool-cat">Hybrid studio workflow</div></div></div>
+      <div class="tool-desc">The definitive pipeline. Midjourney generates Thor concept art across states (front/side/Storm Fury active/Ragnarök descent). Blender handles the fur pelt geometry as separate simulation-ready mesh, cloak cloth simulation, Norse knotwork rune channel emission UV island carving on both armor and Mjölnir, Járngreipr secondary weapon rig constraint to hip socket, and the bear pelt normal map baking.</div>
+      <div class="tool-tags"><span class="tool-tag purple">Best quality</span><span class="tool-tag orange">Artist required</span><span class="tool-tag gold">Rune UV work</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#d1fae5">⚡</div><div><div class="tool-name">Mixamo (Adobe)</div><div class="tool-cat">Auto-rig &amp; Animation</div></div></div>
+      <div class="tool-desc">Excellent base for Thor's heavy combat animations: stomp walk, aggressive combat idle, sprint charge, hit stagger, death kneel. The massive proportions retarget cleanly with minor shoulder adjustment. The Mjölnir throw windup, Thunder Stride leap + crash landing, Storm Fury activation wide-arm pose, and Ragnarök skyward leap are all distinctive enough to require Unity Animator custom layers — these are Thor's iconic moments.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free with Adobe ID</span><span class="tool-tag blue">Auto-rig</span><span class="tool-tag purple">500+ animations</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#fef3c7">🦴</div><div><div class="tool-name">Spline AI</div><div class="tool-cat">3D interactive &amp; Environment</div></div></div>
+      <div class="tool-desc">Ideal for Thor's Norse battlefield MOBA environment: rune stone arena border markers, broken longship wreck environment props, storm cloud skybox geometry (the animated storm vortex above Thor in Storm Fury), the six lightning pillar ground-spike meshes for Ragnarök Strike, and the ground crack / crater decal mesh geometry. The Storm Charge UI bar visualization can be prototyped here.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free</span><span class="tool-tag blue">Web export</span><span class="tool-tag storm">Norse env</span></div>
+    </div>
+
+  </div>
+
+  <div class="workflow-box">
+    <h3>Recommended Pipeline for Thor in Unity</h3>
+    <div class="workflow-steps">
+      <div class="wstep"><div class="wnum">1</div><span><span style="color:#f0d020">Claude</span> <span class="warrow">→</span> Prompt design + C# Scripts + HLSL Shaders (this package)</span></div>
+      <div class="wstep"><div class="wnum">2</div><span><span style="color:#f0d870">Midjourney</span> <span class="warrow">→</span> Thor concept art — front + side + Storm Fury active + Ragnarök descent — from Design Brief prompt</span></div>
+      <div class="wstep"><div class="wnum">3</div><span><span style="color:#f0d020">Meshy AI / Kaedim</span> <span class="warrow">→</span> Character mesh from Meshy prompt; Mjölnir as hero prop via Kaedim; Járngreipr axe via Luma AI</span></div>
+      <div class="wstep"><div class="wnum">4</div><span><span style="color:#80f0d0">Blender post-process</span> <span class="warrow">→</span> Fur pelt cloth sim, cloak physics, armor rune emission UV island, Mjölnir knotwork UV, axe hip socket</span></div>
+      <div class="wstep"><div class="wnum">5</div><span><span style="color:#c0a0ff">Mixamo</span> <span class="warrow">→</span> Base rig + combat animations; Unity Animator custom layers for throw, stride leap, Fury pose, Ragnarök descent</span></div>
+      <div class="wstep"><div class="wnum">6</div><span><span style="color:#d8e0ff">Unity</span> <span class="warrow">→</span> FBX Humanoid + ThorController + Animator + 4 Shaders + Storm VFX system + 6-pillar Ragnarök spawner</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function copyCode(id, btn) {
+  const pre = document.getElementById(id);
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyPrompt(btn) {
+  const box = btn.previousElementSibling;
+  navigator.clipboard.writeText(box.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>

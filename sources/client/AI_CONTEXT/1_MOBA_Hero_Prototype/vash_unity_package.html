@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vash the Stampede — Unity Package</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --surface2: #f0f2f8;
+    --border: #e2e5f0;
+    --border2: #c8ccde;
+    --text: #1a1b2e;
+    --muted: #5a5c7a;
+    --subtle: #9092b0;
+    --accent: #d97706;
+    --accent2: #b45309;
+    --pink: #fbbf24;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+    --tag-bg: #fef3c7;
+    --tag-text: #92400e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .hero-header {
+    background: linear-gradient(135deg, #0d1117 0%, #1c1a0a 40%, #3d2e05 100%);
+    padding: 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .hero-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .hero-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-role { background: rgba(6,182,212,0.25); color: #67e8f9; border: 1px solid rgba(6,182,212,0.4); }
+  .badge-manga { background: rgba(217,119,6,0.2); color: #fcd34d; border: 1px solid rgba(217,119,6,0.35); }
+  .badge-unity { background: rgba(99,102,241,0.25); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.4); }
+
+  .hero-name {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    position: relative;
+    line-height: 1.1;
+  }
+
+  .hero-name span { color: #fcd34d; }
+
+  .hero-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 8px;
+    position: relative;
+  }
+
+  .petal-deco {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.15;
+    font-size: 120px;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* TABS */
+  .tabs-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .tab-btn {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  /* SECTIONS */
+  .section { display: none; padding: 40px 48px; max-width: 1100px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* DESIGN BRIEF */
+  .brief-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .brief-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .brief-card.full { grid-column: 1 / -1; }
+
+  .brief-card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brief-card p { color: var(--muted); line-height: 1.7; font-size: 13px; }
+
+  .color-swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .swatch-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    flex-shrink: 0;
+  }
+
+  .prompt-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 8px;
+  }
+
+  .prompt-box p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #cdd6f4;
+    line-height: 1.8;
+  }
+
+  .prompt-box .kw { color: #cba6f7; }
+  .prompt-box .str { color: #a6e3a1; }
+  .prompt-box .num { color: #fab387; }
+
+  .copy-btn {
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: rgba(217,119,6,0.15);
+    border: 1px solid rgba(217,119,6,0.3);
+    color: #fcd34d;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all .15s;
+  }
+
+  .copy-btn:hover { background: rgba(217,119,6,0.25); }
+  .copy-btn.copied { color: #86efac; border-color: rgba(134,239,172,0.4); }
+
+  .stat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .stat-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border: 1px solid #fde68a;
+  }
+
+  .detail-list { list-style: none; }
+  .detail-list li {
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .detail-list li:last-child { border-bottom: none; }
+  .detail-list li::before { content: '→'; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+  /* SKILLS CARDS */
+  .skills-grid { display: flex; flex-direction: column; gap: 16px; }
+
+  .skill-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .skill-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-key {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .sk1 { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .sk2 { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .sku { background: #1c1007; color: #fde68a; border: 1px solid #d97706; }
+
+  .skill-meta { flex: 1; }
+  .skill-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .skill-type { font-size: 11px; color: var(--subtle); margin-top: 2px; }
+
+  .ult-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #1c1007;
+    color: #fde68a;
+    letter-spacing: 0.5px;
+  }
+
+  .skill-body { padding: 16px 20px; }
+  .skill-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
+
+  .skill-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .skill-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+  }
+
+  .skill-stat .label { font-size: 10px; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.5px; }
+  .skill-stat .value { font-size: 15px; font-weight: 700; color: var(--accent2); margin-top: 2px; }
+
+  /* CODE BLOCKS */
+  .code-section { margin-top: 0; }
+
+  .code-file {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .code-file-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .file-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .file-lang {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .lang-cs { background: #dbeafe; color: #1d4ed8; }
+  .lang-hlsl { background: #d1fae5; color: #065f46; }
+
+  pre {
+    margin: 0;
+    padding: 20px 24px;
+    overflow-x: auto;
+    background: var(--code-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--code-text);
+  }
+
+  .kw { color: #cba6f7; }
+  .cm { color: #6c7086; font-style: italic; }
+  .str { color: #a6e3a1; }
+  .num { color: #fab387; }
+  .cls { color: #89dceb; }
+  .fn { color: #89b4fa; }
+  .prop { color: #f5c2e7; }
+  .attr { color: #f38ba8; }
+
+  /* TOOLS SECTION */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color .15s, transform .1s;
+  }
+
+  .tool-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .tool-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+
+  .tool-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .tool-name { font-size: 15px; font-weight: 600; }
+  .tool-cat { font-size: 11px; color: var(--subtle); margin-top: 1px; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+  .tool-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tool-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .tool-tag.green { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+  .tool-tag.blue { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .tool-tag.orange { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+  .tool-tag.purple { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+
+  .workflow-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+
+  .workflow-box h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: #a6e3a1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .workflow-steps { display: flex; flex-direction: column; gap: 8px; }
+
+  .wstep {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 12px;
+    color: #cdd6f4;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.6;
+  }
+
+  .wnum {
+    width: 22px;
+    height: 22px;
+    background: rgba(217,119,6,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fcd34d;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .warrow { color: #6c7086; margin: 0 4px; }
+
+
+  .progression-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .progress-card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-note {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .stat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .stat-table th,
+  .stat-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .stat-table th {
+    color: var(--subtle);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .stat-table td strong {
+    color: var(--text);
+  }
+
+  .level-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .level-chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .level-chip.active {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-color: #fde68a;
+  }
+
+  .rank-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 12px;
+  }
+
+  .rank-table th,
+  .rank-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .rank-table th:first-child,
+  .rank-table td:first-child {
+    text-align: left;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .rank-table th {
+    color: var(--subtle);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .code-mini-note {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 700px) {
+    .hero-header { padding: 24px 20px; }
+    .tabs-bar { padding: 0 12px; }
+    .section { padding: 24px 16px; }
+    .brief-grid { grid-template-columns: 1fr; }
+    .petal-deco { display: none; }
+  }
+</style>
+</head>
+<body>
+<!-- HERO HEADER -->
+<div class="hero-header">
+<div class="hero-badge-row">
+<span class="hero-badge badge-manga">Trigun · 1995–2008</span>
+<span class="hero-badge badge-role">Marksman / Support</span>
+<span class="hero-badge badge-unity">Unity Package</span>
+</div>
+<div class="hero-name">Vash <span>the Stampede</span></div>
+<div class="hero-subtitle">$$60 Billions Double Dollar · Le Typhon Cosmique · Humanoid Typhoon</div>
+<div class="petal-deco">🔫</div>
+</div>
+<!-- TABS -->
+<div class="tabs-bar">
+<button class="tab-btn active" onclick="showTab('design', this)">🎨 Design Brief</button>
+<button class="tab-btn" onclick="showTab('skills', this)">⚔ Compétences</button>
+<button class="tab-btn" onclick="showTab('code', this)">{ } Script C#</button>
+<button class="tab-btn" onclick="showTab('shader', this)">✦ Shader HLSL</button>
+<button class="tab-btn" onclick="showTab('tools', this)">🛠 Outils IA 3D</button>
+</div>
+<!-- ═══════════════════════ DESIGN BRIEF ═══════════════════════ -->
+<div class="section active" id="tab-design">
+<div class="brief-grid">
+<div class="brief-card">
+<h3>Silhouette &amp; Morphologie</h3>
+<p>Homme grand et mince, apparence début trentaine. Grande taille (1m90), épaules larges mais corps élancé. Posture naturellement décontractée, presque nonchalante — sourire permanent dissimulant un tireur d'élite surhumain. Bras prothétique gauche métallique. Silhouette immédiatement reconnaissable en manteau rouge sang.</p>
+</div>
+<div class="brief-card">
+<h3>Visage</h3>
+<p>Traits anguleux expressifs, sourire exagéré et permanent qui cache une profonde mélancolie. Yeux turquoise brillants d'une lueur quasi surnaturelle en mode combat. Cheveux blond platine en épis désordonnés. Lunettes rondes fumées portées en haut du nez. Marques de cicatrices discrètes sur tout le corps — des années de survie sur Gunsmoke.</p>
+</div>
+<div class="brief-card">
+<h3>Costume — Manteau Rouge Iconique</h3>
+<p>Long manteau rouge vif (duster coat) aux multiples impacts de balles, jamais réparé — chaque trou raconte une histoire. Veste noire dessous, ceinture avec holster visible. Bottes de désert sombres résistantes. Le manteau flotte dramatiquement à chaque pirouette ou esquive, créant une silhouette de cape de super-héros décalé.</p>
+</div>
+<div class="brief-card">
+<h3>Accessoires iconiques</h3>
+<p>Revolver .45 Long Colt modifié (argent chromé, canon allongé) — porté dans le holster droit. Bras prothétique gauche en métal noir mat dissimulant le canon Angel Arm. Lunettes rondes fumées sur le nez. Le manteau rouge est l'accessoire ultime — aucun autre personnage dans la fiction ne porte ce rouge-là de cette façon.</p>
+</div>
+<div class="brief-card full">
+<h3>Palette de couleurs — Swatches</h3>
+<div class="color-swatch-row">
+<div class="swatch"><div class="swatch-dot" style="background:#c0392b"></div> Rouge sang — manteau</div>
+<div class="swatch"><div class="swatch-dot" style="background:#1a1a1a"></div> Noir mat — veste</div>
+<div class="swatch"><div class="swatch-dot" style="background:#f0e060"></div> Blond platine — cheveux</div>
+<div class="swatch"><div class="swatch-dot" style="background:#0fd4d4"></div> Turquoise — yeux / Angel Arm</div>
+<div class="swatch"><div class="swatch-dot" style="background:#e8e8e8;border:1px solid #ddd"></div> Chrome — revolver</div>
+<div class="swatch"><div class="swatch-dot" style="background:#3a2a10"></div> Ocre sable — décor Gunsmoke</div>
+<div class="swatch"><div class="swatch-dot" style="background:#7cf0ff"></div> Cyan électrique — énergie Angel Arm</div>
+</div>
+</div>
+<div class="brief-card full">
+<h3>Effets visuels — VFX Unity Particle System</h3>
+<ul class="detail-list">
+<li>Idle ambiant : manteau rouge flottant avec wind simulation, légère lueur turquoise des yeux, reflets chromés sur le revolver, poussière de sable autour des pieds</li>
+<li>Mode Sérieux (passif) : sourire disparaît, yeux turquoise passent en blanc lumineux, aura d'énergie bleutée, manteau animé par une énergie intérieure</li>
+<li>Compétence 1 — Quickdraw : flash de lumière blanche au dégainement, traînées de balle dorées sur chaque tir, impact particules sparks argent sur la cible</li>
+<li>Compétence 2 — Dodge &amp; Volley : traînée rouge du manteau lors de l'esquive, tirs en éventail avec sillons de balles lumineux, tourbillon de poussière de sable</li>
+<li>Ultime — Angel Arm : bras gauche se transforme — métal se désintègre, énergie cyan électrique, faisceau de destruction massif cyan-blanc, onde de choc atmosphérique</li>
+</ul>
+</div>
+<div class="brief-card full">
+<h3>Prompt Midjourney — Concept Art 2D</h3>
+<div class="prompt-box">
+<p><span class="kw">vash the stampede original character</span>, <span class="str">tall slim man, iconic long red duster coat with bullet holes, black outfit underneath, spiky platinum blond hair, round tinted glasses low on nose, turquoise glowing eyes, metal prosthetic left arm, holstered silver revolver right hip, warm goofy smile</span>, <span class="kw">relaxed standing pose one hand raised peace sign, slight tilt</span>, <span class="str">subtle cyan energy glow from left arm, sand dust particles around boots, red coat flowing in desert wind</span>, <span class="num">full body character sheet, front and side view, white background, concept art style, clean lineart, game character design, MOBA hero, high detail, 4K</span>, <span class="str">--ar 2:1 --style raw --q 2</span></p>
+</div>
+<button class="copy-btn" onclick="copyPrompt(this)">Copier le prompt</button>
+</div>
+<div class="brief-card full">
+<h3>Prompt Meshy / Kaedim — Génération 3D</h3>
+<div class="prompt-box">
+<p><span class="kw">stylized anime MOBA hero, standard humanoid biped male gunslinger</span>, <span class="str">Vash the Stampede inspired, tall slim athletic build, clean readable silhouette, clearly separated arms and legs, long red duster coat with bullet holes, black bodysuit underneath, metal prosthetic left arm separate mesh, holstered revolver right hip, spiky blond hair, round glasses, turquoise eyes, relaxed goofy expression</span>, <span class="kw">T-pose, front-facing neutral pose, full body, centered, symmetric proportions, hands open, fingers separated, feet flat, coat must not fuse with legs, prosthetic arm clearly separated from coat, clean joints for shoulders elbows wrists hips knees ankles</span>, <span class="str">game-ready character for Unity humanoid rig, animation-ready topology, textured PBR, clean edge flow, separate material zones for coat / bodysuit / metal arm / revolver, medium poly, FBX export</span>, <span class="num">needs to support locomotion set: idle goofy relaxed stance, walk casual, run dodge-roll, strafe, combat serious stance, basic shoot, skill quickdraw rapid fire, skill dodge volley, ultimate Angel Arm transform and beam, hit reaction comical, death collapse theatrical, respawn pose thumbs up</span></p>
+</div>
+<button class="copy-btn" onclick="copyPrompt(this)">Copier le prompt</button>
+</div>
+</div>
+</div>
+<!-- ═══════════════════════ COMPÉTENCES ═══════════════════════ -->
+<div class="section" id="tab-skills">
+<div class="progression-grid">
+<div class="progress-card">
+<h3>Progression du héros — Niveau 1 → 15</h3>
+<table class="stat-table">
+<thead>
+<tr>
+<th>Attribut</th>
+<th>Niveau 1</th>
+<th>Niveau 15</th>
+<th>Croissance</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><strong>HP</strong></td><td>2 650</td><td>5 800</td><td>+221.4 / niv.</td></tr>
+<tr><td><strong>HP Regen</strong></td><td>7.8</td><td>16.2</td><td>+0.6 / niv.</td></tr>
+<tr><td><strong>Mana</strong></td><td>500</td><td>1 900</td><td>+100 / niv.</td></tr>
+<tr><td><strong>Mana Regen</strong></td><td>5.0</td><td>8.5</td><td>+0.25 / niv.</td></tr>
+<tr><td><strong>Attaque physique</strong></td><td>112</td><td>235</td><td>+8.8 / niv.</td></tr>
+<tr><td><strong>Puissance magique</strong></td><td>0</td><td>0</td><td>Fixe</td></tr>
+<tr><td><strong>Défense physique</strong></td><td>16</td><td>52</td><td>+2.6 / niv.</td></tr>
+<tr><td><strong>Défense magique</strong></td><td>18</td><td>58</td><td>+2.9 / niv.</td></tr>
+<tr><td><strong>Vitesse d'attaque</strong></td><td>1.20</td><td>1.75</td><td>+0.039 / niv.</td></tr>
+<tr><td><strong>Vitesse de déplacement</strong></td><td>270</td><td>270</td><td>Fixe</td></tr>
+<tr><td><strong>Portée attaque de base</strong></td><td>9.0m</td><td>9.0m</td><td>Fixe</td></tr>
+</tbody>
+</table>
+</div>
+<div class="progress-card">
+<h3>Proposition de système</h3>
+<div class="progress-note">
+        Vash est un <strong>Marksman / Support atypique</strong> à 15 niveaux avec <strong>portée de base élevée</strong> (9m au revolver) et une <strong>vitesse d'attaque parmi les plus hautes</strong> du roster. Son passif <em>Mode Sérieux</em> double sa précision et son esquive sans coût mana. La <strong>mana</strong> suit le standard 500 → 1900 avec une régénération élevée pour soutenir un style hit-and-run.<br/><br/>
+        Les dégâts scalent sur l'<strong>Attaque physique</strong> (tirs balistiques) avec un bonus flat conditionnel sur les esquives. L'ultime Angel Arm est une bombe de zone à dégâts fixes — indépendante de toute stat.
+      </div>
+<div class="level-row">
+<span class="level-chip active">Héros : 15 niveaux</span>
+<span class="level-chip">Passif : Mode Sérieux</span>
+<span class="level-chip">Skill 1 : 4 rangs</span>
+<span class="level-chip">Skill 2 : 4 rangs</span>
+<span class="level-chip">Ultime : 3 rangs</span>
+<span class="level-chip">Mana regen auto</span>
+</div>
+<div class="code-mini-note">
+        Dans le script, les stats de Vash dérivent d'un <strong>bloc de progression Marksman</strong> avec ATQ physique modérée et haute vitesse d'attaque. Le passif Mode Sérieux est géré par un state machine distinct du compteur de mana.
+      </div>
+</div>
+</div>
+<div class="skills-grid">
+<div class="skill-card">
+<div class="skill-header">
+<div class="skill-key sk1">B</div>
+<div class="skill-meta">
+<div class="skill-name">Attaque basique — Tir au .45 Long Colt</div>
+<div class="skill-type">Physique · Longue portée · Projectile unique</div>
+</div>
+</div>
+<div class="skill-body">
+<div class="skill-desc">Vash tire un coup de son revolver modifié avec une précision surhumaine. En Mode Sérieux actif, chaque tir basic bénéficie d'un bonus de dégâts et peut toucher un point vulnérable (malus de déplacement cible, 0.5s). Chaque tir basic incrémente le compteur de déclenchement du passif.</div>
+<div class="skill-stats">
+<div class="skill-stat"><div class="label">Formule</div><div class="value">ATQ × 1.00</div></div>
+<div class="skill-stat"><div class="label">Portée</div><div class="value">9.0m</div></div>
+<div class="skill-stat"><div class="label">Bonus Sérieux</div><div class="value">+18 → +44</div></div>
+<div class="skill-stat"><div class="label">Cooldown</div><div class="value">0s</div></div>
+</div>
+<table class="rank-table">
+<thead>
+<tr><th>Échelle héros</th><th>Niv. 1</th><th>Niv. 8</th><th>Niv. 15</th></tr>
+</thead>
+<tbody>
+<tr><td>ATQ physique</td><td>112</td><td>173</td><td>235</td></tr>
+<tr><td>Bonus Mode Sérieux</td><td>18</td><td>31</td><td>44</td></tr>
+<tr><td>Slow cible (0.5s)</td><td>15%</td><td>20%</td><td>25%</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="skill-card">
+<div class="skill-header">
+<div class="skill-key sk1">1</div>
+<div class="skill-meta">
+<div class="skill-name">Quickdraw Barrage — Rafale Éclair</div>
+<div class="skill-type">Physique · Multi-tirs directs · Burst longue portée</div>
+</div>
+</div>
+<div class="skill-body">
+<div class="skill-desc">Vash dégaine à une vitesse surhumaine et vide une partie de son barillet en 0.6s sur une cible ou une zone étroite. Chaque balle est tirée avec une précision chirurgicale visant les extrémités — jamais le corps vital. En Mode Sérieux actif, la rafale se transforme en 6 tirs simultanés en éventail couvrant un arc de 60°.</div>
+<div class="skill-stats">
+<div class="skill-stat"><div class="label">Tirs</div><div class="value">4 (6 Sérieux)</div></div>
+<div class="skill-stat"><div class="label">Arc</div><div class="value">15° (60° Sérieux)</div></div>
+<div class="skill-stat"><div class="label">Portée</div><div class="value">10m</div></div>
+<div class="skill-stat"><div class="label">Scaling</div><div class="value">+45% ATQ/tir</div></div>
+</div>
+<table class="rank-table">
+<thead>
+<tr><th>Rang</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr>
+</thead>
+<tbody>
+<tr><td>Dégâts / tir</td><td>52</td><td>68</td><td>84</td><td>100</td></tr>
+<tr><td>Total (4 tirs)</td><td>208</td><td>272</td><td>336</td><td>400</td></tr>
+<tr><td>Total (6 tirs Sérieux)</td><td>312</td><td>408</td><td>504</td><td>600</td></tr>
+<tr><td>Coût mana</td><td>55</td><td>62</td><td>68</td><td>75</td></tr>
+<tr><td>Cooldown</td><td>8s</td><td>7s</td><td>6s</td><td>5s</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="skill-card">
+<div class="skill-header">
+<div class="skill-key sk2">2</div>
+<div class="skill-meta">
+<div class="skill-name">Dodge &amp; Volley — Esquive et Riposte</div>
+<div class="skill-type">Physique · Dash + Tirs arrière · Reposition + Burst</div>
+</div>
+</div>
+<div class="skill-body">
+<div class="skill-desc">Vash effectue une roulade acrobatique dans la direction choisie tout en tirant 3 coups en arc derrière lui — typique de son style de combat chorégraphié absurde mais redoutablement efficace. Le dash rend Vash insaisissable pendant 0.3s. En Mode Sérieux actif, les tirs passent à 5 et infligent un bonus de dégâts supplémentaire.</div>
+<div class="skill-stats">
+<div class="skill-stat"><div class="label">Portée dash</div><div class="value">4.5m</div></div>
+<div class="skill-stat"><div class="label">Tirs</div><div class="value">3 (5 Sérieux)</div></div>
+<div class="skill-stat"><div class="label">Invincibilité</div><div class="value">0.3s</div></div>
+<div class="skill-stat"><div class="label">Type</div><div class="value">Phys. Mobile</div></div>
+</div>
+<table class="rank-table">
+<thead>
+<tr><th>Rang</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr>
+</thead>
+<tbody>
+<tr><td>Dégâts / tir</td><td>70</td><td>92</td><td>114</td><td>136</td></tr>
+<tr><td>Bonus Sérieux / tir</td><td>+30%</td><td>+30%</td><td>+30%</td><td>+30%</td></tr>
+<tr><td>Réduction cooldown si hit</td><td>-1s</td><td>-1s</td><td>-1.5s</td><td>-1.5s</td></tr>
+<tr><td>Coût mana</td><td>70</td><td>78</td><td>86</td><td>94</td></tr>
+<tr><td>Cooldown</td><td>12s</td><td>11s</td><td>10s</td><td>9s</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="skill-card">
+<div class="skill-header">
+<div class="skill-key sku">U</div>
+<div class="skill-meta">
+<div class="skill-name">Angel Arm — Canon du Jugement Dernier</div>
+<div class="skill-type">Ultime · Transformation · Rayon de destruction massif AoE</div>
+</div>
+<span class="ult-badge">ULTIME</span>
+</div>
+<div class="skill-body">
+<div class="skill-desc">Vash subit une transformation involontaire — son bras prothétique gauche se désintègre pour révéler le canon Angel Arm, une arme de destruction massifve liée à sa nature de Plant. Un faisceau d'énergie cyan dévastateur ravage une ligne entière de la map. Vash est momentanément hors de contrôle (0.5s) et subit un recul de 10% de son HP max après usage — il ne voulait pas faire ça.</div>
+<div class="skill-stats">
+<div class="skill-stat"><div class="label">Portée rayon</div><div class="value">22m</div></div>
+<div class="skill-stat"><div class="label">Largeur</div><div class="value">4m</div></div>
+<div class="skill-stat"><div class="label">Coût HP</div><div class="value">10% HP max</div></div>
+<div class="skill-stat"><div class="label">Dégâts</div><div class="value">Fixes</div></div>
+</div>
+<table class="rank-table">
+<thead>
+<tr><th>Rang</th><th>I</th><th>II</th><th>III</th></tr>
+</thead>
+<tbody>
+<tr><td>Dégâts rayon (fixes)</td><td>800</td><td>1 150</td><td>1 600</td></tr>
+<tr><td>Rayon de dégâts périphériques</td><td>280</td><td>420</td><td>560</td></tr>
+<tr><td>Durée d'incantation</td><td>1.2s</td><td>1.0s</td><td>0.8s</td></tr>
+<tr><td>Coût mana</td><td>140</td><td>170</td><td>200</td></tr>
+<tr><td>Cooldown</td><td>110s</td><td>95s</td><td>80s</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="workflow-box"><h3>Découpage Unity recommandé</h3>
+<div class="workflow-steps">
+<div class="wstep"><div class="wnum">1</div><span><span style="color:#fcd34d">HeroDefinition.asset</span> <span class="warrow">→</span> Stats niveau 1 → 15, mana, régénération, rangs de compétences, passif Mode Sérieux</span></div>
+<div class="wstep"><div class="wnum">2</div><span><span style="color:#89b4fa">VashHeroController</span> <span class="warrow">→</span> Mouvement, tir, cooldowns, level up, consommation mana, gestion passif + coût HP Angel Arm</span></div>
+<div class="wstep"><div class="wnum">3</div><span><span style="color:#a6e3a1">VashCombatVFX</span> <span class="warrow">→</span> Liaison shaders, trails de balles, dodge, transformation Angel Arm, transition yeux normaux → blancs</span></div>
+<div class="wstep"><div class="wnum">4</div><span><span style="color:#fab387">Shaders URP</span> <span class="warrow">→</span> Surface héros, trail dodge, rayon Angel Arm, zone d'impact, bras prothétique énergie</span></div>
+</div></div></div>
+<!-- ═══════════════════════ SCRIPT C# ═══════════════════════ -->
+<div class="section" id="tab-code"><div class="code-section"><div class="code-file"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-cs">C#</span>
+        HeroDefinition.cs</div><button class="copy-btn" onclick="copyCode('code1', this)">Copier</button></div><pre id="code1">// HeroDefinition.cs
+// ScriptableObject data-driven — modèle MOBA 15 niveaux
+// Toutes les stats et rangs de compétences de Vash the Stampede.
+
+using UnityEngine;
+using System;
+
+[CreateAssetMenu(menuName = "Game/Hero Definition", fileName = "HeroDefinition")]
+public class HeroDefinition : ScriptableObject
+{
+    [Header("Identity")]
+    public string heroId      = "vash";
+    public string displayName = "Vash the Stampede";
+    public HeroRole role      = HeroRole.Marksman;
+
+    [Header("Core progression — Niveau 1 à 15")]
+    public ScaledStat maxHp          = new(2650f,  5800f);
+    public ScaledStat hpRegen        = new(7.8f,   16.2f);
+    public ScaledStat maxMana        = new(500f,   1900f);
+    public ScaledStat manaRegen      = new(5.0f,    8.5f);
+    public ScaledStat physicalAttack = new(112f,    235f);
+    public ScaledStat magicPower     = new(0f,        0f);
+    public ScaledStat physicalDefense= new(16f,      52f);
+    public ScaledStat magicDefense   = new(18f,      58f);
+    public ScaledStat attackSpeed    = new(1.20f,   1.75f);
+
+    [Header("Fixed hero properties")]
+    public float moveSpeed         = 270f;
+    public float basicAttackRange  = 9.0f;
+    public float attackSpeedRatio  = 1.0f;
+    public float criticalDamage    = 2.0f;
+
+    [Header("Passif — Mode Sérieux (scaling par niveau)")]
+    public ScaledStat seriousAtkBonus   = new(0.18f, 0.32f);  // multiplicateur ATQ
+    public ScaledStat seriousAtkSpeed   = new(0.18f, 0.30f);  // bonus flat AS
+    public ScaledStat seriousSlowAmount = new(0.15f, 0.25f);  // slow% tir basic
+
+    [Header("Angel Arm — coût HP fixe")]
+    public float angelArmHpCostPercent = 0.10f;   // 10% HP max à l'usage
+
+    [Header("Ability ranks")]
+    public AbilityRankData basicAttack = new(
+        "Tir .45 Long Colt",
+        new[] { 0f },
+        new[] { 0f },
+        new[] { 0f },
+        0f);
+
+    // Skill 1 — Quickdraw Barrage : dégâts PAR TIR, 4 tirs normaux / 6 tirs Sérieux
+    public AbilityRankData skillOne = new(
+        "Quickdraw Barrage",
+        new[] { 52f, 68f, 84f, 100f },
+        new[] { 55f, 62f, 68f,  75f },
+        new[] {  8f,  7f,  6f,   5f },
+        0.45f);
+
+    // Skill 2 — Dodge & Volley : dégâts PAR TIR, 3 tirs normaux / 5 tirs Sérieux
+    public AbilityRankData skillTwo = new(
+        "Dodge and Volley",
+        new[] {  70f,  92f, 114f, 136f },
+        new[] {  70f,  78f,  86f,  94f },
+        new[] {  12f,  11f,  10f,   9f },
+        0.50f);
+
+    // Ultime — Angel Arm : dégâts FIXES (indépendants ATQ), scaling 0
+    public AbilityRankData ultimate = new(
+        "Angel Arm",
+        new[] {  800f, 1150f, 1600f },
+        new[] {  140f,  170f,  200f },
+        new[] {  110f,   95f,   80f },
+        0f);   // dégâts fixes — pas de scaling ATQ
+
+    public RuntimeHeroStats CreateRuntime(int level)
+    {
+        level = Mathf.Clamp(level, 1, 15);
+        return new RuntimeHeroStats
+        {
+            level            = level,
+            maxHp            = maxHp.Evaluate(level),
+            hpRegen          = hpRegen.Evaluate(level),
+            maxMana          = maxMana.Evaluate(level),
+            manaRegen        = manaRegen.Evaluate(level),
+            physicalAttack   = physicalAttack.Evaluate(level),
+            magicPower       = magicPower.Evaluate(level),
+            physicalDefense  = physicalDefense.Evaluate(level),
+            magicDefense     = magicDefense.Evaluate(level),
+            attackSpeed      = attackSpeed.Evaluate(level),
+            moveSpeed        = moveSpeed,
+            basicAttackRange = basicAttackRange,
+            attackSpeedRatio = attackSpeedRatio,
+            criticalDamage   = criticalDamage
+        };
+    }
+}
+
+public enum HeroRole
+{
+    Tank, Fighter, Assassin, Mage, Marksman, Support, MageAssassin, AssassinFighter
+}
+
+[Serializable]
+public struct ScaledStat
+{
+    public float level1;
+    public float level15;
+
+    public ScaledStat(float level1, float level15)
+    {
+        this.level1  = level1;
+        this.level15 = level15;
+    }
+
+    public float Evaluate(int level)
+    {
+        level = Mathf.Clamp(level, 1, 15);
+        if (level == 1) return level1;
+        float t = (level - 1f) / 14f;
+        return Mathf.Lerp(level1, level15, t);
+    }
+}
+
+[Serializable]
+public class AbilityRankData
+{
+    public string  abilityName;
+    public float[] baseDamage;
+    public float[] manaCost;
+    public float[] cooldown;
+    public float   scalingPhysicalAttack;
+
+    public AbilityRankData(string abilityName, float[] baseDamage,
+                           float[] manaCost, float[] cooldown, float scalingPhysicalAttack)
+    {
+        this.abilityName           = abilityName;
+        this.baseDamage            = baseDamage;
+        this.manaCost              = manaCost;
+        this.cooldown              = cooldown;
+        this.scalingPhysicalAttack = scalingPhysicalAttack;
+    }
+
+    public float DamageAtRank(int rank, float physicalAttack)
+        =&gt; baseDamage[Mathf.Clamp(rank - 1, 0, baseDamage.Length - 1)]
+         + physicalAttack * scalingPhysicalAttack;
+
+    public float ManaAtRank(int rank)
+        =&gt; manaCost[Mathf.Clamp(rank - 1, 0, manaCost.Length - 1)];
+
+    public float CooldownAtRank(int rank)
+        =&gt; cooldown[Mathf.Clamp(rank - 1, 0, cooldown.Length - 1)];
+}
+
+[Serializable]
+public struct RuntimeHeroStats
+{
+    public int   level;
+    public float maxHp;
+    public float hpRegen;
+    public float maxMana;
+    public float manaRegen;
+    public float physicalAttack;
+    public float magicPower;
+    public float physicalDefense;
+    public float magicDefense;
+    public float attackSpeed;
+    public float moveSpeed;
+    public float basicAttackRange;
+    public float attackSpeedRatio;
+    public float criticalDamage;
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-cs">C#</span>
+        VashHeroController.cs</div><button class="copy-btn" onclick="copyCode('code2', this)">Copier</button></div><pre id="code2">// VashHeroController.cs
+// Contrôleur principal : mouvement, tir, cooldowns, passif Mode Sérieux, coût HP Angel Arm.
+
+using UnityEngine;
+using UnityEngine.AI;
+using System.Collections;
+
+[RequireComponent(typeof(NavMeshAgent))]
+public class VashHeroController : MonoBehaviour
+{
+    [Header("Data")]
+    [SerializeField] private HeroDefinition heroDefinition;
+    [SerializeField, Range(1, 15)] private int heroLevel = 1;
+
+    [Header("Ability Ranks")]
+    [SerializeField, Range(1, 4)] private int skillOneRank = 1;
+    [SerializeField, Range(1, 4)] private int skillTwoRank = 1;
+    [SerializeField, Range(1, 3)] private int ultimateRank = 1;
+
+    [Header("Scene References")]
+    [SerializeField] private Animator      animator;
+    [SerializeField] private NavMeshAgent  agent;
+    [SerializeField] private VashCombatVFX combatVfx;
+    [SerializeField] private Transform     gunSpawn;
+    [SerializeField] private LayerMask     groundMask;
+
+    [Header("Runtime")]
+    [SerializeField] private RuntimeHeroStats stats;
+    [SerializeField] private float currentHp;
+    [SerializeField] private float currentMana;
+    [SerializeField] private bool  isDead;
+
+    // ── Passif Mode Sérieux ───────────────────────────────────────────
+    private int   hitStreak             = 0;
+    private float seriousTimer          = 0f;
+    private float seriousCooldownTimer  = 0f;
+    private bool  isSeriousModeActive   = false;
+
+    // ── Cooldowns ─────────────────────────────────────────────────────
+    private float basicCooldown;
+    private float skillOneCooldown;
+    private float skillTwoCooldown;
+    private float ultimateCooldown;
+
+    public RuntimeHeroStats Stats   =&gt; stats;
+    public float HpPercent          =&gt; stats.maxHp   &lt;= 0f ? 0f : currentHp   / stats.maxHp;
+    public float ManaPercent        =&gt; stats.maxMana &lt;= 0f ? 0f : currentMana / stats.maxMana;
+    public bool  IsDead             =&gt; isDead;
+    public bool  IsSeriousMode      =&gt; isSeriousModeActive;
+
+    private void Reset()
+    {
+        agent    = GetComponent&lt;NavMeshAgent&gt;();
+        animator = GetComponentInChildren&lt;Animator&gt;();
+    }
+
+    private void Awake()
+    {
+        if (agent == null) agent = GetComponent&lt;NavMeshAgent&gt;();
+        ApplyLevel(heroLevel, true);
+    }
+
+    private void Update()
+    {
+        if (isDead || heroDefinition == null) return;
+        TickCooldowns();
+        TickSeriousMode();
+        RegenerateResources();
+        UpdateAnimator();
+    }
+
+    public void ApplyLevel(int newLevel, bool fullRestore = false)
+    {
+        heroLevel = Mathf.Clamp(newLevel, 1, 15);
+        stats     = heroDefinition.CreateRuntime(heroLevel);
+        agent.speed = stats.moveSpeed / 100f;
+        if (fullRestore)
+        {
+            currentHp   = stats.maxHp;
+            currentMana = stats.maxMana;
+        }
+        else
+        {
+            currentHp   = Mathf.Min(currentHp,   stats.maxHp);
+            currentMana = Mathf.Min(currentMana, stats.maxMana);
+        }
+    }
+
+    public void MoveTo(Vector3 worldPoint)
+    {
+        if (isDead) return;
+        agent.isStopped = false;
+        agent.SetDestination(worldPoint);
+        animator.SetBool("IsMoving", true);
+    }
+
+    // ── Attaque basique — Tir .45 Long Colt ──────────────────────────
+    public void BasicAttack(Health target)
+    {
+        if (target == null || basicCooldown &gt; 0f || isDead) return;
+
+        float bonus  = isSeriousModeActive
+                     ? stats.physicalAttack * heroDefinition.seriousAtkBonus.Evaluate(heroLevel)
+                     : 0f;
+        float damage = stats.physicalAttack + bonus;
+
+        basicCooldown = 1f / Mathf.Max(0.1f, stats.attackSpeed * stats.attackSpeedRatio);
+        animator.SetTrigger("BasicAttack");
+        combatVfx.PlayBulletTrail(gunSpawn.position, target.transform.position);
+        target.ApplyPhysicalDamage(damage);
+
+        hitStreak++;
+        if (hitStreak &gt;= 4 &amp;&amp; seriousCooldownTimer &lt;= 0f)
+            ActivateSeriousMode();
+    }
+
+    // ── Skill 1 — Quickdraw Barrage ───────────────────────────────────
+    public bool TryCastSkillOne(Transform target)
+    {
+        if (!CanCast(heroDefinition.skillOne, skillOneRank, skillOneCooldown)) return false;
+
+        SpendMana(heroDefinition.skillOne.ManaAtRank(skillOneRank));
+        skillOneCooldown = heroDefinition.skillOne.CooldownAtRank(skillOneRank);
+
+        int   shots       = isSeriousModeActive ? 6 : 4;
+        float dmgPerShot  = heroDefinition.skillOne.DamageAtRank(skillOneRank, stats.physicalAttack);
+        float totalDamage = dmgPerShot * shots;
+
+        agent.isStopped = true;
+        transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
+        animator.SetTrigger("CastSkill01");
+        combatVfx.PlayQuickdrawBarrage(gunSpawn.position, target.position, shots);
+        target.GetComponent&lt;Health&gt;()?.ApplyPhysicalDamage(totalDamage);
+
+        return true;
+    }
+
+    // ── Skill 2 — Dodge & Volley ──────────────────────────────────────
+    public bool TryCastSkillTwo(Vector3 dashDirection)
+    {
+        if (!CanCast(heroDefinition.skillTwo, skillTwoRank, skillTwoCooldown)) return false;
+
+        SpendMana(heroDefinition.skillTwo.ManaAtRank(skillTwoRank));
+        skillTwoCooldown = heroDefinition.skillTwo.CooldownAtRank(skillTwoRank);
+
+        StartCoroutine(DodgeVolleyRoutine(dashDirection));
+        return true;
+    }
+
+    private IEnumerator DodgeVolleyRoutine(Vector3 dashDir)
+    {
+        agent.isStopped = true;
+        combatVfx.SetDodgeInvincible(true);
+        animator.SetTrigger("CastSkill02");
+
+        // Dash
+        Vector3 dashTarget = transform.position + dashDir.normalized * 4.5f;
+        transform.position = dashTarget;
+        agent.Warp(dashTarget);
+        yield return new WaitForSeconds(0.3f);   // invincibilité
+        combatVfx.SetDodgeInvincible(false);
+
+        // Tirs derrière
+        int   shots      = isSeriousModeActive ? 5 : 3;
+        float dmgPerShot = heroDefinition.skillTwo.DamageAtRank(skillTwoRank, stats.physicalAttack);
+        float bonus      = isSeriousModeActive ? 1.3f : 1.0f;
+        combatVfx.PlayDodgeVolley(transform.position, -transform.forward, shots);
+
+        // AoE arc arrière
+        Collider[] hits = Physics.OverlapSphere(transform.position, 8f);
+        foreach (var col in hits)
+        {
+            float angle = Vector3.Angle(-transform.forward,
+                          (col.transform.position - transform.position).normalized);
+            if (angle &lt; 50f)
+                col.GetComponent&lt;Health&gt;()?.ApplyPhysicalDamage(dmgPerShot * bonus);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+        agent.isStopped = false;
+    }
+
+    // ── Ultime — Angel Arm ────────────────────────────────────────────
+    public bool TryCastUltimate(Vector3 direction)
+    {
+        if (!CanCast(heroDefinition.ultimate, ultimateRank, ultimateCooldown)) return false;
+
+        SpendMana(heroDefinition.ultimate.ManaAtRank(ultimateRank));
+        ultimateCooldown = heroDefinition.ultimate.CooldownAtRank(ultimateRank);
+
+        StartCoroutine(AngelArmRoutine(direction));
+        return true;
+    }
+
+    private IEnumerator AngelArmRoutine(Vector3 direction)
+    {
+        agent.isStopped = true;
+
+        // Phase 1 : transformation bras (hors contrôle 0.5s)
+        animator.SetTrigger("CastUltimate");
+        combatVfx.PlayAngelArmTransform(transform.position);
+        yield return new WaitForSeconds(0.5f);
+
+        // Phase 2 : rayon dévastateur
+        transform.forward = direction.normalized;
+        float mainDmg  = heroDefinition.ultimate.baseDamage[Mathf.Clamp(ultimateRank - 1, 0, 2)];
+        float outerDmg = ultimateRank == 1 ? 280f : ultimateRank == 2 ? 420f : 560f;
+
+        combatVfx.PlayAngelArmBeam(transform.position, direction, 22f);
+
+        Collider[] inBeam = Physics.OverlapBox(
+            transform.position + direction.normalized * 11f,
+            new Vector3(2f, 2f, 11f),
+            Quaternion.LookRotation(direction));
+        foreach (var col in inBeam)
+            col.GetComponent&lt;Health&gt;()?.ApplyPhysicalDamage(mainDmg);
+
+        Collider[] nearBeam = Physics.OverlapSphere(transform.position + direction.normalized * 11f, 6f);
+        foreach (var col in nearBeam)
+            col.GetComponent&lt;Health&gt;()?.ApplyPhysicalDamage(outerDmg);
+
+        // Coût HP — Vash souffre d'avoir utilisé l'Angel Arm
+        float hpCost = stats.maxHp * heroDefinition.angelArmHpCostPercent;
+        currentHp    = Mathf.Max(1f, currentHp - hpCost);   // ne peut pas tuer Vash lui-même
+        combatVfx.UpdateHeroState(HpPercent, ManaPercent, false);
+
+        yield return new WaitForSeconds(0.6f);
+        agent.isStopped = false;
+    }
+
+    // ── Passif Mode Sérieux ───────────────────────────────────────────
+    private void ActivateSeriousMode()
+    {
+        isSeriousModeActive   = true;
+        seriousTimer          = 6f;
+        hitStreak             = 0;
+        float cd              = Mathf.Lerp(15f, 11f, (heroLevel - 1f) / 14f);
+        seriousCooldownTimer  = cd;
+        animator.SetBool("SeriousMode", true);
+        combatVfx.SetSeriousMode(true, heroDefinition.seriousAtkBonus.Evaluate(heroLevel));
+    }
+
+    private void DeactivateSeriousMode()
+    {
+        isSeriousModeActive = false;
+        animator.SetBool("SeriousMode", false);
+        combatVfx.SetSeriousMode(false, 0f);
+    }
+
+    private void TickSeriousMode()
+    {
+        if (seriousCooldownTimer &gt; 0f) seriousCooldownTimer -= Time.deltaTime;
+        if (isSeriousModeActive)
+        {
+            seriousTimer -= Time.deltaTime;
+            if (seriousTimer &lt;= 0f) DeactivateSeriousMode();
+        }
+        // Auto-déclenchement si HP &lt; 25%
+        if (!isSeriousModeActive &amp;&amp; seriousCooldownTimer &lt;= 0f &amp;&amp; HpPercent &lt;= 0.25f)
+        {
+            hitStreak = 4;
+            ActivateSeriousMode();
+        }
+    }
+
+    public void ReceiveDamage(float amount)
+    {
+        if (isDead) return;
+        hitStreak = 0;
+        currentHp = Mathf.Max(0f, currentHp - amount);
+        animator.SetTrigger("Hit");
+        combatVfx.UpdateHeroState(HpPercent, ManaPercent, false);
+        if (currentHp &lt;= 0f) StartCoroutine(DeathRoutine());
+    }
+
+    private IEnumerator DeathRoutine()
+    {
+        isDead = true;
+        agent.isStopped = true;
+        DeactivateSeriousMode();
+        animator.SetBool("IsDead", true);
+        combatVfx.PlayDeath(transform.position);
+        yield return new WaitForSeconds(3f);
+        enabled = false;
+    }
+
+    private void TickCooldowns()
+    {
+        basicCooldown    = Mathf.Max(0f, basicCooldown    - Time.deltaTime);
+        skillOneCooldown = Mathf.Max(0f, skillOneCooldown - Time.deltaTime);
+        skillTwoCooldown = Mathf.Max(0f, skillTwoCooldown - Time.deltaTime);
+        ultimateCooldown = Mathf.Max(0f, ultimateCooldown - Time.deltaTime);
+    }
+
+    private void RegenerateResources()
+    {
+        currentHp   = Mathf.Min(stats.maxHp,   currentHp   + stats.hpRegen   * Time.deltaTime);
+        currentMana = Mathf.Min(stats.maxMana,  currentMana + stats.manaRegen * Time.deltaTime);
+        combatVfx.UpdateHeroState(HpPercent, ManaPercent, agent.velocity.sqrMagnitude &gt; 0.01f);
+    }
+
+    private void UpdateAnimator()
+    {
+        Vector3 planarVel = agent.velocity; planarVel.y = 0f;
+        float effectiveAS = stats.attackSpeed +
+            (isSeriousModeActive ? heroDefinition.seriousAtkSpeed.Evaluate(heroLevel) : 0f);
+        animator.SetFloat("MoveSpeed",   planarVel.magnitude);
+        animator.SetFloat("AttackSpeed", effectiveAS);
+    }
+
+    private bool CanCast(AbilityRankData ability, int rank, float cd)
+    {
+        if (heroDefinition == null || isDead || cd &gt; 0f) return false;
+        return currentMana &gt;= ability.ManaAtRank(rank);
+    }
+
+    private void SpendMana(float amount)
+        =&gt; currentMana = Mathf.Max(0f, currentMana - amount);
+}
+
+public class Health : MonoBehaviour
+{
+    [SerializeField] private float hp = 1000f;
+    public void ApplyPhysicalDamage(float damage) =&gt; hp -= damage;
+    public void ApplyMagicDamage(float damage)    =&gt; hp -= damage;
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-cs">C#</span>
+        VashCombatVFX.cs</div><button class="copy-btn" onclick="copyCode('code3', this)">Copier</button></div><pre id="code3">// VashCombatVFX.cs
+// Binder entre gameplay et shaders/VFX pour Vash the Stampede.
+// Gère : Mode Sérieux (yeux, aura), tirs barillet, dodge, Angel Arm, mort.
+
+using UnityEngine;
+
+public class VashCombatVFX : MonoBehaviour
+{
+    [SerializeField] private ParticleSystem bulletTrail;         // Tir basic — trail balle
+    [SerializeField] private ParticleSystem quickdrawBarrage;    // Skill 1 — multi-tirs
+    [SerializeField] private ParticleSystem dodgeVolleyTrail;    // Skill 2 — tirs dodge
+    [SerializeField] private ParticleSystem angelArmBeamVfx;     // Ultime — rayon
+    [SerializeField] private ParticleSystem angelArmTransform;   // Ultime — transformation bras
+    [SerializeField] private ParticleSystem deathComical;        // Mort théâtrale
+    [SerializeField] private ParticleSystem sandDustAmbient;     // Idle — poussière désert
+
+    [Header("Materials using HLSL shaders")]
+    [SerializeField] private Renderer heroRenderer;
+    [SerializeField] private Renderer coatRenderer;
+    [SerializeField] private Renderer prostheticArmRenderer;
+    [SerializeField] private Renderer angelArmBeamRenderer;
+    [SerializeField] private Renderer eyeRenderer;
+
+    private static readonly int MoveBlend       = Shader.PropertyToID("_MoveBlend");
+    private static readonly int HpFade          = Shader.PropertyToID("_HpFade");
+    private static readonly int ManaGlow        = Shader.PropertyToID("_ManaGlow");
+    private static readonly int Dissolve        = Shader.PropertyToID("_Dissolve");
+    private static readonly int BeamLength      = Shader.PropertyToID("_BeamLength");
+    private static readonly int SeriousIntensity= Shader.PropertyToID("_SeriousIntensity");
+    private static readonly int ArmGlow         = Shader.PropertyToID("_ArmGlow");
+    private static readonly int EyeEmission     = Shader.PropertyToID("_EyeEmission");
+    private static readonly int DodgeInvincible = Shader.PropertyToID("_DodgeFlash");
+
+    private static readonly Color eyeNormal  = new Color(0.05f, 0.83f, 0.83f, 1f); // turquoise
+    private static readonly Color eyeSerious = new Color(0.95f, 0.95f, 0.95f, 1f); // blanc lumineux
+
+    public void UpdateHeroState(float hpPercent, float manaPercent, bool isMoving)
+    {
+        if (heroRenderer == null) return;
+        heroRenderer.material.SetFloat(MoveBlend, isMoving ? 1f : 0f);
+        heroRenderer.material.SetFloat(HpFade,    1f - hpPercent);
+        heroRenderer.material.SetFloat(ManaGlow,  manaPercent);
+        if (coatRenderer != null)
+            coatRenderer.material.SetFloat(MoveBlend, isMoving ? 1f : 0f);
+    }
+
+    public void SetSeriousMode(bool active, float intensity)
+    {
+        if (heroRenderer != null)
+            heroRenderer.material.SetFloat(SeriousIntensity, active ? intensity : 0f);
+        if (eyeRenderer != null)
+            eyeRenderer.material.SetColor(EyeEmission, active ? eyeSerious : eyeNormal);
+        if (prostheticArmRenderer != null)
+            prostheticArmRenderer.material.SetFloat(ArmGlow, active ? 0.8f : 0.2f);
+        if (sandDustAmbient != null)
+        {
+            var main = sandDustAmbient.main;
+            main.startSpeedMultiplier = active ? 0f : 1f;   // arrêt dust en mode sérieux
+        }
+    }
+
+    public void PlayBulletTrail(Vector3 origin, Vector3 target)
+    {
+        if (bulletTrail == null) return;
+        bulletTrail.transform.position = origin;
+        bulletTrail.transform.forward  = (target - origin).normalized;
+        bulletTrail.Play();
+    }
+
+    public void PlayQuickdrawBarrage(Vector3 origin, Vector3 target, int shotCount)
+    {
+        if (quickdrawBarrage == null) return;
+        quickdrawBarrage.transform.position = origin;
+        quickdrawBarrage.transform.forward  = (target - origin).normalized;
+        var emission = quickdrawBarrage.emission;
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, shotCount) });
+        quickdrawBarrage.Play();
+    }
+
+    public void SetDodgeInvincible(bool active)
+    {
+        if (heroRenderer != null)
+            heroRenderer.material.SetFloat(DodgeInvincible, active ? 1f : 0f);
+        if (coatRenderer != null)
+            coatRenderer.material.SetFloat(DodgeInvincible, active ? 1f : 0f);
+    }
+
+    public void PlayDodgeVolley(Vector3 origin, Vector3 backDir, int shotCount)
+    {
+        if (dodgeVolleyTrail == null) return;
+        dodgeVolleyTrail.transform.position = origin;
+        dodgeVolleyTrail.transform.forward  = backDir.normalized;
+        var emission = dodgeVolleyTrail.emission;
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, shotCount) });
+        dodgeVolleyTrail.Play();
+    }
+
+    public void PlayAngelArmTransform(Vector3 position)
+    {
+        if (angelArmTransform != null)
+        {
+            angelArmTransform.transform.position = position;
+            angelArmTransform.Play();
+        }
+        if (prostheticArmRenderer != null)
+            prostheticArmRenderer.material.SetFloat(ArmGlow, 1f);
+    }
+
+    public void PlayAngelArmBeam(Vector3 origin, Vector3 direction, float length)
+    {
+        if (angelArmBeamVfx != null)
+        {
+            angelArmBeamVfx.transform.position = origin;
+            angelArmBeamVfx.transform.forward  = direction.normalized;
+            angelArmBeamVfx.Play();
+        }
+        if (angelArmBeamRenderer != null)
+            angelArmBeamRenderer.material.SetFloat(BeamLength, length);
+    }
+
+    public void PlayDeath(Vector3 position)
+    {
+        if (deathComical != null)
+        {
+            deathComical.transform.position = position;
+            deathComical.Play();
+        }
+        if (heroRenderer != null)
+            heroRenderer.material.SetFloat(Dissolve, 1f);
+    }
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-cs">TXT</span>
+        MeshyAI_Prompt_Vash.txt</div><button class="copy-btn" onclick="copyCode('code4', this)">Copier</button></div><pre id="code4">PROMPT MESHY AI — VASH THE STAMPEDE UNITY HERO (version production)
+
+Create a production-ready 3D humanoid hero for Unity, full body, clean topology, readable silhouette, anime-realistic stylization, sci-fi western gunslinger inspired by the Trigun universe. Tall slim build, long red duster coat with visible bullet holes as texture details, black bodysuit underneath, spiky platinum blond hair, round tinted glasses slightly low on nose, turquoise glowing eyes, metal black prosthetic left arm (separate mesh), holstered silver revolver in right hip holster. Vivid contrast red coat / black / silver / cyan energy glow.
+
+Game-ready constraints: standard humanoid biped proportions, clearly separated arms and legs, coat must not fuse with legs — leave clear separation at hips, prosthetic left arm must be modeled as separate mesh for shader override, holster and revolver separate meshes, clean hands with five fingers for both arms (prosthetic included), deformation-friendly topology for coat flow during locomotion, medium poly for real-time Unity, PBR textures, separate material zones for coat / bodysuit / prosthetic arm / revolver / skin / hair.
+
+Movement and animation intent: model must support locomotion set for idle (goofy relaxed, one hand raised), walk casual, run dodge-forward, strafe, combat serious stance (no smile, sharp eyes, low draw position), basic shoot with right hand, skill quickdraw barrage rapid fire, skill dodge-roll with backshot, ultimate Angel Arm transformation then beam, hit reaction comical stumble, death theatrical collapse with arms spread, respawn thumbs-up pose. Coat must flow dramatically during dodge and spin motions.
+
+VFX integration intent: clean surfaces for bullet trail particles from revolver barrel, cyan glow mask on prosthetic arm, eye mesh separate for emission color change (turquoise to white), chest and coat rim for Serious Mode aura, clear upper body for Angel Arm transformation particles. No accessories blocking shoulder deformation.
+
+Export target: Unity humanoid FBX, bind pose friendly, retarget-ready, game animation compatible.</pre></div></div></div>
+<!-- ═══════════════════════ SHADER HLSL ═══════════════════════ -->
+<div class="section" id="tab-shader"><div class="code-file"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-hlsl">HLSL</span>
+        VashCoatSurface.shader</div><button class="copy-btn" onclick="copyCode('shader1', this)">Copier</button></div><pre id="shader1">// VashCoatSurface.shader
+// URP shader pour le manteau rouge iconique de Vash.
+// Gère : locomotion flap, Mode Sérieux rim pulse, dodge flash, dissolve mort.
+
+Shader "Vash/CoatSurface"
+{
+    Properties
+    {
+        _BaseMap          ("Base Map", 2D)                        = "white" {}
+        _BaseColor        ("Base Color", Color)                   = (0.75, 0.04, 0.04, 1)
+        _SeriousRim       ("Serious Rim Color", Color)            = (1.0, 0.85, 0.2, 1)
+        _MoveBlend        ("Move Blend", Range(0,1))              = 0
+        _SeriousIntensity ("Serious Intensity", Range(0,1))       = 0
+        _DodgeFlash       ("Dodge Flash", Range(0,1))             = 0
+        _HpFade           ("HP Fade", Range(0,1))                 = 0
+        _Dissolve         ("Dissolve", Range(0,1))                = 0
+        _DissolveSoftness ("Dissolve Softness", Range(0.001,0.2)) = 0.04
+        _NoiseScale       ("Noise Scale", Range(1,25))            = 8
+        _FlapSpeed        ("Coat Flap Speed", Range(0, 10))       = 4.0
+        _FlapAmplitude    ("Coat Flap Amplitude", Range(0, 0.02)) = 0.008
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="TransparentCutout" "Queue"="AlphaTest" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _BaseColor;
+                float4 _SeriousRim;
+                float  _MoveBlend;
+                float  _SeriousIntensity;
+                float  _DodgeFlash;
+                float  _HpFade;
+                float  _Dissolve;
+                float  _DissolveSoftness;
+                float  _NoiseScale;
+                float  _FlapSpeed;
+                float  _FlapAmplitude;
+            CBUFFER_END
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS   : NORMAL;
+                float2 uv         : TEXCOORD0;
+            };
+
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float2 uv         : TEXCOORD0;
+                float3 worldPos   : TEXCOORD1;
+                float3 normalWS   : TEXCOORD2;
+            };
+
+            float hash21(float2 p)
+            {
+                p  = frac(p * float2(123.34, 345.45));
+                p += dot(p, p + 34.345);
+                return frac(p.x * p.y);
+            }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                // Claquement de manteau au déplacement — appliqué aux bas du mesh (y bas)
+                float coatEdge   = saturate(-IN.positionOS.y * 0.5 + 0.5);
+                float flapOffset = sin(_Time.y * _FlapSpeed + IN.positionOS.x * 5.0)
+                                 * _FlapAmplitude * _MoveBlend * coatEdge;
+                float3 displaced = IN.positionOS.xyz + IN.normalOS * flapOffset;
+                VertexPositionInputs pos = GetVertexPositionInputs(displaced);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.worldPos   = pos.positionWS;
+                OUT.normalWS   = normalize(nor.normalWS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                half4 albedo  = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                float noise   = hash21(floor(IN.worldPos.xz * _NoiseScale));
+                float dThresh = saturate(_Dissolve * (1.0 + _DissolveSoftness));
+                clip(noise - dThresh);
+
+                float rim          = pow(1.0 - saturate(dot(normalize(IN.normalWS),
+                                     float3(0,1,0))), 3.0);
+                float seriousPulse = (0.5 + 0.5 * sin(_Time.y * 8.0)) * _SeriousIntensity;
+                float dodgePulse   = (0.5 + 0.5 * sin(_Time.y * 25.0)) * _DodgeFlash;
+                float lowHpPulse   = (0.25 + 0.75 * sin(_Time.y * 10.0)) * _HpFade;
+
+                half3 emission = _SeriousRim.rgb * (rim * seriousPulse)
+                               + half3(1, 0.95, 0.8) * dodgePulse * 0.6
+                               + half3(1, 0.1, 0)    * lowHpPulse;
+
+                return half4(albedo.rgb + emission, albedo.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-hlsl">HLSL</span>
+        VashProstheticArm.shader</div><button class="copy-btn" onclick="copyCode('shader2', this)">Copier</button></div><pre id="shader2">// VashProstheticArm.shader
+// Shader bras prothétique gauche : métal mat idle, glow cyan montant en Mode Sérieux,
+// explosion d'énergie maximale lors de la transformation Angel Arm.
+
+Shader "Vash/ProstheticArm"
+{
+    Properties
+    {
+        _BaseMap    ("Metal Map", 2D)              = "white" {}
+        _BaseColor  ("Metal Color", Color)         = (0.12, 0.12, 0.14, 1)
+        _CyanGlow   ("Cyan Glow Color", Color)     = (0.05, 0.9, 0.95, 1)
+        _ArmGlow    ("Arm Glow Intensity", Range(0,1))  = 0.2
+        _PulseSpeed ("Pulse Speed", Range(0, 10))  = 3.0
+        _Dissolve   ("Dissolve / Transform", Range(0,1)) = 0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" "Queue"="Geometry" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _BaseColor;
+                float4 _CyanGlow;
+                float  _ArmGlow;
+                float  _PulseSpeed;
+                float  _Dissolve;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 normalWS : TEXCOORD1; float3 viewDirWS : TEXCOORD2; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                // Légère expansion du mesh lors de la transformation Angel Arm
+                float transformExpand = IN.positionOS.y * 0.05 * _Dissolve;
+                float3 displaced = IN.positionOS.xyz + IN.normalOS * transformExpand;
+                VertexPositionInputs pos = GetVertexPositionInputs(displaced);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.normalWS   = normalize(nor.normalWS);
+                OUT.viewDirWS  = GetWorldSpaceNormalizeViewDir(pos.positionWS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                half4 albedo  = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                float fresnel = pow(1.0 - saturate(dot(normalize(IN.normalWS),
+                                normalize(IN.viewDirWS))), 2.5);
+                float pulse   = (0.5 + 0.5 * sin(_Time.y * _PulseSpeed * 6.2831));
+                // Intensité glow : idle faible → Mode Sérieux fort → Angel Arm maximal
+                float glowIntensity = _ArmGlow * (0.6 + 0.4 * pulse);
+                float transformGlow = _Dissolve * 3.0 * pulse;
+                half3 emission = _CyanGlow.rgb * (fresnel * glowIntensity + transformGlow);
+                return half4(albedo.rgb + emission, 1.0);
+            }
+            ENDHLSL
+        }
+    }
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-hlsl">HLSL</span>
+        VashBulletTrail.shader</div><button class="copy-btn" onclick="copyCode('shader3', this)">Copier</button></div><pre id="shader3">// VashBulletTrail.shader
+// Trainée de balle rapide pour les tirs basic, Quickdraw Barrage et Dodge Volley.
+// Scroll horizontal ultra-rapide simulant la balistique du .45 Long Colt.
+
+Shader "Vash/BulletTrail"
+{
+    Properties
+    {
+        _MainColor   ("Bullet Color", Color)            = (1.0, 0.95, 0.70, 0.95)
+        _CoreColor   ("Core Color", Color)              = (1.0, 1.0, 1.0, 1.0)
+        _ScrollSpeed ("Trail Speed", Range(0, 20))      = 14.0
+        _Dissolve    ("Dissolve", Range(0, 1))          = 0
+        _Intensity   ("Intensity", Range(0, 12))        = 4.5
+        _TrailWidth  ("Trail Width Falloff", Range(1,6))= 3.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha One
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainColor;
+                float4 _CoreColor;
+                float  _ScrollSpeed;
+                float  _Dissolve;
+                float  _Intensity;
+                float  _TrailWidth;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = IN.uv;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float scan  = frac(IN.uv.x - _Time.y * _ScrollSpeed);
+                float core  = smoothstep(0.0, 0.08, scan) * (1.0 - smoothstep(0.08, 0.35, scan));
+                float trail = smoothstep(0.0, 0.35, scan) * (1.0 - smoothstep(0.35, 1.0, scan));
+                float edge  = pow(saturate(1.0 - abs(IN.uv.y * 2.0 - 1.0)), _TrailWidth);
+                float alpha = saturate((1.0 - _Dissolve) * edge * (core + trail * 0.4));
+                half3 color = (_CoreColor.rgb * core + _MainColor.rgb * trail) * _Intensity;
+                return half4(color, alpha);
+            }
+            ENDHLSL
+        }
+    }
+}</pre></div><div class="code-file" style="margin-top:20px"><div class="code-file-header"><div class="file-name"><span class="file-lang lang-hlsl">HLSL</span>
+        AngelArmBeam.shader</div><button class="copy-btn" onclick="copyCode('shader4', this)">Copier</button></div><pre id="shader4">// AngelArmBeam.shader
+// Rayon de l'Angel Arm — destruction massive en ligne.
+// Faisceau cyan-blanc avec couronne d'énergie, pulsation et bords effilochés.
+
+Shader "Vash/AngelArmBeam"
+{
+    Properties
+    {
+        _CoreColor  ("Core Color", Color)              = (0.9, 1.0, 1.0, 1.0)
+        _BeamColor  ("Beam Color", Color)              = (0.05, 0.85, 0.95, 0.85)
+        _EdgeColor  ("Edge Glow Color", Color)         = (0.2, 0.6, 1.0, 0.60)
+        _BeamLength ("Beam Length", Float)             = 22.0
+        _BeamWidth  ("Beam Width", Range(0.1, 3))      = 1.0
+        _PulseSpeed ("Pulse Speed", Range(0, 8))       = 5.0
+        _NoiseFreq  ("Edge Noise Freq", Range(1, 20))  = 8.0
+        _Intensity  ("Intensity", Range(0, 15))        = 6.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha One
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _CoreColor;
+                float4 _BeamColor;
+                float4 _EdgeColor;
+                float  _BeamLength;
+                float  _BeamWidth;
+                float  _PulseSpeed;
+                float  _NoiseFreq;
+                float  _Intensity;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            float hash11(float p) { return frac(sin(p * 127.1) * 43758.5); }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = IN.uv;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Bords effilochés sur la longueur
+                float noiseEdge = hash11(floor(IN.uv.x * _NoiseFreq + _Time.y * 2.0)) * 0.15;
+                float beamEdge  = pow(saturate(1.0 - abs(IN.uv.y * 2.0 - 1.0) + noiseEdge), _BeamWidth);
+
+                // Noyau ultra-lumineux au centre
+                float core      = pow(saturate(1.0 - abs(IN.uv.y * 2.0 - 1.0)), _BeamWidth * 4.0);
+
+                // Pulsation d'énergie le long de l'axe
+                float pulse     = 0.75 + 0.25 * sin(_Time.y * _PulseSpeed * 6.2831
+                                + IN.uv.x * 8.0);
+
+                half3 color = _CoreColor.rgb  * core * pulse
+                            + _BeamColor.rgb  * beamEdge * pulse
+                            + _EdgeColor.rgb  * (beamEdge * 0.4);
+
+                float alpha = saturate(beamEdge * _BeamColor.a + core * _CoreColor.a);
+                return half4(color * _Intensity, alpha);
+            }
+            ENDHLSL
+        }
+    }
+}
+</pre></div></div>
+<!-- ═══════════════════════ OUTILS IA 3D ═══════════════════════ -->
+<div class="section" id="tab-tools">
+<div class="tools-grid">
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#dbeafe">🧊</div>
+<div>
+<div class="tool-name">Meshy AI</div>
+<div class="tool-cat">Text/Image → Mesh 3D</div>
+</div>
+</div>
+<div class="tool-desc">Idéal pour Vash : génération du mesh 3D avec manteau long séparé du body, bras prothétique comme mesh distinct, revolver en accessoire rig-able. Exporter les zones de tissu du manteau avec suffisamment de densité pour les animations de flap. Tester le prompt T-pose fourni dans l'onglet C#.</div>
+<div class="tool-tags">
+<span class="tool-tag green">FBX Unity-ready</span>
+<span class="tool-tag blue">Auto-rig humanoid</span>
+<span class="tool-tag purple">500+ motions</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#d1fae5">🎯</div>
+<div>
+<div class="tool-name">Kaedim</div>
+<div class="tool-cat">Concept Art → 3D Game Asset</div>
+</div>
+</div>
+<div class="tool-desc">Spécialisé dans la conversion d'illustrations 2D en assets 3D. Recommandé après génération du concept art Vash via Midjourney (prompt fourni). Gère bien les personnages avec manteaux longs et accessoires multiples. Topologie automatiquement optimisée pour Unity real-time.</div>
+<div class="tool-tags">
+<span class="tool-tag green">Game topology</span>
+<span class="tool-tag blue">2D→3D</span>
+<span class="tool-tag orange">Pro</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#ede9fe">🌀</div>
+<div>
+<div class="tool-name">Luma AI — Genie</div>
+<div class="tool-cat">Text → 3D rapide</div>
+</div>
+</div>
+<div class="tool-desc">Génération 3D rapide depuis un prompt texte. Pertinent pour les props Trigun (revolvers, holsters, décor western-SF) et les éléments MOBA de type désert. Pour Vash personnage entier, préférer Meshy pour le contrôle du manteau et du bras prothétique. API disponible.</div>
+<div class="tool-tags">
+<span class="tool-tag green">Gratuit</span>
+<span class="tool-tag blue">API</span>
+<span class="tool-tag purple">Props &amp; Env</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#ffedd5">🎨</div>
+<div>
+<div class="tool-name">Midjourney + Blender</div>
+<div class="tool-cat">Workflow hybride studio</div>
+</div>
+</div>
+<div class="tool-desc">Workflow recommandé pour le résultat le plus fidèle à l'esthétique Vash : Midjourney génère le concept art avec le prompt fourni, puis un artiste reconstruit dans Blender. Contrôle parfait du manteau, du bras prothétique et de la séparation holster/revolver.</div>
+<div class="tool-tags">
+<span class="tool-tag purple">Best quality</span>
+<span class="tool-tag orange">Artiste requis</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#d1fae5">⚡</div>
+<div>
+<div class="tool-name">Spline AI</div>
+<div class="tool-cat">3D interactif &amp; Web</div>
+</div>
+</div>
+<div class="tool-desc">Génère des objets 3D depuis un prompt. Excellent pour les props western-SF : colt, holster, cactus géants, dunes Gunsmoke, infrastructure MOBA. Moins adapté pour Vash personnage entier mais parfait pour enrichir l'environnement visuel du héros.</div>
+<div class="tool-tags">
+<span class="tool-tag green">Gratuit</span>
+<span class="tool-tag blue">Web export</span>
+</div>
+</div>
+<div class="tool-card">
+<div class="tool-header">
+<div class="tool-icon" style="background:#fef3c7">🦴</div>
+<div>
+<div class="tool-name">Mixamo (Adobe)</div>
+<div class="tool-cat">Rigging &amp; Animation auto</div>
+</div>
+</div>
+<div class="tool-desc">Une fois le mesh Vash généré, Mixamo auto-rig en quelques secondes. Les animations gunslinger, dodge-roll, quick draw et combat stance pistol sont disponibles. Le cycle idle relax et la mort comique peuvent être extraits et retargetés. Export FBX Unity. Gratuit avec Adobe ID.</div>
+<div class="tool-tags">
+<span class="tool-tag green">Gratuit</span>
+<span class="tool-tag blue">Auto-rig</span>
+<span class="tool-tag purple">500+ animations</span>
+</div>
+</div>
+</div>
+<div class="workflow-box">
+<h3>Pipeline recommandé pour Vash dans Unity</h3>
+<div class="workflow-steps">
+<div class="wstep"><div class="wnum">1</div><span><span style="color:#fcd34d">Claude</span> <span class="warrow">→</span> Prompt design + Script C# + Shader HLSL (ce document)</span></div>
+<div class="wstep"><div class="wnum">2</div><span><span style="color:#a6e3a1">Midjourney</span> <span class="warrow">→</span> Concept art 2D (front + side view) — manteau rouge troué, bras prothétique, cheveux blonds</span></div>
+<div class="wstep"><div class="wnum">3</div><span><span style="color:#89b4fa">Meshy AI</span> <span class="warrow">→</span> Génération mesh 3D + textures PBR + manteau séparé + bras prothétique mesh distinct</span></div>
+<div class="wstep"><div class="wnum">4</div><span><span style="color:#fab387">Meshy Rigging / Mixamo</span> <span class="warrow">→</span> Test motions : idle goofy, Quickdraw Barrage, Dodge Volley, Angel Arm transform + beam</span></div>
+<div class="wstep"><div class="wnum">5</div><span><span style="color:#f5c2e7">Blender</span> <span class="warrow">→</span> Nettoyage manteau flap si clipping — rig secondaire du bras prothétique pour shader override</span></div>
+<div class="wstep"><div class="wnum">6</div><span><span style="color:#cdd6f4">Unity</span> <span class="warrow">→</span> Import FBX Humanoid + Animator Controller (bool SeriousMode) + Script C# + Shaders</span></div>
+</div>
+</div>
+</div>
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function copyCode(id, btn) {
+  const pre = document.getElementById(id);
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copié !';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyPrompt(btn) {
+  const box = btn.previousElementSibling;
+  navigator.clipboard.writeText(box.innerText).then(() => {
+    btn.textContent = '✓ Copié !';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copier le prompt'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Artemis — Unity Package</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f0f3f7;
+    --surface: #ffffff;
+    --surface2: #e8edf5;
+    --border: #ccd5e8;
+    --border2: #8aa0c8;
+    --text: #080e1a;
+    --muted: #2a3858;
+    --subtle: #6878a8;
+    --accent: #1a4080;
+    --accent2: #2060c0;
+    --silver: #c8d8f0;
+    --code-bg: #030810;
+    --code-text: #d0e8ff;
+    --tag-bg: #e8f0ff;
+    --tag-text: #0a2860;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .hero-header {
+    background: linear-gradient(135deg, #020810 0%, #060f28 30%, #0a1838 55%, #081428 80%, #040c18 100%);
+    padding: 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Starfield dot pattern */
+  .hero-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Ccircle cx='10' cy='10' r='1'/%3E%3Ccircle cx='40' cy='25' r='0.8'/%3E%3Ccircle cx='70' cy='8'  r='1.2'/%3E%3Ccircle cx='20' cy='55' r='0.7'/%3E%3Ccircle cx='60' cy='50' r='1'/%3E%3Ccircle cx='35' cy='70' r='0.9'/%3E%3Ccircle cx='75' cy='65' r='0.6'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Silver moonrise glow across bottom */
+  .hero-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, transparent, #6090d8, #c8e0ff, #e8f4ff, #c8e0ff, #6090d8, transparent);
+    opacity: 0.65;
+  }
+
+  .hero-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .hero-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-myth  { background: rgba(180,200,255,0.18); color: #a0c8ff; border: 1px solid rgba(180,200,255,0.35); }
+  .badge-role  { background: rgba(60,180,120,0.20);  color: #80f0b8; border: 1px solid rgba(60,180,120,0.38); }
+  .badge-unity { background: rgba(99,102,241,0.25);  color: #a5b4fc; border: 1px solid rgba(99,102,241,0.40); }
+
+  .hero-name {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    position: relative;
+    line-height: 1.1;
+  }
+
+  .hero-name span { color: #c8e8ff; }
+
+  .hero-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 8px;
+    position: relative;
+  }
+
+  .deco {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.09;
+    font-size: 120px;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* ── TABS ── */
+  .tabs-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .tab-btn {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 40px 48px; max-width: 1100px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* ── DESIGN BRIEF ── */
+  .brief-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .brief-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .brief-card.full { grid-column: 1 / -1; }
+
+  .brief-card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brief-card p { color: var(--muted); line-height: 1.7; font-size: 13px; }
+
+  .color-swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .swatch { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .swatch-dot { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); flex-shrink: 0; }
+
+  .prompt-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 8px;
+  }
+
+  .prompt-box p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #d0e8ff;
+    line-height: 1.8;
+  }
+
+  .prompt-box .kw  { color: #a0c8ff; }
+  .prompt-box .str { color: #80f0b8; }
+  .prompt-box .num { color: #f0d880; }
+
+  .copy-btn {
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: rgba(26,64,128,0.14);
+    border: 1px solid rgba(26,64,128,0.32);
+    color: #a0c8ff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all .15s;
+  }
+
+  .copy-btn:hover { background: rgba(26,64,128,0.26); }
+  .copy-btn.copied { color: #86efac; border-color: rgba(134,239,172,0.4); }
+
+  .detail-list { list-style: none; }
+  .detail-list li {
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .detail-list li:last-child { border-bottom: none; }
+  .detail-list li::before { content: '→'; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+  /* ── SKILLS ── */
+  .skills-grid { display: flex; flex-direction: column; gap: 16px; }
+
+  .skill-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .skill-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-key {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .sk1 { background: #e8f0ff; color: #0a2860; border: 1px solid #a0c0e8; }
+  .sk2 { background: #e8f0ff; color: #0a2860; border: 1px solid #a0c0e8; }
+  .skp { background: #e8fff4; color: #0a3820; border: 1px solid #80d8a8; }
+  .sku { background: #030810; color: #c8e8ff; border: 1px solid #1a4080; }
+
+  .skill-meta { flex: 1; }
+  .skill-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .skill-type { font-size: 11px; color: var(--subtle); margin-top: 2px; }
+
+  .ult-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #030810;
+    color: #c8e8ff;
+    letter-spacing: 0.5px;
+  }
+
+  .skill-body { padding: 16px 20px; }
+  .skill-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
+
+  .skill-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .skill-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+  }
+
+  .skill-stat .label { font-size: 10px; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.5px; }
+  .skill-stat .value { font-size: 15px; font-weight: 700; color: var(--accent2); margin-top: 2px; }
+  .skill-stat.moon { background: #e8f0ff; border-color: #a0c0e8; }
+  .skill-stat.moon .value { color: #1a4080; }
+  .skill-stat.hunt { background: #e8fff4; border-color: #80d8a8; }
+  .skill-stat.hunt .value { color: #0a5030; }
+
+  /* ── CODE ── */
+  .code-section { margin-top: 0; }
+
+  .code-file {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .code-file-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .file-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .file-lang {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .lang-cs   { background: #dbeafe; color: #1d4ed8; }
+  .lang-hlsl { background: #e8f0ff; color: #0a2860; }
+
+  pre {
+    margin: 0;
+    padding: 20px 24px;
+    overflow-x: auto;
+    background: var(--code-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--code-text);
+  }
+
+  .kw   { color: #a0c8ff; }
+  .cm   { color: #283850; font-style: italic; }
+  .str  { color: #80f0b8; }
+  .num  { color: #f0d880; }
+  .cls  { color: #80d8ff; }
+  .fn   { color: #b0a0ff; }
+  .prop { color: #f0a060; }
+  .attr { color: #f87070; }
+
+  /* ── TOOLS ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color .15s, transform .1s;
+  }
+
+  .tool-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .tool-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+
+  .tool-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+
+  .tool-name { font-size: 15px; font-weight: 600; }
+  .tool-cat  { font-size: 11px; color: var(--subtle); margin-top: 1px; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+  .tool-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tool-tag {
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+    background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+  }
+  .tool-tag.green  { background: #dcfce7; color: #14532d; border-color: #bbf7d0; }
+  .tool-tag.blue   { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .tool-tag.orange { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+  .tool-tag.purple { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+  .tool-tag.silver { background: #e8f0ff; color: #0a2860; border-color: #a0c0e8; }
+  .tool-tag.hunt   { background: #e8fff4; color: #0a3820; border-color: #80d8a8; }
+
+  /* ── WORKFLOW ── */
+  .workflow-box {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+
+  .workflow-box h3 {
+    font-size: 12px; font-weight: 600; color: #a0c8ff;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+  }
+
+  .workflow-steps { display: flex; flex-direction: column; gap: 8px; }
+
+  .wstep {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 12px; color: #d0e8ff;
+    font-family: 'JetBrains Mono', monospace; line-height: 1.6;
+  }
+
+  .wnum {
+    width: 22px; height: 22px;
+    background: rgba(26,64,128,0.35); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #a0c8ff;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  .warrow { color: #283850; margin: 0 4px; }
+
+  /* ── PROGRESSION ── */
+  .progression-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .progress-card h3 {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-note { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  .stat-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+  .stat-table th, .stat-table td {
+    padding: 9px 10px; border-bottom: 1px solid var(--border);
+    text-align: left; vertical-align: top;
+  }
+
+  .stat-table th {
+    color: var(--subtle); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .stat-table td strong { color: var(--text); }
+  .stat-table td.moon  { color: #1a4080; font-weight: 600; }
+
+  .level-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .level-chip {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 999px; background: var(--surface2);
+    color: var(--muted); border: 1px solid var(--border);
+  }
+
+  .level-chip.active { background: var(--tag-bg); color: var(--tag-text); border-color: #a0c0e8; }
+  .level-chip.moon   { background: #e8f0ff; color: #0a2860; border-color: #a0c0e8; }
+  .level-chip.hunt   { background: #e8fff4; color: #0a3820; border-color: #80d8a8; }
+
+  .rank-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+
+  .rank-table th, .rank-table td {
+    padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: center;
+  }
+
+  .rank-table th:first-child, .rank-table td:first-child {
+    text-align: left; color: var(--muted); font-weight: 600;
+  }
+
+  .rank-table th {
+    color: var(--subtle); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    background: var(--surface2);
+  }
+
+  .rank-table td.silver { color: var(--accent2); font-weight: 700; }
+
+  .code-mini-note { margin-top: 14px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  @media (max-width: 700px) {
+    .hero-header { padding: 24px 20px; }
+    .tabs-bar { padding: 0 12px; }
+    .section { padding: 24px 16px; }
+    .brief-grid { grid-template-columns: 1fr; }
+    .deco { display: none; }
+    .progression-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="hero-header">
+  <div class="hero-badge-row">
+    <span class="hero-badge badge-myth">Greek Mythology · Olympian Goddess</span>
+    <span class="hero-badge badge-role">Marksman · Support · Ranger</span>
+    <span class="hero-badge badge-unity">Unity Package</span>
+  </div>
+  <div class="hero-name">Artemis <span>— Goddess of the Hunt</span></div>
+  <div class="hero-subtitle">Lady of the Moon · Mistress of Wild Things · Twin of Apollo · Eternal Virgin Huntress</div>
+  <div class="deco">🌙</div>
+</div>
+
+<!-- ══════════ TABS ══════════ -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('design', this)">🎨 Design Brief</button>
+  <button class="tab-btn" onclick="showTab('skills', this)">🏹 Abilities</button>
+  <button class="tab-btn" onclick="showTab('code', this)">{ } C# Scripts</button>
+  <button class="tab-btn" onclick="showTab('shader', this)">✦ HLSL Shaders</button>
+  <button class="tab-btn" onclick="showTab('tools', this)">🛠 3D AI Tools</button>
+</div>
+
+<!-- ══════════ DESIGN BRIEF ══════════ -->
+<div class="section active" id="tab-design">
+  <div class="brief-grid">
+
+    <div class="brief-card">
+      <h3>Silhouette &amp; Morphology</h3>
+      <p>Tall, lean, athletic goddess — the ideal huntress form: ~180cm, long limbs built for speed and precision, not brute strength. Poised upright stance with the controlled stillness of a predator before the strike. Movement is swift and near-silent — she barely disturbs the ground when she runs. Silver-white hair flowing loose or in a high ponytail. Pale silver-blue irises that shift to radiant full-moon white during divine ability states. The bearing of an immortal who has never once missed a shot.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Divine Armor — Huntress of Olympus</h3>
+      <p>Light divine armor befitting a mobile ranger: silver-white short chiton (knee-length tunic) with a gold clasped leather pauldron over the right shoulder. Silver bracers engraved with crescent moon and stag motifs. Quiver of silver-tipped arrows across the back, trailing faint moonlight as she moves. Knee-high leather hunting boots — laced, worn, practical. A crescent moon diadem in the hair, glowing subtly. The overall aesthetic is clean functional divinity: no excessive ornament, every piece earned in the hunt.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Sacred Bow — Silver Bow of Artemis</h3>
+      <p>The Silver Bow — a gift from her father Zeus. A long recurve hunting bow of pure divine silver, engraved with running stags and crescent moons along the limbs. The string glows faintly with compressed moonlight when at full draw. Arrows are divine silver-tipped bodkins that trail cold white-blue light in flight, never missing a marked target. The bow is the center of her identity: she fights at range with divine precision, controlling the field through placement, angles, and the threat of the next arrow.</p>
+    </div>
+
+    <div class="brief-card">
+      <h3>Sacred Companions — Deer &amp; Hunting Hounds</h3>
+      <p>Artemis is never truly alone. Two sacred silver stags accompany her as environmental companions — they circle the arena perimeter during normal play, but during the Ultimate they charge through the battlefield as divine weapons. Golden hunting hounds materialize during ability activations, biting and tracking marked targets. The stag silhouettes are visible at all times as ambient presence — glowing faintly in the tree line of the map, disappearing and reappearing with divine grace.</p>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Color Palette — Swatches</h3>
+      <div class="color-swatch-row">
+        <div class="swatch"><div class="swatch-dot" style="background:#c8d8f0;border:1px solid #aaa"></div> Silver-blue — armor &amp; bow</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#f0f4ff;border:1px solid #ccc"></div> Moonwhite — divine glow</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#0a1838"></div> Deep midnight — shadows</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#c8a838"></div> Sacred gold — diadem &amp; clasps</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#184028"></div> Forest shadow green — wild domain</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#6090d8"></div> Lunar cyan-blue — arrow trails</div>
+        <div class="swatch"><div class="swatch-dot" style="background:#e8f8ff;border:1px solid #ccc"></div> Ice white — full-moon ultimate burst</div>
+      </div>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Visual Effects — Unity Particle System</h3>
+      <ul class="detail-list">
+        <li>Idle ambient: faint crescent moon glyphs orbit slowly at ankle height, silver motes drift upward from the ground where she stands, distant stag silhouettes visible as glowing outlines at arena edge</li>
+        <li>Basic shot: crescent moon bow string draws back with visible moonlight compression, silver arrow launches leaving a cold blue-white tracer line, brief silver spark burst at impact point</li>
+        <li>Skill 1 — Moonlit Mark: silver crescent symbol appears over target's head (tracking mark icon), target silhouette brightens with a cold silver outline, subsequent arrows track toward them with slight homing arc</li>
+        <li>Skill 2 — Sacred Hunt: golden hunting hound materializes and charges the target, biting VFX on contact, ethereal paw-print trail behind the hound, hound dissolves into golden light on impact</li>
+        <li>Skill 2 alt — Bramble Snare: roots of light and thorns erupt from ground, silver-green vines wrap enemy, moonlight pulses through the thorn cage</li>
+        <li>Ultimate channel: full moon rises behind Artemis (skybox element or large radial light), her bow begins to radiate intense white-silver energy, arrows begin to multiply in the quiver via divine duplication VFX, stags charge from the tree line</li>
+        <li>Ultimate — Moonfall: a volley of silver arrows rains down from above across the entire zone, each impact creates a small white burst, collective impacts create a rolling white-silver shimmer across the ground surface</li>
+        <li>Death: Artemis kneels gracefully, bow dissolves upward into moonlight trails, stag companions approach and circle before fading — dignified, divine, never undignified</li>
+      </ul>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Midjourney Prompt — 2D Concept Art</h3>
+      <div class="prompt-box">
+        <p><span class="kw">artemis goddess of the hunt original character</span>, <span class="str">tall athletic divine female warrior, silver-white flowing hair, pale silver-blue glowing eyes, silver-white short chiton tunic, silver bracers engraved with crescent moons and stags, gold-clasped leather pauldron on right shoulder, full quiver of silver arrows across back, knee-high leather hunting boots, crescent moon diadem glowing in hair, long silver recurve bow drawn at full tension with moonlight compressed on the string</span>, <span class="kw">precision archery combat stance in mid-draw</span>, <span class="str">ancient Greek sacred forest at midnight, full moon large behind her, silver arrow trailing cold blue-white light in flight, two ethereal glowing silver stag silhouettes in background forest, divine silver-white moonlight aura, stars visible in sky, sacred temple ruins in distance</span>, <span class="num">full body character sheet front and side view, white background option, divine fantasy epic concept art style, clean lineart, MOBA hero design, high detail, 4K, --ar 2:1 --style raw --q 2</span></p>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+    </div>
+
+    <div class="brief-card full">
+      <h3>Meshy / Kaedim Prompt — 3D Generation</h3>
+      <div class="prompt-box">
+        <p><span class="kw">divine fantasy MOBA hero, humanoid biped female archer ranger goddess</span>, <span class="str">Greek mythology-inspired Artemis goddess of the hunt, tall lean athletic female build, long silver-white hair loose or in high ponytail, silver-blue glowing eyes, silver-white short chiton tunic ending above knee with leather belt, silver bracers on both forearms with moon-and-stag engraving, single gold-clasped leather pauldron on right shoulder, full back quiver of silver arrows with glowing tips, knee-high laced leather hunting boots, crescent moon diadem on forehead, long silver recurve bow held in left hand — bow limbs engraved with running stags and crescent moons, silver bowstring glowing faintly</span>, <span class="kw">T-pose, front-facing neutral pose, full body, centered, clearly separated arms and legs, bow as separate prop mesh with glow zone on string, quiver as back attachment prop mesh with arrow shafts visible, chiton as separate cloth geometry, bracers as separate mesh elements, diadem as face/head geo, clean joints at shoulders elbows wrists hips knees ankles</span>, <span class="str">game-ready for Unity humanoid rig, PBR textures, separate material zones for silver armor, white chiton cloth, gold clasps, skin, silver-white hair, bow limbs, bow string emission, arrow tip emission zones, leather quiver/boots/belt, medium-high poly, FBX export</span>, <span class="num">must support animations: idle combat bow-raised, idle ambient looking skyward, walk swift, run sprint lean, basic arrow draw and release, skill 1 mark target aim, skill 2 hound summon staff gesture, bramble snare ground slam, ultimate divine draw full-moon channel, arrow rain fire release, hit graceful stumble, death kneeling collapse</span></p>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ ABILITIES ══════════ -->
+<div class="section" id="tab-skills">
+  <div class="progression-grid">
+    <div class="progress-card">
+      <h3>Hero Progression — Level 1 → 15</h3>
+      <table class="stat-table">
+        <thead>
+          <tr><th>Attribute</th><th>Level 1</th><th>Level 15</th><th>Growth</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>HP</strong></td><td>2400</td><td>5000</td><td>+185.7 / lvl</td></tr>
+          <tr><td><strong>HP Regen</strong></td><td>7.0</td><td>16.0</td><td>+0.64 / lvl</td></tr>
+          <tr><td><strong>Moonlight (resource)</strong></td><td>0</td><td>0</td><td>Charged in combat</td></tr>
+          <tr><td><strong>Moonlight Regen</strong></td><td>8 / s</td><td>18 / s</td><td>+0.71 / lvl</td></tr>
+          <tr><td><strong>Physical Attack</strong></td><td>155</td><td>315</td><td>+11.4 / lvl</td></tr>
+          <tr><td><strong>Magic Power</strong></td><td>80</td><td>180</td><td>+7.1 / lvl</td></tr>
+          <tr><td><strong>Physical Defense</strong></td><td>18</td><td>52</td><td>+2.4 / lvl</td></tr>
+          <tr><td><strong>Magic Defense</strong></td><td>22</td><td>62</td><td>+2.86 / lvl</td></tr>
+          <tr><td><strong>Attack Speed</strong></td><td>1.05</td><td>1.50</td><td>+0.032 / lvl</td></tr>
+          <tr><td><strong>Crit Rate</strong></td><td>8%</td><td>22%</td><td>+1.0% / lvl</td></tr>
+          <tr><td><strong>Move Speed</strong></td><td>265</td><td>265</td><td>Fixed</td></tr>
+          <tr><td><strong>Basic Attack Range</strong></td><td>10.0m</td><td>10.0m</td><td class="moon">Longest in roster</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="progress-card">
+      <h3>System Proposal</h3>
+      <div class="progress-note">
+        Artemis is a <strong>precision Marksman / Ranger</strong> with the longest basic attack range in the roster — befitting the goddess whose arrows never miss. She uses a <strong>Moonlight resource</strong> that charges continuously and surges on kills and marked-target hits, rewarding deliberate aggressive play.<br/><br/>
+        Her kit rewards careful <strong>target selection and setup</strong>: Mark a target with Skill 1 to unlock homing arrows and guaranteed crits against them, lock them down with Skill 2's snare, then pour damage in from maximum range. The Ultimate shifts her into a full-area god-mode that makes her a teamfight deterrent — a rain of silver arrows that no formation can stand in.
+      </div>
+      <div class="level-row">
+        <span class="level-chip active">Hero: 15 Levels</span>
+        <span class="level-chip">Skill 1: 4 Ranks</span>
+        <span class="level-chip">Skill 2: 4 Ranks</span>
+        <span class="level-chip">Ultimate: 3 Ranks</span>
+        <span class="level-chip moon">Moonlight Resource</span>
+        <span class="level-chip hunt">Mark System</span>
+      </div>
+      <div class="code-mini-note">
+        <strong>Moonlight</strong> is a float capped at 100. It regenerates passively but gains +20 per basic attack hit and +35 when an arrow hits a <strong>Marked</strong> target. The Ultimate costs 100 Moonlight (full bar). A <strong>Marked</strong> target is tracked by a <code>Dictionary&lt;Health, float&gt;</code> expiry table in <code>ArtemisController</code> — exactly as Vash's Tag system, but with arrow homing and guaranteed crit instead of crit doubling.
+      </div>
+    </div>
+  </div>
+
+  <div class="skills-grid">
+
+    <!-- BASIC ATTACK -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk1">B</div>
+        <div class="skill-meta">
+          <div class="skill-name">Basic Attack — Silver Arrow</div>
+          <div class="skill-type">Physical · Long-range projectile · 10m range · Moonlight on hit</div>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">Artemis draws and releases a single silver arrow — the longest range basic attack in the roster at 10m. The arrow travels as a fast projectile (30m/s) with a thin cold-blue tracer. Hitting any target generates <strong>+20 Moonlight</strong>. Hitting a <strong>Marked</strong> target generates <strong>+35 Moonlight</strong> instead and deals a guaranteed crit. The rhythm of the kit: mark, collect Moonlight, fire Ultimate. Each shot is deliberate — Artemis does not spam. The Silver Bow's draw animation is visually distinct and weighty, communicating the goddess's intent.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Formula</div><div class="value">ATQ × 1.05</div></div>
+          <div class="skill-stat"><div class="label">Range</div><div class="value">10.0m</div></div>
+          <div class="skill-stat moon"><div class="label">On hit</div><div class="value">+20 ML</div></div>
+          <div class="skill-stat moon"><div class="label">Marked hit</div><div class="value">+35 ML</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Hero Scale</th><th>Lvl 1</th><th>Lvl 8</th><th>Lvl 15</th></tr></thead>
+          <tbody>
+            <tr><td>Physical Attack</td><td>155</td><td>235</td><td>315</td></tr>
+            <tr><td>Shot (no crit)</td><td>163</td><td>247</td><td>331</td></tr>
+            <tr><td>Crit Marked hit</td><td>327</td><td>495</td><td>762</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SKILL 1 -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk1">1</div>
+        <div class="skill-meta">
+          <div class="skill-name">Moonlit Mark — Hunter's Brand</div>
+          <div class="skill-type">Physical · Single target · Debuff: Marked · Arrow homing · Guaranteed crit</div>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">Artemis fires a special silver arrow inscribed with a crescent moon glyph. On hit, the target is <strong>Marked by the Hunt</strong> for the duration — a silver crescent sigil appears above their head. While Marked, all of Artemis's arrows have a slight <strong>homing arc</strong> toward them (+15% accuracy correction), all hits deal <strong>guaranteed crits</strong>, and Moonlight gain per hit increases to +35. Only one target can be Marked at a time — casting on a new target transfers the Mark. The arrow itself deals damage and applies a 30% <strong>Slow</strong> for 1s on impact. The Mark is Artemis's primary power amplifier — the entire team knows who she is hunting.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Range</div><div class="value">10.0m</div></div>
+          <div class="skill-stat hunt"><div class="label">Mark duration</div><div class="value">5s</div></div>
+          <div class="skill-stat moon"><div class="label">Crit vs Marked</div><div class="value">100%</div></div>
+          <div class="skill-stat"><div class="label">Impact slow</div><div class="value">30% / 1s</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead>
+          <tbody>
+            <tr><td>Impact damage</td><td>160</td><td>200</td><td>240</td><td>280</td></tr>
+            <tr><td>Mark duration</td><td>5s</td><td>5.5s</td><td>6s</td><td>7s</td></tr>
+            <tr><td>Slow duration</td><td>1.0s</td><td>1.2s</td><td>1.4s</td><td>1.6s</td></tr>
+            <tr><td>Moonlight cost</td><td>20</td><td>20</td><td>20</td><td>20</td></tr>
+            <tr><td>Cooldown</td><td>10s</td><td>9s</td><td>8s</td><td>7s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SKILL 2 -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sk2">2</div>
+        <div class="skill-meta">
+          <div class="skill-name">Sacred Hunt — Hound &amp; Bramble</div>
+          <div class="skill-type">Physical + Magic · Dual-mode · Chase or Root</div>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">A dual-purpose ability with two cast modes toggled by the player at rank-up: <strong>Mode A — Hunting Hound</strong>: Artemis releases a divine golden hound that charges the target, deals physical damage on bite, and applies a 2s <strong>Slow (40%)</strong>. The hound chases the target across obstacles and cannot be blocked. <strong>Mode B — Bramble Snare</strong>: Artemis fires an arrow that erupts into a field of divine silver-green thorns on impact, <strong>Rooting</strong> all enemies in a 3.5m radius for up to 2.4s. Mode A is a chase tool; Mode B is the Bind-into-Moonfall setup combo. Both modes cost the same Moonlight and cooldown. Players choose their mode when leveling the skill — it can be changed between respawns.</div>
+        <div class="skill-stats">
+          <div class="skill-stat"><div class="label">Hound range</div><div class="value">Unlimited</div></div>
+          <div class="skill-stat"><div class="label">Bramble radius</div><div class="value">3.5m</div></div>
+          <div class="skill-stat moon"><div class="label">Moonlight cost</div><div class="value">30</div></div>
+          <div class="skill-stat"><div class="label">Mode</div><div class="value">Hound / Snare</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead>
+          <tbody>
+            <tr><td>Hound bite damage</td><td>200</td><td>255</td><td>310</td><td>365</td></tr>
+            <tr><td>Hound slow</td><td>40% / 2s</td><td>40% / 2.2s</td><td>40% / 2.4s</td><td>40% / 2.6s</td></tr>
+            <tr><td>Bramble root duration</td><td>1.6s</td><td>1.9s</td><td>2.2s</td><td>2.4s</td></tr>
+            <tr><td>Bramble damage</td><td>120</td><td>155</td><td>190</td><td>225</td></tr>
+            <tr><td>Moonlight cost</td><td>30</td><td>30</td><td>30</td><td>30</td></tr>
+            <tr><td>Cooldown</td><td>13s</td><td>12s</td><td>11s</td><td>10s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PASSIVE -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key skp">P</div>
+        <div class="skill-meta">
+          <div class="skill-name">Passive — Mistress of Wild Things</div>
+          <div class="skill-type">Passive · Divine accuracy · Kill Moonlight surge · Forest domain bonus</div>
+        </div>
+      </div>
+      <div class="skill-body">
+        <div class="skill-desc">The goddess's divine domain manifests across three effects: <strong>(1) Perfect Aim</strong> — Artemis's arrows never miss targets that are standing still (zero-velocity enemies have 100% hit chance, overriding any evasion stat). <strong>(2) Hunt's Reward</strong> — killing a <strong>Marked</strong> target instantly grants <strong>+50 Moonlight</strong>, often loading the Ultimate immediately. <strong>(3) Moonlight Surge</strong> — when Artemis's Moonlight bar is above 80%, her attack speed increases by <strong>+25%</strong> and her movement speed increases by <strong>+15</strong>, representing divine predatory readiness as the hunt reaches its peak. The passive transforms Moonlight management from a simple timer into a constant tension — always racing toward the threshold.</div>
+        <div class="skill-stats">
+          <div class="skill-stat moon"><div class="label">Still-target acc.</div><div class="value">100%</div></div>
+          <div class="skill-stat hunt"><div class="label">Kill ML bonus</div><div class="value">+50 ML</div></div>
+          <div class="skill-stat moon"><div class="label">Surge threshold</div><div class="value">80% ML</div></div>
+          <div class="skill-stat"><div class="label">Surge ATK spd</div><div class="value">+25%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ULTIMATE -->
+    <div class="skill-card">
+      <div class="skill-header">
+        <div class="skill-key sku">U</div>
+        <div class="skill-meta">
+          <div class="skill-name">Moonfall — Rain of the Silver Bow</div>
+          <div class="skill-type">Ultimate · Massive zone arrow rain · Full Moonlight cost · Divine stag charge</div>
+        </div>
+      </div>
+      <span class="ult-badge">ULTIMATE</span>
+      <div class="skill-body">
+        <div class="skill-desc">Artemis raises the Silver Bow to the sky as the full moon reaches its zenith. A 1.5s channel during which she becomes untargetable (divine invulnerability — she steps into moonlight). The selected zone is targeted anywhere within 20m. Then: <strong>40 silver arrows rain from above</strong> in a staggered volley across the entire zone, each arrow dealing individual physical damage with guaranteed crits. Simultaneously, her two <strong>sacred stags charge</strong> through the zone from opposing sides, each dealing a line of physical damage and knocking enemies aside. The combined effect is a brutal area denial that shreds anything caught in the zone. All arrows are homed toward any <strong>Marked</strong> target in the area, concentrating fire. Costs 100 Moonlight (full bar).</div>
+        <div class="skill-stats">
+          <div class="skill-stat moon"><div class="label">Zone radius</div><div class="value">14m</div></div>
+          <div class="skill-stat moon"><div class="label">Arrow count</div><div class="value">40 arrows</div></div>
+          <div class="skill-stat hunt"><div class="label">Stag charges</div><div class="value">×2 lines</div></div>
+          <div class="skill-stat"><div class="label">ML cost</div><div class="value">100 (full)</div></div>
+        </div>
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>I</th><th>II</th><th>III</th></tr></thead>
+          <tbody>
+            <tr><td>Damage / arrow</td><td class="silver">65</td><td class="silver">88</td><td class="silver">115</td></tr>
+            <tr><td>Total (40 arrows, full hit)</td><td class="silver">2600</td><td class="silver">3520</td><td class="silver">4600</td></tr>
+            <tr><td>Stag charge dmg each</td><td>320</td><td>420</td><td>540</td></tr>
+            <tr><td>Zone radius</td><td>14m</td><td>15m</td><td>16m</td></tr>
+            <tr><td>Channel (untargetable)</td><td>1.5s</td><td>1.5s</td><td>1.2s</td></tr>
+            <tr><td>Volley duration</td><td>2.0s</td><td>2.0s</td><td>1.6s</td></tr>
+            <tr><td>Cooldown</td><td>100s</td><td>88s</td><td>76s</td></div></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="workflow-box">
+    <h3>Recommended Unity Architecture</h3>
+    <div class="workflow-steps">
+      <div class="wstep"><div class="wnum">1</div><span><span style="color:#a0c8ff">HeroDefinition.asset</span> <span class="warrow">→</span> Stats level 1→15, Moonlight regen curve, Mark duration, passive surge threshold + bonuses</span></div>
+      <div class="wstep"><div class="wnum">2</div><span><span style="color:#b0a0ff">ArtemisController</span> <span class="warrow">→</span> Moonlight float, Marked target dictionary, homing arrow physics, dual-mode Skill 2, untargetable channel, stag spawner</span></div>
+      <div class="wstep"><div class="wnum">3</div><span><span style="color:#80f0b8">ArtemisCombatVFX</span> <span class="warrow">→</span> Bow draw glow binder (_MLPercent), arrow tracer line, Mark sigil particle, hound summoning, Moonfall rain + stag charge FX</span></div>
+      <div class="wstep"><div class="wnum">4</div><span><span style="color:#f0d880">URP Shaders</span> <span class="warrow">→</span> Silver bow + armor surface, moonlight arrow tracer, Mark sigil billboard, Moonfall ground shimmer, death dissolve</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ C# SCRIPTS ══════════ -->
+<div class="section" id="tab-code">
+  <div class="code-section">
+
+    <!-- HeroDefinition.cs -->
+    <div class="code-file">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> HeroDefinition.cs</div>
+        <button class="copy-btn" onclick="copyCode('code1', this)">Copy</button>
+      </div>
+      <pre id="code1"><span class="cm">// HeroDefinition.cs
+// ScriptableObject — MOBA 15-level hero data.
+// Extended for Artemis: Moonlight resource, Mark debuff, passive surge thresholds,
+// dual-mode Skill 2 flag, Moonfall arrow count and stag damage.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+<span class="kw">using</span> System;
+
+[<span class="cls">CreateAssetMenu</span>(menuName = <span class="str">"Game/Hero Definition"</span>, fileName = <span class="str">"HeroDefinition"</span>)]
+<span class="kw">public class</span> <span class="cls">HeroDefinition</span> : <span class="cls">ScriptableObject</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Identity"</span>)]
+    <span class="kw">public</span> <span class="kw">string</span>   heroId      = <span class="str">"artemis"</span>;
+    <span class="kw">public</span> <span class="kw">string</span>   displayName = <span class="str">"Artemis"</span>;
+    <span class="kw">public</span> <span class="cls">HeroRole</span> role        = <span class="cls">HeroRole</span>.Marksman;
+
+    [<span class="cls">Header</span>(<span class="str">"Core progression — Level 1 to 15"</span>)]
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> maxHp          = <span class="kw">new</span>(<span class="num">2400f</span>, <span class="num">5000f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> hpRegen         = <span class="kw">new</span>(<span class="num">7.0f</span>,  <span class="num">16.0f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> moonlightRegen  = <span class="kw">new</span>(<span class="num">8.0f</span>,  <span class="num">18.0f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> physicalAttack  = <span class="kw">new</span>(<span class="num">155f</span>,  <span class="num">315f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> magicPower      = <span class="kw">new</span>(<span class="num">80f</span>,   <span class="num">180f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> physicalDefense = <span class="kw">new</span>(<span class="num">18f</span>,   <span class="num">52f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> magicDefense    = <span class="kw">new</span>(<span class="num">22f</span>,   <span class="num">62f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> attackSpeed     = <span class="kw">new</span>(<span class="num">1.05f</span>, <span class="num">1.50f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> critRate        = <span class="kw">new</span>(<span class="num">0.08f</span>, <span class="num">0.22f</span>);
+    <span class="kw">public</span> <span class="cls">ScaledStat</span> critDamage      = <span class="kw">new</span>(<span class="num">1.8f</span>,  <span class="num">2.5f</span>);
+
+    [<span class="cls">Header</span>(<span class="str">"Fixed properties"</span>)]
+    <span class="kw">public float</span> moveSpeed         = <span class="num">265f</span>;
+    <span class="kw">public float</span> basicAttackRange  = <span class="num">10.0f</span>;
+    <span class="kw">public float</span> attackSpeedRatio  = <span class="num">1.0f</span>;
+    <span class="kw">public float</span> maxMoonlight      = <span class="num">100f</span>;
+    <span class="kw">public float</span> mlOnHit           = <span class="num">20f</span>;
+    <span class="kw">public float</span> mlOnMarkedHit     = <span class="num">35f</span>;
+    <span class="kw">public float</span> mlOnMarkedKill    = <span class="num">50f</span>;
+    <span class="kw">public float</span> arrowProjectileSpeed = <span class="num">30f</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Passive — Mistress of Wild Things"</span>)]
+    <span class="kw">public float</span> surgeThreshold       = <span class="num">0.80f</span>; <span class="cm">// 80% Moonlight</span>
+    <span class="kw">public float</span> surgeAttackSpeedBonus = <span class="num">0.25f</span>; <span class="cm">// +25%</span>
+    <span class="kw">public float</span> surgeMoveSpeedBonus   = <span class="num">15f</span>;   <span class="cm">// flat move speed</span>
+
+    [<span class="cls">Header</span>(<span class="str">"Skill 2 Mode"</span>)]
+    <span class="kw">public bool</span> skillTwoIsHound = <span class="kw">true</span>; <span class="cm">// false = Bramble Snare</span>
+
+    [<span class="cls">Header</span>(<span class="str">"Moonfall — Ultimate"</span>)]
+    <span class="kw">public int</span>   moonfallArrowCount = <span class="num">40</span>;
+    <span class="kw">public float</span> moonfallZoneRadius = <span class="num">14f</span>;
+    <span class="kw">public float</span> stagChargeDamage   = <span class="num">320f</span>; <span class="cm">// base, scaled per rank</span>
+    <span class="kw">public float</span> stagChargeWidth    = <span class="num">2.5f</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Ability ranks"</span>)]
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> basicAttack = <span class="kw">new</span>(<span class="str">"Silver Arrow"</span>,
+        <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="kw">new</span>[] { <span class="num">0f</span> }, <span class="num">1.05f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> skillOne = <span class="kw">new</span>(<span class="str">"Moonlit Mark"</span>,
+        <span class="kw">new</span>[] { <span class="num">160f</span>, <span class="num">200f</span>, <span class="num">240f</span>, <span class="num">280f</span> },
+        <span class="kw">new</span>[] { <span class="num">20f</span>,  <span class="num">20f</span>,  <span class="num">20f</span>,  <span class="num">20f</span>  },
+        <span class="kw">new</span>[] { <span class="num">10f</span>,  <span class="num">9f</span>,   <span class="num">8f</span>,   <span class="num">7f</span>   }, <span class="num">0.45f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> skillTwo = <span class="kw">new</span>(<span class="str">"Sacred Hunt"</span>,
+        <span class="kw">new</span>[] { <span class="num">200f</span>, <span class="num">255f</span>, <span class="num">310f</span>, <span class="num">365f</span> },
+        <span class="kw">new</span>[] { <span class="num">30f</span>,  <span class="num">30f</span>,  <span class="num">30f</span>,  <span class="num">30f</span>  },
+        <span class="kw">new</span>[] { <span class="num">13f</span>,  <span class="num">12f</span>,  <span class="num">11f</span>,  <span class="num">10f</span>  }, <span class="num">0.55f</span>);
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span> ultimate = <span class="kw">new</span>(<span class="str">"Moonfall"</span>,
+        <span class="kw">new</span>[] { <span class="num">65f</span>,  <span class="num">88f</span>,  <span class="num">115f</span> }, <span class="cm">// damage per arrow</span>
+        <span class="kw">new</span>[] { <span class="num">100f</span>, <span class="num">100f</span>, <span class="num">100f</span> },
+        <span class="kw">new</span>[] { <span class="num">100f</span>, <span class="num">88f</span>,  <span class="num">76f</span>  }, <span class="num">0.20f</span>);
+
+    <span class="kw">public</span> <span class="cls">RuntimeHeroStats</span> <span class="fn">CreateRuntime</span>(<span class="kw">int</span> level)
+    {
+        level = <span class="cls">Mathf</span>.Clamp(level, <span class="num">1</span>, <span class="num">15</span>);
+        <span class="kw">return new</span> <span class="cls">RuntimeHeroStats</span>
+        {
+            level           = level,
+            maxHp           = maxHp.<span class="fn">Evaluate</span>(level),
+            hpRegen         = hpRegen.<span class="fn">Evaluate</span>(level),
+            moonlightRegen  = moonlightRegen.<span class="fn">Evaluate</span>(level),
+            physicalAttack  = physicalAttack.<span class="fn">Evaluate</span>(level),
+            magicPower      = magicPower.<span class="fn">Evaluate</span>(level),
+            physicalDefense = physicalDefense.<span class="fn">Evaluate</span>(level),
+            magicDefense    = magicDefense.<span class="fn">Evaluate</span>(level),
+            attackSpeed     = attackSpeed.<span class="fn">Evaluate</span>(level),
+            critRate        = critRate.<span class="fn">Evaluate</span>(level),
+            critDamage      = critDamage.<span class="fn">Evaluate</span>(level),
+            moveSpeed       = moveSpeed,
+            basicAttackRange = basicAttackRange,
+            attackSpeedRatio = attackSpeedRatio,
+            maxMoonlight    = maxMoonlight
+        };
+    }
+}
+
+<span class="kw">public enum</span> <span class="cls">HeroRole</span> { Tank, Fighter, Assassin, Mage, Marksman, Support, MageAssassin }
+
+[Serializable]
+<span class="kw">public struct</span> <span class="cls">ScaledStat</span>
+{
+    <span class="kw">public float</span> level1, level15;
+    <span class="kw">public</span> <span class="cls">ScaledStat</span>(<span class="kw">float</span> l1, <span class="kw">float</span> l15) { level1 = l1; level15 = l15; }
+    <span class="kw">public float</span> <span class="fn">Evaluate</span>(<span class="kw">int</span> level)
+    {
+        level = <span class="cls">Mathf</span>.Clamp(level, <span class="num">1</span>, <span class="num">15</span>);
+        <span class="kw">return</span> level == <span class="num">1</span> ? level1 : <span class="cls">Mathf</span>.Lerp(level1, level15, (level - <span class="num">1f</span>) / <span class="num">14f</span>);
+    }
+}
+
+[Serializable]
+<span class="kw">public class</span> <span class="cls">AbilityRankData</span>
+{
+    <span class="kw">public string</span>  abilityName;
+    <span class="kw">public float</span>[] baseDamage;
+    <span class="kw">public float</span>[] moonlightCost;
+    <span class="kw">public float</span>[] cooldown;
+    <span class="kw">public float</span>   scalingPhysical;
+
+    <span class="kw">public</span> <span class="cls">AbilityRankData</span>(<span class="kw">string</span> n, <span class="kw">float</span>[] dmg, <span class="kw">float</span>[] cost, <span class="kw">float</span>[] cd, <span class="kw">float</span> scale)
+    { abilityName = n; baseDamage = dmg; moonlightCost = cost; cooldown = cd; scalingPhysical = scale; }
+
+    <span class="kw">public float</span> <span class="fn">DamageAtRank</span>    (<span class="kw">int</span> r, <span class="kw">float</span> atq) => baseDamage  [<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,baseDamage.Length-<span class="num">1</span>)]    + atq * scalingPhysical;
+    <span class="kw">public float</span> <span class="fn">MlCostAtRank</span>    (<span class="kw">int</span> r)          => moonlightCost[<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,moonlightCost.Length-<span class="num">1</span>)];
+    <span class="kw">public float</span> <span class="fn">CooldownAtRank</span>  (<span class="kw">int</span> r)          => cooldown     [<span class="cls">Mathf</span>.Clamp(r-<span class="num">1</span>,<span class="num">0</span>,cooldown.Length-<span class="num">1</span>)];
+}
+
+[Serializable]
+<span class="kw">public struct</span> <span class="cls">RuntimeHeroStats</span>
+{
+    <span class="kw">public int</span>   level;
+    <span class="kw">public float</span> maxHp, hpRegen;
+    <span class="kw">public float</span> maxMoonlight, moonlightRegen;
+    <span class="kw">public float</span> physicalAttack, magicPower, physicalDefense, magicDefense;
+    <span class="kw">public float</span> attackSpeed, moveSpeed, basicAttackRange, attackSpeedRatio;
+    <span class="kw">public float</span> critRate, critDamage;
+}</pre>
+    </div>
+
+    <!-- ArtemisController.cs -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> ArtemisController.cs</div>
+        <button class="copy-btn" onclick="copyCode('code2', this)">Copy</button>
+      </div>
+      <pre id="code2"><span class="cm">// ArtemisController.cs
+// Main controller: Moonlight resource, Marked target dictionary, homing arrow physics,
+// passive surge state (80%+ ML), dual-mode Skill 2 (hound vs bramble),
+// Moonfall 40-arrow staggered volley + stag charges, untargetable channel.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+<span class="kw">using</span> <span class="cls">UnityEngine</span>.AI;
+<span class="kw">using</span> System.Collections;
+<span class="kw">using</span> System.Collections.Generic;
+
+[<span class="cls">RequireComponent</span>(<span class="kw">typeof</span>(<span class="cls">NavMeshAgent</span>))]
+<span class="kw">public class</span> <span class="cls">ArtemisController</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Data"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">HeroDefinition</span> heroDefinition;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">15</span>)] <span class="kw">private int</span> heroLevel = <span class="num">1</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Ability Ranks"</span>)]
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">4</span>)] <span class="kw">private int</span> skillOneRank = <span class="num">1</span>;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">4</span>)] <span class="kw">private int</span> skillTwoRank = <span class="num">1</span>;
+    [<span class="cls">SerializeField</span>, Range(<span class="num">1</span>, <span class="num">3</span>)] <span class="kw">private int</span> ultimateRank = <span class="num">1</span>;
+
+    [<span class="cls">Header</span>(<span class="str">"Scene References"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Animator</span>          animator;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">NavMeshAgent</span>      agent;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ArtemisCombatVFX</span>  combatVfx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Transform</span>          bowTip;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Transform</span>          leftStagSpawn;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Transform</span>          rightStagSpawn;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LayerMask</span>          enemyMask;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LayerMask</span>          wallMask;
+
+    [<span class="cls">Header</span>(<span class="str">"Runtime"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">RuntimeHeroStats</span> stats;
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> currentHp;
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> currentMoonlight;
+    [<span class="cls">SerializeField</span>] <span class="kw">private bool</span>  isDead;
+    [<span class="cls">SerializeField</span>] <span class="kw">private bool</span>  isUntargetable;
+    [<span class="cls">SerializeField</span>] <span class="kw">private bool</span>  surgeActive;
+
+    <span class="kw">private float</span> basicCooldown, skillOneCooldown, skillTwoCooldown, ultimateCooldown;
+    <span class="kw">private readonly</span> <span class="cls">Dictionary</span>&lt;<span class="cls">Health</span>, <span class="kw">float</span>&gt; markedTargets = <span class="kw">new</span>(); <span class="cm">// target → expiry time</span>
+
+    <span class="kw">public float</span> HpPercent        => stats.maxHp        > <span class="num">0f</span> ? currentHp        / stats.maxHp        : <span class="num">0f</span>;
+    <span class="kw">public float</span> MoonlightPercent  => stats.maxMoonlight > <span class="num">0f</span> ? currentMoonlight / stats.maxMoonlight : <span class="num">0f</span>;
+    <span class="kw">public bool</span>  SurgeActive       => surgeActive;
+    <span class="kw">public bool</span>  IsUntargetable    => isUntargetable;
+    <span class="kw">public bool</span>  IsDead            => isDead;
+
+    <span class="kw">private void</span> <span class="fn">Reset</span>() { agent = <span class="fn">GetComponent</span>&lt;<span class="cls">NavMeshAgent</span>&gt;(); animator = <span class="fn">GetComponentInChildren</span>&lt;<span class="cls">Animator</span>&gt;(); }
+    <span class="kw">private void</span> <span class="fn">Awake</span>() { <span class="kw">if</span> (agent == <span class="kw">null</span>) agent = <span class="fn">GetComponent</span>&lt;<span class="cls">NavMeshAgent</span>&gt;(); <span class="fn">ApplyLevel</span>(heroLevel, <span class="kw">true</span>); }
+
+    <span class="kw">private void</span> <span class="fn">Update</span>()
+    {
+        <span class="kw">if</span> (isDead || heroDefinition == <span class="kw">null</span>) <span class="kw">return</span>;
+        <span class="fn">TickCooldowns</span>();
+        <span class="fn">RegenerateResources</span>();
+        <span class="fn">CheckSurgePassive</span>();
+        <span class="fn">PruneExpiredMarks</span>();
+        <span class="fn">UpdateAnimator</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">ApplyLevel</span>(<span class="kw">int</span> newLevel, <span class="kw">bool</span> fullRestore = <span class="kw">false</span>)
+    {
+        heroLevel = <span class="cls">Mathf</span>.Clamp(newLevel, <span class="num">1</span>, <span class="num">15</span>);
+        stats = heroDefinition.<span class="fn">CreateRuntime</span>(heroLevel);
+        agent.speed = stats.moveSpeed / <span class="num">100f</span>;
+        <span class="kw">if</span> (fullRestore) { currentHp = stats.maxHp; currentMoonlight = <span class="num">0f</span>; }
+        <span class="kw">else</span> currentHp = <span class="cls">Mathf</span>.Min(currentHp, stats.maxHp);
+    }
+
+    <span class="kw">public void</span> <span class="fn">MoveTo</span>(<span class="cls">Vector3</span> worldPoint)
+    {
+        <span class="kw">if</span> (isDead) <span class="kw">return</span>;
+        agent.isStopped = <span class="kw">false</span>;
+        agent.<span class="fn">SetDestination</span>(worldPoint);
+    }
+
+    <span class="cm">// ── BASIC ATTACK — silver arrow with homing on Marked target ──────────</span>
+    <span class="kw">public void</span> <span class="fn">BasicAttack</span>(<span class="cls">Health</span> target)
+    {
+        <span class="kw">if</span> (isDead || basicCooldown > <span class="num">0f</span> || target == <span class="kw">null</span>) <span class="kw">return</span>;
+
+        <span class="kw">float</span> atkSpeed  = <span class="fn">GetEffectiveAttackSpeed</span>();
+        basicCooldown   = <span class="num">1f</span> / <span class="cls">Mathf</span>.Max(<span class="num">0.1f</span>, atkSpeed * stats.attackSpeedRatio);
+        <span class="kw">bool</span>  isMarked  = <span class="fn">IsMarked</span>(target);
+        <span class="kw">bool</span>  forceCrit = isMarked; <span class="cm">// guaranteed crit on Marked target</span>
+        <span class="kw">float</span> dmg       = <span class="fn">ResolveDamage</span>(heroDefinition.basicAttack.<span class="fn">DamageAtRank</span>(<span class="num">1</span>, stats.physicalAttack), forceCrit);
+
+        <span class="fn">StartCoroutine</span>(<span class="fn">ArrowProjectileRoutine</span>(target, dmg, isMarked));
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"BasicAttack"</span>);
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">ArrowProjectileRoutine</span>(<span class="cls">Health</span> target, <span class="kw">float</span> dmg, <span class="kw">bool</span> marked)
+    {
+        <span class="cls">Vector3</span> startPos = bowTip.position;
+        <span class="cls">Vector3</span> targetPos = target.transform.position + <span class="cls">Vector3</span>.up * <span class="num">1.0f</span>;
+        <span class="kw">float</span>   dist      = <span class="cls">Vector3</span>.<span class="fn">Distance</span>(startPos, targetPos);
+        <span class="kw">float</span>   travelTime = dist / heroDefinition.arrowProjectileSpeed;
+
+        combatVfx.<span class="fn">PlayArrowFire</span>(startPos, targetPos, marked);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(travelTime);
+
+        <span class="kw">if</span> (target == <span class="kw">null</span>) <span class="kw">yield break</span>;
+        target.<span class="fn">ApplyPhysicalDamage</span>(dmg);
+        <span class="kw">if</span> (marked && dmg > stats.physicalAttack) combatVfx.<span class="fn">PlayCritFlash</span>(target.transform.position);
+
+        <span class="cm">// Moonlight gain</span>
+        <span class="fn">GainMoonlight</span>(marked ? heroDefinition.mlOnMarkedHit : heroDefinition.mlOnHit);
+    }
+
+    <span class="cm">// ── SKILL 1 — Moonlit Mark ────────────────────────────────────────────</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastSkillOne</span>(<span class="cls">Health</span> target)
+    {
+        <span class="kw">if</span> (!<span class="fn">CanCast</span>(heroDefinition.skillOne, skillOneRank, skillOneCooldown) || target == <span class="kw">null</span>) <span class="kw">return false</span>;
+        <span class="fn">SpendMoonlight</span>(heroDefinition.skillOne.<span class="fn">MlCostAtRank</span>(skillOneRank));
+        skillOneCooldown = heroDefinition.skillOne.<span class="fn">CooldownAtRank</span>(skillOneRank);
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"CastMark"</span>);
+        <span class="fn">StartCoroutine</span>(<span class="fn">MarkArrowRoutine</span>(target, skillOneRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">MarkArrowRoutine</span>(<span class="cls">Health</span> target, <span class="kw">int</span> rank)
+    {
+        <span class="cls">Vector3</span> targetPos = target.transform.position + <span class="cls">Vector3</span>.up;
+        <span class="kw">float</span> travelTime  = <span class="cls">Vector3</span>.<span class="fn">Distance</span>(bowTip.position, targetPos) / heroDefinition.arrowProjectileSpeed;
+        combatVfx.<span class="fn">PlayMarkArrow</span>(bowTip.position, targetPos);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(travelTime);
+        <span class="kw">if</span> (target == <span class="kw">null</span>) <span class="kw">yield break</span>;
+
+        <span class="kw">float</span> dmg         = heroDefinition.skillOne.<span class="fn">DamageAtRank</span>(rank, stats.physicalAttack);
+        <span class="kw">float</span> markDuration = <span class="num">4.5f</span> + rank * <span class="num">0.5f</span>;
+        <span class="kw">float</span> slowDuration = <span class="num">0.8f</span> + rank * <span class="num">0.2f</span>;
+
+        target.<span class="fn">ApplyPhysicalDamage</span>(dmg);
+        target.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplySlow</span>(<span class="num">0.30f</span>, slowDuration);
+
+        <span class="cm">// Transfer mark (remove all existing, apply to new target)</span>
+        markedTargets.Clear();
+        markedTargets[target] = <span class="cls">Time</span>.time + markDuration;
+        combatVfx.<span class="fn">PlayMarkSigil</span>(target.transform.position, markDuration);
+        <span class="fn">GainMoonlight</span>(heroDefinition.mlOnHit);
+    }
+
+    <span class="cm">// ── SKILL 2 — Dual Mode: Hunting Hound OR Bramble Snare ──────────────</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastSkillTwo</span>(<span class="cls">Health</span> target, <span class="cls">Vector3</span> groundTarget)
+    {
+        <span class="kw">if</span> (!<span class="fn">CanCast</span>(heroDefinition.skillTwo, skillTwoRank, skillTwoCooldown)) <span class="kw">return false</span>;
+        <span class="fn">SpendMoonlight</span>(heroDefinition.skillTwo.<span class="fn">MlCostAtRank</span>(skillTwoRank));
+        skillTwoCooldown = heroDefinition.skillTwo.<span class="fn">CooldownAtRank</span>(skillTwoRank);
+        animator.<span class="fn">SetTrigger</span>(heroDefinition.skillTwoIsHound ? <span class="str">"SummonHound"</span> : <span class="str">"BrambleSnare"</span>);
+
+        <span class="kw">if</span> (heroDefinition.skillTwoIsHound && target != <span class="kw">null</span>)
+            <span class="fn">StartCoroutine</span>(<span class="fn">HuntingHoundRoutine</span>(target, skillTwoRank));
+        <span class="kw">else</span>
+            <span class="fn">StartCoroutine</span>(<span class="fn">BrambleSnareRoutine</span>(groundTarget, skillTwoRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">HuntingHoundRoutine</span>(<span class="cls">Health</span> target, <span class="kw">int</span> rank)
+    {
+        combatVfx.<span class="fn">PlayHoundSummon</span>(transform.position, target.transform.position);
+        <span class="kw">float</span> houndSpeed = <span class="num">14f</span>;
+        <span class="kw">float</span> dist       = <span class="cls">Vector3</span>.<span class="fn">Distance</span>(transform.position, target.transform.position);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(dist / houndSpeed);
+        <span class="kw">if</span> (target == <span class="kw">null</span>) <span class="kw">yield break</span>;
+        <span class="kw">float</span> dmg          = heroDefinition.skillTwo.<span class="fn">DamageAtRank</span>(rank, stats.physicalAttack);
+        <span class="kw">float</span> slowDuration = <span class="num">1.8f</span> + rank * <span class="num">0.2f</span>;
+        target.<span class="fn">ApplyPhysicalDamage</span>(dmg);
+        target.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplySlow</span>(<span class="num">0.40f</span>, slowDuration);
+        combatVfx.<span class="fn">PlayHoundBite</span>(target.transform.position);
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">BrambleSnareRoutine</span>(<span class="cls">Vector3</span> center, <span class="kw">int</span> rank)
+    {
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">0.25f</span>);
+        <span class="kw">float</span> radius      = <span class="num">3.5f</span>;
+        <span class="kw">float</span> rootDuration = <span class="num">1.3f</span> + rank * <span class="num">0.3f</span>;
+        <span class="kw">float</span> dmg         = heroDefinition.skillTwo.<span class="fn">DamageAtRank</span>(rank, stats.physicalAttack) * <span class="num">0.6f</span>; <span class="cm">// bramble mode lower dmg</span>
+        combatVfx.<span class="fn">PlayBrambleSnare</span>(center, radius, rootDuration);
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(center, radius, enemyMask))
+        {
+            col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;()?.<span class="fn">ApplyPhysicalDamage</span>(dmg);
+            col.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplyRoot</span>(rootDuration);
+        }
+    }
+
+    <span class="cm">// ── ULTIMATE — Moonfall: 40-arrow rain + stag charge ──────────────────</span>
+    <span class="kw">public bool</span> <span class="fn">TryCastUltimate</span>(<span class="cls">Vector3</span> zoneCenter)
+    {
+        <span class="kw">if</span> (isDead || ultimateCooldown > <span class="num">0f</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (currentMoonlight < stats.maxMoonlight) <span class="kw">return false</span>; <span class="cm">// must be full</span>
+
+        ultimateCooldown = heroDefinition.ultimate.<span class="fn">CooldownAtRank</span>(ultimateRank);
+        currentMoonlight = <span class="num">0f</span>;
+        <span class="fn">StartCoroutine</span>(<span class="fn">MoonfallRoutine</span>(zoneCenter, ultimateRank));
+        <span class="kw">return true</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">MoonfallRoutine</span>(<span class="cls">Vector3</span> center, <span class="kw">int</span> rank)
+    {
+        <span class="cm">// Untargetable channel — step into moonlight</span>
+        isUntargetable  = <span class="kw">true</span>;
+        agent.isStopped = <span class="kw">true</span>;
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"MoonfallChannel"</span>);
+        combatVfx.<span class="fn">StartMoonfallChannel</span>(transform.position);
+
+        <span class="kw">float</span> channelTime = rank >= <span class="num">3</span> ? <span class="num">1.2f</span> : <span class="num">1.5f</span>;
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(channelTime);
+
+        isUntargetable = <span class="kw">false</span>;
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"MoonfallFire"</span>);
+
+        <span class="kw">float</span>   zone         = heroDefinition.moonfallZoneRadius + rank;
+        <span class="kw">float</span>   arrowDmg     = heroDefinition.ultimate.<span class="fn">DamageAtRank</span>(rank, stats.physicalAttack);
+        <span class="kw">float</span>   stagDmg      = heroDefinition.stagChargeDamage + rank * <span class="num">100f</span>;
+        <span class="kw">int</span>     arrowCount   = heroDefinition.moonfallArrowCount;
+        <span class="kw">float</span>   volleyDur    = rank >= <span class="num">3</span> ? <span class="num">1.6f</span> : <span class="num">2.0f</span>;
+        <span class="kw">float</span>   interval     = volleyDur / arrowCount;
+
+        <span class="cm">// Find any marked target in zone for homing arrows</span>
+        <span class="cls">Health</span> markedInZone = <span class="fn">FindMarkedInZone</span>(center, zone);
+        combatVfx.<span class="fn">PlayMoonfallRain</span>(center, zone, arrowCount, volleyDur);
+
+        <span class="cm">// Stagger individual arrow damage over volley duration</span>
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i < arrowCount; i++)
+        {
+            <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(interval);
+            <span class="cm">// Each arrow hits a random point in the zone</span>
+            <span class="cls">Vector3</span> randPoint = center + <span class="kw">new</span> <span class="cls">Vector3</span>(
+                <span class="cls">Random</span>.<span class="fn">Range</span>(-zone, zone), <span class="num">0</span>,
+                <span class="cls">Random</span>.<span class="fn">Range</span>(-zone, zone));
+
+            <span class="cm">// Homing bias toward marked target</span>
+            <span class="kw">if</span> (markedInZone != <span class="kw">null</span> && i % <span class="num">3</span> == <span class="num">0</span>)
+                randPoint = markedInZone.transform.position;
+
+            <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(randPoint, <span class="num">1.8f</span>, enemyMask))
+                col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;()?.<span class="fn">ApplyPhysicalDamage</span>(<span class="fn">ResolveDamage</span>(arrowDmg, <span class="kw">true</span>)); <span class="cm">// all arrows crit</span>
+        }
+
+        <span class="cm">// Sacred stag charges — two lines through zone from opposite sides</span>
+        <span class="fn">StartCoroutine</span>(<span class="fn">StagChargeRoutine</span>(center, zone, stagDmg, <span class="kw">true</span>));
+        <span class="fn">StartCoroutine</span>(<span class="fn">StagChargeRoutine</span>(center, zone, stagDmg, <span class="kw">false</span>));
+
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(volleyDur + <span class="num">0.5f</span>);
+        combatVfx.<span class="fn">StopMoonfallChannel</span>();
+        agent.isStopped = <span class="kw">false</span>;
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">StagChargeRoutine</span>(<span class="cls">Vector3</span> center, <span class="kw">float</span> radius, <span class="kw">float</span> dmg, <span class="kw">bool</span> leftToRight)
+    {
+        <span class="cls">Vector3</span> startPos = center + (leftToRight ? <span class="cls">Vector3</span>.left  : <span class="cls">Vector3</span>.right) * (radius + <span class="num">3f</span>);
+        <span class="cls">Vector3</span> endPos   = center + (leftToRight ? <span class="cls">Vector3</span>.right : <span class="cls">Vector3</span>.left)  * (radius + <span class="num">3f</span>);
+        <span class="cls">Vector3</span> dir      = (endPos - startPos).normalized;
+        <span class="kw">float</span>   chargeSpeed = <span class="num">20f</span>;
+        <span class="kw">float</span>   duration    = (radius * <span class="num">2f</span> + <span class="num">6f</span>) / chargeSpeed;
+
+        combatVfx.<span class="fn">PlayStagCharge</span>(startPos, dir, duration);
+
+        <span class="kw">float</span> elapsed = <span class="num">0f</span>;
+        <span class="cls">Vector3</span> pos   = startPos;
+        <span class="kw">var</span> hit = <span class="kw">new</span> <span class="cls">HashSet</span>&lt;<span class="cls">Health</span>&gt;();
+        <span class="kw">while</span> (elapsed < duration)
+        {
+            pos += dir * chargeSpeed * <span class="cls">Time</span>.deltaTime;
+            <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(pos, heroDefinition.stagChargeWidth, enemyMask))
+            {
+                <span class="kw">var</span> hp = col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;();
+                <span class="kw">if</span> (hp != <span class="kw">null</span> && hit.<span class="fn">Add</span>(hp))
+                {
+                    hp.<span class="fn">ApplyPhysicalDamage</span>(dmg);
+                    col.<span class="fn">GetComponent</span>&lt;<span class="cls">CrowdControlReceiver</span>&gt;()?.<span class="fn">ApplyKnockback</span>(dir, <span class="num">2.5f</span>);
+                }
+            }
+            elapsed += <span class="cls">Time</span>.deltaTime;
+            <span class="kw">yield return null</span>;
+        }
+    }
+
+    <span class="cm">// ── DAMAGE RECEPTION — untargetable during channel ─────────────────────</span>
+    <span class="kw">public void</span> <span class="fn">ReceiveDamage</span>(<span class="kw">float</span> amount)
+    {
+        <span class="kw">if</span> (isDead || isUntargetable) <span class="kw">return</span>; <span class="cm">// divine invulnerability during Moonfall channel</span>
+        currentHp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, currentHp - amount);
+        animator.<span class="fn">SetTrigger</span>(<span class="str">"Hit"</span>);
+        combatVfx.<span class="fn">UpdateHeroState</span>(HpPercent, MoonlightPercent, surgeActive, <span class="kw">false</span>);
+        <span class="kw">if</span> (currentHp <= <span class="num">0f</span>) <span class="fn">StartCoroutine</span>(<span class="fn">DeathRoutine</span>());
+    }
+
+    <span class="kw">public void</span> <span class="fn">OnKill</span>(<span class="cls">Health</span> target)
+    {
+        <span class="kw">if</span> (<span class="fn">IsMarked</span>(target)) <span class="fn">GainMoonlight</span>(heroDefinition.mlOnMarkedKill);
+        markedTargets.<span class="fn">Remove</span>(target);
+    }
+
+    <span class="kw">private</span> <span class="cls">IEnumerator</span> <span class="fn">DeathRoutine</span>()
+    {
+        isDead = <span class="kw">true</span>;
+        agent.isStopped = <span class="kw">true</span>;
+        animator.<span class="fn">SetBool</span>(<span class="str">"IsDead"</span>, <span class="kw">true</span>);
+        combatVfx.<span class="fn">PlayDeath</span>(transform.position);
+        <span class="kw">yield return new</span> <span class="cls">WaitForSeconds</span>(<span class="num">3.5f</span>);
+        enabled = <span class="kw">false</span>;
+    }
+
+    <span class="cm">// ── PASSIVE — Moonlight Surge ──────────────────────────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">CheckSurgePassive</span>()
+    {
+        <span class="kw">bool</span> shouldSurge = MoonlightPercent >= heroDefinition.surgeThreshold;
+        <span class="kw">if</span> (shouldSurge == surgeActive) <span class="kw">return</span>;
+        surgeActive = shouldSurge;
+        <span class="kw">float</span> speedMult = surgeActive ? (<span class="num">1f</span> + heroDefinition.surgeAttackSpeedBonus) : <span class="num">1f</span>;
+        <span class="kw">float</span> moveAdd   = surgeActive ? heroDefinition.surgeMoveSpeedBonus : <span class="num">0f</span>;
+        agent.speed = (stats.moveSpeed + moveAdd) / <span class="num">100f</span>;
+        combatVfx.<span class="fn">SetSurgeGlow</span>(surgeActive);
+    }
+
+    <span class="kw">private float</span> <span class="fn">GetEffectiveAttackSpeed</span>()
+        => surgeActive ? stats.attackSpeed * (<span class="num">1f</span> + heroDefinition.surgeAttackSpeedBonus) : stats.attackSpeed;
+
+    <span class="kw">private float</span> <span class="fn">ResolveDamage</span>(<span class="kw">float</span> base_, <span class="kw">bool</span> forceCrit)
+    {
+        <span class="kw">bool</span>  isCrit    = forceCrit || <span class="cls">Random</span>.value < stats.critRate;
+        <span class="kw">float</span> mult      = isCrit ? stats.critDamage : <span class="num">1f</span>;
+        <span class="kw">if</span>   (isCrit) combatVfx.<span class="fn">PlayCritFlash</span>(<span class="cls">Vector3</span>.zero);
+        <span class="kw">return</span> base_ * mult;
+    }
+
+    <span class="kw">public bool</span>    <span class="fn">IsMarked</span>(<span class="cls">Health</span> h)   => h != <span class="kw">null</span> && markedTargets.TryGetValue(h, <span class="kw">out float</span> t) && <span class="cls">Time</span>.time < t;
+    <span class="kw">private</span> <span class="cls">Health</span> <span class="fn">FindMarkedInZone</span>(<span class="cls">Vector3</span> c, <span class="kw">float</span> r)
+    {
+        <span class="kw">foreach</span> (<span class="kw">var</span> col <span class="kw">in</span> <span class="cls">Physics</span>.<span class="fn">OverlapSphere</span>(c, r, enemyMask))
+        { <span class="kw">var</span> h = col.<span class="fn">GetComponent</span>&lt;<span class="cls">Health</span>&gt;(); <span class="kw">if</span> (<span class="fn">IsMarked</span>(h)) <span class="kw">return</span> h; }
+        <span class="kw">return null</span>;
+    }
+
+    <span class="kw">private void</span> <span class="fn">PruneExpiredMarks</span>()
+    {
+        <span class="kw">var</span> expired = <span class="kw">new</span> <span class="cls">List</span>&lt;<span class="cls">Health</span>&gt;();
+        <span class="kw">foreach</span> (<span class="kw">var</span> kv <span class="kw">in</span> markedTargets) <span class="kw">if</span> (<span class="cls">Time</span>.time >= kv.Value) expired.<span class="fn">Add</span>(kv.Key);
+        <span class="kw">foreach</span> (<span class="kw">var</span> k  <span class="kw">in</span> expired)       markedTargets.<span class="fn">Remove</span>(k);
+    }
+
+    <span class="kw">private void</span> <span class="fn">GainMoonlight</span>(<span class="kw">float</span> a) => currentMoonlight = <span class="cls">Mathf</span>.Min(stats.maxMoonlight, currentMoonlight + a);
+    <span class="kw">private void</span> <span class="fn">SpendMoonlight</span>(<span class="kw">float</span> a) => currentMoonlight = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, currentMoonlight - a);
+    <span class="kw">private bool</span>  <span class="fn">CanCast</span>(<span class="cls">AbilityRankData</span> ab, <span class="kw">int</span> r, <span class="kw">float</span> cd)
+        => !isDead && cd <= <span class="num">0f</span> && currentMoonlight >= ab.<span class="fn">MlCostAtRank</span>(r);
+
+    <span class="kw">private void</span> <span class="fn">TickCooldowns</span>()
+    {
+        basicCooldown    = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, basicCooldown    - <span class="cls">Time</span>.deltaTime);
+        skillOneCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, skillOneCooldown - <span class="cls">Time</span>.deltaTime);
+        skillTwoCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, skillTwoCooldown - <span class="cls">Time</span>.deltaTime);
+        ultimateCooldown = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, ultimateCooldown - <span class="cls">Time</span>.deltaTime);
+    }
+
+    <span class="kw">private void</span> <span class="fn">RegenerateResources</span>()
+    {
+        currentHp         = <span class="cls">Mathf</span>.Min(stats.maxHp, currentHp + stats.hpRegen * <span class="cls">Time</span>.deltaTime);
+        currentMoonlight  = <span class="cls">Mathf</span>.Min(stats.maxMoonlight, currentMoonlight + stats.moonlightRegen * <span class="cls">Time</span>.deltaTime);
+        combatVfx.<span class="fn">UpdateHeroState</span>(HpPercent, MoonlightPercent, surgeActive, agent.velocity.sqrMagnitude > <span class="num">0.01f</span>);
+    }
+
+    <span class="kw">private void</span> <span class="fn">UpdateAnimator</span>()
+    {
+        <span class="cls">Vector3</span> vel = agent.velocity; vel.y = <span class="num">0f</span>;
+        animator.<span class="fn">SetFloat</span>(<span class="str">"MoveSpeed"</span>,       vel.magnitude);
+        animator.<span class="fn">SetFloat</span>(<span class="str">"AttackSpeed"</span>,     <span class="fn">GetEffectiveAttackSpeed</span>());
+        animator.<span class="fn">SetFloat</span>(<span class="str">"MoonlightPercent"</span>, MoonlightPercent);
+        animator.<span class="fn">SetBool</span>(<span class="str">"SurgeActive"</span>,      surgeActive);
+        animator.<span class="fn">SetBool</span>(<span class="str">"Untargetable"</span>,     isUntargetable);
+    }
+}
+
+<span class="kw">public class</span> <span class="cls">CrowdControlReceiver</span> : <span class="cls">MonoBehaviour</span>
+{
+    <span class="kw">public void</span> <span class="fn">ApplySlow</span>     (<span class="kw">float</span> factor, <span class="kw">float</span> duration) { <span class="cm">/* reduce agent speed by factor */</span> }
+    <span class="kw">public void</span> <span class="fn">ApplyRoot</span>     (<span class="kw">float</span> duration)               { <span class="cm">/* immobilise agent */</span> }
+    <span class="kw">public void</span> <span class="fn">ApplyKnockback</span>(<span class="cls">Vector3</span> dir, <span class="kw">float</span> dist)      { <span class="cm">/* push via Rigidbody / NavMesh */</span> }
+}
+
+<span class="kw">public class</span> <span class="cls">Health</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">SerializeField</span>] <span class="kw">private float</span> hp = <span class="num">1000f</span>;
+    <span class="kw">public void</span> <span class="fn">ApplyPhysicalDamage</span>(<span class="kw">float</span> dmg) => hp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, hp - dmg);
+    <span class="kw">public void</span> <span class="fn">ApplyMagicDamage</span>   (<span class="kw">float</span> dmg) => hp = <span class="cls">Mathf</span>.Max(<span class="num">0f</span>, hp - dmg);
+}</pre>
+    </div>
+
+    <!-- ArtemisCombatVFX.cs -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">C#</span> ArtemisCombatVFX.cs</div>
+        <button class="copy-btn" onclick="copyCode('code3', this)">Copy</button>
+      </div>
+      <pre id="code3"><span class="cm">// ArtemisCombatVFX.cs
+// VFX binder: bow draw glow tied to MoonlightPercent, silver arrow tracer,
+// Mark sigil billboard particle, hunting hound summon + bite,
+// bramble snare vines, Moonfall rain + stag charge lines,
+// surge glow state, death graceful dissolve.</span>
+
+<span class="kw">using</span> <span class="cls">UnityEngine</span>;
+
+<span class="kw">public class</span> <span class="cls">ArtemisCombatVFX</span> : <span class="cls">MonoBehaviour</span>
+{
+    [<span class="cls">Header</span>(<span class="str">"Particle Systems"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> arrowTrailFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> markArrowFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> markSigilFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> critFlashFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> houndSummonFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> houndBiteFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> brambleSnareFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> moonfallChannelFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> moonfallRainFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> stagChargeFx;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">ParticleSystem</span> deathDissolveFx;
+
+    [<span class="cls">Header</span>(<span class="str">"Line Renderers"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">LineRenderer</span> arrowTracerLine;
+
+    [<span class="cls">Header</span>(<span class="str">"Materials using HLSL Shaders"</span>)]
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> bowRenderer;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> armorRenderer;
+    [<span class="cls">SerializeField</span>] <span class="kw">private</span> <span class="cls">Renderer</span> moonfallGroundRenderer;
+
+    <span class="kw">private static readonly int</span> MlPercent   = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_MLPercent"</span>);
+    <span class="kw">private static readonly int</span> SurgeGlow   = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_SurgeGlow"</span>);
+    <span class="kw">private static readonly int</span> HpFade      = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_HpFade"</span>);
+    <span class="kw">private static readonly int</span> Dissolve    = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_Dissolve"</span>);
+    <span class="kw">private static readonly int</span> PulseRadius = <span class="cls">Shader</span>.<span class="fn">PropertyToID</span>(<span class="str">"_Radius"</span>);
+
+    <span class="kw">public void</span> <span class="fn">UpdateHeroState</span>(<span class="kw">float</span> hpPct, <span class="kw">float</span> mlPct, <span class="kw">bool</span> surge, <span class="kw">bool</span> isMoving)
+    {
+        <span class="kw">if</span> (bowRenderer   != <span class="kw">null</span>) bowRenderer.material.<span class="fn">SetFloat</span>(MlPercent, mlPct);
+        <span class="kw">if</span> (armorRenderer != <span class="kw">null</span>) { armorRenderer.material.<span class="fn">SetFloat</span>(HpFade, <span class="num">1f</span> - hpPct); armorRenderer.material.<span class="fn">SetFloat</span>(SurgeGlow, surge ? <span class="num">1f</span> : <span class="num">0f</span>); }
+    }
+
+    <span class="kw">public void</span> <span class="fn">SetSurgeGlow</span>(<span class="kw">bool</span> active)
+    {
+        <span class="kw">if</span> (armorRenderer != <span class="kw">null</span>) armorRenderer.material.<span class="fn">SetFloat</span>(SurgeGlow, active ? <span class="num">1f</span> : <span class="num">0f</span>);
+        <span class="kw">if</span> (bowRenderer   != <span class="kw">null</span>) bowRenderer.material.<span class="fn">SetFloat</span>(SurgeGlow, active ? <span class="num">1f</span> : <span class="num">0f</span>);
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayArrowFire</span>(<span class="cls">Vector3</span> from, <span class="cls">Vector3</span> to, <span class="kw">bool</span> marked)
+    {
+        <span class="kw">if</span> (arrowTracerLine != <span class="kw">null</span>)
+        {
+            arrowTracerLine.SetPosition(<span class="num">0</span>, from);
+            arrowTracerLine.SetPosition(<span class="num">1</span>, to);
+            <span class="fn">StartCoroutine</span>(<span class="fn">FadeTracer</span>(<span class="num">0.12f</span>));
+        }
+        <span class="kw">if</span> (arrowTrailFx != <span class="kw">null</span>) { arrowTrailFx.transform.position = from; arrowTrailFx.transform.forward = (to - from).normalized; arrowTrailFx.<span class="fn">Play</span>(); }
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayMarkArrow</span>    (<span class="cls">Vector3</span> from, <span class="cls">Vector3</span> to)   => <span class="fn">PlayAtDir</span>(markArrowFx,  from, (to-from).normalized);
+    <span class="kw">public void</span> <span class="fn">PlayMarkSigil</span>    (<span class="cls">Vector3</span> pos, <span class="kw">float</span> dur)     => <span class="fn">PlayAt</span>(markSigilFx, pos);
+    <span class="kw">public void</span> <span class="fn">PlayCritFlash</span>    (<span class="cls">Vector3</span> pos)                 => <span class="fn">PlayAt</span>(critFlashFx,  pos);
+    <span class="kw">public void</span> <span class="fn">PlayHoundBite</span>    (<span class="cls">Vector3</span> pos)                 => <span class="fn">PlayAt</span>(houndBiteFx,  pos);
+
+    <span class="kw">public void</span> <span class="fn">PlayHoundSummon</span>(<span class="cls">Vector3</span> from, <span class="cls">Vector3</span> to)
+    {
+        <span class="kw">if</span> (houndSummonFx == <span class="kw">null</span>) <span class="kw">return</span>;
+        houndSummonFx.transform.position = from;
+        houndSummonFx.transform.forward  = (to - from).normalized;
+        houndSummonFx.<span class="fn">Play</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayBrambleSnare</span>(<span class="cls">Vector3</span> center, <span class="kw">float</span> radius, <span class="kw">float</span> duration)
+    {
+        <span class="kw">if</span> (brambleSnareFx == <span class="kw">null</span>) <span class="kw">return</span>;
+        brambleSnareFx.transform.position = center;
+        <span class="kw">var</span> main = brambleSnareFx.main; main.duration = duration;
+        brambleSnareFx.<span class="fn">Play</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">StartMoonfallChannel</span>(<span class="cls">Vector3</span> pos) => <span class="fn">PlayAt</span>(moonfallChannelFx, pos);
+
+    <span class="kw">public void</span> <span class="fn">PlayMoonfallRain</span>(<span class="cls">Vector3</span> center, <span class="kw">float</span> radius, <span class="kw">int</span> count, <span class="kw">float</span> duration)
+    {
+        <span class="kw">if</span> (moonfallRainFx != <span class="kw">null</span>)
+        {
+            moonfallRainFx.transform.position = center + <span class="cls">Vector3</span>.up * <span class="num">18f</span>;
+            <span class="kw">var</span> shape = moonfallRainFx.shape; shape.radius = radius;
+            <span class="kw">var</span> main  = moonfallRainFx.main;  main.duration = duration;
+            moonfallRainFx.<span class="fn">Play</span>();
+        }
+        <span class="kw">if</span> (moonfallGroundRenderer != <span class="kw">null</span>) moonfallGroundRenderer.material.<span class="fn">SetFloat</span>(PulseRadius, radius);
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayStagCharge</span>(<span class="cls">Vector3</span> from, <span class="cls">Vector3</span> dir, <span class="kw">float</span> duration)
+    {
+        <span class="kw">if</span> (stagChargeFx == <span class="kw">null</span>) <span class="kw">return</span>;
+        stagChargeFx.transform.position = from;
+        stagChargeFx.transform.forward  = dir;
+        stagChargeFx.<span class="fn">Play</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">StopMoonfallChannel</span>()
+    {
+        <span class="kw">if</span> (moonfallChannelFx != <span class="kw">null</span>) moonfallChannelFx.<span class="fn">Stop</span>();
+        <span class="kw">if</span> (moonfallRainFx   != <span class="kw">null</span>) moonfallRainFx.<span class="fn">Stop</span>();
+    }
+
+    <span class="kw">public void</span> <span class="fn">PlayDeath</span>(<span class="cls">Vector3</span> pos)
+    {
+        <span class="kw">if</span> (deathDissolveFx != <span class="kw">null</span>) { deathDissolveFx.transform.position = pos; deathDissolveFx.<span class="fn">Play</span>(); }
+        <span class="kw">if</span> (armorRenderer   != <span class="kw">null</span>) armorRenderer.material.<span class="fn">SetFloat</span>(Dissolve, <span class="num">1f</span>);
+        <span class="kw">if</span> (bowRenderer     != <span class="kw">null</span>) bowRenderer.material.<span class="fn">SetFloat</span>(Dissolve,   <span class="num">1f</span>);
+    }
+
+    <span class="kw">private void</span> <span class="fn">PlayAt</span>   (<span class="cls">ParticleSystem</span> ps, <span class="cls">Vector3</span> p)                  { <span class="kw">if</span> (ps==<span class="kw">null</span>) <span class="kw">return</span>; ps.transform.position = p; ps.<span class="fn">Play</span>(); }
+    <span class="kw">private void</span> <span class="fn">PlayAtDir</span>(<span class="cls">ParticleSystem</span> ps, <span class="cls">Vector3</span> p, <span class="cls">Vector3</span> d)       { <span class="kw">if</span> (ps==<span class="kw">null</span>) <span class="kw">return</span>; ps.transform.position = p; ps.transform.forward = d; ps.<span class="fn">Play</span>(); }
+
+    <span class="kw">private</span> System.Collections.<span class="cls">IEnumerator</span> <span class="fn">FadeTracer</span>(<span class="kw">float</span> dur)
+    {
+        <span class="kw">float</span> t = <span class="num">0f</span>; <span class="cls">Color</span> s = arrowTracerLine.startColor;
+        <span class="kw">while</span> (t < dur) { t += <span class="cls">Time</span>.deltaTime; <span class="kw">float</span> a = <span class="num">1f</span> - t/dur; arrowTracerLine.startColor = arrowTracerLine.endColor = <span class="kw">new</span> <span class="cls">Color</span>(s.r,s.g,s.b,a); <span class="kw">yield return null</span>; }
+        arrowTracerLine.startColor = arrowTracerLine.endColor = <span class="cls">Color</span>.clear;
+    }
+}</pre>
+    </div>
+
+    <!-- Meshy Prompt -->
+    <div class="code-file" style="margin-top:20px">
+      <div class="code-file-header">
+        <div class="file-name"><span class="file-lang lang-cs">TXT</span> MeshyAI_Prompt_Artemis.txt</div>
+        <button class="copy-btn" onclick="copyCode('code4', this)">Copy</button>
+      </div>
+      <pre id="code4">MESHY AI PROMPT — ARTEMIS UNITY HERO (production version)
+
+Create a production-ready 3D humanoid hero for Unity, full body, clean topology, readable silhouette,
+divine fantasy epic stylization. Tall athletic lean female goddess — silver-white flowing hair loose
+or in high ponytail, silver-blue glowing eyes, pale divine skin with faint subtle luminosity. Wearing:
+silver-white short chiton tunic ending above the knee with a leather belt, gold-clasped leather
+pauldron over the right shoulder, silver bracers engraved with crescent moons and running stags on
+both forearms, knee-high laced hunting boots in brown leather, crescent moon diadem on forehead
+glowing faintly, full back quiver of silver arrows with luminous tips. Holding a long silver recurve
+bow in the left hand — bow limbs engraved with stag and moon motifs, glowing bowstring at light-draw
+tension. Chiton as separate cloth-simulation ready geometry, quiver as back attachment prop mesh,
+bow as separate prop mesh with emission zone on string, diadem as head geometry element, bracers as
+forearm attachment meshes.
+
+Game-ready: standard humanoid biped, tall slim proportions, clearly separated limbs, no fused cloth
+to leg geometry, chiton has hem physics-compatible edge loops. PBR textures with separate material
+zones for silver cloth, gold clasps, leather, divine skin, silver-white hair, bow limbs, bow string
+emission, arrow tip emission, bracers engraving zone.
+
+Animation intent: bow-raised combat idle, ambient sky-gazing idle, swift run sprint lean forward,
+arrow draw-and-release basic attack, mark arrow aim pose, hound summon forward gesture, bramble snare
+ground strike, Moonfall divine draw (arms raised bow toward sky, full-moon radiance builds), Moonfall
+fire (sweeping release), untargetable channel (translucent moonlight step), hit graceful stumble,
+death kneeling moonlight collapse.
+
+Export target: Unity humanoid FBX, bind pose friendly, retarget-ready, game animation compatible.</pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ HLSL SHADERS ══════════ -->
+<div class="section" id="tab-shader">
+
+  <!-- Silver Bow + Armor Surface -->
+  <div class="code-file">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> SilverBowSurface.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader1', this)">Copy</button>
+    </div>
+    <pre id="shader1">// SilverBowSurface.shader
+// Applied to the Silver Bow of Artemis.
+// _MLPercent  : 0 = dim silver, 1 = bright moonlit glow (bow ready for Moonfall).
+// _SurgeGlow  : 0→1 when passive surge is active (>80% Moonlight).
+// The bowstring is a separate emission zone — crescent engravings on limbs pulse
+// with a cold blue-white light that brightens as Moonlight fills.
+
+Shader "Artemis/SilverBow"
+{
+    Properties
+    {
+        _BaseMap     ("Base Map", 2D)                = "white" {}
+        _BaseColor   ("Base Color", Color)            = (0.78, 0.85, 0.95, 1.0)
+        _MoonColor   ("Moon Glow Color", Color)       = (0.85, 0.95, 1.00, 1.0)
+        _SurgeColor  ("Surge Color", Color)           = (1.00, 1.00, 1.00, 1.0)
+        _MLPercent   ("Moonlight %", Range(0,1))      = 0.0
+        _SurgeGlow   ("Surge Glow",  Range(0,1))      = 0.0
+        _BaseGlow    ("Base Glow Intensity", Range(0,6))   = 1.2
+        _SurgeBoost  ("Surge Boost Intensity", Range(0,12)) = 5.0
+        _FresnelPow  ("Fresnel Power", Range(1,8))    = 2.5
+        _PulseSpeed  ("Pulse Speed",   Range(0,8))    = 3.0
+        _Dissolve    ("Dissolve", Range(0,1))          = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" }
+
+        Pass
+        {
+            Cull Back
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _BaseColor;
+                float4 _MoonColor;
+                float4 _SurgeColor;
+                float  _MLPercent;
+                float  _SurgeGlow;
+                float  _BaseGlow;
+                float  _SurgeBoost;
+                float  _FresnelPow;
+                float  _PulseSpeed;
+                float  _Dissolve;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 normalWS : TEXCOORD1; float3 viewDirWS : TEXCOORD2; float3 worldPos : TEXCOORD3; };
+
+            float hash21(float2 p) { p = frac(p * float2(127.1, 311.7)); p += dot(p, p + 34.345); return frac(p.x * p.y); }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                VertexPositionInputs pos = GetVertexPositionInputs(IN.positionOS.xyz);
+                VertexNormalInputs   nor = GetVertexNormalInputs(IN.normalOS);
+                OUT.positionCS = pos.positionCS;
+                OUT.uv         = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.normalWS   = normalize(nor.normalWS);
+                OUT.viewDirWS  = GetWorldSpaceNormalizeViewDir(pos.positionWS);
+                OUT.worldPos   = pos.positionWS;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // Moonlight dissolve on death
+                float noise = hash21(floor(IN.worldPos.xz * 11.0));
+                clip(noise - saturate(_Dissolve * 1.05));
+
+                half4 albedo  = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                float fresnel = pow(1.0 - saturate(dot(IN.normalWS, IN.viewDirWS)), _FresnelPow);
+
+                // Moonlight charging pulse along limbs
+                float mlPulse   = (0.5 + 0.5 * sin(_Time.y * _PulseSpeed)) * _MLPercent;
+                float fullPulse  = saturate((_MLPercent - 0.85) * 6.67); // ramps at 85%+
+
+                // Surge overclock — everything goes brilliant white
+                float surgePulse = (0.6 + 0.4 * sin(_Time.y * _PulseSpeed * 1.8)) * _SurgeGlow;
+
+                half3 moonEmit  = _MoonColor.rgb  * _BaseGlow  * (fresnel * 0.5 + mlPulse  * 0.6 + fullPulse);
+                half3 surgeEmit = _SurgeColor.rgb * _SurgeBoost * surgePulse * fresnel;
+
+                return half4(albedo.rgb + moonEmit + surgeEmit, albedo.a);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Arrow Tracer Shader -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> MoonlightArrowTracer.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader2', this)">Copy</button>
+    </div>
+    <pre id="shader2">// MoonlightArrowTracer.shader
+// Applied to the LineRenderer for basic arrow tracers and Moonfall rain arrows.
+// Cold silver-blue core, fading cool white edge. Faster fade than warm tracers.
+// _IsMarked: 0 = normal silver, 1 = brighter cyan (Marked target homing arrow).
+
+Shader "Artemis/MoonlightArrowTracer"
+{
+    Properties
+    {
+        _CoreColor  ("Core Color",  Color)        = (0.90, 0.97, 1.00, 1.0)
+        _EdgeColor  ("Edge Color",  Color)        = (0.40, 0.70, 1.00, 0.55)
+        _MarkedBoost("Marked Color Boost", Color) = (0.40, 1.00, 0.90, 1.0)
+        _Intensity  ("Intensity",   Range(0,10))  = 4.5
+        _IsMarked   ("Is Marked Arrow", Range(0,1)) = 0.0
+        _WidthFall  ("Width Falloff",   Range(1,8)) = 3.5
+        _LengthFade ("Length Fade",     Range(0,1)) = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha One
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _CoreColor;
+                float4 _EdgeColor;
+                float4 _MarkedBoost;
+                float  _Intensity;
+                float  _IsMarked;
+                float  _WidthFall;
+                float  _LengthFade;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
+                OUT.uv = IN.uv;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float centreW    = pow(1.0 - abs(IN.uv.y * 2.0 - 1.0), _WidthFall);
+                float lengthFade = 1.0 - _LengthFade;
+
+                // Marked arrows get a cyan-teal tint
+                half3 core = lerp(_CoreColor.rgb, _MarkedBoost.rgb, _IsMarked);
+                half3 color = lerp(_EdgeColor.rgb, core, centreW) * _Intensity;
+                float alpha = centreW * lengthFade * _CoreColor.a;
+                return half4(color, alpha);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Mark Sigil Billboard -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> MarkSigilBillboard.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader3', this)">Copy</button>
+    </div>
+    <pre id="shader3">// MarkSigilBillboard.shader
+// The crescent moon sigil that floats above a Marked target's head.
+// Applied to a quad billboard mesh parented to the target.
+// Rotates slowly, pulses with moonlight, fades out as Mark expires.
+// _MarkPercent: 1 = freshly applied, 0 = expired (driven by CPU timer lerp).
+
+Shader "Artemis/MarkSigilBillboard"
+{
+    Properties
+    {
+        _SigilTex     ("Sigil Texture (crescent)", 2D) = "white" {}
+        _SigilColor   ("Sigil Color",   Color)          = (0.70, 0.90, 1.00, 0.90)
+        _GlowColor    ("Glow Color",    Color)          = (1.00, 1.00, 1.00, 1.00)
+        _MarkPercent  ("Mark % (1=fresh, 0=gone)", Range(0,1)) = 1.0
+        _RotateSpeed  ("Rotate Speed",  Range(-4,4))    = 1.2
+        _PulseSpeed   ("Pulse Speed",   Range(0,8))     = 4.0
+        _Intensity    ("Intensity",     Range(0,8))     = 2.5
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent+20" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_SigilTex); SAMPLER(sampler_SigilTex);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _SigilTex_ST;
+                float4 _SigilColor;
+                float4 _GlowColor;
+                float  _MarkPercent;
+                float  _RotateSpeed;
+                float  _PulseSpeed;
+                float  _Intensity;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            float2 RotUV(float2 uv, float a) {
+                float s = sin(a); float c = cos(a);
+                uv -= 0.5;
+                return float2(uv.x*c - uv.y*s, uv.x*s + uv.y*c) + 0.5;
+            }
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
+                OUT.uv = IN.uv;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float2 rotUv  = RotUV(IN.uv, _Time.y * _RotateSpeed);
+                half4  sigil  = SAMPLE_TEXTURE2D(_SigilTex, sampler_SigilTex, rotUv);
+                float  pulse  = 0.65 + 0.35 * sin(_Time.y * _PulseSpeed);
+
+                // Color shifts toward pure white as mark is about to expire
+                half3  color  = lerp(_SigilColor.rgb, _GlowColor.rgb, pulse * 0.3) * _Intensity;
+                float  alpha  = sigil.a * _MarkPercent * pulse * _SigilColor.a;
+
+                return half4(color * sigil.rgb, alpha);
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- Moonfall Ground Shimmer -->
+  <div class="code-file" style="margin-top:20px">
+    <div class="code-file-header">
+      <div class="file-name"><span class="file-lang lang-hlsl">HLSL</span> MoonfallGroundShimmer.shader</div>
+      <button class="copy-btn" onclick="copyCode('shader4', this)">Copy</button>
+    </div>
+    <pre id="shader4">// MoonfallGroundShimmer.shader
+// Full-circle ground effect during Moonfall — unlike Vash's semicircle,
+// Artemis's zone is a complete circle. Rolling silver-white shimmer spreads
+// inward from the radius edge as arrows rain down, fading as the volley ends.
+// _FillPercent driven by CPU over the volley duration (0=start, 1=fully active).
+
+Shader "Artemis/MoonfallGroundShimmer"
+{
+    Properties
+    {
+        _MoonColor  ("Moon Silver Color", Color)       = (0.80, 0.92, 1.00, 0.50)
+        _EdgeColor  ("Edge Glow Color",   Color)       = (1.00, 1.00, 1.00, 0.90)
+        _Radius     ("Zone Radius",       Float)       = 14.0
+        _FillPercent("Fill %",            Range(0,1))  = 0.0
+        _RippleSpeed("Ripple Speed",      Range(0,6))  = 2.8
+        _RippleCount("Ripple Rings",      Range(1,8))  = 4.0
+        _FadeOut    ("Fade Out",          Range(0,1))  = 0.0
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull Off
+
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MoonColor;
+                float4 _EdgeColor;
+                float  _Radius;
+                float  _FillPercent;
+                float  _RippleSpeed;
+                float  _RippleCount;
+                float  _FadeOut;
+            CBUFFER_END
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
+                OUT.uv = IN.uv * 2.0 - 1.0;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float dist = length(IN.uv); // 0=center, 1=edge at radius
+
+                // Zone fill boundary — expands inward from edge as FillPercent rises
+                float boundary = 1.0 - _FillPercent;
+                float fill     = smoothstep(boundary + 0.05, boundary, dist);
+
+                // Concentric ripple rings spreading inward (arrows hitting ground)
+                float ripple   = 0.5 + 0.5 * sin((dist * _RippleCount - _Time.y * _RippleSpeed) * 6.2831);
+                ripple         = smoothstep(0.3, 0.7, ripple) * fill;
+
+                // Bright edge ring at zone boundary
+                float edgeRing = smoothstep(1.0, 0.88, dist) * smoothstep(0.80, 1.0, dist);
+
+                float fade      = saturate(1.0 - _FadeOut);
+                half3 color     = lerp(_MoonColor.rgb, _EdgeColor.rgb, ripple * 0.4 + edgeRing * 0.6);
+                float alpha     = (fill * _MoonColor.a * 0.4 + ripple * 0.35 + edgeRing * _EdgeColor.a) * fade;
+
+                return half4(color, saturate(alpha));
+            }
+            ENDHLSL
+        }
+    }
+}</pre>
+  </div>
+
+</div>
+
+<!-- ══════════ 3D AI TOOLS ══════════ -->
+<div class="section" id="tab-tools">
+  <div class="tools-grid">
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#e8f0ff">🧊</div><div><div class="tool-name">Meshy AI</div><div class="tool-cat">Text/Image → 3D Mesh</div></div></div>
+      <div class="tool-desc">Excellent fit for Artemis — the clean athletic humanoid form with light cloth and clear armor zones is exactly where Meshy excels. The chiton and quiver are well within its generation capabilities. The recurve bow as a separate prop mesh with a glowing string generates cleanly. Use the dedicated Meshy prompt in the Scripts tab as the primary generation target.</div>
+      <div class="tool-tags"><span class="tool-tag green">FBX Unity-ready</span><span class="tool-tag blue">Auto-rig humanoid</span><span class="tool-tag silver">Bow prop</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#dbeafe">🎯</div><div><div class="tool-name">Kaedim</div><div class="tool-cat">Concept Art → 3D Game Asset</div></div></div>
+      <div class="tool-desc">The best path when starting from Midjourney concept art. Kaedim's conversion pipeline handles the divine armor layering — chiton over bracers over belt — and the subtle engraving details on the bow limbs and diadem exceptionally well. Particularly recommended for getting the crescent moon engravings right as readable geometry for the shader emission pass.</div>
+      <div class="tool-tags"><span class="tool-tag green">Game topology</span><span class="tool-tag blue">2D→3D</span><span class="tool-tag orange">Pro tier</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#ede9fe">🌀</div><div><div class="tool-name">Luma AI — Genie</div><div class="tool-cat">Text → 3D fast</div></div></div>
+      <div class="tool-desc">Excellent for Artemis's companion assets: the sacred silver stag prop meshes (used for the Moonfall charge FX), the hunting hound companion mesh, individual arrow shaft props for the quiver, and sacred Greek forest environment dressing (cypress trees, stone altars, moonlit pools). Fast iteration without touching the main character rig.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free tier</span><span class="tool-tag hunt">Stag props</span><span class="tool-tag blue">API</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#ffedd5">🎨</div><div><div class="tool-name">Midjourney + Blender</div><div class="tool-cat">Hybrid studio workflow</div></div></div>
+      <div class="tool-desc">The definitive pipeline for Artemis. Midjourney generates divine huntress concept art across multiple poses (front/side/Moonfall channel). Blender handles chiton cloth simulation, bow engraving UV islands for emission masking, quiver arrow rig constraints, diadem and bracer geometry polish, and the sacred stag meshes for the ultimate charge. Best results come from treating the bow as a hero asset requiring dedicated attention.</div>
+      <div class="tool-tags"><span class="tool-tag purple">Best quality</span><span class="tool-tag orange">Artist required</span><span class="tool-tag silver">Bow UV work</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#d1fae5">⚡</div><div><div class="tool-name">Mixamo (Adobe)</div><div class="tool-cat">Auto-rig &amp; Animation</div></div></div>
+      <div class="tool-desc">Superb for Artemis's fluid archer animations: draw-and-release, combat stances, graceful running form. The clean slim humanoid biped retargets excellently. The Moonfall channel (arms raised toward sky, divine energy build) and the sacred stag entry sequence during the ultimate will require manual Unity Animator custom layers — these are cinematically distinct enough to warrant hand-keyed work.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free with Adobe ID</span><span class="tool-tag blue">Auto-rig</span><span class="tool-tag purple">500+ animations</span></div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-header"><div class="tool-icon" style="background:#fef3c7">🦴</div><div><div class="tool-name">Spline AI</div><div class="tool-cat">3D interactive &amp; Environment</div></div></div>
+      <div class="tool-desc">Ideal for Artemis's sacred forest MOBA environment: moonlit grove arena tiles, stone altar props, cypress tree silhouettes, the sacred spring map feature, and the glowing crescent moon arch gateway. The Moonfall ground shimmer quad geometry and the Mark sigil billboard quad can be rapidly prototyped here before shader application in Unity.</div>
+      <div class="tool-tags"><span class="tool-tag green">Free</span><span class="tool-tag blue">Web export</span><span class="tool-tag hunt">Sacred forest</span></div>
+    </div>
+
+  </div>
+
+  <div class="workflow-box">
+    <h3>Recommended Pipeline for Artemis in Unity</h3>
+    <div class="workflow-steps">
+      <div class="wstep"><div class="wnum">1</div><span><span style="color:#a0c8ff">Claude</span> <span class="warrow">→</span> Prompt design + C# Scripts + HLSL Shaders (this package)</span></div>
+      <div class="wstep"><div class="wnum">2</div><span><span style="color:#80f0b8">Midjourney</span> <span class="warrow">→</span> Artemis concept art — front + side + Moonfall channel pose — from Design Brief prompt</span></div>
+      <div class="wstep"><div class="wnum">3</div><span><span style="color:#a0c8ff">Meshy AI / Kaedim</span> <span class="warrow">→</span> Character mesh from Meshy prompt; Silver Bow + quiver + stag + hound as separate props via Luma</span></div>
+      <div class="wstep"><div class="wnum">4</div><span><span style="color:#f0d880">Blender post-process</span> <span class="warrow">→</span> Chiton cloth sim, bow engraving emission UV islands, diadem geo polish, stag mesh retopology</span></div>
+      <div class="wstep"><div class="wnum">5</div><span><span style="color:#b0a0ff">Mixamo</span> <span class="warrow">→</span> Base rig + archer animations; Unity Animator custom layers for Moonfall channel + stag charge sequence</span></div>
+      <div class="wstep"><div class="wnum">6</div><span><span style="color:#d0e8ff">Unity</span> <span class="warrow">→</span> FBX Humanoid + ArtemisController + Animator + 4 Shaders + Stag / Hound companion spawner system</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function copyCode(id, btn) {
+  const pre = document.getElementById(id);
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyPrompt(btn) {
+  const box = btn.previousElementSibling;
+  navigator.clipboard.writeText(box.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
