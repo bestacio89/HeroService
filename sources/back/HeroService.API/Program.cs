@@ -1,6 +1,5 @@
 
 using HeroService.Application;
-using HeroService.Application.Heroes.Commands;
 using HeroService.Persistence;
 using Franz.Common.Http.Bootstrap.Extensions;
 using Franz.Common.Http.EntityFramework.Extensions;
