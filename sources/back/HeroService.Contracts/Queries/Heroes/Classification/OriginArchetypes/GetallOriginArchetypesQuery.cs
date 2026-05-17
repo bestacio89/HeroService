@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HeroService.Contracts.Queries.Heroes.Classification.OriginArchetype;
+namespace HeroService.Contracts.Queries.Heroes.Classification.OriginArchetypes;
 
 public sealed record GetAllOriginArchetypesQuery()
     : IQuery<IReadOnlyList<OriginArchetypeDto>>;
