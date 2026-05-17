@@ -3,66 +3,77 @@
 namespace HeroService.Domain.Heroes.Affiliations;
 
 /// <summary>
-/// Represents the intrinsic origin and mythological classification of a Hero.
-///
+/// Represents the full structural identity of a Hero across gameplay and world systems.
+/// 
 /// Domain Role:
-/// Encapsulates the fundamental background of a Hero by defining:
-/// - The high-level origin category (e.g., divine, human, demonic, artificial).
-/// - The specific mythology or cultural system the Hero belongs to.
-/// This is not cosmetic metadata; it defines the narrative and systemic identity of the Hero.
-///
+/// HeroAffiliation composes all identity axes that define a Hero's position in both:
+/// - Combat systems (gameplay balance)
+/// - World systems (lore and cultural context)
+/// 
+/// This includes:
+/// - OriginArchetype (core gameplay classification)
+/// - MythologyType (mythological framework / pantheon system)
+/// - OriginCulture (geographical or civilizational origin)
+/// 
 /// Matchmaking Relevance:
-/// - Acts as both a constraint and a synergy signal in matchmaking.
-/// - Used to:
-///   • Enable or restrict team compositions based on origin compatibility.
-///   • Apply bonuses/penalties for shared or conflicting mythological backgrounds.
-///   • Drive faction-like logic without being a strict "faction" system.
-/// - Can be leveraged by skills, effects, or rules that target specific origins or mythologies.
-///
+/// - OriginArchetype → PRIMARY axis (combat + balance)
+/// - MythologyType → SECONDARY axis (synergy + conditional logic)
+/// - OriginCulture → TERTIARY axis (mostly narrative, optional gameplay hooks)
+/// 
 /// Invariants:
-/// - OriginType must always be a valid, defined classification.
-/// - MythologyTypeId must reference an existing, valid mythology definition.
-/// - A Hero must have exactly one primary HeroAffiliation at any given time.
-/// - The combination of OriginType and MythologyTypeId must be semantically consistent
-///   (e.g., no invalid pairings like "Artificial" with a purely divine mythology unless explicitly supported).
-///
+/// - Each Hero must have exactly one value for each axis.
+/// - All referenced IDs must exist and be valid reference data.
+/// - Archetype changes are snapshot-critical.
+/// - Mythology/Culture are optional-impact depending on rule configuration.
+/// 
 /// Relationships:
 /// - Part of the Hero aggregate.
-/// - MythologyTypeId links to an external Mythology definition (reference data / lookup aggregate).
-/// - OriginType is a controlled enum that drives rule-based logic across the system.
-/// - Frequently referenced by:
-///   • Skills (conditional effects)
-///   • Affiliation-based rules
-///   • Matchmaking evaluators
-///
-/// Versioning / Snapshot Impact:
-/// - Considered a high-impact attribute for matchmaking.
-/// - Any change in OriginType or MythologyTypeId must trigger a new version/snapshot,
-///   as it can significantly alter compatibility, synergies, and constraints.
-/// - Must be included in snapshot comparisons and matchmaking cache keys.
-///
-/// Developer Notes:
-/// - Do NOT treat this as descriptive lore only—this is a core gameplay/mechanics driver.
-/// - Avoid hardcoding logic against specific MythologyTypeId values; rely on classification rules instead.
-/// - Ensure new mythology entries are properly registered and compatible with existing matchmaking logic.
-/// - This entity is intentionally minimal; behavior should live in domain services or rule evaluators.
-/// </summary>
+/// - Consumed by:
+///   • Matchmaking system
+///   • Hero catalog (UI + filtering)
+///   • Rule engines (conditional effects)
+///   • Snapshot resolver (only Archetype is required)
 /// 
-
-
-public class HeroAffiliation : Entity<Guid>
+/// Versioning / Snapshot Impact:
+/// - OriginArchetype → HIGH impact (mandatory snapshot regeneration)
+/// - MythologyType → MEDIUM impact (depends on rule usage)
+/// - OriginCulture → LOW impact (usually non-snapshot affecting)
+/// 
+/// Developer Notes:
+/// - Do NOT assume all axes have equal gameplay weight.
+/// - Archetype is the ONLY guaranteed gameplay axis.
+/// - Culture must remain safe for world expansion without balance impact.
+/// - Keep evaluation logic outside this entity.
+/// </summary>
+public sealed class HeroAffiliation
 {
-  public OriginType OriginType { get; private set; }
+  /// <summary>
+  /// Core gameplay identity axis.
+  /// Drives balance, matchmaking and rule systems.
+  /// </summary>
+  public OriginArchetype Archetype { get; private set; }
 
-  public Guid MythologyTypeId { get; private set; }
+  /// <summary>
+  /// Mythological framework affiliation.
+  /// Used for synergy and conditional systems.
+  /// </summary>
+  public MythologyType Mythology { get; private set; }
+
+  /// <summary>
+  /// Narrative/cultural origin.
+  /// Primarily used for lore and thematic systems.
+  /// </summary>
+  public OriginCulture OriginCulture{ get; private set; }
 
   private HeroAffiliation() { }
 
-  public HeroAffiliation(OriginType originType, Guid mythologyTypeId)
+  public HeroAffiliation(
+      OriginArchetype archetype,
+      MythologyType mythology,
+      OriginCulture originCulture)
   {
-    OriginType = originType;
-    MythologyTypeId = mythologyTypeId;
-
-    MarkCreated("system");
+    Archetype = archetype ?? throw new ArgumentNullException(nameof(archetype));
+    Mythology = mythology ?? throw new ArgumentNullException(nameof(mythology));
+    OriginCulture = originCulture ?? throw new ArgumentNullException(nameof(originCulture));
   }
 }
