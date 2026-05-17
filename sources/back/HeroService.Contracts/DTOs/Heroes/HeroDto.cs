@@ -1,14 +1,11 @@
-﻿using HeroService.Domain.Heroes.Affiliations.Classifications;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using HeroService.Contracts.DTOs.Heroes;
 
-namespace HeroService.Contracts.DTOs.Heroes;
-
-public record HeroDto(
+public sealed record HeroDto(
     Guid Id,
     string Name,
     Guid HeroClassId,
-    OriginType OriginType,
-    MythologyType MythologyType
+    HeroClassDto Class,
+    HeroAffiliationDto Affiliation,
+    HeroBaseStatsDto BaseStats,
+    HeroSkillKitDto SkillKit
 );
