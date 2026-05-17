@@ -53,4 +53,26 @@ public class MythologyType : Entity<Guid>
     Name = name;
     MarkCreated(createdBy);
   }
+
+  public void Define(string name, string createdBy)
+  {
+    if (string.IsNullOrWhiteSpace(name))
+      throw new ArgumentException("HeroClass name is required.");
+
+    Name = name;
+
+    MarkCreated(createdBy);
+  }
+
+  public void Rename(string name, string modifiedBy)
+  {
+    if (string.IsNullOrWhiteSpace(name))
+      throw new ArgumentException("Name cannot be empty.");
+
+    if (Name == name)
+      return;
+
+    Name = name;
+    MarkUpdated(modifiedBy);
+  }
 }

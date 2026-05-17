@@ -56,19 +56,36 @@ public sealed class HeroLore : Entity<Guid>
 {
   public Guid HeroId { get; private set; }
 
-  public string Title { get; private set; }
-  public string Description { get; private set; }
-  public string BackgroundStory { get; private set; }
+  public string Title { get; private set; } = string.Empty;
+  public string Description { get; private set; } = string.Empty;
+  public string BackgroundStory { get; private set; } = string.Empty;
 
   private HeroLore() { }
 
-  public HeroLore(Guid heroId, string title, string description, string background)
+  public void Define(
+      Guid heroId,
+      string title,
+      string description,
+      string background,
+      string createdBy)
   {
+    if (heroId == Guid.Empty)
+      throw new ArgumentException("HeroId is required.");
+
+    if (string.IsNullOrWhiteSpace(title))
+      throw new ArgumentException("Title is required.");
+
+    if (string.IsNullOrWhiteSpace(description))
+      throw new ArgumentException("Description is required.");
+
+    if (string.IsNullOrWhiteSpace(background))
+      throw new ArgumentException("Background story is required.");
+
     HeroId = heroId;
     Title = title;
     Description = description;
     BackgroundStory = background;
 
-    MarkCreated("system");
+    MarkCreated(createdBy);
   }
 }

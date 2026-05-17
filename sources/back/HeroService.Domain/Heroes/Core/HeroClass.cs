@@ -65,9 +65,13 @@ public class HeroClass : Entity<Guid>
 
   private HeroClass() { }
 
-  public HeroClass(string name, string createdBy)
+  public void Define(string name, string createdBy)
   {
+    if (string.IsNullOrWhiteSpace(name))
+      throw new ArgumentException("HeroClass name is required.");
+
     Name = name;
+
     MarkCreated(createdBy);
   }
 }

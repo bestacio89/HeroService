@@ -67,15 +67,9 @@ public class HeroBaseStats : Entity<Guid>
 {
   public Guid HeroId { get; private set; }
 
-  // =========================
-  // PRIMARY RESOURCES
-  // =========================
   public float BaseHealth { get; private set; }
   public float BaseMana { get; private set; }
 
-  // =========================
-  // OFFENSIVE STATS
-  // =========================
   public float BaseAttackDamage { get; private set; }
   public float BaseAbilityPower { get; private set; }
 
@@ -83,31 +77,19 @@ public class HeroBaseStats : Entity<Guid>
   public float BaseCritChance { get; private set; }
   public float BaseCritDamageMultiplier { get; private set; }
 
-  // =========================
-  // DEFENSIVE STATS
-  // =========================
   public float BaseArmor { get; private set; }
   public float BaseMagicResistance { get; private set; }
   public float BaseDamageReduction { get; private set; }
 
   public float BaseShieldStrengthMultiplier { get; private set; }
 
-  // =========================
-  // TEMPO / MOBILITY
-  // =========================
   public float BaseMovementSpeed { get; private set; }
   public float BaseAttackRange { get; private set; }
   public float BaseCastSpeed { get; private set; }
 
-  // =========================
-  // COOLDOWN / ECONOMY
-  // =========================
   public float BaseCooldownReduction { get; private set; }
   public float BaseResourceRegeneration { get; private set; }
 
-  // =========================
-  // SCALING CONTROL (IMPORTANT FOR SNAPSHOT SYSTEM)
-  // =========================
   public float HealthScalingPerLevel { get; private set; }
   public float ManaScalingPerLevel { get; private set; }
   public float AttackDamageScalingPerLevel { get; private set; }
@@ -115,7 +97,10 @@ public class HeroBaseStats : Entity<Guid>
 
   private HeroBaseStats() { }
 
-  public HeroBaseStats(
+  // =========================================================
+  // DEFINE (ONLY VALID INITIALIZATION PATH)
+  // =========================================================
+  public void Define(
     Guid heroId,
 
     float baseHealth,
@@ -144,9 +129,13 @@ public class HeroBaseStats : Entity<Guid>
     float healthScalingPerLevel,
     float manaScalingPerLevel,
     float attackDamageScalingPerLevel,
-    float abilityPowerScalingPerLevel
-  )
+    float abilityPowerScalingPerLevel,
+
+    string createdBy)
   {
+    if (heroId == Guid.Empty)
+      throw new ArgumentException("HeroId is required.");
+
     HeroId = heroId;
 
     BaseHealth = baseHealth;
@@ -176,5 +165,7 @@ public class HeroBaseStats : Entity<Guid>
     ManaScalingPerLevel = manaScalingPerLevel;
     AttackDamageScalingPerLevel = attackDamageScalingPerLevel;
     AbilityPowerScalingPerLevel = abilityPowerScalingPerLevel;
+
+    MarkCreated(createdBy);
   }
 }
