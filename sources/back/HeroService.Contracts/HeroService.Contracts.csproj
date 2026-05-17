@@ -14,12 +14,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Commands\Heroes\Classifications\NewFolder1\" />
+    <Folder Include="Commands\Heroes\Classifications\NewFolder2\" />
     <Folder Include="Features\Example\Commands\" />
     <Folder Include="Features\Example\Queries\" />
     <Folder Include="Features\Example\Persistence\" />
     <Folder Include="Features\Example\Infrastructure\" />
     <Folder Include="Infrastructure\" />
-    <Folder Include="Queries\" />
   </ItemGroup>
 
 </Project>

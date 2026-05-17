@@ -44,9 +44,9 @@ namespace HeroService.Persistence
     public DbSet<HeroLore> HeroLore => Set<HeroLore>();
     public DbSet<SkillLore> SkillLore => Set<SkillLore>();
     public DbSet<HeroClass> HeroClasses => Set<HeroClass>();
+    public DbSet<OriginCulture> Origincultures => Set<OriginCulture>();
+    public DbSet<OriginArchetype> OriginArchetypes => Set<OriginArchetype>();
 
-
-
-    // Later: DbSet<Loan>, DbSet<Reservation>, etc.
+   
   }
 }
