@@ -1,24 +1,26 @@
 ﻿using HeroService.Contracts.Persistence;
-using HeroService.Domain.Heroes.Affiliations;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
-using Microsoft.EntityFrameworkCore;
-#nullable enable
-namespace HeroService.Persistence.Repositories;
+using HeroService.Domain.Heroes.Core;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-public sealed class ArchetypeRepository : IArchetypeRepository
+namespace HeroService.Persistence.Persistence.Repositories;
+
+public class HeroClassRepository : IHeroClassRepository
 {
   private readonly ApplicationDbContext dbContext;
 
-  public ArchetypeRepository(ApplicationDbContext dbContext)
+  public HeroClassRepository(ApplicationDbContext dbContext)
   {
     this.dbContext = dbContext;
   }
 
-  public async Task<OriginArchetype?> GetByNameAsync(
+  public async Task<HeroClass?> GetByNameAsync(
     string name,
     CancellationToken cancellationToken = default)
   {
-    return await dbContext.Set<OriginArchetype>()
+    return await dbContext.Set<HeroClass>()
       .AsNoTracking()
       .FirstOrDefaultAsync(
         x => x.Name == name,
