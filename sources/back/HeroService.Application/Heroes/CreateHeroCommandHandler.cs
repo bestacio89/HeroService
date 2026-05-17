@@ -1,56 +1,25 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
 using Franz.Common.Mediator.Handlers;
+using HeroService.Application.Heroes.Services;
 using HeroService.Contracts.Commands.Heroes;
+using HeroService.Contracts.DTOs.Requests;
 using HeroService.Contracts.Persistence;
+using HeroService.Domain.Heroes.Affiliations;
 using HeroService.Domain.Heroes.Core;
-
-namespace HeroService.Application.Heroes.Commands;
+using HeroService.Domain.Heroes.Core.Skills;
 
 public sealed class CreateHeroCommandHandler : ICommandHandler<CreateHeroCommand, Guid>
 {
-  private readonly IEntityRepository<Hero, Guid> _heroes;
-  private readonly IMythologyRepository _mythologies;
-  private readonly IHeroAffiliationRepository _affiliations;
-  private readonly IEntityFactory<Guid, Hero> _factory;
+  private readonly IHeroCreationService _creationService;
 
-  public CreateHeroCommandHandler(
-      IEntityRepository<Hero, Guid> heroes,
-      IMythologyRepository mythologies,
-      IHeroAffiliationRepository affiliations,
-      IEntityFactory<Guid, Hero> factory)
+  public CreateHeroCommandHandler(IHeroCreationService creationService)
   {
-    _heroes = heroes;
-    _mythologies = mythologies;
-    _affiliations = affiliations;
-    _factory = factory;
+    _creationService = creationService;
   }
 
-  public async Task<Guid> Handle(CreateHeroCommand request, CancellationToken cancellationToken)
+  public async Task<Guid> Handle(CreateHeroCommand command, CancellationToken ct)
   {
-    // 1. Resolve domain constraints (Mythology & Affiliation)
-    var mythology = await _mythologies.GetByNameAsync(request.MythologyCode, cancellationToken)
-        ?? throw new InvalidOperationException($"Mythology '{request.MythologyCode}' does not exist.");
-
-    var affiliation = await _affiliations.GetByOriginAndMythologyAsync(request.OriginType, mythology.Id, cancellationToken)
-        ?? throw new InvalidOperationException("Invalid Origin/Mythology pairing.");
-
-    // 2. Instantiate Aggregate via Factory
-    var hero = _factory.Create();
-
-    // 3. Initialize minimum required state
-    // We do NOT pass Skill IDs here because they are derived/projected 
-    // downstream based on HeroClass or specialized SkillKit lookup logic.
-    hero.Initialize(
-        request.Name,
-        request.HeroClassId,
-        affiliation.Id,
-        createdBy: "system"
-    );
-
-    // 4. Persist
-    await _heroes.AddAsync(hero, cancellationToken);
-
-    return hero.Id;
+    return await _creationService.CreateAsync(command.Request, ct);
   }
 }
