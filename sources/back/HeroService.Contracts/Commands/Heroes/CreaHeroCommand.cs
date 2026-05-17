@@ -1,14 +1,8 @@
 ﻿using Franz.Common.Mediator.Messages;
-using HeroService.Domain.Heroes.Affiliations.Classifications;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using HeroService.Contracts.DTOs.Requests;
 
 namespace HeroService.Contracts.Commands.Heroes;
 
 public sealed record CreateHeroCommand(
-    string Name,
-    Guid HeroClassId,
-    OriginType OriginType,
-    string MythologyCode
+    HeroCreateRequest Request
 ) : ICommand<Guid>;
