@@ -1,6 +1,7 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
-using HeroService.Application.Heroes.Services;
+using Franz.Common.Mediator.Context;
+using HeroService.Application.Commands.Heroes.Services;
 using HeroService.Contracts.DTOs.Requests;
 using HeroService.Contracts.Persistence;
 using HeroService.Domain.Heroes.Affiliations;
@@ -10,7 +11,9 @@ using HeroService.Domain.Heroes.Skills;
 
 public sealed class HeroCreationService : IHeroCreationService
 {
-  private readonly IEntityFactory<Guid, Hero> _factory;
+  private readonly IEntityFactory<Guid, Hero> _heroFactory;
+  private readonly IEntityFactory<Guid, HeroBaseStats> _baseStatsFactory;
+
   private readonly IEntityRepository<Hero, Guid> _heroes;
 
   private readonly IMythologyRepository _mythologies;
@@ -19,8 +22,10 @@ public sealed class HeroCreationService : IHeroCreationService
   private readonly ICultureRepository _cultures;
 
   private readonly ISkillRepository _skills;
+
   public HeroCreationService(
-      IEntityFactory<Guid, Hero> factory,
+      IEntityFactory<Guid, Hero> heroFactory,
+      IEntityFactory<Guid, HeroBaseStats> baseStatsFactory,
       IEntityRepository<Hero, Guid> heroes,
       IMythologyRepository mythologies,
       IHeroClassRepository heroClasses,
@@ -28,7 +33,8 @@ public sealed class HeroCreationService : IHeroCreationService
       ICultureRepository cultures,
       ISkillRepository skills)
   {
-    _factory = factory;
+    _heroFactory = heroFactory;
+    _baseStatsFactory = baseStatsFactory;
     _heroes = heroes;
     _mythologies = mythologies;
     _heroClasses = heroClasses;
@@ -58,26 +64,24 @@ public sealed class HeroCreationService : IHeroCreationService
         ?? throw new InvalidOperationException($"Culture '{request.Culture}' not found.");
 
     // =========================
-    // Create Hero FIRST
+    // Create Hero (factory)
     // =========================
-
-    var hero = _factory.Create();
-
-    // =========================
-    // Build Affiliation (FIXED)
-    // =========================
-
-    var affiliation = new HeroAffiliation(
-        archetype,
-        mythology,
-        culture
-    );
+    var userId = MediatorContext.Current.UserId ?? "system";
+    var hero = _heroFactory.Create();
 
     // =========================
-    // Build BaseStats (after Hero exists)
+    // Build affiliation
     // =========================
 
-    var baseStats = new HeroBaseStats(
+    var affiliation = new HeroAffiliation(archetype, mythology, culture);
+
+    // =========================
+    // Create BaseStats (factory)
+    // =========================
+
+    var baseStats = _baseStatsFactory.Create();
+
+    baseStats.Define(
         hero.Id,
         request.BaseStats.BaseHealth,
         request.BaseStats.BaseMana,
@@ -98,15 +102,16 @@ public sealed class HeroCreationService : IHeroCreationService
         request.BaseStats.HealthScalingPerLevel,
         request.BaseStats.ManaScalingPerLevel,
         request.BaseStats.AttackDamageScalingPerLevel,
-        request.BaseStats.AbilityPowerScalingPerLevel
+        request.BaseStats.AbilityPowerScalingPerLevel,
+        userId
     );
 
     // =========================
-    // SkillKit (needs real request input)
+    // Resolve skills
     // =========================
 
     var passiveSkill = await _skills.GetByNameAsync(request.SkillKit.PassiveSkill, cancellationToken)
-     ?? throw new InvalidOperationException($"Skill '{request.SkillKit.PassiveSkill}' not found.");
+        ?? throw new InvalidOperationException($"Skill '{request.SkillKit.PassiveSkill}' not found.");
 
     var primarySkill = await _skills.GetByNameAsync(request.SkillKit.PrimarySkill, cancellationToken)
         ?? throw new InvalidOperationException($"Skill '{request.SkillKit.PrimarySkill}' not found.");
@@ -129,15 +134,17 @@ public sealed class HeroCreationService : IHeroCreationService
     );
 
     // =========================
-    // Initialize aggregate
+    // Initialize Hero aggregate
     // =========================
+
+
 
     hero.Initialize(
         request.Name,
         heroClass.Id,
         affiliation,
         baseStats,
-        createdBy: "system"
+        createdBy: userId
     );
 
     hero.SetSkillKit(skillKit);

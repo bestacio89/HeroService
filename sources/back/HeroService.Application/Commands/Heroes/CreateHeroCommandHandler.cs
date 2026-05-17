@@ -1,7 +1,7 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
 using Franz.Common.Mediator.Handlers;
-using HeroService.Application.Heroes.Services;
+using HeroService.Application.Commands.Heroes.Services;
 using HeroService.Contracts.Commands.Heroes;
 using HeroService.Contracts.DTOs.Requests;
 using HeroService.Contracts.Persistence;
