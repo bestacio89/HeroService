@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace HeroService.Contracts.Persistence;
+namespace HeroService.Contracts.Persistence.Heroes;
 
 public interface ICultureRepository: INameLookupRepository<OriginCulture, Guid>
 {

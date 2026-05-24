@@ -1,5 +1,6 @@
 using Franz.Common.AzureCosmosDB.Extensions;
 using Franz.Common.Caching.Extensions;
+using Franz.Common.EntityFramework.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;

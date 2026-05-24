@@ -2,7 +2,7 @@
 using Franz.Common.Mapping.Abstractions;
 using Franz.Common.Mediator.Handlers;
 using HeroService.Contracts.DTOs.Heroes;
-using HeroService.Contracts.Persistence;
+using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Contracts.Queries.Heroes.Classes;
 using HeroService.Domain.Heroes.Core;
 

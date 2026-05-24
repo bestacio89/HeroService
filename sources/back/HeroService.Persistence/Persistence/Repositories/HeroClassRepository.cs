@@ -1,4 +1,4 @@
-﻿using HeroService.Contracts.Persistence;
+﻿using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
 using HeroService.Domain.Heroes.Core;
 using System;

@@ -1,4 +1,4 @@
-﻿using HeroService.Contracts.Persistence;
+﻿using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
 using Microsoft.EntityFrameworkCore;
 #nullable enable
