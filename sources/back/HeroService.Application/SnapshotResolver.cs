@@ -1,22 +1,13 @@
 ﻿using HeroService.Domain.Heroes.Core;
 using HeroService.Domain.Heroes.Skills;
 using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
-using HeroService.Domain.Heroes.Versioned.Snapshotting;
-using Newtonsoft.Json.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-#nullable enable
+using HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
+using HeroService.Domain.Heroes.Versioned.Snapshotting.Skills;
+
 namespace HeroService.Application.Heroes.Versioned.Snapshotting;
 
-/// <summary>
-/// SnapshotResolver is the deterministic combat simulation engine of the Hero system.
-///
-///– It compiles raw domain data into immutable runtime snapshots.
-/// </summary>
-public class SnapshotResolver
+public sealed class SnapshotResolver
 {
-  /// <summary>
-  /// Resolves a complete HeroSnapshot from raw domain inputs.
-  /// </summary>
   public HeroSnapshot ResolveHero(
       Guid heroId,
       Guid gameVersionId,
@@ -26,128 +17,143 @@ public class SnapshotResolver
       IReadOnlyDictionary<Guid, SkillBaseStats> skillBaseStats,
       IReadOnlyDictionary<Guid, SkillModifier?> skillModifiers)
   {
-    var skillSnapshots = new List<SkillSnapshot>();
+    // ----------------------------
+    // 1. HERO STATS SNAPSHOT
+    // ----------------------------
+    var stats = BuildHeroStats(baseStats, heroModifier);
 
-    foreach (var skill in skills)
-    {
-      var baseStat = skillBaseStats[skill.Id];
-      skillModifiers.TryGetValue(skill.Id, out var modifier);
+    // ----------------------------
+    // 2. SKILL SNAPSHOTS
+    // ----------------------------
+    var passive = ResolveSkill(GetSkillByIndex(skills, 0), gameVersionId, skillBaseStats, skillModifiers);
+    var primary = ResolveSkill(GetSkillByIndex(skills, 1), gameVersionId, skillBaseStats, skillModifiers);
+    var secondary = ResolveSkill(GetSkillByIndex(skills, 2), gameVersionId, skillBaseStats, skillModifiers);
+    var tertiary = ResolveSkill(GetSkillByIndex(skills, 3), gameVersionId, skillBaseStats, skillModifiers);
+    var ultimate = ResolveSkill(GetSkillByIndex(skills, 4), gameVersionId, skillBaseStats, skillModifiers);
 
-      skillSnapshots.Add(BuildSkillSnapshot(
-        skill.Id,
-        gameVersionId,
-        baseStat,
-        modifier,
-        skill.Effects
-      ));
-    }
+    var skillKit = new HeroSkillKitSnapshot(
+      passive,
+      primary,
+      secondary,
+      tertiary,
+      ultimate
+    );
 
+    // ----------------------------
+    // 3. HERO SNAPSHOT
+    // ----------------------------
     return new HeroSnapshot(
-        heroId,
-        gameVersionId,
-        Apply(baseStats.BaseHealth, heroModifier?.HealthMultiplier),
-        Apply(baseStats.BaseMana, heroModifier?.ManaMultiplier),
-        Apply(baseStats.BaseAttackDamage, heroModifier?.AttackDamageMultiplier),
-        Apply(baseStats.BaseAbilityPower, heroModifier?.AbilityPowerMultiplier),
-        Apply(baseStats.BaseAttackSpeed, heroModifier?.AttackSpeedMultiplier),
-        Apply(baseStats.BaseCritChance, heroModifier?.CritChanceMultiplier),
-        Apply(baseStats.BaseCritDamageMultiplier, heroModifier?.CritDamageMultiplier),
-        Apply(baseStats.BaseArmor, heroModifier?.ArmorMultiplier),
-        Apply(baseStats.BaseMagicResistance, heroModifier?.MagicResistanceMultiplier),
-        Apply(baseStats.BaseDamageReduction, heroModifier?.DamageReductionMultiplier),
-        Apply(baseStats.BaseMovementSpeed, heroModifier?.MovementSpeedMultiplier),
-        Apply(baseStats.BaseAttackRange, heroModifier?.AttackRangeMultiplier),
-        Apply(baseStats.BaseCastSpeed, heroModifier?.CastSpeedMultiplier),
-        Apply(baseStats.BaseCooldownReduction, heroModifier?.CooldownReductionMultiplier),
-        Apply(baseStats.BaseResourceRegeneration, heroModifier?.ResourceRegenerationMultiplier),
-        skillSnapshots
+      heroId,
+      gameVersionId,
+      stats,
+      skillKit
     );
   }
 
-  /// <summary>
-  /// Builds a deterministic SkillSnapshot from domain inputs.
-  /// </summary>
-  private static SkillSnapshot BuildSkillSnapshot(
-   Guid skillId,
-   Guid gameVersionId,
-   SkillBaseStats baseStats,
-   SkillModifier? modifier,
-   IReadOnlyCollection<SkillEffect> effects)
+  // =========================================================
+  // HERO STATS
+  // =========================================================
+  private static HeroStatSnapshot BuildHeroStats(
+      HeroBaseStats baseStats,
+      HeroModifier? modifier)
   {
-    var cooldown = Apply(baseStats.BaseCooldown, modifier?.CooldownMultiplier);
-    var mana = Apply(baseStats.BaseManaCost, modifier?.ManaCostMultiplier);
-    var damage = Apply(baseStats.BaseDamage, modifier?.DamageMultiplier);
+    float Apply(float v, float? m) => v * (m ?? 1f);
 
-    // ----------------------------
-    // EFFECT CLASSIFICATION (SOURCE OF TRUTH)
-    // ----------------------------
+    return new HeroStatSnapshot(
+      Apply(baseStats.BaseHealth, modifier?.HealthMultiplier),
+      Apply(baseStats.BaseMana, modifier?.ManaMultiplier),
+      Apply(baseStats.BaseAttackDamage, modifier?.AttackDamageMultiplier),
+      Apply(baseStats.BaseAbilityPower, modifier?.AbilityPowerMultiplier),
+      Apply(baseStats.BaseAttackSpeed, modifier?.AttackSpeedMultiplier),
+      Apply(baseStats.BaseCritChance, modifier?.CritChanceMultiplier),
+      Apply(baseStats.BaseCritDamageMultiplier, modifier?.CritDamageMultiplier),
+      Apply(baseStats.BaseArmor, modifier?.ArmorMultiplier),
+      Apply(baseStats.BaseMagicResistance, modifier?.MagicResistanceMultiplier),
+      Apply(baseStats.BaseDamageReduction, modifier?.DamageReductionMultiplier),
+      Apply(baseStats.BaseMovementSpeed, modifier?.MovementSpeedMultiplier),
+      Apply(baseStats.BaseAttackRange, modifier?.AttackRangeMultiplier),
+      Apply(baseStats.BaseCastSpeed, modifier?.CastSpeedMultiplier),
+      Apply(baseStats.BaseCooldownReduction, modifier?.CooldownReductionMultiplier),
+      Apply(baseStats.BaseResourceRegeneration, modifier?.ResourceRegenerationMultiplier)
+    );
+  }
 
-    bool hasDamage =
-      effects.Any(e =>
-        e.EffectType is EffectType.Damage or EffectType.DamageOverTime);
+  // =========================================================
+  // SKILL RESOLUTION
+  // =========================================================
+  private static SkillSnapshot ResolveSkill(
+      Skill skill,
+      Guid gameVersionId,
+      IReadOnlyDictionary<Guid, SkillBaseStats> baseStatsMap,
+      IReadOnlyDictionary<Guid, SkillModifier?> modifiers)
+  {
+    var baseStats = baseStatsMap[skill.Id];
+    modifiers.TryGetValue(skill.Id, out var modifier);
 
-    bool hasHealing =
-      effects.Any(e =>
-        e.EffectType is EffectType.Heal or EffectType.HealOverTime);
-
-    bool hasShielding =
-      effects.Any(e =>
-        e.EffectType == EffectType.Shield);
-
-    bool hasCrowdControl =
-      effects.Any(e =>
-        e.EffectType == EffectType.CrowdControl);
-
-    bool hasMobility =
-      effects.Any(e =>
-        e.EffectType == EffectType.Mobility);
-
-    bool isBuff =
-      effects.Any(e =>
-        e.EffectType == EffectType.Buff);
-
-    bool isDebuff =
-      effects.Any(e =>
-        e.EffectType == EffectType.Debuff);
-
-    bool isUltimate =
-      effects.Any(e =>
-        e.EffectType == EffectType.Execute);
-
-    // ----------------------------
-    // CC DURATION (ONLY IF APPLICABLE)
-    // ----------------------------
-
-    float ccDuration = hasCrowdControl
-      ? baseStats.BaseCrowdControlDuration
-      : 0f;
+    var execution = BuildExecution(baseStats, modifier);
+    var effects = BuildEffects(skill.Effects);
 
     return new SkillSnapshot(
-      skillId,
+      skill.Id,
       gameVersionId,
-      cooldown,
-      mana,
-      damage,
+      execution,
+      effects
+    );
+  }
+
+  // =========================================================
+  // EXECUTION SNAPSHOT
+  // =========================================================
+  private static SkillExecutionSnapshot BuildExecution(
+      SkillBaseStats baseStats,
+      SkillModifier? modifier)
+  {
+    float Apply(float v, float? m) => v * (m ?? 1f);
+
+    return new SkillExecutionSnapshot(
+      Apply(baseStats.BaseCooldown, modifier?.CooldownMultiplier),
+      Apply(baseStats.BaseManaCost, modifier?.ManaCostMultiplier),
+      Apply(baseStats.BaseDamage, modifier?.DamageMultiplier),
+
       baseStats.BaseHealing,
       baseStats.BaseShieldValue,
+
       baseStats.BaseCastTime,
       baseStats.BaseChannelDuration,
       baseStats.BaseRange,
+      baseStats.BaseCrowdControlDuration,
+
       baseStats.AttackDamageRatio,
       baseStats.AbilityPowerRatio,
-      baseStats.MaxHealthRatio,
-      hasDamage,
-      hasHealing,
-      hasShielding,
-      hasCrowdControl,
-      hasMobility,
-      isBuff,
-      isDebuff,
-      isUltimate,
-      ccDuration
+      baseStats.MaxHealthRatio
     );
   }
 
-  private static float Apply(float baseValue, float? multiplier)
-    => baseValue * (multiplier ?? 1f);
+  // =========================================================
+  // EFFECT SNAPSHOT (semantic compression)
+  // =========================================================
+  private static SkillEffectSnapshot BuildEffects(IEnumerable<SkillEffect> effects)
+  {
+    return new SkillEffectSnapshot(
+      effects.Any(e => e.EffectType is EffectType.Damage or EffectType.DamageOverTime),
+      effects.Any(e => e.EffectType is EffectType.Heal or EffectType.HealOverTime),
+      effects.Any(e => e.EffectType == EffectType.Shield),
+      effects.Any(e => e.EffectType == EffectType.CrowdControl),
+      effects.Any(e => e.EffectType == EffectType.Mobility),
+      effects.Any(e => e.EffectType == EffectType.Buff),
+      effects.Any(e => e.EffectType == EffectType.Debuff),
+      effects.Any(e => e.EffectType == EffectType.Execute)
+    );
+  }
+
+  // =========================================================
+  // UTILS
+  // =========================================================
+  private static Skill GetSkillByIndex(IReadOnlyList<Skill> skills, int index)
+  {
+    if (skills.Count <= index)
+      throw new InvalidOperationException($"Missing skill at index {index}");
+
+    return skills[index];
+  }
 }

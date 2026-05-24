@@ -18,6 +18,7 @@
   <ItemGroup>
     <Folder Include="Features\Example\Commands\" />
     <Folder Include="Features\Example\Queries\" />
+    <Folder Include="Snapshotting\" />
   </ItemGroup>
 
 </Project>
