@@ -1,7 +1,10 @@
-﻿using HeroService.Application.Heroes.Versioned.Snapshotting;
+using Franz.Common.Business.Repositories;
+using HeroService.Application.Heroes.Versioned.Snapshotting;
 using HeroService.Contracts.DTOs.Snapshots;
 using HeroService.Contracts.Persistence.Heroes;
+using HeroService.Contracts.Persistence.Modifiers;
 using HeroService.Contracts.Persistence.Skills;
+using HeroService.Domain.Heroes.Core;
 using HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +15,7 @@ namespace HeroService.Api.Controllers;
 public sealed class SnapshotController : ControllerBase
 {
   private readonly SnapshotResolver _snapshotResolver;
-  private readonly IHeroRepository _heroRepository;
+  private readonly IEntityRepository<Hero,Guid> _heroRepository;
   private readonly ISkillRepository _skillRepository;
   private readonly ISkillBaseStatsRepository _skillBaseStatsRepository;
   private readonly IHeroModifierRepository _heroModifierRepository;
@@ -20,7 +23,7 @@ public sealed class SnapshotController : ControllerBase
 
   public SnapshotController(
       SnapshotResolver snapshotResolver,
-      IHeroRepository heroRepository,
+      IEntityRepository<Hero,Guid> heroRepository,
       ISkillRepository skillRepository,
       ISkillBaseStatsRepository skillBaseStatsRepository,
       IHeroModifierRepository heroModifierRepository,
@@ -45,7 +48,7 @@ public sealed class SnapshotController : ControllerBase
     // 2. Load related data
     var baseStats = hero.BaseStats;
 
-    var heroModifier = await _heroModifierRepository.GetByHeroIdAsync(request.HeroId, ct);
+    var heroModifier = await _heroModifierRepository.GetByHeroIdsAsync(request.HeroId, ct);
 
     var skills = await _skillRepository.GetByHeroIdAsync(request.HeroId, ct);
 
