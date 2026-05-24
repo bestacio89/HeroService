@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HeroService.Contracts.DTOs.Requests;
-
+﻿namespace HeroService.Contracts.DTOs.Requests;
 
 public sealed class HeroCreateRequest
 {
@@ -20,4 +15,6 @@ public sealed class HeroCreateRequest
   public HeroBaseStatsCreateRequest BaseStats { get; init; } = null!;
 
   public HeroSkillKitCreateRequest SkillKit { get; init; } = null!;
+
+  public HeroLoreCreateRequest Lore { get; init; } = null!;
 }

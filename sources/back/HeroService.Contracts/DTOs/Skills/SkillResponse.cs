@@ -7,5 +7,5 @@ public sealed record SkillResponse(
     Guid HeroId,
     string Name,
     SkillType SkillType,
-    IReadOnlyCollection<SkillEffectResponse> Effects
+    IReadOnlyCollection<SkillEffectDto> Effects
 );
