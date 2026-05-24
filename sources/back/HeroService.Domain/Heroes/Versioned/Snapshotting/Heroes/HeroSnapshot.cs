@@ -1,9 +1,8 @@
-﻿using HeroService.Domain.Heroes.Versioned.Snapshotting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 #nullable enable
-namespace HeroService.Domain.Heroes.Versioned.Snapshotting;
+namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 
 /// <summary>
 /// Represents a fully resolved, immutable snapshot of a Hero at a specific GameVersion.
@@ -64,100 +63,23 @@ namespace HeroService.Domain.Heroes.Versioned.Snapshotting;
 /// - SkillSnapshot is the “truth state” of abilities.
 /// - SnapshotResolver is the system that produces this truth.
 /// </summary>
-public class HeroSnapshot
+public sealed class HeroSnapshot
 {
   public Guid HeroId { get; }
   public Guid GameVersionId { get; }
 
-  // =========================
-  // FULL RESOLVED CORE STATS
-  // =========================
-  public float Health { get; }
-  public float Mana { get; }
-
-  public float AttackDamage { get; }
-  public float AbilityPower { get; }
-
-  public float AttackSpeed { get; }
-  public float CritChance { get; }
-  public float CritDamageMultiplier { get; }
-
-  public float Armor { get; }
-  public float MagicResistance { get; }
-  public float DamageReduction { get; }
-
-  public float MovementSpeed { get; }
-  public float AttackRange { get; }
-  public float CastSpeed { get; }
-
-  public float CooldownReduction { get; }
-  public float ResourceRegeneration { get; }
-
-  // =========================
-  // SKILL STATE
-  // =========================
-  public IReadOnlyList<SkillSnapshot> Skills { get; }
+  public HeroStatSnapshot Stats { get; }
+  public HeroSkillKitSnapshot SkillKit { get; }
 
   public HeroSnapshot(
-    Guid heroId,
-    Guid gameVersionId,
-    float health,
-    float mana,
-    float attackDamage,
-    float abilityPower,
-    float attackSpeed,
-    float critChance,
-    float critDamageMultiplier,
-    float armor,
-    float magicResistance,
-    float damageReduction,
-    float movementSpeed,
-    float attackRange,
-    float castSpeed,
-    float cooldownReduction,
-    float resourceRegeneration,
-    IReadOnlyList<SkillSnapshot> skills)
+      Guid heroId,
+      Guid gameVersionId,
+      HeroStatSnapshot stats,
+      HeroSkillKitSnapshot skillKit)
   {
     HeroId = heroId;
     GameVersionId = gameVersionId;
-
-    Health = health;
-    Mana = mana;
-
-    AttackDamage = attackDamage;
-    AbilityPower = abilityPower;
-
-    AttackSpeed = attackSpeed;
-    CritChance = critChance;
-    CritDamageMultiplier = critDamageMultiplier;
-
-    Armor = armor;
-    MagicResistance = magicResistance;
-    DamageReduction = damageReduction;
-
-    MovementSpeed = movementSpeed;
-    AttackRange = attackRange;
-    CastSpeed = castSpeed;
-
-    CooldownReduction = cooldownReduction;
-    ResourceRegeneration = resourceRegeneration;
-
-    Skills = skills;
+    Stats = stats;
+    SkillKit = skillKit;
   }
-
-  // =========================
-  // SAFE DERIVED QUERIES ONLY
-  // =========================
-
-  public float TotalSkillDamage()
-    => Skills.Sum(s => s.Damage);
-
-  public float TotalManaCost()
-    => Skills.Sum(s => s.ManaCost);
-
-  public bool CanCastAnySkill(float currentMana)
-    => Skills.Any(s => s.ManaCost <= currentMana);
-
-  public SkillSnapshot? GetSkill(Guid skillId)
-    => Skills.FirstOrDefault(s => s.SkillId == skillId);
 }
