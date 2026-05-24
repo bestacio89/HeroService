@@ -3,7 +3,8 @@ using Franz.Common.Business.Repositories;
 using Franz.Common.Mediator.Context;
 using HeroService.Application.Commands.Heroes.Services;
 using HeroService.Contracts.DTOs.Requests;
-using HeroService.Contracts.Persistence;
+using HeroService.Contracts.Persistence.Heroes;
+using HeroService.Contracts.Persistence.Skills;
 using HeroService.Domain.Heroes.Affiliations;
 using HeroService.Domain.Heroes.Core;
 using HeroService.Domain.Heroes.Core.Skills;
@@ -13,8 +14,11 @@ public sealed class HeroCreationService : IHeroCreationService
 {
   private readonly IEntityFactory<Guid, Hero> _heroFactory;
   private readonly IEntityFactory<Guid, HeroBaseStats> _baseStatsFactory;
+  private readonly IEntityFactory<Guid, HeroLore> _loreFactory;
 
   private readonly IEntityRepository<Hero, Guid> _heroes;
+  private readonly IEntityRepository<HeroBaseStats, Guid> _baseStatsRepository;
+  private readonly IEntityRepository<HeroLore, Guid> _loreRepository;
 
   private readonly IMythologyRepository _mythologies;
   private readonly IHeroClassRepository _heroClasses;
@@ -26,7 +30,12 @@ public sealed class HeroCreationService : IHeroCreationService
   public HeroCreationService(
       IEntityFactory<Guid, Hero> heroFactory,
       IEntityFactory<Guid, HeroBaseStats> baseStatsFactory,
+      IEntityFactory<Guid, HeroLore> loreFactory,
+
       IEntityRepository<Hero, Guid> heroes,
+      IEntityRepository<HeroBaseStats, Guid> baseStatsRepository,
+      IEntityRepository<HeroLore, Guid> loreRepository,
+
       IMythologyRepository mythologies,
       IHeroClassRepository heroClasses,
       IArchetypeRepository archetypes,
@@ -35,11 +44,17 @@ public sealed class HeroCreationService : IHeroCreationService
   {
     _heroFactory = heroFactory;
     _baseStatsFactory = baseStatsFactory;
+    _loreFactory = loreFactory;
+
     _heroes = heroes;
+    _baseStatsRepository = baseStatsRepository;
+    _loreRepository = loreRepository;
+
     _mythologies = mythologies;
     _heroClasses = heroClasses;
     _archetypes = archetypes;
     _cultures = cultures;
+
     _skills = skills;
   }
 
@@ -47,9 +62,11 @@ public sealed class HeroCreationService : IHeroCreationService
       HeroCreateRequest request,
       CancellationToken cancellationToken)
   {
-    // =========================
+    var userId = MediatorContext.Current.UserId ?? "system";
+
+    // =========================================
     // Resolve reference data
-    // =========================
+    // =========================================
 
     var mythology = await _mythologies.GetByNameAsync(request.Mythology, cancellationToken)
         ?? throw new InvalidOperationException($"Mythology '{request.Mythology}' not found.");
@@ -63,21 +80,25 @@ public sealed class HeroCreationService : IHeroCreationService
     var culture = await _cultures.GetByNameAsync(request.Culture, cancellationToken)
         ?? throw new InvalidOperationException($"Culture '{request.Culture}' not found.");
 
-    // =========================
-    // Create Hero (factory)
-    // =========================
-    var userId = MediatorContext.Current.UserId ?? "system";
+    // =========================================
+    // Create aggregate root
+    // =========================================
+
     var hero = _heroFactory.Create();
 
-    // =========================
-    // Build affiliation
-    // =========================
+    // =========================================
+    // Affiliation
+    // =========================================
 
-    var affiliation = new HeroAffiliation(archetype, mythology, culture);
+    var affiliation = new HeroAffiliation(
+        archetype,
+        mythology,
+        culture
+    );
 
-    // =========================
-    // Create BaseStats (factory)
-    // =========================
+    // =========================================
+    // Base Stats
+    // =========================================
 
     var baseStats = _baseStatsFactory.Create();
 
@@ -106,9 +127,23 @@ public sealed class HeroCreationService : IHeroCreationService
         userId
     );
 
-    // =========================
-    // Resolve skills
-    // =========================
+    // =========================================
+    // Lore
+    // =========================================
+
+    var lore = _loreFactory.Create();
+
+    lore.Define(
+        hero.Id,
+        request.Lore.Title,
+        request.Lore.Description,
+        request.Lore.BackgroundStory,
+        userId
+    );
+
+    // =========================================
+    // Skills
+    // =========================================
 
     var passiveSkill = await _skills.GetByNameAsync(request.SkillKit.PassiveSkill, cancellationToken)
         ?? throw new InvalidOperationException($"Skill '{request.SkillKit.PassiveSkill}' not found.");
@@ -133,27 +168,29 @@ public sealed class HeroCreationService : IHeroCreationService
         ultimateSkill.Id
     );
 
-    // =========================
-    // Initialize Hero aggregate
-    // =========================
-
-
+    // =========================================
+    // Initialize Hero
+    // =========================================
 
     hero.Initialize(
         request.Name,
         heroClass.Id,
         affiliation,
         baseStats,
-        createdBy: userId
+        userId
     );
 
     hero.SetSkillKit(skillKit);
 
-    // =========================
-    // Persist
-    // =========================
+    // =========================================
+    // Persist all canonical entities
+    // =========================================
 
     await _heroes.AddAsync(hero, cancellationToken);
+
+    await _baseStatsRepository.AddAsync(baseStats, cancellationToken);
+
+    await _loreRepository.AddAsync(lore, cancellationToken);
 
     return hero.Id;
   }
