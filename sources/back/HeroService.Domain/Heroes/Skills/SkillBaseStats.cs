@@ -97,7 +97,7 @@ public class SkillBaseStats : Entity<Guid>
 
   private SkillBaseStats() { }
 
-  public SkillBaseStats(
+  public void Define(
     Guid skillId,
     float baseCooldown,
     float baseManaCost,
@@ -110,25 +110,66 @@ public class SkillBaseStats : Entity<Guid>
     float abilityPowerRatio,
     float maxHealthRatio,
     float baseCrowdControlDuration,
-    float baseRange)
+    float baseRange,
+    string createdBy)
   {
+    // =========================
+    // Guard: prevent re-definition
+    // =========================
+    if (SkillId != Guid.Empty)
+      throw new InvalidOperationException("SkillBaseStats is already defined.");
+
+    if (skillId == Guid.Empty)
+      throw new ArgumentException("SkillId cannot be empty.");
+
+    // =========================
+    // Core identity
+    // =========================
     SkillId = skillId;
 
-    BaseCooldown = baseCooldown;
-    BaseManaCost = baseManaCost;
+    // =========================
+    // Core execution costs
+    // =========================
+    BaseCooldown = ValidateNonNegative(baseCooldown, nameof(baseCooldown));
+    BaseManaCost = ValidateNonNegative(baseManaCost, nameof(baseManaCost));
 
-    BaseDamage = baseDamage;
-    BaseHealing = baseHealing;
-    BaseShieldValue = baseShieldValue;
+    // =========================
+    // Output potential
+    // =========================
+    BaseDamage = ValidateNonNegative(baseDamage, nameof(baseDamage));
+    BaseHealing = ValidateNonNegative(baseHealing, nameof(baseHealing));
+    BaseShieldValue = ValidateNonNegative(baseShieldValue, nameof(baseShieldValue));
 
-    BaseCastTime = baseCastTime;
-    BaseChannelDuration = baseChannelDuration;
+    // =========================
+    // Tempo interaction
+    // =========================
+    BaseCastTime = ValidateNonNegative(baseCastTime, nameof(baseCastTime));
+    BaseChannelDuration = ValidateNonNegative(baseChannelDuration, nameof(baseChannelDuration));
 
+    // =========================
+    // Scaling coefficients
+    // =========================
     AttackDamageRatio = attackDamageRatio;
     AbilityPowerRatio = abilityPowerRatio;
     MaxHealthRatio = maxHealthRatio;
 
-    BaseCrowdControlDuration = baseCrowdControlDuration;
-    BaseRange = baseRange;
+    // =========================
+    // Utility axis
+    // =========================
+    BaseCrowdControlDuration = ValidateNonNegative(baseCrowdControlDuration, nameof(baseCrowdControlDuration));
+    BaseRange = ValidateNonNegative(baseRange, nameof(baseRange));
+
+    // =========================
+    // audit
+    // =========================
+    MarkCreated(createdBy);
+  }
+
+  private static float ValidateNonNegative(float value, string name)
+  {
+    if (value < 0)
+      throw new ArgumentOutOfRangeException(name, $"{name} cannot be negative.");
+
+    return value;
   }
 }

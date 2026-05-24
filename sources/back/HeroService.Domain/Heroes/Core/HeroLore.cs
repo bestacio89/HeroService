@@ -88,4 +88,26 @@ public sealed class HeroLore : Entity<Guid>
 
     MarkCreated(createdBy);
   }
+
+  public void Revise(
+    string title,
+    string description,
+    string backgroundStory,
+    string updatedBy)
+  {
+    if (string.IsNullOrWhiteSpace(title))
+      throw new ArgumentException("Title is required.");
+
+    if (string.IsNullOrWhiteSpace(description))
+      throw new ArgumentException("Description is required.");
+
+    if (string.IsNullOrWhiteSpace(backgroundStory))
+      throw new ArgumentException("Background story is required.");
+
+    Title = title;
+    Description = description;
+    BackgroundStory = backgroundStory;
+
+    MarkUpdated(updatedBy);
+  }
 }

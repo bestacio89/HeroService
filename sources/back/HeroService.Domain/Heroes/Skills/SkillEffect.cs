@@ -64,41 +64,27 @@ public class SkillEffect : Entity<Guid>
   public Guid SkillId { get; private set; }
   public EffectType EffectType { get; private set; }
 
-  // =========================
-  // CORE RESOLUTION DATA
-  // =========================
   public float Magnitude { get; private set; }
   public float Duration { get; private set; }
   public float Radius { get; private set; }
 
-  // =========================
-  // SCALING HOOKS (CONNECTS TO HERO/SKILL SYSTEM)
-  // =========================
   public float? AttackDamageRatio { get; private set; }
   public float? AbilityPowerRatio { get; private set; }
   public float? MaxHealthRatio { get; private set; }
 
-  // =========================
-  // BEHAVIOR FLAGS (DECLARATIVE ONLY)
-  // =========================
-  public bool IsPeriodic { get; private set; }       // DoT/HoT style
-  public bool IsInstant { get; private set; }         // burst resolution
-  public bool IsChannelled { get; private set; }      // snapshot blocking behavior
+  public bool IsPeriodic { get; private set; }
+  public bool IsInstant { get; private set; }
+  public bool IsChannelled { get; private set; }
 
-  // =========================
-  // TARGETING MODEL
-  // =========================
   public TargetType TargetType { get; private set; }
-
-  // =========================
-  // STACKING RULES
-  // =========================
   public StackType StackType { get; private set; }
   public int MaxStacks { get; private set; }
 
+  public int Revision { get; private set; }   // 👈 IMPORTANT for balancing
+
   private SkillEffect() { }
 
-  public SkillEffect(
+  public void Define(
     Guid skillId,
     EffectType effectType,
     float magnitude,
@@ -115,6 +101,87 @@ public class SkillEffect : Entity<Guid>
     bool isChannelled,
     string createdBy)
   {
+    if (SkillId != Guid.Empty)
+      throw new InvalidOperationException("SkillEffect already defined. Use Redefine for balance changes.");
+
+    ApplyDefinition(
+      skillId,
+      effectType,
+      magnitude,
+      duration,
+      radius,
+      targetType,
+      stackType,
+      maxStacks,
+      adRatio,
+      apRatio,
+      hpRatio,
+      isPeriodic,
+      isInstant,
+      isChannelled,
+      createdBy
+    );
+
+    Revision = 1;
+  }
+
+  public void Redefine(
+    EffectType effectType,
+    float magnitude,
+    float duration,
+    float radius,
+    TargetType targetType,
+    StackType stackType,
+    int maxStacks,
+    float? adRatio,
+    float? apRatio,
+    float? hpRatio,
+    bool isPeriodic,
+    bool isInstant,
+    bool isChannelled,
+    string updatedBy)
+  {
+    ApplyDefinition(
+      SkillId,
+      effectType,
+      magnitude,
+      duration,
+      radius,
+      targetType,
+      stackType,
+      maxStacks,
+      adRatio,
+      apRatio,
+      hpRatio,
+      isPeriodic,
+      isInstant,
+      isChannelled,
+      updatedBy
+    );
+
+    Revision++;
+  }
+
+  private void ApplyDefinition(
+    Guid skillId,
+    EffectType effectType,
+    float magnitude,
+    float duration,
+    float radius,
+    TargetType targetType,
+    StackType stackType,
+    int maxStacks,
+    float? adRatio,
+    float? apRatio,
+    float? hpRatio,
+    bool isPeriodic,
+    bool isInstant,
+    bool isChannelled,
+    string actor)
+  {
+    if (skillId == Guid.Empty)
+      throw new ArgumentException("SkillId cannot be empty.");
+
     SkillId = skillId;
     EffectType = effectType;
 
@@ -134,6 +201,6 @@ public class SkillEffect : Entity<Guid>
     IsInstant = isInstant;
     IsChannelled = isChannelled;
 
-    MarkCreated(createdBy);
+    MarkCreated(actor);
   }
 }
