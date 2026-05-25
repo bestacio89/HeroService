@@ -1,5 +1,6 @@
 ﻿using Franz.Common.Business.Repositories;
 using Franz.Common.Mediator.Handlers;
+using HeroService.Contracts.Commands.Skills;
 using HeroService.Domain.Heroes.Skills;
 
 public sealed class UpdateSkillLoreCommandHandler
