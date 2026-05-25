@@ -14,4 +14,5 @@ public sealed record SkillExecutionSnapshotDto(
     float ChannelDuration,
     float Range,
     float CrowdControlDuration
+
 );
