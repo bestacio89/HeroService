@@ -2,110 +2,93 @@
 
 namespace HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 
-/// <summary>
-/// Represents a versioned balance modification applied to a Skill within a specific GameVersion.
-///
-/// Domain Role:
-/// SkillModifier is a **non-destructive tuning layer** that adjusts SkillBaseStats
-/// to reflect balance changes across patches, seasons, or meta updates.
-///
-/// It does NOT redefine the Skill.
-/// It modifies its numerical behavior during snapshot resolution.
-///
-/// -------------------------
-/// DESIGN INTENT
-/// -------------------------
-/// SkillModifier exists to allow:
-/// - Buffs / nerfs per patch
-/// - Meta adjustments without rewriting base design
-/// - Controlled tuning of skill performance
-///
-/// It is the **skill-level equivalent of HeroModifier**.
-///
-/// -------------------------
-/// MATCHMAKING RELEVANCE
-/// -------------------------
-/// SkillModifier directly influences matchmaking simulation by altering:
-/// - Damage output potential
-/// - Resource efficiency (mana economy)
-/// - Ability tempo (cooldowns)
-/// - Burst windows and DPS curves
-///
-/// These changes propagate into:
-/// - HeroSnapshot power evaluation
-/// - Combat simulation outcomes
-/// - Meta composition analysis
-///
-/// -------------------------
-/// INVARIANTS
-/// -------------------------
-/// - SkillId must reference a valid Skill aggregate
-/// - GameVersionId must reference a valid version context
-/// - Only ONE modifier per Skill per GameVersion is allowed
-/// - All values are optional (null = no change)
-/// - Default interpretation is neutral (×1 multiplier or +0 delta depending on axis)
-///
-/// -------------------------
-/// VERSIONING IMPACT
-/// -------------------------
-/// - SkillModifier is tightly coupled to GameVersion
-/// - Any modification affects:
-///   • global balance state
-///   • hero performance indirectly
-///   • matchmaking evaluation stability
-///
-/// - All changes are snapshot-based and immutable once applied
-///
-/// -------------------------
-/// ARCHITECTURAL ROLE
-/// -------------------------
-/// SkillBaseStats = design intent
-/// SkillEffects = behavior definition
-/// SkillModifier = balance tuning layer
-/// SkillSnapshot = final deterministic execution state
-///
-/// -------------------------
-/// IMPORTANT RULE
-/// -------------------------
-/// This class must remain purely declarative.
-/// No logic, no computation, no behavior.
-/// </summary>
 public class SkillModifier : Entity<Guid>
 {
   public Guid GameVersionId { get; private set; }
   public Guid SkillId { get; private set; }
 
-  // =========================
-  // CORE EXECUTION COST AXIS
-  // =========================
-  public float? CooldownMultiplier { get; private set; }
-  public float? ManaCostMultiplier { get; private set; }
+  // COSTS
+  public float CooldownMultiplier { get; private set; }
+  public float ManaCostMultiplier { get; private set; }
 
-  // =========================
-  // OUTPUT AXIS (DAMAGE MODEL)
-  // =========================
-  public float? DamageMultiplier { get; private set; }
-  public float? HealingMultiplier { get; private set; }
-  public float? ShieldMultiplier { get; private set; }
+  // OUTPUT
+  public float DamageMultiplier { get; private set; }
+  public float HealingMultiplier { get; private set; }
+  public float ShieldMultiplier { get; private set; }
 
-  // =========================
-  // TEMPO AXIS
-  // =========================
-  public float? CastTimeMultiplier { get; private set; }
-  public float? ChannelDurationMultiplier { get; private set; }
+  // TEMPO
+  public float CastTimeMultiplier { get; private set; }
+  public float ChannelDurationMultiplier { get; private set; }
 
-  // =========================
-  // UTILITY AXIS
-  // =========================
-  public float? CrowdControlDurationMultiplier { get; private set; }
-  public float? RangeMultiplier { get; private set; }
-
-  // =========================
-  // SCALING AXIS
-  // =========================
-  public float? AttackDamageRatioMultiplier { get; private set; }
-  public float? AbilityPowerRatioMultiplier { get; private set; }
-  public float? MaxHealthRatioMultiplier { get; private set; }
+  // UTILITY
+  public float CrowdControlDurationMultiplier { get; private set; }
+  public float RangeMultiplier { get; private set; }
 
   private SkillModifier() { }
+
+  // =========================================================
+  // DEFINE (FACTORY ENTRY POINT)
+  // =========================================================
+  public void Define(
+    Guid gameVersionId,
+    Guid skillId,
+
+    float cooldownMultiplier,
+    float manaCostMultiplier,
+
+    float damageMultiplier,
+    float healingMultiplier,
+    float shieldMultiplier,
+
+    float castTimeMultiplier,
+    float channelDurationMultiplier,
+
+    float crowdControlDurationMultiplier,
+    float rangeMultiplier,
+
+    string createdBy)
+  {
+    if (GameVersionId != Guid.Empty)
+      throw new InvalidOperationException("SkillModifier already defined.");
+
+    if (gameVersionId == Guid.Empty)
+      throw new ArgumentException("GameVersionId is required.");
+
+    if (skillId == Guid.Empty)
+      throw new ArgumentException("SkillId is required.");
+
+    GameVersionId = gameVersionId;
+    SkillId = skillId;
+
+    // =========================
+    // VALIDATION RULE: NO ZERO OR NEGATIVE
+    // =========================
+    CooldownMultiplier = ValidatePositive(cooldownMultiplier, nameof(cooldownMultiplier));
+    ManaCostMultiplier = ValidatePositive(manaCostMultiplier, nameof(manaCostMultiplier));
+
+    DamageMultiplier = ValidatePositive(damageMultiplier, nameof(damageMultiplier));
+    HealingMultiplier = ValidatePositive(healingMultiplier, nameof(healingMultiplier));
+    ShieldMultiplier = ValidatePositive(shieldMultiplier, nameof(shieldMultiplier));
+
+    CastTimeMultiplier = ValidatePositive(castTimeMultiplier, nameof(castTimeMultiplier));
+    ChannelDurationMultiplier = ValidatePositive(channelDurationMultiplier, nameof(channelDurationMultiplier));
+
+    CrowdControlDurationMultiplier = ValidatePositive(crowdControlDurationMultiplier, nameof(crowdControlDurationMultiplier));
+    RangeMultiplier = ValidatePositive(rangeMultiplier, nameof(rangeMultiplier));
+
+    MarkCreated(createdBy);
+  }
+
+  // =========================================================
+  // VALIDATION
+  // =========================================================
+  private static float ValidatePositive(float value, string name)
+  {
+    if (value <= 0f)
+      throw new ArgumentOutOfRangeException(
+        name,
+        $"{name} must be greater than 0.");
+
+    return value;
+  }
 }
