@@ -91,9 +91,7 @@ public sealed class SkillProfile : FranzMapProfile
 
           Range = stats.BaseRange,
 
-          AttackDamageRatio = stats.AttackDamageRatio,
-          AbilityPowerRatio = stats.AbilityPowerRatio,
-          MaxHealthRatio = stats.MaxHealthRatio,
+  
 
           CrowdControlDuration = stats.BaseCrowdControlDuration
         });

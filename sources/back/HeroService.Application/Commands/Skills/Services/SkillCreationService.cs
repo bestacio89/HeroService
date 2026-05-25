@@ -75,9 +75,6 @@ public sealed class SkillCreationService : ISkillCreationService
         request.BaseStats.ShieldValue,
         request.BaseStats.CastTime,
         request.BaseStats.ChannelDuration,
-        request.BaseStats.AttackDamageRatio,
-        request.BaseStats.AbilityPowerRatio,
-        request.BaseStats.MaxHealthRatio,
         request.BaseStats.CrowdControlDuration,
         request.BaseStats.Range,
         createdBy
