@@ -132,19 +132,31 @@ public sealed class SnapshotResolver
   // =========================================================
   // EFFECT SNAPSHOT
   // =========================================================
-  private static SkillEffectSnapshot BuildEffects(IEnumerable<SkillEffect> effects)
+      private static SkillEffectSnapshot BuildEffects(IEnumerable<SkillEffect> effects)
   {
     return new SkillEffectSnapshot(
-        effects.Any(e => e.EffectType is EffectType.Damage or EffectType.DamageOverTime),
-        effects.Any(e => e.EffectType is EffectType.Heal or EffectType.HealOverTime),
+        effects.Any(e => e.EffectType == EffectType.Damage),
+
+        effects.Any(e => e.EffectType == EffectType.DamageOverTime),
+
+        effects.Any(e => e.EffectType == EffectType.Heal),
+
+        effects.Any(e => e.EffectType == EffectType.HealOverTime),
+
         effects.Any(e => e.EffectType == EffectType.Shield),
+
         effects.Any(e => e.EffectType == EffectType.CrowdControl),
+
         effects.Any(e => e.EffectType == EffectType.Mobility),
+
         effects.Any(e => e.EffectType == EffectType.Buff),
+
         effects.Any(e => e.EffectType == EffectType.Debuff),
+
         effects.Any(e => e.EffectType == EffectType.Execute)
     );
   }
+  
 
   // =========================================================
   // UTILITIES

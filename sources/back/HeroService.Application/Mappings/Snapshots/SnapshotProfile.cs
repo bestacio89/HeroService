@@ -33,7 +33,8 @@ public sealed class SnapshotProfile : FranzMapProfile
                     src.Effects.HasMobility,
                     src.Effects.HasBuff,
                     src.Effects.HasDebuff,
-                    src.Effects.HasExecute
+                    src.Effects.HasExecute,
+                    src.Effects.HasDamageOverTime
                 )
             ));
 

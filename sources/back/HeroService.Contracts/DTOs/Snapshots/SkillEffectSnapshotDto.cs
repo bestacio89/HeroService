@@ -12,5 +12,6 @@ public sealed record SkillEffectSnapshotDto(
     bool HasMobility,
     bool HasBuff,
     bool HasDebuff,
-    bool HasExecute
+    bool HasExecute,
+    bool HasDamageOverTime
 );
