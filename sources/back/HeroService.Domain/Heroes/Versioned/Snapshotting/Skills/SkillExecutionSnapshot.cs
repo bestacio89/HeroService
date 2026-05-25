@@ -17,9 +17,7 @@ public sealed record SkillExecutionSnapshot
     float ChannelDuration,
     float Range,
 
-    float CrowdControlDuration,
+    float CrowdControlDuration
 
-    float AttackDamageScaling,
-    float AbilityPowerScaling,
-    float MaxHealthScaling
+
 );

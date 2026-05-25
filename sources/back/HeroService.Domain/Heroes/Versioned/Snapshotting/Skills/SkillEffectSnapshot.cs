@@ -8,10 +8,12 @@ public sealed record SkillEffectSnapshot
 (
     bool HasDamage,
     bool HasHealing,
-    bool HasShielding,
+    bool HasShield,
     bool HasCrowdControl,
     bool HasMobility,
     bool HasBuff,
     bool HasDebuff,
-    bool IsUltimate
+    bool HasExecute,
+    bool HasDamageOverTime,
+    bool HasHealOverTime
 );
