@@ -22,10 +22,5 @@ public sealed record HeroBaseStatsDto(
     float BaseCastSpeed,
 
     float BaseCooldownReduction,
-    float BaseResourceRegeneration,
-
-    float HealthScalingPerLevel,
-    float ManaScalingPerLevel,
-    float AttackDamageScalingPerLevel,
-    float AbilityPowerScalingPerLevel
+    float BaseResourceRegeneration
 );
