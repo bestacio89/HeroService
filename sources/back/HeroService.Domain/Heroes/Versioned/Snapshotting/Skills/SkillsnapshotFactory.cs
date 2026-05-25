@@ -47,11 +47,9 @@ public sealed class SkillSnapshotFactory
         baseStats.BaseChannelDuration,
         baseStats.BaseRange,
 
-        baseStats.BaseCrowdControlDuration,
+        baseStats.BaseCrowdControlDuration
 
-        baseStats.AttackDamageRatio,
-        baseStats.AbilityPowerRatio,
-        baseStats.MaxHealthRatio
+   
     );
   }
 
@@ -60,17 +58,26 @@ public sealed class SkillSnapshotFactory
   // =========================================
   private static SkillEffectSnapshot BuildEffects(IEnumerable<SkillEffect> effects)
   {
-    var list = effects as IList<SkillEffect> ?? effects.ToList();
-
     return new SkillEffectSnapshot(
-        list.Any(e => e.EffectType is EffectType.Damage or EffectType.DamageOverTime),
-        list.Any(e => e.EffectType is EffectType.Heal or EffectType.HealOverTime),
-        list.Any(e => e.EffectType == EffectType.Shield),
-        list.Any(e => e.EffectType == EffectType.CrowdControl),
-        list.Any(e => e.EffectType == EffectType.Mobility),
-        list.Any(e => e.EffectType == EffectType.Buff),
-        list.Any(e => e.EffectType == EffectType.Debuff),
-        list.Any(e => e.EffectType == EffectType.Execute)
+        effects.Any(e => e.EffectType == EffectType.Damage),
+
+        effects.Any(e => e.EffectType == EffectType.DamageOverTime),
+
+        effects.Any(e => e.EffectType == EffectType.Heal),
+
+        effects.Any(e => e.EffectType == EffectType.HealOverTime),
+
+        effects.Any(e => e.EffectType == EffectType.Shield),
+
+        effects.Any(e => e.EffectType == EffectType.CrowdControl),
+
+        effects.Any(e => e.EffectType == EffectType.Mobility),
+
+        effects.Any(e => e.EffectType == EffectType.Buff),
+
+        effects.Any(e => e.EffectType == EffectType.Debuff),
+
+        effects.Any(e => e.EffectType == EffectType.Execute)
     );
   }
 }
