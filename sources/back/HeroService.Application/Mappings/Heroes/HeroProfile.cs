@@ -48,11 +48,7 @@ public class HeroProfile : FranzMapProfile
                     h.BaseStats.BaseAttackRange,
                     h.BaseStats.BaseCastSpeed,
                     h.BaseStats.BaseCooldownReduction,
-                    h.BaseStats.BaseResourceRegeneration,
-                    h.BaseStats.HealthScalingPerLevel,
-                    h.BaseStats.ManaScalingPerLevel,
-                    h.BaseStats.AttackDamageScalingPerLevel,
-                    h.BaseStats.AbilityPowerScalingPerLevel
+                    h.BaseStats.BaseResourceRegeneration
                 ) : null!,
                 h.SkillKit != null ? new HeroSkillKitDto(
                     h.SkillKit.PassiveSkillId,

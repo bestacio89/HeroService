@@ -120,10 +120,6 @@ public sealed class HeroCreationService : IHeroCreationService
         request.BaseStats.BaseCastSpeed,
         request.BaseStats.BaseCooldownReduction,
         request.BaseStats.BaseResourceRegeneration,
-        request.BaseStats.HealthScalingPerLevel,
-        request.BaseStats.ManaScalingPerLevel,
-        request.BaseStats.AttackDamageScalingPerLevel,
-        request.BaseStats.AbilityPowerScalingPerLevel,
         userId
     );
 
@@ -172,7 +168,7 @@ public sealed class HeroCreationService : IHeroCreationService
     // Initialize Hero
     // =========================================
 
-    hero.Initialize(
+    hero.Define(
         request.Name,
         heroClass.Id,
         affiliation,

@@ -38,7 +38,7 @@ public class Hero : Entity<Guid>
   // =========================================================
   // CREATION (ONLY VALID ENTRY POINT)
   // =========================================================
-  public void Initialize(
+  public void Define(
     string name,
     Guid heroClassId,
     HeroAffiliation affiliation,
