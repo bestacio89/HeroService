@@ -1,9 +1,10 @@
 ﻿using Franz.Common.Mapping.Abstractions;
 using Franz.Common.Mediator.Handlers;
 using HeroService.Contracts.DTOs.Heroes;
-using HeroService.Contracts.Queries.Heroes.Classification.MythologyType;
+
 using HeroService.Domain.Heroes.Affiliations.Classifications;
 using HeroService.Contracts.Persistence.Heroes;
+using HeroService.Contracts.Queries.Heroes.Classification.MythologyTypes;
 
 namespace HeroService.Application.Queries.Heroes.Classification.MythologyTypes;
 
