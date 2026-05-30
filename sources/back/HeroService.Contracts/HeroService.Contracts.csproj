@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DTOs\Skills\NewFolder\" />
     <Folder Include="Features\Example\Commands\" />
     <Folder Include="Features\Example\Queries\" />
     <Folder Include="Features\Example\Persistence\" />
