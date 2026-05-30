@@ -75,5 +75,7 @@ public enum StackType
   /// - independent projectiles
   /// - layered zones
   /// </summary>
-  Independent = 6
+  Independent = 6,
+
+  Refresh = 7
 }

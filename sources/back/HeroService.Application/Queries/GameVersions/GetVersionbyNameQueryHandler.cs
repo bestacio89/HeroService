@@ -25,7 +25,7 @@ public sealed class GetGameVersionByNameQueryHandler
       CancellationToken cancellationToken)
   {
     var version = await _repository.GetByNameAsync(
-        request.Name,
+        request.VersionName,
         cancellationToken);
 
     if (version is null)

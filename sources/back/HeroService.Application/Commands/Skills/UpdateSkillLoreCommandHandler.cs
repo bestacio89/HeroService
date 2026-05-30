@@ -19,7 +19,6 @@ public sealed class UpdateSkillLoreCommandHandler
         ?? throw new InvalidOperationException("SkillLore not found.");
 
     lore.Update(
-        command.Name,
         command.Description,
         command.VisualExplanation,
         command.UpdatedBy

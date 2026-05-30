@@ -1,4 +1,6 @@
-﻿public class SkillBaseStats : Entity<Guid>
+﻿namespace HeroService.Domain.Heroes.Skills;
+
+public class SkillBaseStats : Entity<Guid>
 {
   public Guid SkillId { get; private set; }
 
