@@ -1,16 +1,16 @@
-﻿using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
+﻿using Franz.Common.DependencyInjection;
+using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 
 namespace HeroService.Contracts.Persistence.Modifiers;
 
-public interface IHeroModifierRepository
+public interface IHeroModifierRepository : IScopedDependency
 {
-  Task<HeroModifier?> GetAsync(
+  Task<HeroModifier?> GetByHeroAndVersionAsync(
       Guid heroId,
       Guid gameVersionId,
-      CancellationToken ct);
+      CancellationToken cancellationToken = default);
 
-  Task<IReadOnlyDictionary<Guid, HeroModifier>> GetByHeroIdsAsync(
-      IReadOnlyList<Guid> heroIds,
+  Task<IReadOnlyList<HeroModifier>> GetByGameVersionIdAsync(
       Guid gameVersionId,
-      CancellationToken ct);
+      CancellationToken cancellationToken = default);
 }

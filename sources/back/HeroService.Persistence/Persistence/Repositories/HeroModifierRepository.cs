@@ -1,43 +1,36 @@
 ﻿using HeroService.Contracts.Persistence.Modifiers;
 using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
-using Microsoft.EntityFrameworkCore;
-
-namespace HeroService.Persistence.Persistence.Repositories;
+using HeroService.Persistence;
 
 public sealed class HeroModifierRepository : IHeroModifierRepository
 {
-  private readonly DbContext _dbContext;
+  private readonly ApplicationDbContext _db;
 
-  public HeroModifierRepository(DbContext dbContext)
+  public HeroModifierRepository(ApplicationDbContext db)
   {
-    _dbContext = dbContext;
+    _db = db;
   }
 
-  public async Task<HeroModifier?> GetAsync(
+  public Task<HeroModifier?> GetByHeroAndVersionAsync(
       Guid heroId,
       Guid gameVersionId,
-      CancellationToken ct)
+      CancellationToken cancellationToken = default)
   {
-    return await _dbContext.Set<HeroModifier>()
-      .AsNoTracking()
-      .FirstOrDefaultAsync(x =>
-          x.HeroId == heroId &&
-          x.GameVersionId == gameVersionId,
-          ct);
+    return _db.Set<HeroModifier>()
+        .AsNoTracking()
+        .FirstOrDefaultAsync(
+            x => x.HeroId == heroId &&
+                 x.GameVersionId == gameVersionId,
+            cancellationToken);
   }
 
-  public async Task<IReadOnlyDictionary<Guid, HeroModifier>> GetByHeroIdsAsync(
-      IReadOnlyList<Guid> heroIds,
+  public async Task<IReadOnlyList<HeroModifier>> GetByGameVersionIdAsync(
       Guid gameVersionId,
-      CancellationToken ct)
+      CancellationToken cancellationToken = default)
   {
-    var result = await _dbContext.Set<HeroModifier>()
-      .AsNoTracking()
-      .Where(x =>
-          heroIds.Contains(x.HeroId) &&
-          x.GameVersionId == gameVersionId)
-      .ToListAsync(ct);
-
-    return result.ToDictionary(x => x.HeroId, x => x);
+    return await _db.Set<HeroModifier>()
+        .AsNoTracking()
+        .Where(x => x.GameVersionId == gameVersionId)
+        .ToListAsync(cancellationToken);
   }
 }

@@ -6,22 +6,50 @@ namespace HeroService.Persistence.Persistence.Repositories;
 
 public sealed class SkillModifierRepository : ISkillModifierRepository
 {
-  private readonly DbContext _dbContext;
+  private readonly ApplicationDbContext _db;
 
-  public SkillModifierRepository(DbContext dbContext)
+  public SkillModifierRepository(ApplicationDbContext db)
   {
-    _dbContext = dbContext;
+    _db = db;
   }
 
-  public async Task<IReadOnlyDictionary<Guid, SkillModifier?>> GetBySkillIdsAsync(
-      IReadOnlyList<Guid> skillIds,
-      CancellationToken ct)
+  public Task<SkillModifier?> GetBySkillAndVersionAsync(
+      Guid skillId,
+      Guid gameVersionId,
+      CancellationToken cancellationToken = default)
   {
-    var result = await _dbContext.Set<SkillModifier>()
-      .AsNoTracking()
-      .Where(x => skillIds.Contains(x.SkillId))
-      .ToListAsync(ct);
+    return _db.Set<SkillModifier>()
+        .AsNoTracking()
+        .FirstOrDefaultAsync(
+            x => x.SkillId == skillId &&
+                 x.GameVersionId == gameVersionId,
+            cancellationToken);
+  }
 
-    return result.ToDictionary(x => x.SkillId, x => (SkillModifier?)x);
+  public async Task<IReadOnlyList<SkillModifier>> GetByGameVersionIdAsync(
+      Guid gameVersionId,
+      CancellationToken cancellationToken = default)
+  {
+    return await _db.Set<SkillModifier>()
+        .AsNoTracking()
+        .Where(x => x.GameVersionId == gameVersionId)
+        .ToListAsync(cancellationToken);
+  }
+
+  // Batch resolver
+  public async Task<IReadOnlyList<SkillModifier>> GetBySkillIdsAndVersionAsync(
+      IReadOnlyCollection<Guid> skillIds,
+      Guid gameVersionId,
+      CancellationToken cancellationToken = default)
+  {
+    if (skillIds == null || skillIds.Count == 0)
+      return Array.Empty<SkillModifier>();
+
+    return await _db.SkillModifiers
+        .AsNoTracking()
+        .Where(x =>
+            x.GameVersionId == gameVersionId &&
+            skillIds.Contains(x.SkillId))
+        .ToListAsync(cancellationToken);
   }
 }

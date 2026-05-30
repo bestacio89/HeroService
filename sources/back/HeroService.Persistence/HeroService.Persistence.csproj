@@ -3,16 +3,23 @@
   <Import Project="../../../common.targets" />
 
   <ItemGroup>
+    <Compile Remove="Semoirs\**" />
+    <EmbeddedResource Remove="Semoirs\**" />
+    <None Remove="Semoirs\**" />
+    <PackageVersion Remove="Semoirs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
 	 
-	  <PackageReference Include="Franz.Common.Caching"/>
+	  <PackageReference Include="Franz.Common.Caching" />
 	 
-	  <PackageReference Include="Franz.Common.EntityFramework"/>
+	  <PackageReference Include="Franz.Common.EntityFramework" />
 	 
-	  <PackageReference Include="Franz.Common.EntityFramework.PostGres"/>
+	  <PackageReference Include="Franz.Common.EntityFramework.PostGres" />
 	 
-	  <PackageReference Include="Franz.Common.Hosting"/>
+	  <PackageReference Include="Franz.Common.Hosting" />
 	 
-	  <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions"/>
+	  <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
 	  
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
@@ -25,7 +32,6 @@
     <Folder Include="Depots\" />
     <Folder Include="Migrations\" />
     <Folder Include="Persistence\Seeders\NewFolder\" />
-    <Folder Include="Semoirs\" />
   </ItemGroup>
 
   <ItemGroup>
