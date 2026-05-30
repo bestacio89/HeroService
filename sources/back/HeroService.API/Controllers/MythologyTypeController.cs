@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HeroService.Api.Controllers.Classifications;
 
 [ApiController]
-[Route("api/mythology-types")]
+[Route("api/v1/mythology-types")]
 public sealed class MythologyTypeController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

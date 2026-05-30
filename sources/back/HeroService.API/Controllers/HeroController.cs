@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HeroService.API.Controllers;
 
 [ApiController]
-[Route("api/heroes")]
+[Route("api/v1/heroes")]
 public sealed class HeroController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;
@@ -19,11 +19,9 @@ public sealed class HeroController : ControllerBase
   }
 
   // =========================================================
-  // GET: api/heroes/{id}
+  // GET: api/v1/heroes/{id}
   // =========================================================
   [HttpGet("{heroId:guid}")]
-  [ProducesResponseType(typeof(HeroDetailsDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<IActionResult> GetById(
       Guid heroId,
       CancellationToken cancellationToken)
@@ -36,11 +34,9 @@ public sealed class HeroController : ControllerBase
   }
 
   // =========================================================
-  // GET: api/heroes/by-name/{name}
+  // GET: api/v1/heroes/by-name/{name}
   // =========================================================
   [HttpGet("by-name/{name}")]
-  [ProducesResponseType(typeof(HeroDetailsDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status404NotFound)]
   public async Task<IActionResult> GetByName(
       string name,
       CancellationToken cancellationToken)
@@ -53,11 +49,9 @@ public sealed class HeroController : ControllerBase
   }
 
   // =========================================================
-  // POST: api/heroes
+  // POST: api/v1/heroes
   // =========================================================
   [HttpPost]
-  [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Create(
       [FromBody] HeroCreateRequest request,
       CancellationToken cancellationToken)

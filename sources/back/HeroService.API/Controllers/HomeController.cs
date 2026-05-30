@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HeroService.Api.Controllers.GameVersions;
 
 [ApiController]
-[Route("api/game-versions")]
+[Route("api/v1/game-versions")]
 public sealed class GameVersionController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

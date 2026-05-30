@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HeroService.Api.Controllers.Classifications;
 
 [ApiController]
-[Route("api/origin-cultures")]
+[Route("api/v1/origin-cultures")]
 public sealed class OriginCultureController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

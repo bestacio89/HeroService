@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HeroService.Api.Controllers;
 
 [ApiController]
-[Route("api/hero-classes")]
+[Route("api/v1/hero-classes")]
 public sealed class HeroClassController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

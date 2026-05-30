@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HeroService.Api.Controllers.Classifications;
 
 [ApiController]
-[Route("api/origin-archetypes")]
+[Route("api/v1/origin-archetypes")]
 public sealed class OriginArchetypeController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;
