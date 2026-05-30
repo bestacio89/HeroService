@@ -87,7 +87,6 @@ public sealed class SkillCreationService : ISkillCreationService
 
     lore.Define(
         skill.Id,
-        request.Lore.Name,
         request.Lore.Description,
         request.Lore.VisualExplanation,
         createdBy

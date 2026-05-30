@@ -103,7 +103,6 @@ public sealed class SkillProfile : FranzMapProfile
     CreateMap<SkillLore, SkillLoreDto>()
         .ConstructUsing(lore => new SkillLoreDto
         {
-          Name = lore.Name,
           Description = lore.Description,
           VisualExplanation = lore.VisualExplanation
         });
