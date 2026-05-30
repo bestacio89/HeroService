@@ -62,37 +62,52 @@ namespace HeroService.Domain.Heroes.Skills;
 /// </summary>
 public enum EffectType
 {
-  /// <summary>Direct instant damage applied at resolution time.</summary>
+  // =========================================================
+  // DIRECT COMBAT OUTPUT
+  // =========================================================
+
   Damage,
-
-  /// <summary>Instant healing applied to a target.</summary>
+  DamageOverTime,
   Heal,
-
-  /// <summary>Temporary or permanent absorption buffer applied to a target.</summary>
+  HealOverTime,
   Shield,
 
-  /// <summary>Damage applied over time in intervals.</summary>
-  DamageOverTime,
+  // =========================================================
+  // CONTROL SYSTEM
+  // =========================================================
 
-  /// <summary>Control effects such as stun, slow, root, silence, knock-up.</summary>
-  CrowdControl,
+  CrowdControl, // unified CC bucket (stun, slow, root, silence, knock-up, etc.)
 
-  /// <summary>Positive modifier applied to a unit (stat increase, empowerment).</summary>
+  // =========================================================
+  // STATE MODIFIERS
+  // =========================================================
+
   Buff,
-
-  /// <summary>Negative modifier applied to a unit (stat reduction, weakening).</summary>
   Debuff,
 
-  /// <summary>Healing applied over time in intervals.</summary>
-  HealOverTime,
+  // =========================================================
+  // POSITIONING / MOVEMENT SYSTEM
+  // =========================================================
 
-  /// <summary>Execution-style effect that triggers enhanced damage under conditions (e.g., low HP threshold).</summary>
-  Execute,
-
-  /// <summary>Applies to all skill effects that modify the mobility of a character.</summary>
   Mobility,
 
+  // =========================================================
+  // EXECUTION SYSTEM
+  // =========================================================
 
+  Execute,
 
+  // =========================================================
+  // UTILITY / STRATEGIC EFFECTS
+  // =========================================================
 
+  Utility,
+
+  Vision,
+
+  ZoneControl,
+
+  Summon,
+
+  Transformation
 }

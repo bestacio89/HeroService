@@ -9,8 +9,14 @@ public class GameVersion : Entity<Guid>
 
   private GameVersion() { }
 
-  public GameVersion(string versionName, string createdBy)
+  // =========================================
+  // DOMAIN FACTORY ENTRY POINT
+  // =========================================
+  public void Define(string versionName, string createdBy)
   {
+    if (!string.IsNullOrWhiteSpace(VersionName))
+      throw new InvalidOperationException("GameVersion is already defined.");
+
     if (string.IsNullOrWhiteSpace(versionName))
       throw new ArgumentException("VersionName cannot be empty.", nameof(versionName));
 
@@ -29,7 +35,6 @@ public class GameVersion : Entity<Guid>
       return;
 
     IsActive = true;
-
     MarkUpdated(updatedBy);
   }
 
@@ -42,7 +47,6 @@ public class GameVersion : Entity<Guid>
       return;
 
     IsActive = false;
-
     MarkUpdated(updatedBy);
   }
 }

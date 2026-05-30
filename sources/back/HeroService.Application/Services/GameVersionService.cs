@@ -1,4 +1,5 @@
-﻿using Franz.Common.Business.Repositories;
+﻿using Franz.Common.Business.Domain.Factories;
+using Franz.Common.Business.Repositories;
 using HeroService.Contracts.Persistence.GameVersions;
 using HeroService.Domain.Heroes.Versioned.GameVersion;
 
@@ -8,11 +9,16 @@ public sealed class GameVersionService
 {
   private readonly IGameVersionRepository _repository;
   private readonly IEntityRepository<GameVersion, Guid> _entityRepository;
+  private readonly IEntityFactory<Guid, GameVersion> _factory;
 
-  public GameVersionService(IGameVersionRepository repository, IEntityRepository<GameVersion, Guid> entityRepository)
+  public GameVersionService(
+      IGameVersionRepository repository,
+      IEntityRepository<GameVersion, Guid> entityRepository,
+      IEntityFactory<Guid, GameVersion> factory)
   {
     _repository = repository;
     _entityRepository = entityRepository;
+    _factory = factory;
   }
 
   public async Task<Guid> CreateAndActivateAsync(
@@ -23,7 +29,9 @@ public sealed class GameVersionService
     if (string.IsNullOrWhiteSpace(versionName))
       throw new ArgumentException("Version name is required.");
 
-    // 1. get active version (domain-specific query)
+    // =========================================================
+    // 1. deactivate current active version
+    // =========================================================
     var active = await _repository.GetActiveAsync(cancellationToken);
 
     if (active is not null)
@@ -32,8 +40,12 @@ public sealed class GameVersionService
       await _entityRepository.UpdateAsync(active, cancellationToken);
     }
 
-    // 2. create new version
-    var newVersion = new GameVersion(versionName, createdBy);
+    // =========================================================
+    // 2. create new version via factory
+    // =========================================================
+    var newVersion = _factory.Create();
+
+    newVersion.Define(versionName, createdBy);
     newVersion.Activate(createdBy);
 
     await _entityRepository.AddAsync(newVersion, cancellationToken);
