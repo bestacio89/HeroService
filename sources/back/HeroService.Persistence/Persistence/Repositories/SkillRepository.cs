@@ -18,15 +18,12 @@ public sealed class SkillRepository : ISkillRepository
       CancellationToken cancellationToken = default)
   {
     return _dbContext.Set<Skill>()
-      .AsNoTracking()
-      .FirstOrDefaultAsync(
-          x => x.Name == name,
-          cancellationToken);
+        .AsNoTracking()
+        .FirstOrDefaultAsync(
+            x => x.Name == name,
+            cancellationToken);
   }
 
-  // =========================================================
-  // NEW: BATCH SNAPSHOT SUPPORT
-  // =========================================================
   public async Task<IReadOnlyList<Skill>> GetByIdsAsync(
       IEnumerable<Guid> ids,
       CancellationToken cancellationToken = default)
@@ -35,17 +32,63 @@ public sealed class SkillRepository : ISkillRepository
       throw new ArgumentNullException(nameof(ids));
 
     var idList = ids
-      .Where(id => id != Guid.Empty)
-      .Distinct()
-      .ToList();
+        .Where(x => x != Guid.Empty)
+        .Distinct()
+        .ToList();
 
     if (idList.Count == 0)
       return Array.Empty<Skill>();
 
     return await _dbContext.Set<Skill>()
-      .AsNoTracking()
-      .Include(s => s.Effects) // IMPORTANT for snapshot correctness
-      .Where(s => idList.Contains(s.Id))
-      .ToListAsync(cancellationToken);
+        .AsNoTracking()
+        .Include(x => x.Effects)
+        .Where(x => idList.Contains(x.Id))
+        .ToListAsync(cancellationToken);
+  }
+
+  public Task<Skill?> GetDetailsAsync(
+      Guid skillId,
+      CancellationToken cancellationToken = default)
+  {
+    return _dbContext.Set<Skill>()
+        .AsNoTracking()
+        .Include(x => x.Effects)
+        .FirstOrDefaultAsync(
+            x => x.Id == skillId,
+            cancellationToken);
+  }
+
+  public Task<Skill?> GetByNameWithDetailsAsync(
+      string name,
+      CancellationToken cancellationToken = default)
+  {
+    return _dbContext.Set<Skill>()
+        .AsNoTracking()
+        .Include(x => x.Effects)
+        .FirstOrDefaultAsync(
+            x => x.Name == name,
+            cancellationToken);
+  }
+
+  public async Task<IReadOnlyCollection<Skill>> GetAllWithDetailsAsync(
+      CancellationToken cancellationToken = default)
+  {
+    return await _dbContext.Set<Skill>()
+        .AsNoTracking()
+        .Include(x => x.Effects)
+        .OrderBy(x => x.Name)
+        .ToListAsync(cancellationToken);
+  }
+
+  public async Task<IReadOnlyCollection<Skill>> GetByTypeAsync(
+      SkillType skillType,
+      CancellationToken cancellationToken = default)
+  {
+    return await _dbContext.Set<Skill>()
+        .AsNoTracking()
+        .Include(x => x.Effects)
+        .Where(x => x.SkillType == skillType)
+        .OrderBy(x => x.Name)
+        .ToListAsync(cancellationToken);
   }
 }
