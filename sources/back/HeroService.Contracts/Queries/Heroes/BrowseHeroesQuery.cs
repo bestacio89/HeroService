@@ -8,4 +8,4 @@ public sealed record BrowseHeroesQuery(
     Guid? MythologyTypeId,
     Guid? CultureId,
     Guid? ArchetypeId
-) : IQuery<IReadOnlyCollection<HeroDetailsDto>>;
+) : IQuery<IReadOnlyCollection<HeroDto>>;

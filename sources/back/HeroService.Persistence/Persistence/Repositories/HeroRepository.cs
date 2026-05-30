@@ -127,4 +127,28 @@ public sealed class HeroRepository : IHeroRepository
     return await BaseQuery()
         .ToListAsync(cancellationToken);
   }
+
+  public async Task<IReadOnlyCollection<Hero>> BrowseAsync(
+    Guid? heroClassId,
+    Guid? mythologyTypeId,
+    Guid? cultureId,
+    Guid? archetypeId,
+    CancellationToken ct = default)
+  {
+    var query = BaseQuery();
+
+    if (heroClassId.HasValue)
+      query = query.Where(x => x.HeroClassId == heroClassId);
+
+    if (mythologyTypeId.HasValue)
+      query = query.Where(x => x.Affiliation.Mythology.Id == mythologyTypeId);
+
+    if (cultureId.HasValue)
+      query = query.Where(x => x.Affiliation.OriginCulture.Id == cultureId);
+
+    if (archetypeId.HasValue)
+      query = query.Where(x => x.Affiliation.Archetype.Id == archetypeId);
+
+    return await query.ToListAsync(ct);
+  }
 }

@@ -19,7 +19,6 @@ public interface IHeroRepository : INameLookupRepository<Hero, Guid>
   // =========================================================
   // FILTERED COLLECTIONS
   // =========================================================
-
   Task<IReadOnlyCollection<Hero>> GetByClassAsync(
       Guid heroClassId,
       CancellationToken cancellationToken = default);
@@ -42,4 +41,10 @@ public interface IHeroRepository : INameLookupRepository<Hero, Guid>
 
   Task<IReadOnlyCollection<Hero>> GetAllWithDetailsAsync(
       CancellationToken cancellationToken = default);
+  Task<IReadOnlyCollection<Hero>> BrowseAsync(
+    Guid? heroClassId,
+    Guid? mythologyTypeId,
+    Guid? cultureId,
+    Guid? archetypeId,
+    CancellationToken ct = default);
 }

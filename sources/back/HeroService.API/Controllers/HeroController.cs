@@ -65,4 +65,27 @@ public sealed class HeroController : ControllerBase
         new { heroId = id },
         id);
   }
+
+  // =========================================================
+  // GET: api/v1/heroes
+  // =========================================================
+  [HttpGet]
+  public async Task<ActionResult<IReadOnlyCollection<HeroDto>>> BrowseHeroes(
+      [FromQuery] Guid? heroClassId,
+      [FromQuery] Guid? mythologyTypeId,
+      [FromQuery] Guid? cultureId,
+      [FromQuery] Guid? archetypeId,
+      CancellationToken cancellationToken)
+  {
+    var query = new BrowseHeroesQuery(
+        heroClassId,
+        mythologyTypeId,
+        cultureId,
+        archetypeId
+    );
+
+    var result = await _dispatcher.SendAsync(query, cancellationToken);
+
+    return Ok(result);
+  }
 }
