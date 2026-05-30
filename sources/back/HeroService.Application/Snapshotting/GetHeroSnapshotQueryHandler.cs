@@ -2,10 +2,12 @@
 using Franz.Common.Mapping.Abstractions;
 using Franz.Common.Mediator.Handlers;
 using HeroService.Contracts.DTOs.Snapshots;
+using HeroService.Contracts.Persistence.GameVersions;
 using HeroService.Contracts.Persistence.Modifiers;
 using HeroService.Contracts.Persistence.Skills;
 using HeroService.Contracts.Queries.Snapshots;
 using HeroService.Domain.Heroes.Core;
+using HeroService.Domain.Heroes.Versioned.GameVersion;
 using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 using HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 
@@ -19,6 +21,7 @@ public sealed class GetHeroSnapshotQueryHandler
   private readonly ISkillBaseStatsRepository _skillBaseStatsRepository;
   private readonly ISkillModifierRepository _skillModifierRepository;
   private readonly IHeroModifierRepository _heroModifierRepository;
+  private readonly IGameVersionRepository _gVersionRepository;
   private readonly SnapshotResolver _resolver;
   private readonly IFranzMapper _mapper;
 
@@ -29,7 +32,8 @@ public sealed class GetHeroSnapshotQueryHandler
       ISkillModifierRepository skillModifierRepository,
       IHeroModifierRepository heroModifierRepository,
       SnapshotResolver resolver,
-      IFranzMapper mapper)
+      IFranzMapper mapper,
+      IGameVersionRepository gversion)
   {
     _heroRepository = heroRepository;
     _skillRepository = skillRepository;
@@ -38,51 +42,51 @@ public sealed class GetHeroSnapshotQueryHandler
     _heroModifierRepository = heroModifierRepository;
     _resolver = resolver;
     _mapper = mapper;
+    _gVersionRepository = gversion;
   }
 
   public async Task<HeroSnapshotDto> Handle(
-      GetHeroSnapshotQuery request,
-      CancellationToken ct)
+    GetHeroSnapshotQuery request,
+    CancellationToken ct)
   {
-    // 1. Hero (source of truth)
     var hero = await _heroRepository.GetByIdAsync(request.HeroId, ct)
-        ?? throw new InvalidOperationException($"Hero '{request.HeroId}' not found.");
+        ?? throw new InvalidOperationException(
+            $"Hero '{request.HeroId}' not found.");
 
-    // 2. Modifier (versioned)
-    var heroModifier = await _heroModifierRepository.GetAsync(
-        request.HeroId,
-        request.GameVersionId,
-        ct);
-
-    // 3. Skills from hero aggregate
-    var skillKit = hero.SkillKit;
-
-    if (skillKit is null)
-      throw new InvalidOperationException($"Hero '{hero.Id}' has no SkillKit defined.");
+    var heroModifier =
+        await _heroModifierRepository.GetByHeroAndVersionAsync(
+            request.HeroId,
+            request.GameVersionId,
+            ct);
 
     var skillIds = new[]
     {
-    skillKit.PassiveSkillId,
-    skillKit.PrimarySkillId,
-    skillKit.SecondarySkillId,
-    skillKit.TertiarySkillId,
-    skillKit.UltimateSkillId
-    }
-    .Where(id => id != Guid.Empty)
-    .ToList();
+        hero.SkillKit.PassiveSkillId,
+        hero.SkillKit.PrimarySkillId,
+        hero.SkillKit.SecondarySkillId,
+        hero.SkillKit.TertiarySkillId,
+        hero.SkillKit.UltimateSkillId
+    };
 
-    if (skillIds.Count == 0)
-      throw new InvalidOperationException($"Hero '{hero.Id}' has no skills defined.");
-
-    var skills = await _skillRepository.GetByIdsAsync(skillIds, ct);
+    var skills =
+        await _skillRepository.GetByIdsAsync(skillIds, ct);
 
     var skillBaseStats =
-        await _skillBaseStatsRepository.GetBySkillIdsAsync(skillIds, ct);
+        await _skillBaseStatsRepository.GetBySkillIdsAsync(
+            skillIds,
+            ct);
 
     var skillModifiers =
-        await _skillModifierRepository.GetBySkillIdsAsync(skillIds, ct);
+        await _skillModifierRepository.GetBySkillIdsAndVersionAsync(
+            skillIds,
+            request.GameVersionId,
+            ct);
 
-    // 5. Resolve snapshot (pure deterministic engine)
+    var skillModifierLookup =
+        skillModifiers.ToDictionary(
+            x => x.SkillId,
+            x => x);
+
     var snapshot = _resolver.ResolveHero(
         hero.Id,
         request.GameVersionId,
@@ -90,10 +94,8 @@ public sealed class GetHeroSnapshotQueryHandler
         heroModifier,
         skills,
         skillBaseStats,
-        skillModifiers
-    );
+        skillModifierLookup);
 
-    // 6. PURE mapping layer (FIX)
     return _mapper.Map<HeroSnapshot, HeroSnapshotDto>(snapshot);
   }
 }

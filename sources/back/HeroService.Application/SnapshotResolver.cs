@@ -15,7 +15,7 @@ public sealed class SnapshotResolver
       HeroModifier? heroModifier,
       IReadOnlyList<Skill> skills,
       IReadOnlyDictionary<Guid, SkillBaseStats> skillBaseStats,
-      IReadOnlyDictionary<Guid, SkillModifier?> skillModifiers)
+      IReadOnlyDictionary<Guid, SkillModifier> skillModifiers)
   {
     var stats = BuildHeroStats(baseStats, heroModifier);
 
