@@ -10,6 +10,7 @@ using Franz.Common.Mediator.Polly;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using HeroService.Persistence.Persistence.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
@@ -42,6 +43,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
   var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+  var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
   if (app.Environment.IsDevelopment())
   {
     db.Database.EnsureDeleted();
@@ -51,6 +53,7 @@ using (var scope = app.Services.CreateScope())
   {
     db.Database.Migrate();
   }
+  await seeder.RunAsync(CancellationToken.None);
 }
 
 app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
