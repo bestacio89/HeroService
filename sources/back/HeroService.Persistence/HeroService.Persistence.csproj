@@ -31,7 +31,7 @@
     <Folder Include="Configurations\" />
     <Folder Include="Depots\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Persistence\Seeders\NewFolder\" />
+    <Folder Include="Persistence\Seeding\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

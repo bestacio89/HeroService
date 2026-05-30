@@ -1,6 +1,8 @@
 using Franz.Common.AzureCosmosDB.Extensions;
 using Franz.Common.Caching.Extensions;
 using Franz.Common.EntityFramework.Extensions;
+using HeroService.Persistence.Persistence.Seeding;
+using HeroService.Persistence.Seeding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -41,10 +43,17 @@ namespace HeroService.Persistence
           opt.LogHitLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
           opt.LogMissLevel = Microsoft.Extensions.Logging.LogLevel.Information;
         });*/
+      services.AddUnitOfWork<ApplicationDbContext>();
       services.AddFranzMemoryCaching();
       services.AddCustomRepositoriesFromAssembly(typeof(ApplicationDbContext).Assembly);
       services.AddEntityRepositories<ApplicationDbContext>();
-     
+      services.AddScoped<ISeeder2, GameVersionSeeder>();
+      services.AddScoped<ISeeder2, IdentitySeeder>();
+      services.AddScoped<ISeeder2, SkillSeeder>();
+      services.AddScoped<ISeeder2, SkillModifierSeeder>();
+      services.AddScoped<ISeeder2, HeroSeeder>();
+      services.AddScoped<ISeeder2, HeroModifierSeeder>();
+      services.AddScoped<DatabaseSeeder>();
 
       // ? Add persistence services with dynamically determined types (if needed)
       // Example: services.AddDatabase<TDbContext>(configuration);
