@@ -76,9 +76,12 @@ public sealed class SnapshotProfile : FranzMapProfile
         // =========================================================
         CreateMap<HeroSkillKitSnapshot, HeroSkillKitSnapshotDto>();
 
-        // =========================================================
-        // HeroSnapshot → DTO
-        // =========================================================
-        CreateMap<HeroSnapshot, HeroSnapshotDto>();
-    }
+    // =========================================================
+    // HeroSnapshot → DTO
+    // =========================================================
+    CreateMap<HeroSnapshot, HeroSnapshotDto>()
+     .ForMember(
+         d => d.Skills,
+         s => s.SkillKit);
+  }
 }
