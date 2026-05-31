@@ -6901,7 +6901,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MobaPrototype.Systems.Health.StructureHealth
   maxHealth: 1000
   enableDebugKey: 1
-  debugDamageKey: 25
+  debugDamageKey: 107
   debugDamagePerPress: 250
 --- !u!1 &2096378821
 GameObject:
