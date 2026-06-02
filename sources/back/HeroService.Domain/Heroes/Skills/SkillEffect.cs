@@ -59,6 +59,8 @@
 /// - This is the primary extensibility mechanism for introducing new gameplay mechanics
 ///   without modifying core combat systems.
 /// </summary>
+ namespace HeroService.Domain.Heroes.Skills;
+
 public class SkillEffect : Entity<Guid>
 {
   public Guid SkillId { get; private set; }

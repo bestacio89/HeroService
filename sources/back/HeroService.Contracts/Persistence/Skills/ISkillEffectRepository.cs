@@ -1,4 +1,5 @@
 ﻿using Franz.Common.DependencyInjection;
+using HeroService.Domain.Heroes.Skills;
 using System;
 using System.Collections.Generic;
 using System.Text;

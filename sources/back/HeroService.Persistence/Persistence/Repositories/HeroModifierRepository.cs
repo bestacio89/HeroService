@@ -1,6 +1,7 @@
 ﻿using HeroService.Contracts.Persistence.Modifiers;
 using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 using HeroService.Persistence;
+namespace HeroService.Persistence.Repositories;
 
 public sealed class HeroModifierRepository : IHeroModifierRepository
 {
