@@ -1,6 +1,6 @@
 ﻿namespace HeroService.Contracts.DTOs.Requests;
 
-public sealed class HeroLoreCreateRequest
+public sealed class HeroLoreCreateRequestDto
 {
   public string Title { get; init; } = string.Empty;
 

@@ -1,6 +1,5 @@
 ﻿using Franz.Common.Mediator.Dispatchers;
 using HeroService.Contracts.Commands.Heroes;
-using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Contracts.DTOs.Requests;
 using HeroService.Contracts.Queries.Heroes;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +52,7 @@ public sealed class HeroController : ControllerBase
   // =========================================================
   [HttpPost]
   public async Task<IActionResult> Create(
-      [FromBody] HeroCreateRequest request,
+      [FromBody] HeroCreateRequestDto request,
       CancellationToken cancellationToken)
   {
     var id = await _dispatcher.SendAsync(

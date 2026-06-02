@@ -59,7 +59,7 @@ public sealed class HeroCreationService : IHeroCreationService
   }
 
   public async Task<Guid> CreateAsync(
-      HeroCreateRequest request,
+      HeroCreateRequestDto request,
       CancellationToken cancellationToken)
   {
     var userId = MediatorContext.Current.UserId ?? "system";

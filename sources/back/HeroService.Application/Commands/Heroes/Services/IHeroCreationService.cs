@@ -6,6 +6,6 @@ namespace HeroService.Application.Commands.Heroes.Services;
 public interface IHeroCreationService
 {
   Task<Guid> CreateAsync(
-      HeroCreateRequest request,
+      HeroCreateRequestDto request,
       CancellationToken cancellationToken);
 }

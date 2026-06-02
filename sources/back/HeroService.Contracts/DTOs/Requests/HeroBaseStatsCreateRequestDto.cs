@@ -4,7 +4,7 @@ using System.Text;
 
 namespace HeroService.Contracts.DTOs.Requests;
 
-public sealed class HeroBaseStatsCreateRequest
+public sealed class HeroBaseStatsCreateRequestDto
 {
   public float BaseHealth { get; init; }
   public float BaseMana { get; init; }

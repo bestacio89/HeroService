@@ -1,6 +1,6 @@
 ﻿namespace HeroService.Contracts.DTOs.Requests;
 
-public sealed class HeroCreateRequest
+public sealed class HeroCreateRequestDto
 {
   public string Name { get; init; } = string.Empty;
 
@@ -12,9 +12,9 @@ public sealed class HeroCreateRequest
 
   public string Culture { get; init; } = string.Empty;
 
-  public HeroBaseStatsCreateRequest BaseStats { get; init; } = null!;
+  public HeroBaseStatsCreateRequestDto BaseStats { get; init; } = null!;
 
-  public HeroSkillKitCreateRequest SkillKit { get; init; } = null!;
+  public HeroSkillKitCreateRequestDto SkillKit { get; init; } = null!;
 
-  public HeroLoreCreateRequest Lore { get; init; } = null!;
+  public HeroLoreCreateRequestDto Lore { get; init; } = null!;
 }

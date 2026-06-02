@@ -2,7 +2,7 @@
 
 namespace HeroService.Contracts.DTOs.Skills;
 
-public sealed record SkillResponse(
+public sealed record SkillResponseDto(
     Guid Id,
     Guid HeroId,
     string Name,

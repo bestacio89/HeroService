@@ -4,7 +4,7 @@ using System.Text;
 
 namespace HeroService.Contracts.DTOs.Requests;
 
-public sealed class HeroSkillKitCreateRequest
+public sealed class HeroSkillKitCreateRequestDto
 {
   public string PassiveSkill { get; init; } = string.Empty;
 

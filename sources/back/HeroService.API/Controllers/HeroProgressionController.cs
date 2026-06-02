@@ -1,6 +1,5 @@
 ﻿using Franz.Common.Mediator.Dispatchers;
 using HeroService.Contracts.Commands.Heroes;
-using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Contracts.Queries.Heroes;
 using Microsoft.AspNetCore.Mvc;
 
