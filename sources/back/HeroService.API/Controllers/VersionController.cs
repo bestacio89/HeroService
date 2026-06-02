@@ -4,7 +4,7 @@ using HeroService.Contracts.Queries.GameVersions;
 using HeroService.Contracts.DTOs.GameVersions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HeroService.Api.Controllers.GameVersions;
+namespace HeroService.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/game-versions")]

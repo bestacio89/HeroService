@@ -4,7 +4,7 @@ using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Contracts.Queries.Heroes.Classification.OriginCultures;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HeroService.Api.Controllers.Classifications;
+namespace HeroService.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/origin-cultures")]

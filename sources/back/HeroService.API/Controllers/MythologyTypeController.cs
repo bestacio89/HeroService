@@ -4,7 +4,7 @@ using HeroService.Contracts.Queries.Heroes.Classification.MythologyTypes;
 using HeroService.Contracts.DTOs.Heroes;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HeroService.Api.Controllers.Classifications;
+namespace HeroService.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/mythology-types")]
