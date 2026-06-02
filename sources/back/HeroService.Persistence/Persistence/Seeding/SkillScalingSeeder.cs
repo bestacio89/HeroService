@@ -10,14 +10,14 @@ public sealed class SkillScalingSeeder : ISeeder2
 {
   public int Order => 7;
 
-  private readonly IEntityFactory<Guid, SkillScalingProfile> _factory;
-  private readonly IEntityRepository<SkillScalingProfile, Guid> _repo;
+  private readonly IEntityFactory<Guid, SkillScalingModifier> _factory;
+  private readonly IEntityRepository<SkillScalingModifier, Guid> _repo;
   private readonly ISkillRepository _skills; // Domain interface inheriting from INameLookupRepository
   private readonly IUnitOfWork _uow;
 
   public SkillScalingSeeder(
-      IEntityFactory<Guid, SkillScalingProfile> factory,
-      IEntityRepository<SkillScalingProfile, Guid> repo,
+      IEntityFactory<Guid, SkillScalingModifier> factory,
+      IEntityRepository<SkillScalingModifier, Guid> repo,
       ISkillRepository skills,
       IUnitOfWork uow)
   {

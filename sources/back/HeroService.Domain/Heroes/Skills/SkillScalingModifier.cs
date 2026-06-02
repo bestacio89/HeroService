@@ -4,7 +4,7 @@
 /// Defines how a Skill scales with Hero stats.
 /// This is NOT base data — it's interaction logic.
 /// </summary>
-public class SkillScalingProfile : Entity<Guid>
+public class SkillScalingModifier : Entity<Guid>
 {
   public Guid SkillId { get; private set; }
 
@@ -15,7 +15,7 @@ public class SkillScalingProfile : Entity<Guid>
   public float AbilityPowerRatio { get; private set; }
   public float MaxHealthRatio { get; private set; }
 
-  private SkillScalingProfile() { }
+  private SkillScalingModifier() { }
 
   public void Define(
     Guid skillId,
