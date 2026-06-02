@@ -8,11 +8,13 @@ public sealed class SkillScalingProfile : FranzMapProfile
 {
   public SkillScalingProfile()
   {
-    CreateMap<SkillScalingProfile, SkillScalingModifierDto>()
-        .ConstructUsing(profile => new SkillScalingProfileDto(
-          profile.
-     
-
+    CreateMap<SkillScalingModifier, SkillScalingModifierDto>()
+        .ConstructUsing(profile => new SkillScalingModifierDto(
+            profile.Id,
+            profile.SkillId,
+            profile.AttackDamageRatio,
+            profile.AbilityPowerRatio,
+            profile.MaxHealthRatio
         ));
   }
 }
