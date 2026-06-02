@@ -13,7 +13,7 @@ public sealed class GetHeroProgressionByHeroQueryHandler : IQueryHandler<GetHero
   private readonly IEntityRepository<HeroProgressionModifiers, Guid> _repo;
   private readonly IFranzMapper _mapper;
 
-  public GetHeroProgressionByHeroQueryHandler(IEntityRepository<HeroProgressionModifiers, Guid> repo, IMapper mapper)
+  public GetHeroProgressionByHeroQueryHandler(IEntityRepository<HeroProgressionModifiers, Guid> repo, IFranzMapper mapper)
   {
     _repo = repo;
     _mapper = mapper;
