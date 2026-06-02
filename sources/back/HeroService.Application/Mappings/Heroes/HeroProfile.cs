@@ -1,3 +1,4 @@
+using Franz.Common.Mapping.Profiles;
 using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Domain.Heroes.Core;
 using HeroService.Domain.Heroes.Core.Skills;

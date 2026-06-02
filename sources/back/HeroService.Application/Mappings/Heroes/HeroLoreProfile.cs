@@ -1,4 +1,5 @@
-﻿using HeroService.Contracts.DTOs.Heroes;
+﻿using Franz.Common.Mapping.Profiles;
+using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Domain.Heroes.Core;
 using System;
 using System.Collections.Generic;

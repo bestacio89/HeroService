@@ -1,4 +1,5 @@
-﻿using HeroService.Contracts.DTOs.Snapshots;
+﻿using Franz.Common.Mapping.Profiles;
+using HeroService.Contracts.DTOs.Snapshots;
 using HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 using HeroService.Domain.Heroes.Versioned.Snapshotting.Skills;
 

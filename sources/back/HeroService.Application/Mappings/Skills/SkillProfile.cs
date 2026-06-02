@@ -1,4 +1,5 @@
-﻿using HeroService.Contracts.DTOs.Skills;
+﻿using Franz.Common.Mapping.Profiles;
+using HeroService.Contracts.DTOs.Skills;
 using HeroService.Domain.Heroes.Skills;
 
 namespace HeroService.Application.Mappings.Skills;
