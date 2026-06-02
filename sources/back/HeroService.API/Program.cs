@@ -1,4 +1,3 @@
-
 using HeroService.Application;
 using HeroService.Persistence;
 using Franz.Common.Http.Bootstrap.Extensions;
@@ -16,52 +15,67 @@ var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
 var config = builder.Configuration;
 
-// --- Logging ---
+// =========================================================
+// LOGGING SUBSYSTEM
+// =========================================================
 builder.Host.UseLog();
 builder.Services.AddFranzSerilogAuditPipeline()
                 .AddFranzEventValidationPipeline()
                 .AddFranzSerilogLoggingPipeline()
                 .AddFranzTelemetry(env, config);
 
-// --- Application & Persistence ---
+// =========================================================
+// APPLICATION & PERSISTENCE SERVICES
+// =========================================================
 builder.Services.RegisterApplicationServices();
-// Standardized Database registration - handles DbContext and Persistence Services
+
+// Standardized Relational Database Registration
 builder.Services.AddRelationalDatabase<ApplicationDbContext>(env, config);
 
-// --- Http Architecture & Documentation ---
-// This handles Controllers, Versioning, and Swagger via your internal logic
+// =========================================================
+// HTTP ARCHITECTURE & DOCUMENTATION
+// =========================================================
 builder.Services.AddHttpArchitecture(env, config);
 
-// --- Mediator + Pipelines ---
+// =========================================================
+// MEDIATOR & RESILIENCE PIPELINES
+// =========================================================
 builder.Services.AddFranzMediator(new[] { typeof(CreateHeroCommandHandler).Assembly });
 builder.Services.AddFranzResilience(config);
 
-
 var app = builder.Build();
 
-// --- DB Initialization ---
+// =========================================================
+// LIFECYCLE & ENVIRONMENT BOUNDARY ENVIRONMENT STATES
+// =========================================================
 using (var scope = app.Services.CreateScope())
 {
-  var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-  var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+  var services = scope.ServiceProvider;
+
   if (app.Environment.IsDevelopment())
   {
-    db.Database.EnsureDeleted();
-    db.Database.EnsureCreated();
+    // Local Dev State: Safely execute incremental migrations and apply idempotent seeding
+    var db = services.GetRequiredService<ApplicationDbContext>();
+    var seeder = services.GetRequiredService<DatabaseSeeder>();
+
+    await db.Database.MigrateAsync(CancellationToken.None);
+    await seeder.RunAsync(CancellationToken.None);
   }
   else
   {
-    db.Database.Migrate();
+    // Hardened Production State: Runtime instance has ZERO DDL/Migration access.
+    // Schema generation is shifted entirely left to the CI/CD deployment phase.
+    Log.Information("Higher Environment detected. Database runtime initialization handled by orchestration plane.");
   }
-  await seeder.RunAsync(CancellationToken.None);
 }
 
 app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 
-// --- Middleware ---
+// =========================================================
+// MIDDLEWARE PIPELINE
+// =========================================================
 if (app.Environment.IsDevelopment())
 {
-  // Use the framework-level documentation helper
   app.UseDocumentation();
 }
 
