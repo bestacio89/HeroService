@@ -63,46 +63,48 @@ public sealed class SkillModifierSeeder : ISeeder2
     // THOR MODIFIERS
     // =====================================================
 
-    Create(version.Id, mjolnir.Id,
+    await CreateAsync(version.Id, mjolnir.Id, ct,
       dmg: 1.10f, cd: 0.95f);
 
-    Create(version.Id, thunderLeap.Id,
+    await CreateAsync(version.Id, thunderLeap.Id, ct,
       dmg: 1.00f, cc: 1.10f, range: 1.05f);
 
-    Create(version.Id, stormAura.Id,
+    await CreateAsync(version.Id, stormAura.Id, ct,
       heal: 1.00f, shield: 1.15f);
 
-    Create(version.Id, lightningChain.Id,
+    await CreateAsync(version.Id, lightningChain.Id, ct,
       dmg: 1.05f, range: 1.10f);
 
-    Create(version.Id, thorUlt.Id,
+    await CreateAsync(version.Id, thorUlt.Id, ct,
       dmg: 1.20f, cd: 1.10f, cc: 1.15f);
 
     // =====================================================
     // HERAKLES MODIFIERS
     // =====================================================
 
-    Create(version.Id, lionsMight.Id,
+    await CreateAsync(version.Id, lionsMight.Id, ct,
       dmg: 1.05f, shield: 1.10f);
 
-    Create(version.Id, hydraStrike.Id,
+    await CreateAsync(version.Id, hydraStrike.Id, ct,
       dmg: 1.15f);
 
-    Create(version.Id, titanGrip.Id,
+    await CreateAsync(version.Id, titanGrip.Id, ct,
       shield: 1.25f);
 
-    Create(version.Id, laborsRush.Id,
+    await CreateAsync(version.Id, laborsRush.Id, ct,
       cd: 0.90f, range: 1.05f);
 
-    Create(version.Id, heraUlt.Id,
+    await CreateAsync(version.Id, heraUlt.Id, ct,
       shield: 1.30f, cd: 1.15f);
 
+    // Single deterministic transactional save boundary
     await _uow.CommitAsync(ct);
   }
 
-  private SkillModifier Create(
+  private async Task<SkillModifier> CreateAsync(
       Guid versionId,
       Guid skillId,
+      CancellationToken ct,
       float cd = 1f,
       float mana = 1f,
       float dmg = 1f,
@@ -130,7 +132,8 @@ public sealed class SkillModifierSeeder : ISeeder2
       "seed-system"
     );
 
-    _repo.AddAsync(mod, CancellationToken.None); // intentionally fire-and-forget style inside seeder
+    // Sequential tracking execution respects tracking state and the passed cancellation token
+    await _repo.AddAsync(mod, ct);
 
     return mod;
   }
