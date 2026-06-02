@@ -74,46 +74,36 @@ namespace HeroService.Testing.ArchitecturalReports
     /// Handles the IEnumerable evaluation results directly to list offenders.
     /// </summary>
     protected static void ExecuteRule(
-        string context,
-        string summary,
-        IArchRule rule,
-        StringBuilder sb,
-        Action markViolation)
+    string context,
+    string summary,
+    IArchRule rule,
+    StringBuilder sb,
+    Action markViolation)
     {
       try
       {
         rule.Check(BaseArchitecture);
         sb.AppendLine($"[PASS] {context} — {summary}");
       }
-      catch (FailedArchRuleException)
+      catch (FailedArchRuleException ex)
       {
         markViolation();
         sb.AppendLine($"[FAIL] {context} — {summary}");
 
-        // --- FORENSIC INDICTMENT ---
         sb.AppendLine("      ? VIOLATION DETAILS:");
 
-        // ArchUnitNET Evaluate() returns IEnumerable<EvaluationResult>
-        // We iterate over the collection to find individual failures.
-        var evaluationResults = rule.Evaluate(BaseArchitecture);
-        var failures = evaluationResults.Where(r => !r.Passed).ToList();
+        // If .Violations or .Details don't exist, we fallback to the Exception message,
+        // which ArchUnitNET formats as a comprehensive list of all violations.
+        var lines = ex.Message.Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
-        if (failures.Any())
+        foreach (var line in lines.Take(10)) // Take the first 10 to avoid log bloat
         {
-          foreach (var failure in failures)
-          {
-            // failure.Description provides the specific reason why an object failed the rule
-            sb.AppendLine($"         ??  {failure.Description}");
-          }
-        }
-        else
-        {
-          sb.AppendLine("         ??  Rule check failed but no specific failure descriptions were returned.");
+          sb.AppendLine($"         ??  {line.Trim()}");
         }
 
-        if (!string.IsNullOrWhiteSpace(rule.Description))
+        if (lines.Length > 10)
         {
-          sb.AppendLine($"      ?? Reasoning: {rule.Description}");
+          sb.AppendLine("         ??  ... (and more)");
         }
       }
       catch (Exception ex)
@@ -122,7 +112,6 @@ namespace HeroService.Testing.ArchitecturalReports
         sb.AppendLine($"[ERROR] {context} — Unexpected error: {ex.Message}");
       }
     }
-
     /// <summary>
     /// OVERLOAD: Executes a manual assertion lambda.
     /// Useful for checking assembly presence or non-ArchUnit constraints.

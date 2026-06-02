@@ -1,4 +1,4 @@
-using ArchUnitNET;
+ï»¿using ArchUnitNET;
 using ArchUnitNET.Domain.Extensions;
 using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnit;
@@ -20,28 +20,23 @@ public class ApiArchitectureTests : BaseArchitectureTest
   [Fact]
   public void Controllers_AreLocatedCorrectly()
   {
-    var apiObjects = ApiLayer
-         .GetObjects(BaseArchitecture)
-         .Where(t =>
-             t.Name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase))
-         .ToList();
+    // 1. Get the assembly object for your API project
+    var apiAssembly = typeof(HeroService.Api.Controllers.SkillController).Assembly;
 
-    if (!apiObjects.Any())
-    {
-      Console.WriteLine("?? No  Service Intefaces found — skipping contract interface enforcement (virgin template).");
-      return;
-    }
-    ArchRuleDefinition // Get types from the provider
+    // 2. Filter for only types in your specific assembly first
+    var controllerRule = ArchRuleDefinition
         .Classes()
         .That()
+        .ResideInAssembly(apiAssembly) // <-- THIS IS THE KEY
+        .And()
         .HaveNameEndingWith("Controller")
         .Should()
         .BeAssignableTo(typeof(ControllerBase))
         .AndShould()
-        .ResideInNamespace("HeroService.API.Controllers")
-        .Check(BaseArchitecture);
+        .ResideInNamespace("HeroService.API.Controllers");
 
-  
+    // 3. Execute the check
+    controllerRule.Check(BaseArchitecture);
   }
 
   [Fact]
@@ -57,7 +52,7 @@ public class ApiArchitectureTests : BaseArchitectureTest
 
     if (!contractObjects.Any())
     {
-      Console.WriteLine("?? No contract interfaces or message definitions found — skipping enforcement (template mode).");
+      Console.WriteLine("?? No contract interfaces or message definitions found â€” skipping enforcement (template mode).");
       return;
     }
 
@@ -68,11 +63,11 @@ public class ApiArchitectureTests : BaseArchitectureTest
 
     if (!apiClasses.Any())
     {
-      Console.WriteLine("?? No API layer types found — skipping dependency validation.");
+      Console.WriteLine("?? No API layer types found â€” skipping dependency validation.");
       return;
     }
 
-    // Build rule — pass allowed assemblies as separate params
+    // Build rule â€” pass allowed assemblies as separate params
     ArchRuleDefinition
       .Classes()
       .That()

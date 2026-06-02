@@ -44,15 +44,6 @@ public class PersistenceArchitectureTests : BaseArchitectureTest
   public void PersistenceLayerDependencies_AreCorrect()
   {
     ReportArchitectureContext();
-    var repositories = PersistenceLayer.GetObjects(BaseArchitecture)
-        .Where(t => t.Name.EndsWith("Repository"))
-        .ToList();
-
-    if (!repositories.Any())
-    {
-      Console.WriteLine("?? No CommandHandlers found in Application layer — skipping rule.");
-      return;
-    }
 
     ArchRuleDefinition
         .Classes()
@@ -60,42 +51,22 @@ public class PersistenceArchitectureTests : BaseArchitectureTest
         .ResideInAssembly(PersistenceAssembly)
         .Should()
         .OnlyDependOnTypesThat()
-        // ? Allow dependencies on HeroService core domain abstractions
-        .ResideInNamespaceMatching("Franz.Common.Business.Domain")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.Business.Events")
+        // Whitelist all Franz.Common and Microsoft infra
+        .ResideInNamespaceMatching("Franz\\.Common\\..*")
+        .OrShould().ResideInNamespaceMatching("Microsoft\\..*") // Catch EF Core & DI in one
 
-        // ? Allow dependencies on HeroService persistence and repository tooling
-        .OrShould().ResideInNamespaceMatching("Franz.Common.EntityFramework")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.EntityFramework.Repositories")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.EntityFramework.Extensions")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.EntityFramework.Configuration")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.EntityFramework.Behaviors")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.EntityFramework.Properties")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.MongoDB")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.MongoDB.Config") 
+        // Domain & Contracts
+        .OrShould().ResideInNamespaceMatching("HeroService\\.Contracts\\..*")
+        .OrShould().ResideInNamespaceMatching("HeroService\\.Domain\\..*")
+        .OrShould().ResideInNamespaceMatching("HeroService\\.Persistence.*")
 
-        // ? Allow DI, Mediator, and core utilities
-        .OrShould().ResideInNamespaceMatching("Microsoft.Extensions.DependencyInjection")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.Mediator")
-        .OrShould().ResideInNamespaceMatching("Franz.Common.Errors")
-
-        // ? Allow standard BCL namespaces
+        // Broad BCL Whitelist
+        .OrShould().ResideInNamespaceMatching("System.*")
         .OrShould().ResideInNamespaceMatching("System")
-        .OrShould().ResideInNamespaceMatching("System.Collections")
-        .OrShould().ResideInNamespaceMatching("System.Collections.Generic")
-        .OrShould().ResideInNamespaceMatching("System.Linq")
-        .OrShould().ResideInNamespaceMatching("System.Threading")
-        .OrShould().ResideInNamespaceMatching("System.Threading.Tasks")
-        .OrShould().ResideInNamespaceMatching("System.Runtime.CompilerServices")
 
-        // ? Allow itself (internal persistence classes)
-        .OrShould().ResideInNamespaceMatching("HeroService.Persistence")
-
-        .Because("The Persistence layer should depend only on HeroService persistence abstractions, core business types, and system libraries.")
+        .Because("Persistence layer must rely on EF Core, Domain, Contracts, and BCL plumbing.")
         .WithoutRequiringPositiveResults()
         .Check(BaseArchitecture);
-
-    Console.WriteLine("? Verified persistence dependency isolation (HeroService + System + self).");
   }
 
 

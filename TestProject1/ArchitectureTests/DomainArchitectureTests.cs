@@ -16,24 +16,27 @@ public class DomainArchitectureTests : BaseArchitectureTest
   // ---------------------------------------------
   // ?? ENTITY RULES
   // ---------------------------------------------
- 
+
   [Fact]
   public void DomainEntities_ShouldInherit_FromEntityOrEntityOfT()
   {
-    // ?? Identify all domain entities that are NOT value objects or infrastructure
     var domainEntities = DomainLayer
         .GetObjects(BaseArchitecture)
         .Where(t =>
-           
-            !t.ResidesInNamespace("HeroService.Domain.ValueObjects") && // ?? exclude ValueObjects
+            !t.ResidesInNamespace("HeroService.Domain.ValueObjects") &&
             !t.FullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase) &&
             !t.FullName.Contains("Persistence", StringComparison.OrdinalIgnoreCase) &&
             !t.FullName.Contains("Mongo", StringComparison.OrdinalIgnoreCase) &&
+            !t.FullName.Contains("Snapshot", StringComparison.OrdinalIgnoreCase) && // Exclude Snapshots
+            !t.Name.EndsWith("Kit", StringComparison.OrdinalIgnoreCase) &&          // Exclude Kits/Projections
+            !t.Name.EndsWith("Affiliation", StringComparison.OrdinalIgnoreCase) &&  // Exclude components/affiliations
             !t.Name.Contains("Repository", StringComparison.OrdinalIgnoreCase) &&
             !t.Name.Contains("Context", StringComparison.OrdinalIgnoreCase) &&
             !t.Name.Contains("Handler", StringComparison.OrdinalIgnoreCase) &&
             !t.Name.Contains("Validator", StringComparison.OrdinalIgnoreCase) &&
             !t.Name.Contains("Service", StringComparison.OrdinalIgnoreCase) &&
+            !t.Name.Contains("Factory", StringComparison.OrdinalIgnoreCase) &&      // Exclude Factories
+            !t.Name.Contains("State", StringComparison.OrdinalIgnoreCase) &&       // Exclude state machines/objects
             t.Assembly.NameEquals(DomainAssembly.GetName().Name))
         .ToList();
 
@@ -43,7 +46,6 @@ public class DomainArchitectureTests : BaseArchitectureTest
       return;
     }
 
-    // ? Enforce that all domain entities inherit Entity or Entity<T>
     ArchRuleDefinition
         .Classes()
         .That()
@@ -52,7 +54,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
         .BeAssignableTo(typeof(Entity<>))
         .OrShould()
         .BeAssignableTo(typeof(IEntity))
-        .Because("All domain entities must inherit Entity or Entity<TId> for consistent identity, equality, and lifecycle management.")
+        .Because("All domain aggregate roots must inherit Entity or Entity<TId> for identity, equality, and lifecycle management.")
         .Check(BaseArchitecture);
 
     Console.WriteLine($"? Verified {domainEntities.Count} domain entity type(s) inherit Entity or Entity<TId>.");

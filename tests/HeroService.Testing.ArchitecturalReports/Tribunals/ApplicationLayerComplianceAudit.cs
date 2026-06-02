@@ -1,92 +1,229 @@
-using System;
-using System.Linq;
 using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnit;
 using Franz.Common.Mediator.Handlers;
+using Franz.Common.Mediator.Messages;
 using HeroServiceTesting;
+using System;
+using System.Linq;
 using Xunit;
 
-namespace HeroService.Testing.ArchitecturalReports.Layers
+namespace HeroService.Testing.ArchitecturalReports.Layers;
+
+/// <summary>
+/// HeroService Tribunal — Application Layer Compliance Audit
+/// Mirrors ApplicationArchitectureTests exactly and produces a consolidated report.
+/// </summary>
+public sealed class ApplicationLayerComplianceAudit : ArchitecturalAuditBase
 {
-  /// <summary>
-  /// ?? HeroService Tribunal — Application Layer Compliance Audit
-  /// Enforces CQRS patterns, Event Handling discipline, and strict Dependency Isolation.
-  /// </summary>
-  public sealed class ApplicationLayerComplianceAudit : ArchitecturalAuditBase
+ 
+  [Trait("Category", "ArchitecturalReport")]
+  public void Audit_ApplicationLayer_Compliance()
   {
-    
-    [Trait("Category", "ArchitecturalReport")]
-    public void Audit_ApplicationLayer_Compliance()
+    ExecuteTribunal("Application Layer Compliance Audit", (sb, markViolation) =>
     {
-      ExecuteTribunal("Application Layer Compliance Audit", (sb, markViolation) =>
+      // -------------------------------------------------------------
+      // RULE 1 — Assembly Presence
+      // Mirrors: Application_Assembly_Should_Exist
+      // -------------------------------------------------------------
+      ExecuteRule(
+          "Assembly Presence",
+          "Application assembly must exist.",
+          () =>
+          {
+            Assert.NotNull(ApplicationAssembly);
+          },
+          sb,
+          markViolation);
+
+      // -------------------------------------------------------------
+      // RULE 2 — Command Handlers
+      // Mirrors:
+      // CommandHandlers_Should_Implement_ICommandHandler_And_Follow_Naming
+      // -------------------------------------------------------------
+      var commandHandlers = ApplicationLayer
+          .GetObjects(BaseArchitecture)
+          .Where(t => t.Name.EndsWith("CommandHandler", StringComparison.OrdinalIgnoreCase))
+          .ToList();
+
+      if (commandHandlers.Any())
       {
-        var prefix = SolutionPrefix;
+        var commandRule = ArchRuleDefinition
+            .Classes()
+            .That()
+            .Are(commandHandlers)
+            .Should()
+            .ImplementInterface(typeof(ICommandHandler<,>))
+            .OrShould()
+            .ImplementInterface(typeof(ICommandHandler<>))
+            .AndShould()
+            .HaveNameEndingWith("CommandHandler");
 
-        // RULE 1 — Assembly Presence (Manual Assert)
-        ExecuteRule("Assembly Presence", "Application assembly must be present.", () =>
+        ExecuteRule(
+            "Command Handlers",
+            "Command handlers must implement ICommandHandler and follow naming conventions.",
+            commandRule,
+            sb,
+            markViolation);
+      }
+
+      // -------------------------------------------------------------
+      // RULE 3 — Query Handlers
+      // Mirrors:
+      // QueryHandlers_Should_Implement_IQueryHandler_And_Follow_Naming
+      // -------------------------------------------------------------
+      var queryHandlers = ApplicationLayer
+          .GetObjects(BaseArchitecture)
+          .Where(t => t.Name.EndsWith("QueryHandler", StringComparison.OrdinalIgnoreCase))
+          .ToList();
+
+      if (queryHandlers.Any())
+      {
+        var queryRule = ArchRuleDefinition
+            .Classes()
+            .That()
+            .Are(queryHandlers)
+            .Should()
+            .ImplementInterface(typeof(IQueryHandler<,>))
+            .AndShould()
+            .HaveNameEndingWith("QueryHandler");
+
+        ExecuteRule(
+            "Query Handlers",
+            "Query handlers must implement IQueryHandler and follow naming conventions.",
+            queryRule,
+            sb,
+            markViolation);
+      }
+
+      // -------------------------------------------------------------
+      // RULE 4 — Notification Handlers
+      // Mirrors:
+      // NotificationHandlers_Should_Implement_INotificationHandler...
+      // -------------------------------------------------------------
+      if (HasEventHandlers)
+      {
+        var notificationRule = ArchRuleDefinition
+            .Classes()
+            .That()
+            .ImplementInterface(typeof(INotificationHandler<>))
+            .And()
+            .Are(ApplicationLayer)
+            .Should()
+            .HaveNameEndingWith("Handler");
+
+        ExecuteRule(
+            "Notification Handlers",
+            "Notification handlers must follow naming conventions.",
+            notificationRule,
+            sb,
+            markViolation);
+      }
+
+      // -------------------------------------------------------------
+      // RULE 5 — Domain Events
+      // Mirrors:
+      // EventHandlers_Should_Implement_IEventHandler_And_Match_DomainEvents
+      // -------------------------------------------------------------
+      if (HasDomainEvents)
+      {
+        var pureDomainEvents = DomainEventTypes
+            .Where(t =>
+                !t.FullName.Contains("Validation", StringComparison.OrdinalIgnoreCase) &&
+                !t.FullName.Contains("Notification", StringComparison.OrdinalIgnoreCase) &&
+                !t.FullName.Contains("Pipeline", StringComparison.OrdinalIgnoreCase) &&
+                !t.FullName.Contains("Mediator", StringComparison.OrdinalIgnoreCase) &&
+                !t.FullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (pureDomainEvents.Any())
         {
-          Assert.NotNull(ApplicationAssembly);
-        }, sb, markViolation);
+          var domainEventRule = ArchRuleDefinition
+              .Classes()
+              .That()
+              .Are(pureDomainEvents)
+              .Should()
+              .ImplementAnyInterfacesThat()
+              .HaveFullName("Franz.Common.Business.Events.IDomainEvent")
+              .OrShould()
+              .ImplementAnyInterfacesThat()
+              .HaveFullName("Franz.Common.Business.Events.IEvent")
+              .AndShould()
+              .HaveNameEndingWith("Event");
 
-        // RULE 2 — Command Handler Conventions
-        var commandHandlerRule = ArchRuleDefinition.Classes()
-            .That().AreAssignableTo(typeof(ICommandHandler<,>))
-            .And().Are(ApplicationLayer)
-            .Should().HaveNameEndingWith("CommandHandler")
-            .Because("Command handlers must follow CQRS naming conventions for clear intent and traceability.");
+          ExecuteRule(
+              "Domain Events",
+              "Domain events must implement IDomainEvent/IEvent and follow naming conventions.",
+              domainEventRule,
+              sb,
+              markViolation);
+        }
 
-        ExecuteRule("Command Handlers", "Handlers must implement ICommandHandler and end with 'CommandHandler'.",
-            commandHandlerRule, sb, markViolation);
+        if (ApplicationEventHandlerTypes.Any())
+        {
+          var eventHandlerRule = ArchRuleDefinition
+              .Classes()
+              .That()
+              .Are(ApplicationEventHandlerTypes)
+              .Should()
+              .ImplementAnyInterfacesThat()
+              .HaveFullName("Franz.Common.Mediator.Handlers.IEventHandler`1")
+              .OrShould()
+              .ImplementAnyInterfacesThat()
+              .HaveFullName("Franz.Common.Mediator.Handlers.INotificationHandler`1")
+              .AndShould()
+              .HaveNameEndingWith("Handler");
 
-        // RULE 3 — Query Handler Conventions
-        var queryHandlerRule = ArchRuleDefinition.Classes()
-            .That().AreAssignableTo(typeof(IQueryHandler<,>))
-            .And().Are(ApplicationLayer)
-            .Should().HaveNameEndingWith("QueryHandler")
-            .Because("Query handlers must follow CQRS naming conventions for consistency.");
+          ExecuteRule(
+              "Event Handlers",
+              "Event handlers must implement IEventHandler or INotificationHandler.",
+              eventHandlerRule,
+              sb,
+              markViolation);
+        }
+      }
 
-        ExecuteRule("Query Handlers", "Handlers must implement IQueryHandler and end with 'QueryHandler'.",
-            queryHandlerRule, sb, markViolation);
+      // -------------------------------------------------------------
+      // RULE 6 — Dependency Purity
+      // Mirrors:
+      // ApplicationLayer_Should_Depend_Only_On_Allowed_Namespaces
+      // -------------------------------------------------------------
+      var dependencyRule = ArchRuleDefinition
+          .Types()
+          .That()
+          .Are(ApplicationLayer)
+          .Should()
+          .DependOnAnyTypesThat()
+          .ResideInNamespace("Franz.Common.Business.Domain")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Business.Entities")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Business.Events")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator.Core")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator.Handlers")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator.Pipelines")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator.Pipelines.Core")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator.Pipelines.Logging")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator.Pipelines.Validation")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator.Pipelines.Transaction")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator.Validation")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mediator.Extensions")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mapping")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mapping.Abstractions")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Mapping.Core")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Franz.Common.Logging")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("System")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("System.Threading")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("System.Threading.Tasks")
+          .OrShould().DependOnAnyTypesThat().ResideInNamespace("Microsoft.Extensions.DependencyInjection");
 
-        // RULE 4 — Event Handler Compliance (Mediator Abstractions)
-        var eventHandlerRule = ArchRuleDefinition.Classes()
-            .That().ResideInNamespaceMatching($"^{prefix}\\.Application\\.EventHandlers(\\..*)?$")
-            .Should().ImplementAnyInterfacesThat().HaveFullNameContaining("IEventHandler")
-            .OrShould().ImplementAnyInterfacesThat().HaveFullNameContaining("INotificationHandler")
-            .AndShould().HaveNameEndingWith("Handler")
-            .Because("Application event handlers must be properly registered via Mediator interfaces.")
-            .WithoutRequiringPositiveResults();
+      ExecuteRule(
+          "Dependency Governance",
+          "Application layer must only depend on approved namespaces.",
+          dependencyRule,
+          sb,
+          markViolation);
 
-        ExecuteRule("Event Handlers", "Handlers must implement proper mediator interfaces and naming.",
-            eventHandlerRule, sb, markViolation);
-
-        // RULE 5 — Dependency Isolation (The "Purity" Rule)
-        var isolationRule = ArchRuleDefinition.Types()
-            .That().Are(ApplicationLayer)
-            // ??? Filter out the compiler-generated 'state machines' for Async/Await
-            .And().DoNotHaveNameMatching(".*<.*>.*")
-            .Should().OnlyDependOnTypesThat()
-            // ??? Internal Allowed
-            .ResideInNamespaceMatching($"^{prefix}\\.Common(\\..*)?$")
-            .OrShould().ResideInNamespaceMatching($"^{prefix}\\.Contracts(\\..*)?$")
-            .OrShould().ResideInNamespaceMatching($"^{prefix}\\.Domain(\\..*)?$")
-            .OrShould().ResideInNamespaceMatching($"^{prefix}\\.Application(\\..*)?$") // Can depend on its own types!
-
-            // ??? The "Plumbing" Permission (Required for LINQ, Tasks, and Mappings)
-            .OrShould().ResideInNamespaceMatching(@"^System(\..*)?$")
-            .OrShould().ResideInNamespaceMatching(@"^Microsoft(\..*)?$")
-            .OrShould().ResideInNamespaceMatching(@"^AutoMapper(\..*)?$") // If IFranzMapper uses it under the hood
-
-            .Because("The Application layer is the pure orchestrator. It uses System abstractions and HeroService contracts.")
-            .WithoutRequiringPositiveResults();
-
-
-        ExecuteRule("Dependency Isolation", "Application must only depend on Domain, Contracts, or Framework abstractions.",
-            isolationRule, sb, markViolation);
-
-        sb.AppendLine("---------------------------------------------------------------");
-        sb.AppendLine($"???  {prefix}.Application Governance check complete.");
-      });
-    }
+      sb.AppendLine("---------------------------------------------------------------");
+      sb.AppendLine("??? HeroService.Application Governance check complete.");
+    });
   }
 }

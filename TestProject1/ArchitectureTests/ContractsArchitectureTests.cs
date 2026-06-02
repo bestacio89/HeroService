@@ -70,26 +70,15 @@ namespace HeroService.Testing.ArchitectureTests
     [Fact]
     public void DtosNameConvetionIsCorrect()
     {
-     
-      var contractObjects = ContractsLayer
-          .GetObjects(BaseArchitecture)
-          .Where(t =>
-             
-              !t.Name.EndsWith("Dto", StringComparison.OrdinalIgnoreCase)
-              )
-          .ToList();
-
-      if (!contractObjects.Any())
-      {
-        Console.WriteLine("?? No Dtos found — skipping persistence contract enforcement (virgin template).");
-        return;
-      }
-      ArchRuleDefinition.
-           Classes().That()
-          .ResideInNamespace("HeroService.Contracts.DTOS")
+      ArchRuleDefinition
+          .Classes()
+          .That()
+          .ResideInNamespace("HeroService.Contracts.DTOs")
           .Should()
           .HaveNameEndingWith("Dto")
-          .Because("Dtos should be properly named as such")
+          .Because("DTOs must follow the 'Dto' suffix convention for uniformity across the contract layer.")
+          // Add this modifier to allow namespaces that contain no classes
+          .WithoutRequiringPositiveResults()
           .Check(BaseArchitecture);
     }
 

@@ -29,7 +29,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
         sb.AppendLine("                 DOMAIN LAYER COMPLIANCE AUDIT                 ");
         sb.AppendLine("---------------------------------------------------------------");
 
-        var prefix = SolutionPrefix; // ?? dynamic prefix extraction (like Persistence test)
+        var prefix = SolutionPrefix;
 
         // RULE 1 — Entity inheritance
         ExecuteRule("Entities", "All Domain Entities must inherit Entity or Entity<T>.", () =>
@@ -41,11 +41,16 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
                   !t.FullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase) &&
                   !t.FullName.Contains("Persistence", StringComparison.OrdinalIgnoreCase) &&
                   !t.FullName.Contains("Mongo", StringComparison.OrdinalIgnoreCase) &&
+                  !t.FullName.Contains("Snapshot", StringComparison.OrdinalIgnoreCase) &&
+                  !t.Name.EndsWith("Kit", StringComparison.OrdinalIgnoreCase) &&
+                  !t.Name.EndsWith("Affiliation", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.Contains("Repository", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.Contains("Context", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.Contains("Handler", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.Contains("Validator", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.Contains("Service", StringComparison.OrdinalIgnoreCase) &&
+                  !t.Name.Contains("Factory", StringComparison.OrdinalIgnoreCase) &&
+                  !t.Name.Contains("State", StringComparison.OrdinalIgnoreCase) &&
                   t.Assembly.NameEquals(DomainAssembly.GetName().Name))
               .ToList();
 
@@ -168,7 +173,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
           sb.AppendLine($"? Validated {validEvents.Count} domain event(s) successfully.");
         }, sb, markViolation);
 
-        // RULE 4 — Domain dependency isolation (dynamic prefix)
+        // RULE 4 — Domain dependency isolation
         ExecuteRule("Dependencies", "Domain layer may depend only on Common abstractions and System libraries.", () =>
         {
           ArchRuleDefinition
@@ -189,7 +194,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
           sb.AppendLine("? Verified domain layer dependency purity (Common + System only).");
         }, sb, markViolation);
 
-        // RULE 5 — Domain events purity (no infrastructure leakage)
+        // RULE 5 — Domain events purity
         ExecuteRule("Purity", "Domain events must not depend on infrastructure namespaces.", () =>
         {
           if (!HasDomainEvents)

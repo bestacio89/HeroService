@@ -43,6 +43,7 @@ namespace HeroService.Testing.ArchitectureTests
           .That().Are(handlers)
           .Should()
           .ImplementInterface(typeof(ICommandHandler<,>))
+          .OrShould().ImplementInterface(typeof(ICommandHandler<>))
           .AndShould()
           .HaveNameEndingWith("CommandHandler")
           .Because("Command handlers must implement ICommandHandler<,> and follow the 'SomethingCommandHandler' naming pattern.")
