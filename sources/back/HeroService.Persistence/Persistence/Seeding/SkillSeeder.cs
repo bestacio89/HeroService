@@ -1,10 +1,12 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
+using Franz.Common.Mediator.Pipelines.Core;
 using HeroService.Domain.Heroes.Skills;
 using HeroService.Persistence.Persistence.Seeding;
+using IUnitOfWork = Franz.Common.EntityFramework.IUnitOfWork;
 namespace HeroService.Persistence.Seeding;
 
-public sealed class SkillSeeder : ISeeder2
+public sealed class SkillSeeder : ISeeder
 {
   public int Order => 3;
   private readonly IEntityFactory<Guid, Skill> _skillFactory;

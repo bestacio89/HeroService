@@ -5,7 +5,7 @@ using HeroService.Persistence.Persistence.Seeding;
 
 namespace HeroService.Persistence.Seeding;
 
-public sealed class GameVersionSeeder : ISeeder2
+public sealed class GameVersionSeeder : ISeeder
 {
   private readonly IEntityFactory<Guid, GameVersion> _gameVersionFactory;
   private readonly IEntityRepository<GameVersion, Guid> _gameVersionRepository;

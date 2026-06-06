@@ -1,5 +1,6 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
+using Franz.Common.Mediator.Pipelines.Core;
 using HeroService.Contracts.Persistence;
 using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Contracts.Persistence.Skills;
@@ -9,10 +10,11 @@ using HeroService.Domain.Heroes.Core;
 using HeroService.Domain.Heroes.Core.Skills;
 using HeroService.Domain.Heroes.Skills;
 using HeroService.Persistence.Persistence.Seeding;
+using IUnitOfWork = Franz.Common.EntityFramework.IUnitOfWork;
 
 namespace HeroService.Persistence.Seeding;
 
-public sealed class HeroSeeder: ISeeder2
+public sealed class HeroSeeder: ISeeder
 {
   public int Order => 4;
   private readonly IEntityFactory<Guid, Hero> _heroFactory;

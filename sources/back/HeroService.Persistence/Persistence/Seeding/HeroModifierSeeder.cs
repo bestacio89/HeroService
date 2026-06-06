@@ -1,5 +1,6 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
+using Franz.Common.Mediator.Pipelines.Core;
 using HeroService.Contracts.Persistence;
 using HeroService.Contracts.Persistence.GameVersions;
 using HeroService.Contracts.Persistence.Heroes;
@@ -9,21 +10,21 @@ using HeroService.Persistence.Persistence.Seeding;
 
 namespace HeroService.Persistence.Seeding;
 
-public sealed class HeroModifierSeeder : ISeeder2
+public sealed class HeroModifierSeeder : ISeeder
 {
   public int Order => 6;
   private readonly IEntityFactory<Guid, HeroModifier> _heroModifierFactory;
   private readonly IGameVersionRepository _versions;
   private readonly IEntityRepository<HeroModifier, Guid> _modifiers;
   private readonly IEntityRepository<Hero, Guid> _heroes;
-  private readonly IUnitOfWork _uow;
+  private readonly Franz.Common.EntityFramework.IUnitOfWork _uow;
 
   public HeroModifierSeeder(
       IEntityFactory<Guid, HeroModifier> heroModifierFactory,
       IGameVersionRepository versions,
       IEntityRepository<HeroModifier, Guid> modifiers,
       IEntityRepository<Hero, Guid> heroes,
-      IUnitOfWork uow)
+      Franz.Common.EntityFramework.IUnitOfWork uow)
   {
     _heroModifierFactory = heroModifierFactory;
     _versions = versions;

@@ -1,25 +1,26 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
+using Franz.Common.Mediator.Pipelines.Core;
 using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Domain.Heroes.Progression;
 using HeroService.Persistence.Persistence.Seeding;
 
 namespace HeroService.Persistence.Seeding;
 
-public sealed class HeroProgressionSeeder : ISeeder2
+public sealed class HeroProgressionSeeder : ISeeder
 {
   public int Order => 8;
 
   private readonly IEntityFactory<Guid, HeroProgressionModifiers> _factory;
   private readonly IEntityRepository<HeroProgressionModifiers, Guid> _repo;
   private readonly IHeroRepository _heroes; // Domain interface inheriting from INameLookupRepository
-  private readonly IUnitOfWork _uow;
+  private readonly Franz.Common.EntityFramework.IUnitOfWork _uow;
 
   public HeroProgressionSeeder(
       IEntityFactory<Guid, HeroProgressionModifiers> factory,
       IEntityRepository<HeroProgressionModifiers, Guid> repo,
       IHeroRepository heroes,
-      IUnitOfWork uow)
+      Franz.Common.EntityFramework.IUnitOfWork uow)
   {
     _factory = factory;
     _repo = repo;
