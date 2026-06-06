@@ -2,12 +2,6 @@
 
   <Import Project="../../../common.targets" />
 
-  <ItemGroup>
-    <Compile Remove="Semoirs\**" />
-    <EmbeddedResource Remove="Semoirs\**" />
-    <None Remove="Semoirs\**" />
-    <PackageVersion Remove="Semoirs\**" />
-  </ItemGroup>
 
   <ItemGroup>
 	 
@@ -29,9 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Configurations\" />
-    <Folder Include="Depots\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Persistence\Seeding\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>
