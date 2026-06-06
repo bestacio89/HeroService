@@ -20,6 +20,7 @@ public sealed class GetAllGameVersionsQueryHandler
     _repository = repository;
     _mapper = mapper;
   }
+  
 
   public async Task<IReadOnlyCollection<GameVersionDto>> Handle(
       GetAllGameVersionsQuery request,
