@@ -1,4 +1,3 @@
-using Franz.Common.AzureCosmosDB.Extensions;
 using Franz.Common.Caching.Extensions;
 using Franz.Common.EntityFramework.Extensions;
 using HeroService.Persistence.Persistence.Seeding;
@@ -33,26 +32,20 @@ namespace HeroService.Persistence
         this IServiceCollection services,
         IConfiguration configuration)
     {
-      // ? Add HeroService Redis Caching + Mediator Caching pipeline
-     /* services
-        .AddHeroServiceRedisCaching(configuration.GetConnectionString("Redis"), database: 1)
-        .AddHeroServiceMediatorCaching(opt =>
-        {
-          opt.DefaultTtl = TimeSpan.FromMinutes(5);
-          opt.ShouldCache = req => true; // Always cache by default
-          opt.LogHitLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
-          opt.LogMissLevel = Microsoft.Extensions.Logging.LogLevel.Information;
-        });*/
+       // Add HeroService Redis Caching +Mediator Caching pipeline
+      services
+        .AddFranzRedisCaching(configuration)
+        .AddFranzMediatorCaching(configuration);
       services.AddUnitOfWork<ApplicationDbContext>();
       services.AddFranzMemoryCaching();
       services.AddCustomRepositoriesFromAssembly(typeof(ApplicationDbContext).Assembly);
       services.AddEntityRepositories<ApplicationDbContext>();
-      services.AddScoped<ISeeder2, GameVersionSeeder>();
-      services.AddScoped<ISeeder2, IdentitySeeder>();
-      services.AddScoped<ISeeder2, SkillSeeder>();
-      services.AddScoped<ISeeder2, SkillModifierSeeder>();
-      services.AddScoped<ISeeder2, HeroSeeder>();
-      services.AddScoped<ISeeder2, HeroModifierSeeder>();
+      services.AddScoped<ISeeder, GameVersionSeeder>();
+      services.AddScoped<ISeeder, IdentitySeeder>();
+      services.AddScoped<ISeeder, SkillSeeder>();
+      services.AddScoped<ISeeder, SkillModifierSeeder>();
+      services.AddScoped<ISeeder, HeroSeeder>();
+      services.AddScoped<ISeeder, HeroModifierSeeder>();
       services.AddScoped<DatabaseSeeder>();
 
       // ? Add persistence services with dynamically determined types (if needed)
