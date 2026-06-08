@@ -8,6 +8,7 @@ using Franz.Common.Mediator.Polly;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using HeroService.Persistence.Persistence.Seeding;
+using Franz.Common.Mediator.Bootstrap;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
@@ -17,10 +18,6 @@ var config = builder.Configuration;
 // LOGGING SUBSYSTEM
 // =========================================================
 builder.Host.UseLog();
-builder.Services.AddFranzSerilogAuditPipeline()
-                .AddFranzEventValidationPipeline()
-                .AddFranzSerilogLoggingPipeline()
-                .AddFranzTelemetry(env, config);
 
 // =========================================================
 // APPLICATION & PERSISTENCE SERVICES
@@ -38,7 +35,7 @@ builder.Services.AddHttpArchitecture(env, config);
 // =========================================================
 // MEDIATOR & RESILIENCE PIPELINES
 // =========================================================
-builder.Services.AddFranzMediator(new[] { typeof(CreateHeroCommandHandler).Assembly });
+builder.Services.AddFranzMediatorStandard(new[] { typeof(CreateHeroCommandHandler).Assembly });
 builder.Services.AddFranzResilience(config);
 
 var app = builder.Build();
