@@ -8,7 +8,7 @@ namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 /// Represents a fully resolved, immutable snapshot of a Hero at a specific GameVersion.
 ///
 /// Domain Role:
-/// HeroSnapshot is the **final deterministic representation of a Hero’s combat state**
+/// HeroSnapshot is the **final deterministic representation of a Hero's combat state**
 /// after applying:
 /// - HeroBaseStats
 /// - HeroModifier (GameVersion scaling layer)
@@ -24,6 +24,7 @@ namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 ///   • Damage output potential (AD/AP + skill integration)
 ///   • Resource economy efficiency (mana + cooldown + regen)
 ///   • Skill kit power distribution
+///   • Behavioral fingerprint for item affinity and role classification (via KitProfile)
 /// - Enables deterministic comparison between Heroes for balance and fairness.
 ///
 /// Invariants:
@@ -31,10 +32,13 @@ namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 /// - GameVersionId must reference the active simulation version.
 /// - Snapshot is immutable once created.
 /// - Skills must already be fully resolved SkillSnapshots (no lazy computation).
+/// - KitProfile is derived exclusively from SkillKit — never stored independently.
 ///
 /// Relationships:
 /// - Composed of:
-///   • SkillSnapshot (resolved ability state)
+///   • HeroStatSnapshot     (resolved stat state)
+///   • HeroSkillKitSnapshot (resolved ability state)
+///   • HeroKitProfile       (behavioral fingerprint derived from SkillKit)
 /// - Derived from:
 ///   • HeroBaseStats
 ///   • HeroModifier
@@ -43,6 +47,7 @@ namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 /// - Consumed by:
 ///   • Combat simulation engine
 ///   • Matchmaking evaluation system
+///   • Item affinity system
 ///   • Replay / deterministic validation systems
 ///
 /// Versioning / Snapshot Impact:
@@ -59,8 +64,9 @@ namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 /// - This is NOT a DTO; it is a simulation artifact.
 ///
 /// Architectural Insight:
-/// - HeroSnapshot is the “truth state” of a Hero inside a match.
-/// - SkillSnapshot is the “truth state” of abilities.
+/// - HeroSnapshot is the "truth state" of a Hero inside a match.
+/// - SkillSnapshot is the "truth state" of abilities.
+/// - HeroKitProfile is the "behavioral fingerprint" of a Hero's kit.
 /// - SnapshotResolver is the system that produces this truth.
 /// </summary>
 public sealed class HeroSnapshot
@@ -71,15 +77,28 @@ public sealed class HeroSnapshot
   public HeroStatSnapshot Stats { get; }
   public HeroSkillKitSnapshot SkillKit { get; }
 
+  /// <summary>
+  /// Behavioral fingerprint derived from the resolved SkillKit.
+  /// Describes how this Hero tends to play — burst, sustain, control, mobility —
+  /// and which EffectTypes are present across their kit.
+  ///
+  /// Used by:
+  /// - Matchmaking for team composition analysis
+  /// - Item affinity system for behavioral layer evaluation
+  /// </summary>
+  public HeroKitProfile KitProfile { get; }
+
   public HeroSnapshot(
       Guid heroId,
       Guid gameVersionId,
       HeroStatSnapshot stats,
-      HeroSkillKitSnapshot skillKit)
+      HeroSkillKitSnapshot skillKit,
+      HeroKitProfile kitProfile)
   {
     HeroId = heroId;
     GameVersionId = gameVersionId;
     Stats = stats;
     SkillKit = skillKit;
+    KitProfile = kitProfile;
   }
 }
