@@ -6,5 +6,6 @@ public sealed record HeroSnapshotDto(
     Guid HeroId,
     Guid GameVersionId,
     HeroStatSnapshotDto Stats,
-    HeroSkillKitSnapshotDto Skills
+    HeroSkillKitSnapshotDto Skills,
+    HeroKitProfileDto KitProfile
 );
