@@ -523,6 +523,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -1125,6 +1126,7 @@ MonoBehaviour:
   characterController: {fileID: 0}
   cameraTransform: {fileID: 0}
   heroStatsProvider: {fileID: 0}
+  inputGate: {fileID: 0}
 --- !u!114 &5167637900743360562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1141,7 +1143,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
-  enableDebugLogs: 0
+  enableDebugLogs: 1
 --- !u!114 &6166067341702208968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1170,11 +1172,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Player.PlayerBasicAttack
   attackPoint: {fileID: 0}
   heroStatsProvider: {fileID: 0}
+  inputGate: {fileID: 0}
   attackDamage: 10
   attackRange: 5
   attackCooldown: 0.8
   allowKeyboardInput: 0
   attackKey: 32
+  enableAttackDebugLogs: 1
 --- !u!114 &3004895920807324227
 MonoBehaviour:
   m_ObjectHideFlags: 0
