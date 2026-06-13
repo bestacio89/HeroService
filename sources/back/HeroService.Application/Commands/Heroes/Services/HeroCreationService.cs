@@ -27,6 +27,8 @@ public sealed class HeroCreationService : IHeroCreationService
 
   private readonly ISkillRepository _skills;
 
+  private readonly IHeroUniquenessValidator _uniquenessValidator;
+
   public HeroCreationService(
       IEntityFactory<Guid, Hero> heroFactory,
       IEntityFactory<Guid, HeroBaseStats> baseStatsFactory,
@@ -40,7 +42,9 @@ public sealed class HeroCreationService : IHeroCreationService
       IHeroClassRepository heroClasses,
       IArchetypeRepository archetypes,
       ICultureRepository cultures,
-      ISkillRepository skills)
+      ISkillRepository skills,
+
+      IHeroUniquenessValidator uniquenessValidator)
   {
     _heroFactory = heroFactory;
     _baseStatsFactory = baseStatsFactory;
@@ -56,17 +60,26 @@ public sealed class HeroCreationService : IHeroCreationService
     _cultures = cultures;
 
     _skills = skills;
+
+    _uniquenessValidator = uniquenessValidator;
   }
 
   public async Task<Guid> CreateAsync(
-      HeroCreateRequestDto request,
-      CancellationToken cancellationToken)
+    HeroCreateRequestDto request,
+    CancellationToken cancellationToken)
   {
     var userId = MediatorContext.Current.UserId ?? "system";
 
-    // =========================================
-    // Resolve reference data
-    // =========================================
+    // =====================================================
+    // 0. HARD PRECONDITION (via validator - NOT repository)
+    // =====================================================
+    await _uniquenessValidator.EnsureUniqueHeroNameAsync(
+        request.Name,
+        cancellationToken);
+
+    // =====================================================
+    // 1. Resolve reference data
+    // =====================================================
 
     var mythology = await _mythologies.GetByNameAsync(request.Mythology, cancellationToken)
         ?? throw new InvalidOperationException($"Mythology '{request.Mythology}' not found.");
@@ -80,15 +93,15 @@ public sealed class HeroCreationService : IHeroCreationService
     var culture = await _cultures.GetByNameAsync(request.Culture, cancellationToken)
         ?? throw new InvalidOperationException($"Culture '{request.Culture}' not found.");
 
-    // =========================================
-    // Create aggregate root
-    // =========================================
+    // =====================================================
+    // 2. Create aggregate root
+    // =====================================================
 
     var hero = _heroFactory.Create();
 
-    // =========================================
-    // Affiliation
-    // =========================================
+    // =====================================================
+    // 3. Affiliation
+    // =====================================================
 
     var affiliation = new HeroAffiliation(
         archetype,
@@ -96,9 +109,9 @@ public sealed class HeroCreationService : IHeroCreationService
         culture
     );
 
-    // =========================================
-    // Base Stats
-    // =========================================
+    // =====================================================
+    // 4. Base Stats
+    // =====================================================
 
     var baseStats = _baseStatsFactory.Create();
 
@@ -123,9 +136,9 @@ public sealed class HeroCreationService : IHeroCreationService
         userId
     );
 
-    // =========================================
-    // Lore
-    // =========================================
+    // =====================================================
+    // 5. Lore
+    // =====================================================
 
     var lore = _loreFactory.Create();
 
@@ -137,9 +150,9 @@ public sealed class HeroCreationService : IHeroCreationService
         userId
     );
 
-    // =========================================
-    // Skills
-    // =========================================
+    // =====================================================
+    // 6. Skills
+    // =====================================================
 
     var passiveSkill = await _skills.GetByNameAsync(request.SkillKit.PassiveSkill, cancellationToken)
         ?? throw new InvalidOperationException($"Skill '{request.SkillKit.PassiveSkill}' not found.");
@@ -164,9 +177,9 @@ public sealed class HeroCreationService : IHeroCreationService
         ultimateSkill.Id
     );
 
-    // =========================================
-    // Initialize Hero
-    // =========================================
+    // =====================================================
+    // 7. Initialize Hero
+    // =====================================================
 
     hero.Define(
         request.Name,
@@ -178,14 +191,12 @@ public sealed class HeroCreationService : IHeroCreationService
 
     hero.SetSkillKit(skillKit);
 
-    // =========================================
-    // Persist all canonical entities
-    // =========================================
+    // =====================================================
+    // 8. Persist
+    // =====================================================
 
     await _heroes.AddAsync(hero, cancellationToken);
-
     await _baseStatsRepository.AddAsync(baseStats, cancellationToken);
-
     await _loreRepository.AddAsync(lore, cancellationToken);
 
     return hero.Id;
