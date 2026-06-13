@@ -3,6 +3,7 @@ using Franz.Common.Business.Repositories;
 using Franz.Common.EntityFramework.Auditing;
 using HeroService.Contracts.DTOs.Skills;
 using HeroService.Domain.Heroes.Skills;
+using HeroService.Application.Commands.Skills.Services;
 
 namespace HeroService.Application.Commands.Skills.Services;
 
@@ -19,6 +20,7 @@ public sealed class SkillCreationService : ISkillCreationService
   private readonly IEntityRepository<SkillEffect, Guid> _effectsRepo;
 
   private readonly ICurrentUserService _currentUser;
+  private readonly ISkillUniquenessValidator _uniquenessValidator;
 
   public SkillCreationService(
       IEntityFactory<Guid, Skill> skillFactory,
@@ -29,7 +31,8 @@ public sealed class SkillCreationService : ISkillCreationService
       IEntityRepository<SkillBaseStats, Guid> baseStatsRepo,
       IEntityRepository<SkillLore, Guid> loreRepo,
       IEntityRepository<SkillEffect, Guid> effectsRepo,
-      ICurrentUserService currentUser)
+      ICurrentUserService currentUser,
+      ISkillUniquenessValidator uniquenessValidator)
   {
     _skillFactory = skillFactory;
     _baseStatsFactory = baseStatsFactory;
@@ -42,6 +45,7 @@ public sealed class SkillCreationService : ISkillCreationService
     _effectsRepo = effectsRepo;
 
     _currentUser = currentUser;
+    _uniquenessValidator = uniquenessValidator;
   }
 
   public async Task<Guid> CreateAsync(
@@ -49,6 +53,13 @@ public sealed class SkillCreationService : ISkillCreationService
       CancellationToken ct)
   {
     var createdBy = _currentUser.UserId;
+
+    // =====================================================
+    // 0. HARD PRECONDITION (UNIQUENESS GATE)
+    // =====================================================
+    await _uniquenessValidator.EnsureUniqueSkillNameAsync(
+        request.Name,
+        ct);
 
     // =====================================================
     // 1. Skill aggregate root
@@ -62,7 +73,7 @@ public sealed class SkillCreationService : ISkillCreationService
     );
 
     // =====================================================
-    // 2. Base Stats (deterministic combat definition)
+    // 2. Base Stats
     // =====================================================
     var baseStats = _baseStatsFactory.Create();
 
@@ -81,7 +92,7 @@ public sealed class SkillCreationService : ISkillCreationService
     );
 
     // =====================================================
-    // 3. Lore (pure presentation layer)
+    // 3. Lore
     // =====================================================
     var lore = _loreFactory.Create();
 
@@ -93,7 +104,7 @@ public sealed class SkillCreationService : ISkillCreationService
     );
 
     // =====================================================
-    // 4. Effects (compositional behavior definitions)
+    // 4. Effects
     // =====================================================
     var effects = request.Effects
         .Select(dto =>
@@ -101,32 +112,29 @@ public sealed class SkillCreationService : ISkillCreationService
           var effect = _effectFactory.Create();
 
           effect.Define(
-          skill.Id,
-          ParseEffectType(dto.EffectType),
-          dto.Magnitude,
-          dto.Duration,
-          dto.Radius,
-          ParseTargetType(dto.TargetType),
-          ParseStackType(dto.StackType),
-          dto.MaxStacks,
-
-          dto.AttackDamageRatio,   // ✔ missing before
-          dto.AbilityPowerRatio,   // ✔ missing before
-          null,                    // hpRatio (if not in DTO)
-
-          dto.IsPeriodic,
-          dto.IsInstant,
-          dto.IsChannelled,
-
-          createdBy
-         );
+              skill.Id,
+              ParseEffectType(dto.EffectType),
+              dto.Magnitude,
+              dto.Duration,
+              dto.Radius,
+              ParseTargetType(dto.TargetType),
+              ParseStackType(dto.StackType),
+              dto.MaxStacks,
+              dto.AttackDamageRatio,
+              dto.AbilityPowerRatio,
+              null,
+              dto.IsPeriodic,
+              dto.IsInstant,
+              dto.IsChannelled,
+              createdBy
+          );
 
           return effect;
         })
         .ToList();
 
     // =====================================================
-    // 5. Persistence layer (single logical transaction boundary)
+    // 5. Persistence
     // =====================================================
     await _skills.AddAsync(skill, ct);
     await _baseStatsRepo.AddAsync(baseStats, ct);
@@ -137,7 +145,7 @@ public sealed class SkillCreationService : ISkillCreationService
   }
 
   // =====================================================
-  // Mapping helpers (kept local = clean application layer)
+  // Mapping helpers
   // =====================================================
   private static SkillType ParseSkillType(string type)
     => Enum.Parse<SkillType>(type, ignoreCase: true);
