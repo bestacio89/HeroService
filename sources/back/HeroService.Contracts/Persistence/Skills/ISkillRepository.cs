@@ -22,4 +22,6 @@ public interface ISkillRepository :
   Task<IReadOnlyCollection<Skill>> GetByTypeAsync(
       SkillType skillType,
       CancellationToken cancellationToken = default);
+
+  Task<bool> ExistsByNameAsync(string Name, CancellationToken ct);
 }

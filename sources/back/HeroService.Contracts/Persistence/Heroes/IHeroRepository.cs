@@ -47,4 +47,7 @@ public interface IHeroRepository : INameLookupRepository<Hero, Guid>
     Guid? cultureId,
     Guid? archetypeId,
     CancellationToken ct = default);
+
+  Task<bool> ExistsByNameAsync(string Name, CancellationToken ct);
+
 }

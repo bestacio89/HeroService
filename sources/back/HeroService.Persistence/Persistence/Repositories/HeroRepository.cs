@@ -128,6 +128,12 @@ public sealed class HeroRepository : IHeroRepository
         .ToListAsync(cancellationToken);
   }
 
+  public async Task<bool> ExistsByNameAsync(string name, CancellationToken ct)
+  {
+    
+    return await _dbContext.Heroes
+        .AnyAsync(h => h.Name == name, ct);
+  }
   public async Task<IReadOnlyCollection<Hero>> BrowseAsync(
     Guid? heroClassId,
     Guid? mythologyTypeId,

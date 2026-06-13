@@ -91,4 +91,11 @@ public sealed class SkillRepository : ISkillRepository
         .OrderBy(x => x.Name)
         .ToListAsync(cancellationToken);
   }
+
+  public async Task<bool> ExistsByNameAsync(string name, CancellationToken ct)
+  {
+
+    return await _dbContext.Skills
+        .AnyAsync(h => h.Name == name, ct);
+  }
 }
