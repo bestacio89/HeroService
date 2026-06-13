@@ -24,7 +24,15 @@ namespace HeroService.Persistence
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+      modelBuilder.Entity<Hero>()
+      .HasIndex(x => x.Name)
+      .IsUnique();
+
+      modelBuilder.Entity<Skill>()
+          .HasIndex(x => x.Name)
+          .IsUnique();
       base.OnModelCreating(modelBuilder);
+
 
     }
 
