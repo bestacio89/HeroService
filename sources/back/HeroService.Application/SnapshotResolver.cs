@@ -76,28 +76,28 @@ public sealed class SnapshotResolver
     }
 
     return new HeroStatSnapshot(
-        Apply(baseStats.BaseHealth, modifier?.HealthMultiplier),
-        Apply(baseStats.BaseMana, modifier?.ManaMultiplier),
+    Apply(baseStats.BaseHealth, modifier?.HealthMultiplier),
+    Apply(baseStats.BaseMana, modifier?.ManaMultiplier),
 
-        Apply(baseStats.BaseAttackDamage, modifier?.AttackDamageMultiplier),
-        Apply(baseStats.BaseAbilityPower, modifier?.AbilityPowerMultiplier),
+    Apply(baseStats.BaseAttackDamage, modifier?.AttackDamageMultiplier),
+    Apply(baseStats.BaseAbilityPower, modifier?.AbilityPowerMultiplier),
 
-        Apply(baseStats.BaseAttackSpeed, modifier?.AttackSpeedMultiplier),
-        Apply(baseStats.BaseCritChance, modifier?.CritChanceMultiplier),
-        Apply(baseStats.BaseCritDamageMultiplier, modifier?.CritDamageMultiplier),
+    Apply(baseStats.BaseAttackSpeed, modifier?.AttackSpeedMultiplier),
+    Apply(baseStats.BaseCritChance, modifier?.CritChanceMultiplier),
+    Apply(baseStats.BaseCritDamageMultiplier, modifier?.CritDamageMultiplier),
 
-        Apply(baseStats.BaseArmor, modifier?.ArmorMultiplier),
-        Apply(baseStats.BaseMagicResistance, modifier?.MagicResistanceMultiplier),
-        Apply(baseStats.BaseDamageReduction, modifier?.DamageReductionMultiplier),
+    Apply(baseStats.BaseArmor, modifier?.ArmorMultiplier),
+    Apply(baseStats.BaseMagicResistance, modifier?.MagicResistanceMultiplier),
+    Apply(baseStats.BaseDamageReduction, modifier?.DamageReductionMultiplier),
+    Apply(baseStats.BaseShieldStrengthMultiplier, modifier?.ShieldStrengthMultiplier),
 
-        Apply(baseStats.BaseMovementSpeed, modifier?.MovementSpeedMultiplier),
-        Apply(baseStats.BaseAttackRange, modifier?.AttackRangeMultiplier),
+    Apply(baseStats.BaseMovementSpeed, modifier?.MovementSpeedMultiplier),
+    Apply(baseStats.BaseAttackRange, modifier?.AttackRangeMultiplier),
+    Apply(baseStats.BaseCastSpeed, modifier?.CastSpeedMultiplier),
 
-        Apply(baseStats.BaseCastSpeed, modifier?.CastSpeedMultiplier),
-        Apply(baseStats.BaseCooldownReduction, modifier?.CooldownReductionMultiplier),
-
-        Apply(baseStats.BaseResourceRegeneration, modifier?.ResourceRegenerationMultiplier)
-    );
+    Apply(baseStats.BaseCooldownReduction, modifier?.CooldownReductionMultiplier),
+    Apply(baseStats.BaseResourceRegeneration, modifier?.ResourceRegenerationMultiplier)
+);
   }
 
 
