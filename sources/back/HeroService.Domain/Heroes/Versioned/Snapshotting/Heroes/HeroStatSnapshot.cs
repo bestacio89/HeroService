@@ -19,6 +19,7 @@ public sealed record HeroStatSnapshot
     float Armor,
     float MagicResistance,
     float DamageReduction,
+    float ShieldStrengthMultiplier,
 
     float MovementSpeed,
     float AttackRange,
