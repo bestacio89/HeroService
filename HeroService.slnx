@@ -1,0 +1,34 @@
+<Solution>
+  <Folder Name="/1- Core/">
+    <Project Path="sources/back/HeroService.Application/HeroService.Application.csproj" />
+    <Project Path="sources/back/HeroService.Contracts/HeroService.Contracts.csproj" />
+    <Project Path="sources/back/HeroService.Domain/HeroService.Domain.csproj" />
+  </Folder>
+  <Folder Name="/2-Infrastructure/">
+    <Project Path="sources/back/HeroService.ClientHttp/HeroService.Client.Http.csproj" />
+    <Project Path="sources/back/HeroService.Consumer/HeroService.Consumer.csproj" />
+    <Project Path="sources/back/HeroService.Persistence/HeroService.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/3- Adapters/">
+    <Project Path="sources/back/HeroService.API/HeroService.API.csproj" />
+  </Folder>
+  <Folder Name="/4- Tests/">
+    <Project Path="TestProject1/HeroService.Testing.csproj" />
+    <Project Path="tests/HeroService.Testing.ArchitecturalReports/HeroService.Testing.ArchitecturalReports.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <File Path="main.bicep" />
+  </Folder>
+  <Folder Name="/Infrastructure/Modules/" />
+  <Folder Name="/Infrastructure/Modules/MongoDB/" />
+  <Folder Name="/Infrastructure/Modules/Multidatabase/" />
+  <Folder Name="/Infrastructure/Modules/PosgrsSql/" />
+  <Folder Name="/Infrastructure/Modules/SingleDatabase/" />
+  <Folder Name="/Solution Elements/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="common.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
+  </Folder>
+</Solution>
