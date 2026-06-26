@@ -1,34 +1,30 @@
-﻿using System;
-
-namespace HeroService.Domain.Heroes.Versioned.GameVersion;
-
-public class GameVersion : Entity<Guid>
+﻿public class GameVersion : Entity<Guid>
 {
+  public string VersionNumber { get; private set; }
   public string VersionName { get; private set; }
   public bool IsActive { get; private set; }
 
   private GameVersion() { }
 
-  // =========================================
-  // DOMAIN FACTORY ENTRY POINT
-  // =========================================
-  public void Define(string versionName, string createdBy)
+  public void Define(string versionNumber, string versionName, string createdBy)
   {
-    if (!string.IsNullOrWhiteSpace(VersionName))
+    if (!string.IsNullOrWhiteSpace(VersionNumber))
       throw new InvalidOperationException("GameVersion is already defined.");
+
+    if (string.IsNullOrWhiteSpace(versionNumber))
+      throw new ArgumentException("VersionNumber cannot be empty.", nameof(versionNumber));
 
     if (string.IsNullOrWhiteSpace(versionName))
       throw new ArgumentException("VersionName cannot be empty.", nameof(versionName));
 
+    VersionNumber = versionNumber;
     VersionName = versionName;
+
     IsActive = false;
 
     MarkCreated(createdBy);
   }
 
-  // =========================================
-  // DOMAIN BEHAVIOR: ACTIVATE VERSION
-  // =========================================
   public void Activate(string updatedBy)
   {
     if (IsActive)
@@ -38,9 +34,6 @@ public class GameVersion : Entity<Guid>
     MarkUpdated(updatedBy);
   }
 
-  // =========================================
-  // DOMAIN BEHAVIOR: DEACTIVATE VERSION
-  // =========================================
   public void Deactivate(string updatedBy)
   {
     if (!IsActive)

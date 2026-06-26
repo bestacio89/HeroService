@@ -19,6 +19,7 @@ public sealed class CreateGameVersionCommandHandler
       CancellationToken cancellationToken)
   {
     return await _service.CreateAndActivateAsync(
+        request.VersionNumber,
         request.VersionName,
         request.CreatedBy,
         cancellationToken);

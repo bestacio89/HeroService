@@ -22,12 +22,16 @@ public sealed class GameVersionService
   }
 
   public async Task<Guid> CreateAndActivateAsync(
+      string versionNumber,
       string versionName,
       string createdBy,
       CancellationToken cancellationToken)
   {
+    if (string.IsNullOrWhiteSpace(versionNumber))
+      throw new ArgumentException("Version number is required.", nameof(versionNumber));
+
     if (string.IsNullOrWhiteSpace(versionName))
-      throw new ArgumentException("Version name is required.");
+      throw new ArgumentException("Version name is required.", nameof(versionName));
 
     // =========================================================
     // 1. deactivate current active version
@@ -45,7 +49,7 @@ public sealed class GameVersionService
     // =========================================================
     var newVersion = _factory.Create();
 
-    newVersion.Define(versionName, createdBy);
+    newVersion.Define(versionNumber, versionName, createdBy);
     newVersion.Activate(createdBy);
 
     await _entityRepository.AddAsync(newVersion, cancellationToken);
