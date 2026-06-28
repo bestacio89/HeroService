@@ -33,7 +33,7 @@ public class HeroProgressionModifiers : Entity<Guid>
   // =========================
   public float ResourceRegenerationPerLevel { get; private set; }
 
-  private HeroProgressionModifiers() { }
+  protected HeroProgressionModifiers(Guid id) : base(id) { }
 
   public void Define(
       Guid heroId,

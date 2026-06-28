@@ -44,7 +44,8 @@ public class OriginCulture : Entity<Guid>
 {
   public string Name { get; private set; }
 
-  private OriginCulture() { }
+
+  protected OriginCulture(Guid id) : base(id) { }
 
   public OriginCulture(string name, string createdBy)
   {

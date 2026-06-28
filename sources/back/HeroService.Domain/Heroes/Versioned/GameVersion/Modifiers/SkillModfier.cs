@@ -24,7 +24,8 @@ public class SkillModifier : Entity<Guid>
   public float CrowdControlDurationMultiplier { get; private set; }
   public float RangeMultiplier { get; private set; }
 
-  private SkillModifier() { }
+  protected SkillModifier(Guid id) : base(id) { }
+
 
   // =========================================================
   // DEFINE (FACTORY ENTRY POINT)

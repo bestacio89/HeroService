@@ -8,50 +8,92 @@ public static class ServiceCollectionExtensions
 {
   public static IServiceCollection AddHeroServiceClients(
       this IServiceCollection services,
+      string baseUrl,
       Action<HttpClient>? configureHttpClient = null)
   {
-    // =========================================
-    // CORE CONFIGURATION (optional shared config)
-    // =========================================
-    services.AddHttpClient("HeroService", client =>
-    {
-      configureHttpClient?.Invoke(client);
-    });
+    if (string.IsNullOrWhiteSpace(baseUrl))
+      throw new ArgumentException("Base URL must be provided.", nameof(baseUrl));
 
     // =========================================
-    // HERO CORE
+    // CORE HERO CLIENTS
     // =========================================
-    services.AddHttpClient<IHeroClient, HeroClient>("HeroService");
+    services.AddHttpClient<IHeroClient, HeroClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
 
     // =========================================
     // CLASSIFICATIONS
     // =========================================
-    services.AddHttpClient<IHeroClassClient, HeroClassClient>("HeroService");
-    services.AddHttpClient<IMythologyTypeClient, MythologyTypeClient>("HeroService");
-    services.AddHttpClient<IOriginCultureClient, OriginCultureClient>("HeroService");
-    services.AddHttpClient<IOriginArchetypeClient, OriginArchetypeClient>("HeroService");
+    services.AddHttpClient<IHeroClassClient, HeroClassClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
+
+    services.AddHttpClient<IMythologyTypeClient, MythologyTypeClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
+
+    services.AddHttpClient<IOriginCultureClient, OriginCultureClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
+
+    services.AddHttpClient<IOriginArchetypeClient, OriginArchetypeClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
 
     // =========================================
-    // HERO SYSTEMS
+    // PROGRESSION SYSTEM
     // =========================================
-    services.AddHttpClient<IHeroProgressionClient, HeroProgressionClient>("HeroService");
+    services.AddHttpClient<IHeroProgressionClient, HeroProgressionClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
 
     // =========================================
     // SKILLS
     // =========================================
-    services.AddHttpClient<ISkillClient, SkillClient>("HeroService");
-    services.AddHttpClient<ISkillScalingClient, SkillScalingClient>("HeroService");
+    services.AddHttpClient<ISkillClient, SkillClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
+
+    services.AddHttpClient<ISkillScalingClient, SkillScalingClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
 
     // =========================================
-    // SNAPSHOTS (UNITY CRITICAL)
+    // SNAPSHOTS (CRITICAL SYSTEM)
     // =========================================
-    services.AddHttpClient<IHeroSnapshotClient, HeroSnapshotClient>("HeroService");
+    services.AddHttpClient<IHeroSnapshotClient, HeroSnapshotClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
 
     // =========================================
-    // GAME VERSIONING
+    // VERSIONING
     // =========================================
-    services.AddHttpClient<IGameVersionClient, GameVersionClient>("HeroService");
+    services.AddHttpClient<IGameVersionClient, GameVersionClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
 
     return services;
+  }
+
+  private static void Configure(
+      HttpClient client,
+      string baseUrl,
+      Action<HttpClient>? configureHttpClient)
+  {
+    client.BaseAddress = new Uri(baseUrl);
+
+    client.DefaultRequestHeaders.Add("X-Client", "HeroService.Admin");
+
+    configureHttpClient?.Invoke(client);
   }
 }

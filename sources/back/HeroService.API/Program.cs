@@ -1,81 +1,98 @@
-using HeroService.Application;
-using HeroService.Persistence;
+using Franz.Common.Business.Extensions;
+using Franz.Common.EntityFramework.Auditing;
+using Franz.Common.EntityFramework.Extensions;
 using Franz.Common.Http.Bootstrap.Extensions;
 using Franz.Common.Http.EntityFramework.Extensions;
 using Franz.Common.Logging.Extensions;
-using Franz.Common.Mediator.Extensions;
+using Franz.Common.Mediator.Bootstrap;
 using Franz.Common.Mediator.Polly;
+using HeroService.Application;
+using HeroService.Domain.Heroes.Skills;
+using HeroService.Persistence;
+using HeroService.Persistence.Persistence.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using HeroService.Persistence.Persistence.Seeding;
-using Franz.Common.Mediator.Bootstrap;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var env = builder.Environment;
 var config = builder.Configuration;
 
 // =========================================================
-// LOGGING SUBSYSTEM
+// LOGGING
 // =========================================================
 builder.Host.UseLog();
 
 // =========================================================
-// APPLICATION & PERSISTENCE SERVICES
+// APPLICATION
 // =========================================================
 builder.Services.RegisterApplicationServices();
 
-// Standardized Relational Database Registration
-builder.Services.AddRelationalDatabase<ApplicationDbContext>(env, config);
+// =========================================================
+// BUSINESS (Domain + Mediator + Handlers)
+// =========================================================
+builder.Services.AddBusiness(typeof(SkillEffect).Assembly);
 
 // =========================================================
-// HTTP ARCHITECTURE & DOCUMENTATION
+// DATABASE
+// =========================================================
+builder.Services.AddRelationalDatabase<ApplicationDbContext>(env, config);
+// Add this after AddRelationalDatabase
+builder.Services.AddFranzAuditing();
+
+// =========================================================
+// PERSISTENCE
+// =========================================================
+builder.Services.RegisterPersistenceServices<ApplicationDbContext>(config);
+
+// =========================================================
+// HTTP
 // =========================================================
 builder.Services.AddHttpArchitecture(env, config);
 
 // =========================================================
-// MEDIATOR & RESILIENCE PIPELINES
+// MEDIATOR PIPELINES
 // =========================================================
-builder.Services.AddFranzMediatorStandard(new[] { typeof(CreateHeroCommandHandler).Assembly });
+builder.Services.AddFranzMediatorStandard(
+    new[] { typeof(CreateHeroCommandHandler).Assembly });
+
 builder.Services.AddFranzResilience(config);
 
+// =========================================================
+// BUILD
+// =========================================================
 var app = builder.Build();
 
 // =========================================================
-// LIFECYCLE & ENVIRONMENT BOUNDARY ENVIRONMENT STATES
+// DATABASE INITIALIZATION
 // =========================================================
 using (var scope = app.Services.CreateScope())
 {
   var services = scope.ServiceProvider;
-
+  var ct = CancellationToken.None;
   if (app.Environment.IsDevelopment())
   {
-    // Local Dev State: Safely execute incremental migrations and apply idempotent seeding
     var db = services.GetRequiredService<ApplicationDbContext>();
     var seeder = services.GetRequiredService<DatabaseSeeder>();
 
-    await db.Database.MigrateAsync(CancellationToken.None);
-    await seeder.RunAsync(CancellationToken.None);
+    await db.Database.MigrateAsync();
+    await seeder.RunAsync(ct);
   }
   else
   {
-    // Hardened Production State: Runtime instance has ZERO DDL/Migration access.
-    // Schema generation is shifted entirely left to the CI/CD deployment phase.
-    Log.Information("Higher Environment detected. Database runtime initialization handled by orchestration plane.");
+    Log.Information(
+        "Higher Environment detected. Database runtime initialization handled by orchestration plane.");
   }
 }
 
 app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 
 // =========================================================
-// MIDDLEWARE PIPELINE
+// MIDDLEWARE
 // =========================================================
-if (app.Environment.IsDevelopment())
-{
-  app.UseDocumentation();
-}
+app.UseHttpArchitecture();
+//app.UseAuthorization();
 
-app.UseHttpsRedirection();
-app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

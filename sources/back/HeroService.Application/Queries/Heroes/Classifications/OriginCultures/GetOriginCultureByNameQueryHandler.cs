@@ -10,11 +10,11 @@ namespace HeroService.Application.Queries.Heroes.Classification.OriginCultures;
 public sealed class GetOriginCultureByNameQueryHandler
     : IQueryHandler<GetOriginCultureByNameQuery, OriginCultureDto?>
 {
-  private readonly ICultureRepository _repository;
+  private readonly IOriginCultureRepository _repository;
   private readonly IFranzMapper _mapper;
 
   public GetOriginCultureByNameQueryHandler(
-      ICultureRepository repository,
+      IOriginCultureRepository repository,
       IFranzMapper mapper)
   {
     _repository = repository;

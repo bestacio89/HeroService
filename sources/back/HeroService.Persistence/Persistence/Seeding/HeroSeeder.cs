@@ -1,6 +1,5 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
-using Franz.Common.Mediator.Pipelines.Core;
 using HeroService.Contracts.Persistence;
 using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Contracts.Persistence.Skills;
@@ -14,21 +13,21 @@ using IUnitOfWork = Franz.Common.EntityFramework.IUnitOfWork;
 
 namespace HeroService.Persistence.Seeding;
 
-public sealed class HeroSeeder: ISeeder
+public sealed class HeroSeeder : ISeeder
 {
   public int Order => 4;
+
   private readonly IEntityFactory<Guid, Hero> _heroFactory;
   private readonly IEntityFactory<Guid, HeroBaseStats> _statsFactory;
   private readonly IEntityFactory<Guid, HeroLore> _loreFactory;
 
   private readonly IEntityRepository<Hero, Guid> _heroes;
-  private readonly IEntityRepository<HeroBaseStats, Guid> _statsRepo;
   private readonly IEntityRepository<HeroLore, Guid> _loreRepo;
 
   private readonly IHeroClassRepository _classes;
   private readonly IMythologyRepository _mythologies;
   private readonly IArchetypeRepository _archetypes;
-  private readonly ICultureRepository _cultures;
+  private readonly IOriginCultureRepository _cultures;
 
   private readonly ISkillRepository _skills;
   private readonly IUnitOfWork _uow;
@@ -38,12 +37,11 @@ public sealed class HeroSeeder: ISeeder
       IEntityFactory<Guid, HeroBaseStats> statsFactory,
       IEntityFactory<Guid, HeroLore> loreFactory,
       IEntityRepository<Hero, Guid> heroes,
-      IEntityRepository<HeroBaseStats, Guid> statsRepo,
       IEntityRepository<HeroLore, Guid> loreRepo,
       IHeroClassRepository classes,
       IMythologyRepository mythologies,
       IArchetypeRepository archetypes,
-      ICultureRepository cultures,
+      IOriginCultureRepository cultures,
       ISkillRepository skills,
       IUnitOfWork uow)
   {
@@ -51,7 +49,6 @@ public sealed class HeroSeeder: ISeeder
     _statsFactory = statsFactory;
     _loreFactory = loreFactory;
     _heroes = heroes;
-    _statsRepo = statsRepo;
     _loreRepo = loreRepo;
     _classes = classes;
     _mythologies = mythologies;
@@ -66,12 +63,11 @@ public sealed class HeroSeeder: ISeeder
     if ((await _heroes.GetAllAsync(ct)).Any())
       return;
 
-    var system = "seed-system";
+    const string system = "seed-system";
 
-    // =========================================================
-    // LOAD REFERENCE DATA (STRICT + FAIL FAST)
-    // =========================================================
-
+    // =========================
+    // Reference data
+    // =========================
     var warrior = await _classes.GetByNameAsync("Warrior", ct)
         ?? throw new InvalidOperationException("Missing HeroClass: Warrior");
 
@@ -84,21 +80,20 @@ public sealed class HeroSeeder: ISeeder
     var norse = await _mythologies.GetByNameAsync("Norse", ct)
         ?? throw new InvalidOperationException("Missing Mythology: Norse");
 
-    var bruiser = await _archetypes.GetByNameAsync("Bruiser", ct)
-        ?? throw new InvalidOperationException("Missing Archetype: Bruiser");
-
     var divine = await _archetypes.GetByNameAsync("Divine", ct)
         ?? throw new InvalidOperationException("Missing Archetype: Divine");
 
     var europe = await _cultures.GetByNameAsync("Europe", ct)
         ?? throw new InvalidOperationException("Missing Culture: Europe");
 
-    // =========================================================
-    // LOAD SKILLS (STRICT)
-    // =========================================================
+    var mediterranean = await _cultures.GetByNameAsync("Mediterranean", ct)
+        ?? throw new InvalidOperationException("Missing Culture: Mediterranean");
 
+    // =========================
+    // Skills
+    // =========================
     Skill GetSkill(string name) =>
-        _skills.GetByNameAsync(name, ct).Result
+        _skills.GetByNameAsync(name, ct).GetAwaiter().GetResult()
         ?? throw new InvalidOperationException($"Missing Skill: {name}");
 
     var mjolnir = GetSkill("Mjolnir Strike");
@@ -116,11 +111,11 @@ public sealed class HeroSeeder: ISeeder
     // =========================================================
     // THOR
     // =========================================================
-
     var thor = _heroFactory.Create();
 
     var thorStats = _statsFactory.Create();
-    thorStats.Define(thor.Id,
+    thorStats.Define(
+        thor.Id,
         700, 200, 85, 40,
         1.0f, 1.0f,
         0.05f, 1.5f,
@@ -133,7 +128,7 @@ public sealed class HeroSeeder: ISeeder
     thor.Define(
         "Thor",
         warrior.Id,
-        new HeroAffiliation(divine, norse, europe),
+        new HeroAffiliation(divine.Id, norse.Id, europe.Id),
         thorStats,
         system);
 
@@ -144,22 +139,22 @@ public sealed class HeroSeeder: ISeeder
         thunderLeap.Id,
         thorUlt.Id));
 
-    await PersistHero(thor, thorStats,
-        CreateLore(thor.Id,
-            "God of Thunder",
-            "A relentless divine warrior wielding storm power.",
-            "Born of Asgard, Thor embodies raw storm fury and protection of realms.",
-            system),
-        ct);
+    var thorLore = CreateLore(thor.Id,
+        "God of Thunder",
+        "A relentless divine warrior wielding storm power.",
+        "Born of Asgard, Thor embodies raw storm fury and protection of realms.",
+        system);
+
+    await PersistHero(thor, thorLore, ct);
 
     // =========================================================
     // HERAKLES
     // =========================================================
-
     var herakles = _heroFactory.Create();
 
     var heraklesStats = _statsFactory.Create();
-    heraklesStats.Define(herakles.Id,
+    heraklesStats.Define(
+        herakles.Id,
         900, 150, 95, 20,
         0.9f, 1.0f,
         0.08f, 2.0f,
@@ -172,7 +167,7 @@ public sealed class HeroSeeder: ISeeder
     herakles.Define(
         "Herakles",
         tank.Id,
-        new HeroAffiliation(bruiser, greek, europe),
+        new HeroAffiliation(divine.Id, greek.Id, mediterranean.Id),
         heraklesStats,
         system);
 
@@ -183,21 +178,20 @@ public sealed class HeroSeeder: ISeeder
         laborsRush.Id,
         heraUlt.Id));
 
-    await PersistHero(herakles, heraklesStats,
-        CreateLore(herakles.Id,
-            "The Labors of a Demigod",
-            "A relentless force of endurance and mythic strength.",
-            "Herakles walks the path of divine trials, embodying resilience beyond mortal limits.",
-            system),
-        ct);
+    var heraklesLore = CreateLore(herakles.Id,
+        "The Labors of a Demigod",
+        "A relentless force of endurance and mythic strength.",
+        "Herakles walks the path of divine trials, embodying resilience beyond mortal limits.",
+        system);
+
+    await PersistHero(herakles, heraklesLore, ct);
 
     await _uow.CommitAsync(ct);
   }
 
-  private async Task PersistHero(Hero hero, HeroBaseStats stats, HeroLore lore, CancellationToken ct)
+  private async Task PersistHero(Hero hero, HeroLore lore, CancellationToken ct)
   {
     await _heroes.AddAsync(hero, ct);
-    await _statsRepo.AddAsync(stats, ct);
     await _loreRepo.AddAsync(lore, ct);
   }
 

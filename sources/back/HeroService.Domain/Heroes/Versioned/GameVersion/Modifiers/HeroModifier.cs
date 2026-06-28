@@ -61,7 +61,8 @@ public class HeroModifier : Entity<Guid>
   public float? CooldownReductionMultiplier { get; private set; }
   public float? ResourceRegenerationMultiplier { get; private set; }
 
-  private HeroModifier() { }
+  protected HeroModifier(Guid id) : base(id) { }
+
 
   // =========================================================
   // DEFINE

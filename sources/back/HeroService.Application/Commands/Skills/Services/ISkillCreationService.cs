@@ -1,10 +1,10 @@
-﻿using HeroService.Contracts.DTOs.Skills;
+﻿using HeroService.Contracts.Commands.Skills;
 
 namespace HeroService.Application.Commands.Skills.Services;
 
-public interface ISkillCreationService
+public interface ISkillCreationService 
 {
   Task<Guid> CreateAsync(
-      SkillDto request,
+      CreateSkillCommand request,
       CancellationToken cancellationToken);
 }

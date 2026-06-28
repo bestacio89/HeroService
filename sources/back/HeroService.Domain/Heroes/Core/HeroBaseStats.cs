@@ -49,7 +49,7 @@ public class HeroBaseStats : Entity<Guid>
   public float BaseCooldownReduction { get; private set; }
   public float BaseResourceRegeneration { get; private set; }
 
-  private HeroBaseStats() { }
+  protected HeroBaseStats(Guid id) : base(id) { }
 
   public void Define(
       Guid heroId,

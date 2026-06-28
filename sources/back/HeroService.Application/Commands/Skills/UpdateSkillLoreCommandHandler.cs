@@ -1,21 +1,24 @@
 ﻿using Franz.Common.Business.Repositories;
 using Franz.Common.Mediator.Handlers;
 using HeroService.Contracts.Commands.Skills;
+using HeroService.Contracts.Persistence.Skills;
 using HeroService.Domain.Heroes.Skills;
 
 public sealed class UpdateSkillLoreCommandHandler
     : ICommandHandler<UpdateSkillLoreCommand>
 {
-  private readonly IEntityRepository<SkillLore, Guid> _repo;
+  private readonly ISkillLoreRepository _repo;
+  private readonly IEntityRepository<SkillLore,Guid> _genericrepo;
 
-  public UpdateSkillLoreCommandHandler(IEntityRepository<SkillLore, Guid> repo)
+  public UpdateSkillLoreCommandHandler(ISkillLoreRepository repo, IEntityRepository<SkillLore, Guid> genericrepo)
   {
     _repo = repo;
+    _genericrepo = genericrepo;
   }
 
   public async Task Handle(UpdateSkillLoreCommand command, CancellationToken ct)
   {
-    var lore = await _repo.GetByIdAsync(command.SkillLoreId, ct)
+    var lore = await _repo.GetBySkillIdAsync(command.SkillId, ct)
         ?? throw new InvalidOperationException("SkillLore not found.");
 
     lore.Update(
@@ -24,6 +27,6 @@ public sealed class UpdateSkillLoreCommandHandler
         command.UpdatedBy
     );
 
-    await _repo.UpdateAsync(lore, ct);
+    await _genericrepo.UpdateAsync(lore, ct);
   }
 }

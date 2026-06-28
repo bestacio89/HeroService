@@ -5,6 +5,8 @@ using HeroService.Contracts.Queries.Snapshots;
 
 namespace HeroService.Api.Controllers;
 
+
+
 [ApiController]
 [Route("api/v1/snapshots/heroes")]
 public sealed class HeroSnapshotController : ControllerBase

@@ -1,9 +1,9 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
 using Franz.Common.EntityFramework.Auditing;
-using HeroService.Contracts.DTOs.Skills;
-using HeroService.Domain.Heroes.Skills;
 using HeroService.Application.Commands.Skills.Services;
+using HeroService.Contracts.Commands.Skills;
+using HeroService.Domain.Heroes.Skills;
 
 namespace HeroService.Application.Commands.Skills.Services;
 
@@ -48,21 +48,19 @@ public sealed class SkillCreationService : ISkillCreationService
     _uniquenessValidator = uniquenessValidator;
   }
 
-  public async Task<Guid> CreateAsync(
-      SkillDto request,
-      CancellationToken ct)
+  public async Task<Guid> CreateAsync(CreateSkillCommand request, CancellationToken ct)
   {
     var createdBy = _currentUser.UserId;
 
     // =====================================================
-    // 0. HARD PRECONDITION (UNIQUENESS GATE)
+    // 0. VALIDATION
     // =====================================================
     await _uniquenessValidator.EnsureUniqueSkillNameAsync(
         request.Name,
         ct);
 
     // =====================================================
-    // 1. Skill aggregate root
+    // 1. SKILL ROOT
     // =====================================================
     var skill = _skillFactory.Create();
 
@@ -73,7 +71,7 @@ public sealed class SkillCreationService : ISkillCreationService
     );
 
     // =====================================================
-    // 2. Base Stats
+    // 2. BASE STATS
     // =====================================================
     var baseStats = _baseStatsFactory.Create();
 
@@ -92,7 +90,7 @@ public sealed class SkillCreationService : ISkillCreationService
     );
 
     // =====================================================
-    // 3. Lore
+    // 3. LORE
     // =====================================================
     var lore = _loreFactory.Create();
 
@@ -104,7 +102,7 @@ public sealed class SkillCreationService : ISkillCreationService
     );
 
     // =====================================================
-    // 4. Effects
+    // 4. EFFECTS
     // =====================================================
     var effects = request.Effects
         .Select(dto =>
@@ -134,7 +132,7 @@ public sealed class SkillCreationService : ISkillCreationService
         .ToList();
 
     // =====================================================
-    // 5. Persistence
+    // 5. PERSISTENCE
     // =====================================================
     await _skills.AddAsync(skill, ct);
     await _baseStatsRepo.AddAsync(baseStats, ct);
@@ -145,7 +143,7 @@ public sealed class SkillCreationService : ISkillCreationService
   }
 
   // =====================================================
-  // Mapping helpers
+  // MAPPERS (still acceptable here)
   // =====================================================
   private static SkillType ParseSkillType(string type)
     => Enum.Parse<SkillType>(type, ignoreCase: true);

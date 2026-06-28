@@ -4,7 +4,7 @@
   public string VersionName { get; private set; }
   public bool IsActive { get; private set; }
 
-  private GameVersion() { }
+  protected GameVersion(Guid id) : base(id) { }
 
   public void Define(string versionNumber, string versionName, string createdBy)
   {

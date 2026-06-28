@@ -60,7 +60,7 @@ public sealed class HeroLore : Entity<Guid>
   public string Description { get; private set; } = string.Empty;
   public string BackgroundStory { get; private set; } = string.Empty;
 
-  private HeroLore() { }
+  protected HeroLore(Guid id) : base(id) { }
 
   public void Define(
       Guid heroId,

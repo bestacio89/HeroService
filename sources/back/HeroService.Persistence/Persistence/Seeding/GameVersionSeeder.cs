@@ -29,7 +29,7 @@ public sealed class GameVersionSeeder : ISeeder
 
     var version = _gameVersionFactory.Create();
 
-    version.Define("1.0.0", "seed-system");
+    version.Define("1.0.0", "Alpha Version", "seed-system");
     version.Activate("seed-system");
 
     await _gameVersionRepository.AddAsync(version, ct);

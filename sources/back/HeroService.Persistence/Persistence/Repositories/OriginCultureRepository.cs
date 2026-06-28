@@ -6,7 +6,7 @@ using System.Text;
 
 namespace HeroService.Persistence.Persistence.Repositories;
 
-internal class OriginCultureRepository : ICultureRepository
+internal class OriginCultureRepository : IOriginCultureRepository
 {
   private readonly ApplicationDbContext dbContext;
 

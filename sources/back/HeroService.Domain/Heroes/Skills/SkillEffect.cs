@@ -84,7 +84,8 @@ public class SkillEffect : Entity<Guid>
 
   public int Revision { get; private set; }   // 👈 IMPORTANT for balancing
 
-  private SkillEffect() { }
+  protected SkillEffect(Guid id) : base(id) { }
+
 
   public void Define(
     Guid skillId,

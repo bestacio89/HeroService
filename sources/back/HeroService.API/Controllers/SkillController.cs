@@ -52,13 +52,13 @@ public sealed class SkillController : ControllerBase
   // =========================================================
   // UPDATE LORE
   // =========================================================
-  [HttpPut("{skillLoreId:guid}/lore")]
+  [HttpPut("{skillId:guid}/lore")]
   public async Task<ActionResult> UpdateLore(
-      Guid skillLoreId,
-      [FromBody] UpdateSkillLoreCommand command,
-      CancellationToken cancellationToken)
+    Guid skillId,
+    [FromBody] UpdateSkillLoreCommand command,
+    CancellationToken cancellationToken)
   {
-    var enriched = command with { SkillLoreId = skillLoreId };
+    var enriched = command with { SkillId = skillId };
 
     await _dispatcher.SendAsync(enriched, cancellationToken);
 

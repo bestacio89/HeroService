@@ -21,7 +21,14 @@ public sealed class GameVersionRepository : IGameVersionRepository
         .AsNoTracking()
         .FirstOrDefaultAsync(x => x.VersionName == name, cancellationToken);
   }
-
+  public Task<GameVersion?> GetByVersionNumberAsync(
+     string number,
+     CancellationToken cancellationToken = default)
+  {
+    return _dbContext.Set<GameVersion>()
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.VersionNumber == number, cancellationToken);
+  }
   public Task<GameVersion?> GetActiveAsync(
       CancellationToken cancellationToken = default)
   {

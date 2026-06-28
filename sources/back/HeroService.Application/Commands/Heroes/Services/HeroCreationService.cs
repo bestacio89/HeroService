@@ -23,7 +23,7 @@ public sealed class HeroCreationService : IHeroCreationService
   private readonly IMythologyRepository _mythologies;
   private readonly IHeroClassRepository _heroClasses;
   private readonly IArchetypeRepository _archetypes;
-  private readonly ICultureRepository _cultures;
+  private readonly IOriginCultureRepository _cultures;
 
   private readonly ISkillRepository _skills;
 
@@ -41,7 +41,7 @@ public sealed class HeroCreationService : IHeroCreationService
       IMythologyRepository mythologies,
       IHeroClassRepository heroClasses,
       IArchetypeRepository archetypes,
-      ICultureRepository cultures,
+      IOriginCultureRepository cultures,
       ISkillRepository skills,
 
       IHeroUniquenessValidator uniquenessValidator)
@@ -104,9 +104,9 @@ public sealed class HeroCreationService : IHeroCreationService
     // =====================================================
 
     var affiliation = new HeroAffiliation(
-        archetype,
-        mythology,
-        culture
+        archetype.Id,
+        mythology.Id,
+        culture.Id
     );
 
     // =====================================================

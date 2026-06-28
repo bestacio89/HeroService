@@ -12,7 +12,7 @@ public class Skill : Entity<Guid>
   private readonly List<SkillEffect> _effects = new();
   public IReadOnlyCollection<SkillEffect> Effects => _effects;
 
-  private Skill() { }
+  protected Skill(Guid id) : base(id) { }
 
   public void Define(
       string name,

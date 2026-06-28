@@ -40,7 +40,7 @@ public sealed class SkillModifierSeeder : ISeeder
 
     var system = "seed-system";
 
-    var version = await _versions.GetByNameAsync("1.0.0", ct)
+    var version = await _versions.GetByVersionNumberAsync("1.0.0", ct)
         ?? throw new InvalidOperationException("Missing GameVersion 1.0.0");
 
     // =====================================================

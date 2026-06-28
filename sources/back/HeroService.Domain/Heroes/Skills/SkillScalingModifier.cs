@@ -15,7 +15,8 @@ public class SkillScalingModifier : Entity<Guid>
   public float AbilityPowerRatio { get; private set; }
   public float MaxHealthRatio { get; private set; }
 
-  private SkillScalingModifier() { }
+  protected SkillScalingModifier(Guid id) : base(id) { }
+
 
   public void Define(
     Guid skillId,

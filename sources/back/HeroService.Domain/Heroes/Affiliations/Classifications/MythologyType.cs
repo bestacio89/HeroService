@@ -46,8 +46,7 @@ public class MythologyType : Entity<Guid>
 {
   public string Name { get; private set; } = string.Empty;
 
-  private MythologyType() { }
-
+  protected MythologyType(Guid id) : base(id) { }
   public MythologyType(string name, string createdBy)
   {
     Name = name;

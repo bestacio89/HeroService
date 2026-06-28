@@ -20,7 +20,7 @@ public sealed class CreateSkillCommandHandler
       CancellationToken ct)
   {
     return await _creationService.CreateAsync(
-        command.Request,
+        command,
         ct);
   }
 }

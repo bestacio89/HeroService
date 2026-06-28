@@ -58,6 +58,7 @@ public class HeroSkillKit
   public Guid TertiarySkillId { get; }
   public Guid UltimateSkillId { get; }
 
+  private HeroSkillKit() { }
   public HeroSkillKit(
     Guid passiveSkillId,
     Guid primarySkillId,

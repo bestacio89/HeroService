@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.API.Controllers;
 
+
+
 [ApiController]
 [Route("api/v1/heroes")]
 public sealed class HeroController : ControllerBase

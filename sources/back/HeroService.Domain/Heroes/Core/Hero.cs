@@ -33,7 +33,7 @@ public class Hero : Entity<Guid>
 
   public HeroSkillKit SkillKit { get; private set; } = null!;
 
-  private Hero() { }
+  protected Hero(Guid id) : base(id) { }
 
   // =========================================================
   // CREATION (ONLY VALID ENTRY POINT)

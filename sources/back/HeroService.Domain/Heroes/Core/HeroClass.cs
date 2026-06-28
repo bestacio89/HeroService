@@ -63,7 +63,7 @@ public class HeroClass : Entity<Guid>
 {
   public string Name { get; private set; } = string.Empty;
 
-  private HeroClass() { }
+  protected HeroClass(Guid id) : base(id) { }
 
   public void Define(string name, string createdBy)
   {

@@ -52,7 +52,8 @@ public class OriginArchetype : Entity<Guid>
 {
   public string Name { get; private set; }
 
-  private OriginArchetype() { }
+
+  protected OriginArchetype(Guid id) : base(id) { }
 
   public OriginArchetype(string name, string createdBy)
   {

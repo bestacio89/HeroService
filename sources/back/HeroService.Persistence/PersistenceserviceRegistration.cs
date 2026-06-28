@@ -33,9 +33,9 @@ namespace HeroService.Persistence
         IConfiguration configuration)
     {
        // Add HeroService Redis Caching +Mediator Caching pipeline
-      services
+      /*services
         .AddFranzRedisCaching(configuration)
-        .AddFranzMediatorCaching(configuration);
+        .AddFranzMediatorCaching(configuration);*/
       services.AddUnitOfWork<ApplicationDbContext>();
       services.AddFranzMemoryCaching();
       services.AddCustomRepositoriesFromAssembly(typeof(ApplicationDbContext).Assembly);

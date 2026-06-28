@@ -3,6 +3,13 @@
   <Import Project="../../../common.targets" />
 
   <ItemGroup>
+    <Compile Remove="DTOs\Skills\NewFolder\**" />
+    <EmbeddedResource Remove="DTOs\Skills\NewFolder\**" />
+    <None Remove="DTOs\Skills\NewFolder\**" />
+    <PackageVersion Remove="DTOs\Skills\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Queries\Modifiers\GetHeroModifiersByVersionQuery.cs" />
   </ItemGroup>
 
@@ -18,7 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Skills\NewFolder\" />
     <Folder Include="Features\Example\Commands\" />
     <Folder Include="Features\Example\Queries\" />
     <Folder Include="Features\Example\Persistence\" />

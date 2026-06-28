@@ -6,7 +6,7 @@ using System.Text;
 namespace HeroService.Contracts.Commands.Skills;
 
 public sealed record UpdateSkillLoreCommand(
-    Guid SkillLoreId,
+    Guid SkillId,
     string Name,
     string Description,
     string VisualExplanation,

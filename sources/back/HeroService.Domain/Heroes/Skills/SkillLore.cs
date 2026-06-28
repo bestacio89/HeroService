@@ -12,7 +12,8 @@ public sealed class SkillLore : Entity<Guid>
   public string Description { get; private set; } = string.Empty;
   public string VisualExplanation { get; private set; } = string.Empty;
 
-  private SkillLore() { }
+  protected SkillLore(Guid id) : base(id) { }
+
 
   /// <summary>
   /// Initial creation of lore (single source of truth for instantiation).

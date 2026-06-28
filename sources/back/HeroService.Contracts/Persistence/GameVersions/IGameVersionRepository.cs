@@ -6,5 +6,7 @@ public interface IGameVersionRepository : INameLookupRepository<GameVersion, Gui
 {
   Task<GameVersion?> GetActiveAsync(CancellationToken cancellationToken = default);
 
-  
+  Task<GameVersion?> GetByVersionNumberAsync(
+   string number,
+   CancellationToken cancellationToken = default);
 }

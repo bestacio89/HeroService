@@ -29,7 +29,7 @@ public class SkillBaseStats : Entity<Guid>
   public float BaseCrowdControlDuration { get; private set; }
   public float BaseRange { get; private set; }
 
-  private SkillBaseStats() { }
+  protected SkillBaseStats(Guid id) : base(id) { }
 
   public void Define(
     Guid skillId,

@@ -15,6 +15,9 @@ public sealed class SkillClient : ISkillClient
     _httpClient = httpClient;
   }
 
+  // =========================================================
+  // CREATE SKILL
+  // =========================================================
   public async Task<Guid> CreateSkillAsync(
       CreateSkillCommand command,
       CancellationToken cancellationToken = default)
@@ -26,10 +29,12 @@ public sealed class SkillClient : ISkillClient
 
     response.EnsureSuccessStatusCode();
 
-    return await response.Content.ReadFromJsonAsync<Guid?>(cancellationToken)
-           ?? Guid.Empty;
+    return await response.Content.ReadFromJsonAsync<Guid>(cancellationToken);
   }
 
+  // =========================================================
+  // ADD EFFECT
+  // =========================================================
   public async Task<Guid?> AddEffectAsync(
       Guid skillId,
       CreateSkillEffectCommand command,
@@ -47,21 +52,25 @@ public sealed class SkillClient : ISkillClient
     return await response.Content.ReadFromJsonAsync<Guid?>(cancellationToken);
   }
 
+  // =========================================================
+  // LORE (FIXED BOUNDARY)
+  // =========================================================
   public async Task UpdateLoreAsync(
-      Guid skillLoreId,
+      Guid skillId,
       UpdateSkillLoreCommand command,
       CancellationToken cancellationToken = default)
   {
-    var payload = command with { SkillLoreId = skillLoreId };
-
     var response = await _httpClient.PutAsJsonAsync(
-        $"api/v1/skills/{skillLoreId}/lore",
-        payload,
+        $"api/v1/skills/{skillId}/lore",
+        command,
         cancellationToken);
 
     response.EnsureSuccessStatusCode();
   }
 
+  // =========================================================
+  // GET ALL
+  // =========================================================
   public async Task<IReadOnlyCollection<SkillDto>> GetAllAsync(
       CancellationToken cancellationToken = default)
   {
@@ -71,6 +80,9 @@ public sealed class SkillClient : ISkillClient
            ?? [];
   }
 
+  // =========================================================
+  // GET BY NAME
+  // =========================================================
   public async Task<SkillDto?> GetByNameAsync(
       string name,
       CancellationToken cancellationToken = default)
@@ -80,6 +92,9 @@ public sealed class SkillClient : ISkillClient
         cancellationToken);
   }
 
+  // =========================================================
+  // GET DETAILS
+  // =========================================================
   public async Task<SkillDto?> GetDetailsAsync(
       Guid skillId,
       CancellationToken cancellationToken = default)
@@ -89,6 +104,9 @@ public sealed class SkillClient : ISkillClient
         cancellationToken);
   }
 
+  // =========================================================
+  // GET LORE (SCOPED TO SKILL)
+  // =========================================================
   public async Task<SkillLoreDto?> GetLoreAsync(
       Guid skillId,
       CancellationToken cancellationToken = default)
@@ -98,6 +116,9 @@ public sealed class SkillClient : ISkillClient
         cancellationToken);
   }
 
+  // =========================================================
+  // BASE STATS
+  // =========================================================
   public async Task<SkillBaseStatsDto?> GetBaseStatsAsync(
       Guid skillId,
       CancellationToken cancellationToken = default)
@@ -107,6 +128,9 @@ public sealed class SkillClient : ISkillClient
         cancellationToken);
   }
 
+  // =========================================================
+  // FILTER BY TYPE
+  // =========================================================
   public async Task<IReadOnlyCollection<SkillDto>> GetByTypeAsync(
       SkillType skillType,
       CancellationToken cancellationToken = default)

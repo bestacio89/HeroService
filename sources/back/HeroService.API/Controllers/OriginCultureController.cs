@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.Api.Controllers;
 
+
+
 [ApiController]
 [Route("api/v1/origin-cultures")]
 public sealed class OriginCultureController : ControllerBase

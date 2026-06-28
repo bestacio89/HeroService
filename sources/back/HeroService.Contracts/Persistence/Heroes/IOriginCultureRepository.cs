@@ -6,7 +6,7 @@ using System.Text;
 
 namespace HeroService.Contracts.Persistence.Heroes;
 
-public interface ICultureRepository: INameLookupRepository<OriginCulture, Guid>
+public interface IOriginCultureRepository: INameLookupRepository<OriginCulture, Guid>
 {
 
 }
