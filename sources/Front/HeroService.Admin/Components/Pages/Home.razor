@@ -1,0 +1,75 @@
+﻿@page "/"
+
+@using MudBlazor
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+<PageTitle>Codex Hub</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-2">
+    Codex Management System
+</MudText>
+
+<MudText Typo="Typo.subtitle2" Class="mb-6">
+    Hero, Skills, Effects and World Data Editor
+</MudText>
+
+<MudDivider Class="mb-4" />
+
+<MudGrid Spacing="3">
+
+    <!-- SKILLS -->
+    <MudItem xs="12" sm="6" md="4">
+        <MudPaper Class="pa-4" Elevation="2">
+
+            <MudText Typo="Typo.h6">Skills</MudText>
+            <MudText Typo="Typo.body2">
+                Manage abilities, scaling and combat logic bindings.
+            </MudText>
+
+            <MudButton Class="mt-3"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="@(() => Nav.NavigateTo("/skills"))">
+                Open Skills
+            </MudButton>
+
+        </MudPaper>
+    </MudItem>
+
+    <!-- CREATE SKILL -->
+    <MudItem xs="12" sm="6" md="4">
+        <MudPaper Class="pa-4" Elevation="2">
+
+            <MudText Typo="Typo.h6">Skill Forge</MudText>
+            <MudText Typo="Typo.body2">
+                Create new abilities and define their structure.
+            </MudText>
+
+            <MudButton Class="mt-3"
+                       Variant="Variant.Outlined"
+                       OnClick="@(() => Nav.NavigateTo("/skills/create"))">
+                Forge Skill
+            </MudButton>
+
+        </MudPaper>
+    </MudItem>
+
+    <!-- LORE / WORLD -->
+    <MudItem xs="12" sm="6" md="4">
+        <MudPaper Class="pa-4" Elevation="2">
+
+            <MudText Typo="Typo.h6">Lore Archive</MudText>
+            <MudText Typo="Typo.body2">
+                Manage narrative identity and visual explanations.
+            </MudText>
+
+            <MudButton Class="mt-3"
+                       Variant="Variant.Outlined"
+                       Disabled="true">
+                Enter Archive
+            </MudButton>
+
+        </MudPaper>
+    </MudItem>
+
+</MudGrid>

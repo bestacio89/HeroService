@@ -1,0 +1,98 @@
+﻿@page "/skills/{SkillId:guid}/effects"
+
+@using HeroService.Client.Http.Abstractions
+@using HeroService.Contracts.Commands.Skills
+@using HeroService.Contracts.DTOs.Skills
+@using HeroService.Domain.Heroes.Skills
+@using MudBlazor
+@rendermode InteractiveServer
+@inject ISkillClient SkillClient
+@inject NavigationManager Nav
+
+<MudText Typo="Typo.h5">Skill Effects</MudText>
+
+@if (skill is null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudText Typo="Typo.h6">@skill.Name</MudText>
+
+    <MudDivider Class="my-3" />
+
+    <MudText Typo="Typo.subtitle1">Existing Effects</MudText>
+
+    @if (skill.Effects is null || skill.Effects.Count == 0)
+    {
+        <MudText>No effects defined.</MudText>
+    }
+    else
+    {
+        @foreach (var e in skill.Effects)
+        {
+            <MudPaper Class="pa-3 mb-2">
+                <MudText><b>@e.EffectType</b></MudText>
+                <MudText>Magnitude: @e.Magnitude</MudText>
+                <MudText>Duration: @e.Duration</MudText>
+                <MudText>Radius: @e.Radius</MudText>
+            </MudPaper>
+        }
+    }
+
+    <MudDivider Class="my-4" />
+
+    <MudText Typo="Typo.subtitle1">Add Effect</MudText>
+
+    <MudPaper Class="pa-4 mt-2">
+
+        <MudSelect T="EffectType"
+                   @bind-Value="selectedEffect"
+                   Label="Effect Type">
+
+            @foreach (var e in Enum.GetValues<EffectType>())
+            {
+                <MudSelectItem Value="@e">@e</MudSelectItem>
+            }
+
+        </MudSelect>
+
+        <MudButton Class="mt-3"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="AddEffect">
+            Add Effect
+        </MudButton>
+
+        <MudButton Class="mt-3 ms-2"
+                   Variant="Variant.Outlined"
+                   OnClick="@(() => Nav.NavigateTo($"/skills/{SkillId}"))">
+            Back
+        </MudButton>
+
+    </MudPaper>
+}
+
+@code {
+    [Parameter] public Guid SkillId { get; set; }
+
+    private SkillDto? skill;
+    private EffectType selectedEffect;
+
+    protected override async Task OnInitializedAsync()
+    {
+        skill = await SkillClient.GetDetailsAsync(SkillId);
+    }
+
+    private async Task AddEffect()
+    {
+        var command = new CreateSkillEffectCommand(
+            SkillId,
+            selectedEffect
+        );
+
+        await SkillClient.AddEffectAsync(SkillId, command);
+
+        skill = await SkillClient.GetDetailsAsync(SkillId);
+    }
+}

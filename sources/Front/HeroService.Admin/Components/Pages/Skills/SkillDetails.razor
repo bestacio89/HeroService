@@ -1,0 +1,72 @@
+﻿@page "/skills/{SkillId:guid}"
+@rendermode InteractiveServer
+@using HeroService.Client.Http.Abstractions
+@using HeroService.Contracts.DTOs.Skills
+@using MudBlazor
+@inject ISkillClient SkillClient
+@inject NavigationManager Nav
+
+@if (skill is null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudText Typo="Typo.h4">@skill.Name</MudText>
+    <MudText Typo="Typo.subtitle1">@skill.SkillType</MudText>
+
+    <MudTabs Class="mt-4">
+
+        <MudTabPanel Text="Lore">
+            <MudPaper Class="pa-4">
+                <MudText>@lore?.Description</MudText>
+                <MudText Class="mt-2" Typo="Typo.body2">
+                    @lore?.VisualExplanation
+                </MudText>
+
+                <MudButton Class="mt-3"
+                           Variant="Variant.Filled"
+                           OnClick="@(() => Nav.NavigateTo($"/skills/{SkillId}/lore"))">
+                    Edit Lore
+                </MudButton>
+            </MudPaper>
+        </MudTabPanel>
+
+        <MudTabPanel Text="Effects">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="@(() => Nav.NavigateTo($"/skills/{SkillId}/effects"))">
+                Manage Effects
+            </MudButton>
+
+            @foreach (var e in skill.Effects)
+            {
+                <MudPaper Class="pa-3 mt-2">
+                    <MudText><b>@e.EffectType</b></MudText>
+                    <MudText>Magnitude: @e.Magnitude</MudText>
+                    <MudText>Duration: @e.Duration</MudText>
+                </MudPaper>
+            }
+        </MudTabPanel>
+
+    </MudTabs>
+
+    <MudButton Class="mt-4"
+               Variant="Variant.Outlined"
+               OnClick="@(() => Nav.NavigateTo("/skills"))">
+        Back
+    </MudButton>
+}
+
+@code {
+    [Parameter] public Guid SkillId { get; set; }
+
+    private SkillDto? skill;
+    private SkillLoreDto? lore;
+
+    protected override async Task OnInitializedAsync()
+    {
+        skill = await SkillClient.GetDetailsAsync(SkillId);
+        lore = await SkillClient.GetLoreAsync(SkillId);
+    }
+}

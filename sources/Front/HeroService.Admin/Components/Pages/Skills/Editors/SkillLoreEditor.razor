@@ -1,0 +1,80 @@
+﻿@page "/skills/{SkillId:guid}/lore"
+
+@using HeroService.Client.Http.Abstractions
+@using HeroService.Contracts.Commands.Skills
+@using HeroService.Contracts.DTOs.Skills
+@using MudBlazor
+@rendermode InteractiveServer
+@inject ISkillClient SkillClient
+@inject NavigationManager Nav
+
+<MudText Typo="Typo.h5">Edit Skill Lore</MudText>
+
+@if (lore is null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudPaper Class="pa-4 mt-3">
+
+        <MudTextField T="string"
+                      Label="Description"
+                      Lines="6"
+                      @bind-Value="lore.Description"
+                      FullWidth="true" />
+
+        <MudTextField T="string"
+                      Label="Visual Explanation"
+                      Lines="6"
+                      Class="mt-3"
+                      @bind-Value="lore.VisualExplanation"
+                      FullWidth="true" />
+
+        <MudStack Row="true" Spacing="2" Class="mt-4">
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="Save">
+                Save
+            </MudButton>
+
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Secondary"
+                       OnClick="@(() => Nav.NavigateTo($"/skills/{SkillId}"))">
+                Cancel
+            </MudButton>
+
+        </MudStack>
+
+    </MudPaper>
+}
+
+@code
+{
+    [Parameter]
+    public Guid SkillId { get; set; }
+
+    private SkillLoreDto? lore;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lore = await SkillClient.GetLoreAsync(SkillId)
+               ?? new SkillLoreDto();
+    }
+
+    private async Task Save()
+    {
+        var command = new UpdateSkillLoreCommand(
+            SkillId,
+            string.Empty,
+            lore!.Description,
+            lore!.VisualExplanation,
+            "Admin"
+        );
+
+        await SkillClient.UpdateLoreAsync(SkillId, command);
+
+        Nav.NavigateTo($"/skills/{SkillId}");
+    }
+}
