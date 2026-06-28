@@ -1,0 +1,114 @@
+:root {
+    /* Base world */
+    --bg: #0b0c10; /* void / night sky */
+    --panel: #12121a; /* obsidian stone */
+    --panel-2: #171722; /* carved depth */
+    /* Text hierarchy */
+    --text: #e8e3d6; /* parchment ivory */
+    --muted: #a79f8f;
+    /* Divine metals */
+    --gold: #c8a44d; /* Greek gold leaf */
+    --bronze: #b08d57;
+    --silver: #bfc6cc;
+    /* Mythic accents */
+    --divine: #d6c28a; /* holy light */
+    --rune: #7f8cff; /* faint arcane rune glow */
+    --blood: #8b2d2d; /* danger / corruption */
+    /* Depth */
+    --border: rgba(200, 164, 77, 0.15);
+}
+
+/* =========================
+   GLOBAL BODY
+   ========================= */
+
+body {
+    background: radial-gradient(circle at top, #141422 0%, #0b0c10 60%);
+    color: var(--text);
+    font-family: "Cinzel", "Georgia", serif; /* mythic tone */
+}
+
+/* =========================
+   PANELS (STONE / TEMPLE UI)
+   ========================= */
+
+.card, .panel, .mud-paper {
+    background: linear-gradient(145deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px rgba(255, 215, 120, 0.05), 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* =========================
+   HEADERS (DIVINE INSCRIPTIONS)
+   ========================= */
+
+h1, h2, h3, h4 {
+    color: var(--divine);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* =========================
+   INPUTS (ARCANE TABLETS)
+   ========================= */
+
+input, textarea, select {
+    background: #0f1016;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+}
+
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 12px rgba(200, 164, 77, 0.25);
+    }
+
+/* =========================
+   VALIDATION (DIVINE JUDGEMENT)
+   ========================= */
+
+.valid.modified:not([type=checkbox]) {
+    border: 1px solid #3aa86b;
+}
+
+.invalid {
+    border: 1px solid var(--blood);
+    box-shadow: 0 0 10px rgba(139, 45, 45, 0.4);
+}
+
+/* =========================
+   BUTTONS (ARTIFACT INTERACTION)
+   ========================= */
+
+button {
+    background: linear-gradient(180deg, #1b1c25, #0f1016);
+    border: 1px solid var(--border);
+    color: var(--divine);
+    border-radius: 8px;
+    transition: 0.2s ease-in-out;
+}
+
+    button:hover {
+        border-color: var(--gold);
+        box-shadow: 0 0 14px rgba(200, 164, 77, 0.2);
+        transform: translateY(-1px);
+    }
+
+/* =========================
+   ERROR BOUNDARY (CURSE STATE)
+   ========================= */
+
+.blazor-error-boundary {
+    background: linear-gradient(145deg, #2a1010, #120b0b);
+    border: 1px solid var(--blood);
+    color: var(--text);
+    padding: 1rem 1rem 1rem 3.7rem;
+}
+
+    .blazor-error-boundary::after {
+        content: "A divine anomaly has occurred";
+        color: var(--blood);
+    }
