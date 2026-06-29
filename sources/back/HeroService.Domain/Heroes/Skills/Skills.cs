@@ -13,7 +13,7 @@ public class Skill : Entity<Guid>
   public IReadOnlyCollection<SkillEffect> Effects => _effects;
 
   protected Skill(Guid id) : base(id) { }
-
+  public SkillBaseStats? BaseStats { get; private set; }
   public void Define(
       string name,
       SkillType skillType,
@@ -85,4 +85,18 @@ public class Skill : Entity<Guid>
 
     MarkUpdated(updatedBy);
   }
+
+
+
+    // Add method to enforce domain logic
+    public void SetBaseStats(SkillBaseStats stats)
+    {
+      ArgumentNullException.ThrowIfNull(stats);
+
+      if (BaseStats != null)
+        throw new InvalidOperationException("Base stats already defined.");
+
+      BaseStats = stats;
+    }
+  
 }
