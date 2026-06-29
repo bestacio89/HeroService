@@ -43,8 +43,23 @@ public sealed class SkillProfile : FranzMapProfile
                 IsInstant = effect.IsInstant,
                 IsChannelled = effect.IsChannelled
               })
-              .ToList()
-        });
+              .ToList(),
+
+           BaseStats = skill.BaseStats != null
+            ? new SkillBaseStatsDto
+            {
+              Cooldown = skill.BaseStats.BaseCooldown,
+              ManaCost = skill.BaseStats.BaseManaCost,
+              Damage = skill.BaseStats.BaseDamage,
+              Healing = skill.BaseStats.BaseHealing,
+              ShieldValue = skill.BaseStats.BaseShieldValue,
+              CastTime = skill.BaseStats.BaseCastTime,
+              ChannelDuration = skill.BaseStats.BaseChannelDuration,
+              Range = skill.BaseStats.BaseRange,
+              CrowdControlDuration = skill.BaseStats.BaseCrowdControlDuration
+            }
+            : null
+       });
 
     // =========================================
     // SkillEffect
@@ -82,20 +97,15 @@ public sealed class SkillProfile : FranzMapProfile
         {
           Cooldown = stats.BaseCooldown,
           ManaCost = stats.BaseManaCost,
-
           Damage = stats.BaseDamage,
           Healing = stats.BaseHealing,
           ShieldValue = stats.BaseShieldValue,
-
           CastTime = stats.BaseCastTime,
           ChannelDuration = stats.BaseChannelDuration,
-
           Range = stats.BaseRange,
-
-  
-
-          CrowdControlDuration = stats.BaseCrowdControlDuration
-        });
+          CrowdControlDuration = stats.BaseCrowdControlDuration,
+       
+           });
 
     // =========================================
     // SkillLore

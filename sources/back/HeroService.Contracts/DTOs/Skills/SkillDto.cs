@@ -8,8 +8,6 @@ public sealed class SkillDto
 
   public string SkillType { get; set; } = string.Empty;
 
-  public SkillLoreDto Lore { get; set; } = default!;
-
   public List<SkillEffectDto> Effects { get; set; } = new();
 
   public SkillBaseStatsDto BaseStats { get; set; } = default!;
