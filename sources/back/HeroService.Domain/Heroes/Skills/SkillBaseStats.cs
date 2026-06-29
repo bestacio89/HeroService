@@ -4,44 +4,32 @@ public class SkillBaseStats : Entity<Guid>
 {
   public Guid SkillId { get; private set; }
 
-  // =========================
-  // CORE COSTS
-  // =========================
-  public float BaseCooldown { get; private set; }
-  public float BaseManaCost { get; private set; }
+  public float? BaseCooldown { get; private set; }
+  public float? BaseManaCost { get; private set; }
 
-  // =========================
-  // BASE OUTPUT
-  // =========================
-  public float BaseDamage { get; private set; }
-  public float BaseHealing { get; private set; }
-  public float BaseShieldValue { get; private set; }
+  public float? BaseDamage { get; private set; }
+  public float? BaseHealing { get; private set; }
+  public float? BaseShieldValue { get; private set; }
 
-  // =========================
-  // CASTING TEMPO
-  // =========================
-  public float BaseCastTime { get; private set; }
-  public float BaseChannelDuration { get; private set; }
+  public float? BaseCastTime { get; private set; }
+  public float? BaseChannelDuration { get; private set; }
 
-  // =========================
-  // UTILITY
-  // =========================
-  public float BaseCrowdControlDuration { get; private set; }
-  public float BaseRange { get; private set; }
+  public float? BaseCrowdControlDuration { get; private set; }
+  public float? BaseRange { get; private set; }
 
   protected SkillBaseStats(Guid id) : base(id) { }
 
   public void Define(
     Guid skillId,
-    float baseCooldown,
-    float baseManaCost,
-    float baseDamage,
-    float baseHealing,
-    float baseShieldValue,
-    float baseCastTime,
-    float baseChannelDuration,
-    float baseCrowdControlDuration,
-    float baseRange,
+    float? baseCooldown,
+    float? baseManaCost,
+    float? baseDamage,
+    float? baseHealing,
+    float? baseShieldValue,
+    float? baseCastTime,
+    float? baseChannelDuration,
+    float? baseCrowdControlDuration,
+    float? baseRange,
     string createdBy)
   {
     if (SkillId != Guid.Empty)
@@ -68,8 +56,11 @@ public class SkillBaseStats : Entity<Guid>
     MarkCreated(createdBy);
   }
 
-  private static float Validate(float v)
+  private static float? Validate(float? v)
   {
+    if (v is null)
+      return null;
+
     if (v < 0)
       throw new ArgumentOutOfRangeException(nameof(v));
 
