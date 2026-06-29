@@ -14,13 +14,13 @@ public sealed class HeroProgressionSeeder : ISeeder
   private readonly IEntityFactory<Guid, HeroProgressionModifiers> _factory;
   private readonly IEntityRepository<HeroProgressionModifiers, Guid> _repo;
   private readonly IHeroRepository _heroes; // Domain interface inheriting from INameLookupRepository
-  private readonly Franz.Common.EntityFramework.IUnitOfWork _uow;
+  private readonly IUnitOfWork _uow;
 
   public HeroProgressionSeeder(
       IEntityFactory<Guid, HeroProgressionModifiers> factory,
       IEntityRepository<HeroProgressionModifiers, Guid> repo,
       IHeroRepository heroes,
-      Franz.Common.EntityFramework.IUnitOfWork uow)
+      IUnitOfWork uow)
   {
     _factory = factory;
     _repo = repo;

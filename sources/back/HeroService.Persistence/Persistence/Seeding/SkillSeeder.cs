@@ -3,7 +3,6 @@ using Franz.Common.Business.Repositories;
 using Franz.Common.Mediator.Pipelines.Core;
 using HeroService.Domain.Heroes.Skills;
 using HeroService.Persistence.Persistence.Seeding;
-using IUnitOfWork = Franz.Common.EntityFramework.IUnitOfWork;
 namespace HeroService.Persistence.Seeding;
 
 public sealed class SkillSeeder : ISeeder

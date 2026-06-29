@@ -4,7 +4,7 @@ using Franz.Common.Mediator.Pipelines.Core;
 using HeroService.Contracts.Persistence.Skills;
 using HeroService.Domain.Heroes.Skills;
 using HeroService.Persistence.Persistence.Seeding;
-using IUnitOfWork = Franz.Common.EntityFramework.IUnitOfWork;
+
 
 namespace HeroService.Persistence.Seeding;
 

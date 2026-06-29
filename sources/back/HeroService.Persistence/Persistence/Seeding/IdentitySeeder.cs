@@ -5,7 +5,7 @@ using HeroService.Domain.Heroes.Affiliations;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
 using HeroService.Domain.Heroes.Core;
 using HeroService.Persistence.Persistence.Seeding;
-using IUnitOfWork = Franz.Common.EntityFramework.IUnitOfWork;
+
 
 namespace HeroService.Persistence.Seeding;
 

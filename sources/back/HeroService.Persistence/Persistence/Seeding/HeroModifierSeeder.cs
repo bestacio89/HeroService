@@ -17,14 +17,14 @@ public sealed class HeroModifierSeeder : ISeeder
   private readonly IGameVersionRepository _versions;
   private readonly IEntityRepository<HeroModifier, Guid> _modifiers;
   private readonly IEntityRepository<Hero, Guid> _heroes;
-  private readonly Franz.Common.EntityFramework.IUnitOfWork _uow;
+  private readonly IUnitOfWork _uow;
 
   public HeroModifierSeeder(
       IEntityFactory<Guid, HeroModifier> heroModifierFactory,
       IGameVersionRepository versions,
       IEntityRepository<HeroModifier, Guid> modifiers,
       IEntityRepository<Hero, Guid> heroes,
-      Franz.Common.EntityFramework.IUnitOfWork uow)
+      IUnitOfWork uow)
   {
     _heroModifierFactory = heroModifierFactory;
     _versions = versions;

@@ -6,7 +6,7 @@ using HeroService.Contracts.Persistence.Skills;
 using HeroService.Domain.Heroes.Skills;
 using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 using HeroService.Persistence.Persistence.Seeding;
-using IUnitOfWork = Franz.Common.EntityFramework.IUnitOfWork;
+
 
 namespace HeroService.Persistence.Seeding;
 
