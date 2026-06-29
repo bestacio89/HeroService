@@ -65,7 +65,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        skills = SkillUiSeed.Data;
-        await Task.CompletedTask;
+        await SkillClient.GetAllAsync();
+
     }
 }
