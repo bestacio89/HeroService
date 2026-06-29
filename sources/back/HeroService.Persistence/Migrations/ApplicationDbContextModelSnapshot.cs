@@ -495,31 +495,31 @@ namespace HeroService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<float>("BaseCastTime")
+                    b.Property<float?>("BaseCastTime")
                         .HasColumnType("real");
 
-                    b.Property<float>("BaseChannelDuration")
+                    b.Property<float?>("BaseChannelDuration")
                         .HasColumnType("real");
 
-                    b.Property<float>("BaseCooldown")
+                    b.Property<float?>("BaseCooldown")
                         .HasColumnType("real");
 
-                    b.Property<float>("BaseCrowdControlDuration")
+                    b.Property<float?>("BaseCrowdControlDuration")
                         .HasColumnType("real");
 
-                    b.Property<float>("BaseDamage")
+                    b.Property<float?>("BaseDamage")
                         .HasColumnType("real");
 
-                    b.Property<float>("BaseHealing")
+                    b.Property<float?>("BaseHealing")
                         .HasColumnType("real");
 
-                    b.Property<float>("BaseManaCost")
+                    b.Property<float?>("BaseManaCost")
                         .HasColumnType("real");
 
-                    b.Property<float>("BaseRange")
+                    b.Property<float?>("BaseRange")
                         .HasColumnType("real");
 
-                    b.Property<float>("BaseShieldValue")
+                    b.Property<float?>("BaseShieldValue")
                         .HasColumnType("real");
 
                     b.Property<string>("CreatedBy")
@@ -548,6 +548,9 @@ namespace HeroService.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SkillId")
+                        .IsUnique();
 
                     b.ToTable("SkillBaseStats");
                 });
@@ -1028,6 +1031,15 @@ namespace HeroService.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("HeroService.Domain.Heroes.Skills.SkillBaseStats", b =>
+                {
+                    b.HasOne("HeroService.Domain.Heroes.Skills.Skill", null)
+                        .WithOne("BaseStats")
+                        .HasForeignKey("HeroService.Domain.Heroes.Skills.SkillBaseStats", "SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("HeroService.Domain.Heroes.Skills.SkillEffect", b =>
                 {
                     b.HasOne("HeroService.Domain.Heroes.Skills.Skill", null)
@@ -1044,6 +1056,8 @@ namespace HeroService.Persistence.Migrations
 
             modelBuilder.Entity("HeroService.Domain.Heroes.Skills.Skill", b =>
                 {
+                    b.Navigation("BaseStats");
+
                     b.Navigation("Effects");
                 });
 #pragma warning restore 612, 618

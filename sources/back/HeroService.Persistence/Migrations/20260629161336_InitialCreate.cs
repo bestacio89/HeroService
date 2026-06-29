@@ -195,34 +195,6 @@ namespace HeroService.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SkillBaseStats",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SkillId = table.Column<Guid>(type: "uuid", nullable: false),
-                    BaseCooldown = table.Column<float>(type: "real", nullable: false),
-                    BaseManaCost = table.Column<float>(type: "real", nullable: false),
-                    BaseDamage = table.Column<float>(type: "real", nullable: false),
-                    BaseHealing = table.Column<float>(type: "real", nullable: false),
-                    BaseShieldValue = table.Column<float>(type: "real", nullable: false),
-                    BaseCastTime = table.Column<float>(type: "real", nullable: false),
-                    BaseChannelDuration = table.Column<float>(type: "real", nullable: false),
-                    BaseCrowdControlDuration = table.Column<float>(type: "real", nullable: false),
-                    BaseRange = table.Column<float>(type: "real", nullable: false),
-                    DateCreated = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DateDeleted = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    DeletedBy = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SkillBaseStats", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SkillLore",
                 columns: table => new
                 {
@@ -391,6 +363,40 @@ namespace HeroService.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SkillBaseStats",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SkillId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BaseCooldown = table.Column<float>(type: "real", nullable: true),
+                    BaseManaCost = table.Column<float>(type: "real", nullable: true),
+                    BaseDamage = table.Column<float>(type: "real", nullable: true),
+                    BaseHealing = table.Column<float>(type: "real", nullable: true),
+                    BaseShieldValue = table.Column<float>(type: "real", nullable: true),
+                    BaseCastTime = table.Column<float>(type: "real", nullable: true),
+                    BaseChannelDuration = table.Column<float>(type: "real", nullable: true),
+                    BaseCrowdControlDuration = table.Column<float>(type: "real", nullable: true),
+                    BaseRange = table.Column<float>(type: "real", nullable: true),
+                    DateCreated = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DateDeleted = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    DeletedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkillBaseStats", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SkillBaseStats_Skills_SkillId",
+                        column: x => x.SkillId,
+                        principalTable: "Skills",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SkillEffects",
                 columns: table => new
                 {
@@ -500,6 +506,12 @@ namespace HeroService.Persistence.Migrations
                 name: "IX_Heroes_Name",
                 table: "Heroes",
                 column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SkillBaseStats_SkillId",
+                table: "SkillBaseStats",
+                column: "SkillId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
