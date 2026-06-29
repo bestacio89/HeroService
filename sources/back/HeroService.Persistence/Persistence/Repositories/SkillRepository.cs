@@ -53,6 +53,7 @@ public sealed class SkillRepository : ISkillRepository
     return _dbContext.Set<Skill>()
         .AsNoTracking()
         .Include(x => x.Effects)
+        .Include(x => x.BaseStats)
         .FirstOrDefaultAsync(
             x => x.Id == skillId,
             cancellationToken);
@@ -65,6 +66,7 @@ public sealed class SkillRepository : ISkillRepository
     return _dbContext.Set<Skill>()
         .AsNoTracking()
         .Include(x => x.Effects)
+        .Include(x => x.BaseStats)
         .FirstOrDefaultAsync(
             x => x.Name == name,
             cancellationToken);
@@ -76,6 +78,7 @@ public sealed class SkillRepository : ISkillRepository
     return await _dbContext.Set<Skill>()
         .AsNoTracking()
         .Include(x => x.Effects)
+        .Include(x => x.BaseStats)
         .OrderBy(x => x.Name)
         .ToListAsync(cancellationToken);
   }
