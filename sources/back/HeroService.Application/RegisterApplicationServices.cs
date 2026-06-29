@@ -1,6 +1,7 @@
 using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Domain.IdGenerators;
 using Franz.Common.Mapping.Extensions;
+using Franz.Common.Mediator.Extensions;
 using HeroService.Application.Commands.Heroes.Services;
 using HeroService.Application.Commands.Skills.Services;
 using HeroService.Application.Heroes.Versioned.Snapshotting;
@@ -16,22 +17,22 @@ public static class ApplicationServiceCollectionExtensions
   {
 
 
-   collection.AddFranzMapping(Assembly.GetExecutingAssembly());
+    collection.AddFranzMapping(Assembly.GetExecutingAssembly());
     // Hero creation
-   collection.AddScoped<IHeroCreationService, HeroCreationService>();
+    collection.AddScoped<IHeroCreationService, HeroCreationService>();
 
     // Skill creation  
-   collection.AddScoped<ISkillCreationService, SkillCreationService>();
+    collection.AddScoped<ISkillCreationService, SkillCreationService>();
 
     // Game version
-   collection.AddScoped<GameVersionService>();
+    collection.AddScoped<GameVersionService>();
 
     // Snapshot resolution (two handlers depend on it)
-   collection.AddScoped<SnapshotResolver>();
+    collection.AddScoped<SnapshotResolver>();
 
-   collection.AddScoped<IHeroUniquenessValidator, HeroUniquenessValidator>();
+    collection.AddScoped<IHeroUniquenessValidator, HeroUniquenessValidator>();
 
-    return collection;
+    collection.AddFranzTransactionPipeline();
+     return collection;
   }
-
 }

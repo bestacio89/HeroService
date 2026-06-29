@@ -4,6 +4,7 @@ using Franz.Common.Business.Repositories;
 using Franz.Common.EntityFramework;
 using Franz.Common.Mapping.Abstractions;
 using Franz.Common.Mediator.Handlers;
+using Franz.Common.Mediator.Pipelines.Core;
 using HeroService.Contracts.Commands.Heroes;
 using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Domain.Heroes.Progression;

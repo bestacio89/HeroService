@@ -5,6 +5,7 @@ using Franz.Common.Http.Bootstrap.Extensions;
 using Franz.Common.Http.EntityFramework.Extensions;
 using Franz.Common.Logging.Extensions;
 using Franz.Common.Mediator.Bootstrap;
+using Franz.Common.Mediator.Extensions;
 using Franz.Common.Mediator.Polly;
 using HeroService.Application;
 using HeroService.Domain.Heroes.Skills;
@@ -53,8 +54,10 @@ builder.Services.AddHttpArchitecture(env, config);
 // =========================================================
 // MEDIATOR PIPELINES
 // =========================================================
-builder.Services.AddFranzMediatorStandard(
-    new[] { typeof(CreateHeroCommandHandler).Assembly });
+builder.Services.AddFranzMediator(
+    new[] { typeof(CreateHeroCommandHandler).Assembly })
+  .AddFranzSerilogAuditPipeline()
+  .AddFranzSerilogLoggingPipeline();
 
 builder.Services.AddFranzResilience(config);
 
@@ -92,7 +95,13 @@ app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 // =========================================================
 app.UseHttpArchitecture();
 //app.UseAuthorization();
-
+if (app.Environment.IsDevelopment())
+{
+  app.UseEndpoints(endpoints =>
+  {
+    endpoints.MapControllers().AllowAnonymous();
+  });
+}
 app.MapControllers();
 
 app.Run();
