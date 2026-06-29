@@ -1,8 +1,5 @@
 ﻿using HeroService.Domain.Heroes.Skills;
 using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Skills;
 
@@ -26,57 +23,63 @@ public sealed class SkillSnapshotFactory
   }
 
   // =========================================
-  // EXECUTION SNAPSHOT (NUMERICAL RESOLUTION)
+  // EXECUTION SNAPSHOT (NULL-SAFE RESOLUTION)
   // =========================================
   private static SkillExecutionSnapshot BuildExecution(
-      SkillBaseStats baseStats,
-      SkillModifier? modifier)
+      SkillBaseStats s,
+      SkillModifier? m)
   {
-    float Apply(float value, float? multiplier)
-        => value * (multiplier ?? 1f);
+    float? Apply(float? value, float? multiplier)
+    {
+      if (!value.HasValue)
+        return null;
+
+      return value.Value * (multiplier ?? 1f);
+    }
 
     return new SkillExecutionSnapshot(
-        Apply(baseStats.BaseCooldown, modifier?.CooldownMultiplier),
-        Apply(baseStats.BaseManaCost, modifier?.ManaCostMultiplier),
+        Apply(s.BaseCooldown, m?.CooldownMultiplier),
+        Apply(s.BaseManaCost, m?.ManaCostMultiplier),
 
-        Apply(baseStats.BaseDamage, modifier?.DamageMultiplier),
-        baseStats.BaseHealing,
-        baseStats.BaseShieldValue,
+        Apply(s.BaseDamage, m?.DamageMultiplier),
+        Apply(s.BaseHealing, m?.HealingMultiplier),
+        Apply(s.BaseShieldValue, m?.ShieldMultiplier),
 
-        baseStats.BaseCastTime,
-        baseStats.BaseChannelDuration,
-        baseStats.BaseRange,
+        Apply(s.BaseCastTime, m?.CastTimeMultiplier),
+        Apply(s.BaseChannelDuration, m?.ChannelDurationMultiplier),
 
-        baseStats.BaseCrowdControlDuration
-
-   
+        Apply(s.BaseCrowdControlDuration, m?.CrowdControlDurationMultiplier),
+        Apply(s.BaseRange, m?.RangeMultiplier)
     );
   }
 
   // =========================================
-  // EFFECT SNAPSHOT (SEMANTIC RESOLUTION)
+  // EFFECT SNAPSHOT (UNCHANGED LOGIC)
   // =========================================
   private static SkillEffectSnapshot BuildEffects(IEnumerable<SkillEffect> effects)
   {
+    var list = effects as IReadOnlyList<SkillEffect> ?? effects.ToList();
+
+    bool Has(EffectType t) => list.Any(e => e.EffectType == t);
+
     return new SkillEffectSnapshot(
-        effects.Any(e => e.EffectType == EffectType.Damage),
-        effects.Any(e => e.EffectType == EffectType.DamageOverTime),
-        effects.Any(e => e.EffectType == EffectType.Heal),
-        effects.Any(e => e.EffectType == EffectType.HealOverTime),
-        effects.Any(e => e.EffectType == EffectType.Shield),
+        Has(EffectType.Damage),
+        Has(EffectType.DamageOverTime),
+        Has(EffectType.Heal),
+        Has(EffectType.HealOverTime),
+        Has(EffectType.Shield),
 
-        effects.Any(e => e.EffectType == EffectType.CrowdControl),
-        effects.Any(e => e.EffectType == EffectType.Buff),
-        effects.Any(e => e.EffectType == EffectType.Debuff),
-        effects.Any(e => e.EffectType == EffectType.Mobility),
-        effects.Any(e => e.EffectType == EffectType.Execute),
+        Has(EffectType.CrowdControl),
+        Has(EffectType.Buff),
+        Has(EffectType.Debuff),
+        Has(EffectType.Mobility),
+        Has(EffectType.Execute),
 
-        effects.Any(e => e.EffectType == EffectType.Utility),
-        effects.Any(e => e.EffectType == EffectType.Vision),
-        effects.Any(e => e.EffectType == EffectType.ZoneControl),
-        effects.Any(e => e.EffectType == EffectType.Summon),
-        effects.Any(e => e.EffectType == EffectType.Transformation)
+        Has(EffectType.Utility),
+        Has(EffectType.Vision),
+        Has(EffectType.ZoneControl),
+        Has(EffectType.Summon),
+        Has(EffectType.Transformation)
     );
   }
 }
-
