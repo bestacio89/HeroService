@@ -46,109 +46,57 @@ public sealed class BrowseHeroSnapshotsQueryHandler
       BrowseHeroSnapshotsQuery request,
       CancellationToken ct)
   {
-    // 1. Load heroes
-    var heroes = await _heroRepository.GetAllAsync(ct);
+    var heroes = await _heroRepository.GetAllWithDetailsAsync(ct);
+    if (heroes.Count == 0) return Array.Empty<HeroSnapshotDto>();
 
-    if (heroes.Count == 0)
-      return Array.Empty<HeroSnapshotDto>();
-
-    // 2. Extract ALL skill IDs from fixed SkillKit (5-slot structure)
-    var allSkillIds = new HashSet<Guid>();
-
-    foreach (var hero in heroes)
+    var allSkillIds = heroes.SelectMany(h => new[]
     {
-      var kit = hero.SkillKit;
+            h.SkillKit.PassiveSkillId, h.SkillKit.PrimarySkillId,
+            h.SkillKit.SecondarySkillId, h.SkillKit.TertiarySkillId,
+            h.SkillKit.UltimateSkillId
+        }).Distinct().ToList();
 
-      allSkillIds.Add(kit.PassiveSkillId);
-      allSkillIds.Add(kit.PrimarySkillId);
-      allSkillIds.Add(kit.SecondarySkillId);
-      allSkillIds.Add(kit.TertiarySkillId);
-      allSkillIds.Add(kit.UltimateSkillId);
-    }
+    // Fetch data
+    var skills = await _skillRepository.GetByIdsAsync(allSkillIds, ct);
+    var skillBaseStats = await _skillBaseStatsRepository.GetBySkillIdsAsync(allSkillIds, ct);
+    var skillModifiers = await _skillModifierRepository.GetBySkillIdsAndVersionAsync(allSkillIds, request.GameVersionId, ct);
+    var heroModifiers = await _heroModifierRepository.GetByGameVersionIdAsync(request.GameVersionId, ct);
 
-    var skillIdList = allSkillIds.ToList();
+    // Build dictionaries compatible with IReadOnlyDictionary
+    var skillLookup = skills.ToDictionary(x => x.Id);
 
-    // 3. Batch load projections
-    var skills = await _skillRepository.GetByIdsAsync(skillIdList, ct);
+    // Convert to Dictionary<Guid, SkillBaseStats> to satisfy IReadOnlyDictionary
+    var skillBaseStatsLookup = skillBaseStats.ToDictionary(x => x.Key, x => x.Value);
 
-    var skillBaseStats =
-        await _skillBaseStatsRepository.GetBySkillIdsAsync(skillIdList, ct);
+    // Convert to Dictionary<Guid, SkillModifier> 
+    // Note: Using a group-first approach or Ensure unique if your logic allows
+    var skillModifierLookup = skillModifiers.ToDictionary(x => x.SkillId, x => x);
 
-    var skillModifiers =
-        await _skillModifierRepository.GetBySkillIdsAndVersionAsync(
-            skillIdList,
-            request.GameVersionId,
-            ct);
+    var heroModifierLookup = heroModifiers.ToDictionary(x => x.HeroId, x => x);
 
-    var heroModifiers =
-        await _heroModifierRepository.GetByGameVersionIdAsync(
-            request.GameVersionId,
-            ct);
-
-    // 4. Build lookups (CRITICAL FIX SECTION)
-
-    var skillLookup =
-        skills.ToDictionary(x => x.Id);
-
-    var heroModifierLookup =
-        heroModifiers.ToDictionary(x => x.HeroId);
-
-    var skillModifierLookup =
-        skillModifiers.ToDictionary(x => x.SkillId, x => x);
-
-    var skillBaseStatsLookup =
-    skillBaseStats.ToDictionary(
-        x => x.Key,
-        x => x.Value);
-
-    // 5. Resolve snapshots
     var result = new List<HeroSnapshotDto>(heroes.Count);
 
     foreach (var hero in heroes)
     {
       var kit = hero.SkillKit;
+      var heroSkillIds = new[] { kit.PassiveSkillId, kit.PrimarySkillId, kit.SecondarySkillId, kit.TertiarySkillId, kit.UltimateSkillId };
 
-      var heroSkillIds = new[]
-      {
-                kit.PassiveSkillId,
-                kit.PrimarySkillId,
-                kit.SecondarySkillId,
-                kit.TertiarySkillId,
-                kit.UltimateSkillId
-            };
+      var heroSkills = heroSkillIds
+          .Where(skillLookup.ContainsKey)
+          .Select(id => skillLookup[id])
+          .ToList();
 
-      // No LINQ scanning — direct lookup usage
-      var heroSkills = new List<Skill>(5);
-      var heroBaseStats = new List<SkillBaseStats>(5);
-      var heroSkillModifiers = new Dictionary<Guid, SkillModifier>(5);
-
-      foreach (var skillId in heroSkillIds)
-      {
-        if (skillLookup.TryGetValue(skillId, out var skill))
-          heroSkills.Add(skill);
-
-        if (skillBaseStatsLookup.TryGetValue(skillId, out var baseStats))
-          heroBaseStats.Add(baseStats);
-
-        if (skillModifierLookup.TryGetValue(skillId, out var modifier))
-          heroSkillModifiers[skillId] = modifier;
-      }
-
-      heroModifierLookup.TryGetValue(hero.Id, out var heroModifier);
-
-      // 6. Resolve deterministic snapshot
       var snapshot = _resolver.ResolveHero(
           hero.Id,
           request.GameVersionId,
           hero.BaseStats,
-          heroModifier,
+          heroModifierLookup.GetValueOrDefault(hero.Id),
           heroSkills,
           skillBaseStatsLookup,
-          heroSkillModifiers
+          skillModifierLookup
       );
 
-      result.Add(
-          _mapper.Map<HeroSnapshot, HeroSnapshotDto>(snapshot));
+      result.Add(_mapper.Map<HeroSnapshot, HeroSnapshotDto>(snapshot));
     }
 
     return result;
