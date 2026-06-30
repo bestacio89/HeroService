@@ -36,149 +36,71 @@ public sealed class SnapshotResolver
     return new HeroSnapshot(heroId, gameVersionId, stats, kit, BuildKitProfile(kit));
   }
 
-  // =========================================================
-  // HERO
-  // =========================================================
-
   private static HeroStatSnapshot BuildHeroStats(HeroBaseStats baseStats, HeroModifier? mod)
   {
     float Apply(float v, float? m) => v * (m ?? 1f);
-
     return new HeroStatSnapshot(
-      Apply(baseStats.BaseHealth, mod?.HealthMultiplier),
-      Apply(baseStats.BaseMana, mod?.ManaMultiplier),
-
-      Apply(baseStats.BaseAttackDamage, mod?.AttackDamageMultiplier),
-      Apply(baseStats.BaseAbilityPower, mod?.AbilityPowerMultiplier),
-
-      Apply(baseStats.BaseAttackSpeed, mod?.AttackSpeedMultiplier),
-      Apply(baseStats.BaseCritChance, mod?.CritChanceMultiplier),
-      Apply(baseStats.BaseCritDamageMultiplier, mod?.CritDamageMultiplier),
-
-      Apply(baseStats.BaseArmor, mod?.ArmorMultiplier),
-      Apply(baseStats.BaseMagicResistance, mod?.MagicResistanceMultiplier),
-      Apply(baseStats.BaseDamageReduction, mod?.DamageReductionMultiplier),
-      Apply(baseStats.BaseShieldStrengthMultiplier, mod?.ShieldStrengthMultiplier),
-
-      Apply(baseStats.BaseMovementSpeed, mod?.MovementSpeedMultiplier),
-      Apply(baseStats.BaseAttackRange, mod?.AttackRangeMultiplier),
-      Apply(baseStats.BaseCastSpeed, mod?.CastSpeedMultiplier),
-
-      Apply(baseStats.BaseCooldownReduction, mod?.CooldownReductionMultiplier),
-      Apply(baseStats.BaseResourceRegeneration, mod?.ResourceRegenerationMultiplier)
+        Apply(baseStats.BaseHealth, mod?.HealthMultiplier),
+        Apply(baseStats.BaseMana, mod?.ManaMultiplier),
+        Apply(baseStats.BaseAttackDamage, mod?.AttackDamageMultiplier),
+        Apply(baseStats.BaseAbilityPower, mod?.AbilityPowerMultiplier),
+        Apply(baseStats.BaseAttackSpeed, mod?.AttackSpeedMultiplier),
+        Apply(baseStats.BaseCritChance, mod?.CritChanceMultiplier),
+        Apply(baseStats.BaseCritDamageMultiplier, mod?.CritDamageMultiplier),
+        Apply(baseStats.BaseArmor, mod?.ArmorMultiplier),
+        Apply(baseStats.BaseMagicResistance, mod?.MagicResistanceMultiplier),
+        Apply(baseStats.BaseDamageReduction, mod?.DamageReductionMultiplier),
+        Apply(baseStats.BaseShieldStrengthMultiplier, mod?.ShieldStrengthMultiplier),
+        Apply(baseStats.BaseMovementSpeed, mod?.MovementSpeedMultiplier),
+        Apply(baseStats.BaseAttackRange, mod?.AttackRangeMultiplier),
+        Apply(baseStats.BaseCastSpeed, mod?.CastSpeedMultiplier),
+        Apply(baseStats.BaseCooldownReduction, mod?.CooldownReductionMultiplier),
+        Apply(baseStats.BaseResourceRegeneration, mod?.ResourceRegenerationMultiplier)
     );
   }
 
-  // =========================================================
-  // SKILL
-  // =========================================================
-
-  private static SkillSnapshot ResolveSkill(
-      Skill skill,
-      Guid gameVersionId,
-      IReadOnlyDictionary<Guid, SkillBaseStats> baseStatsMap,
-      IReadOnlyDictionary<Guid, SkillModifier?> modifiers)
+  private static SkillSnapshot ResolveSkill(Skill s, Guid v, IReadOnlyDictionary<Guid, SkillBaseStats> b, IReadOnlyDictionary<Guid, SkillModifier> m)
   {
-    if (!baseStatsMap.TryGetValue(skill.Id, out var baseStats))
-      throw new InvalidOperationException($"Missing SkillBaseStats for {skill.Id}");
-
-    modifiers.TryGetValue(skill.Id, out var mod);
-
-    return new SkillSnapshot(
-      skill.Id,
-      gameVersionId,
-      BuildExecution(baseStats, mod),
-      BuildEffects(skill.Effects)
-    );
+    b.TryGetValue(s.Id, out var bs);
+    m.TryGetValue(s.Id, out var ms);
+    return new SkillSnapshot(s.Id, v, BuildExecution(bs, ms), BuildEffects(s.Effects));
   }
 
-  private static SkillExecutionSnapshot BuildExecution(SkillBaseStats s, SkillModifier? m)
+  private static SkillExecutionSnapshot BuildExecution(SkillBaseStats? s, SkillModifier? m)
   {
-    float? Apply(float? v, float? mult)
-    {
-      if (!v.HasValue)
-        return null;
-
-      return v.Value * (mult ?? 1f);
-    }
-
+    float? Apply(float? v, float? mult) => v.HasValue ? v.Value * (mult ?? 1f) : null;
     return new SkillExecutionSnapshot(
-      Apply(s.BaseCooldown, m?.CooldownMultiplier),
-      Apply(s.BaseManaCost, m?.ManaCostMultiplier),
-
-      Apply(s.BaseDamage, m?.DamageMultiplier),
-      Apply(s.BaseHealing, m?.HealingMultiplier),
-      Apply(s.BaseShieldValue, m?.ShieldMultiplier),
-
-      Apply(s.BaseCastTime, m?.CastTimeMultiplier),
-      Apply(s.BaseChannelDuration, m?.ChannelDurationMultiplier),
-
-      Apply(s.BaseCrowdControlDuration, m?.CrowdControlDurationMultiplier),
-      Apply(s.BaseRange, m?.RangeMultiplier)
+        Apply(s?.BaseCooldown, m?.CooldownMultiplier),
+        Apply(s?.BaseManaCost, m?.ManaCostMultiplier),
+        Apply(s?.BaseDamage, m?.DamageMultiplier),
+        Apply(s?.BaseHealing, m?.HealingMultiplier),
+        Apply(s?.BaseShieldValue, m?.ShieldMultiplier),
+        Apply(s?.BaseCastTime, m?.CastTimeMultiplier),
+        Apply(s?.BaseChannelDuration, m?.ChannelDurationMultiplier),
+        Apply(s?.BaseRange, m?.RangeMultiplier),
+        Apply(s?.BaseCrowdControlDuration, m?.CrowdControlDurationMultiplier)
     );
   }
-
-  // =========================================================
-  // EFFECTS (unchanged logic, just stable)
-  // =========================================================
 
   private static SkillEffectSnapshot BuildEffects(IEnumerable<SkillEffect> effects)
   {
     var list = effects as IReadOnlyList<SkillEffect> ?? effects.ToList();
-
     bool Has(EffectType t) => list.Any(e => e.EffectType == t);
-
     return new SkillEffectSnapshot(
-      HasDamage: Has(EffectType.Damage),
-      HasDamageOverTime: Has(EffectType.DamageOverTime),
-      HasHeal: Has(EffectType.Heal),
-      HasHealOverTime: Has(EffectType.HealOverTime),
-      HasShield: Has(EffectType.Shield),
-      HasCrowdControl: Has(EffectType.CrowdControl),
-      HasMobility: Has(EffectType.Mobility),
-      HasBuff: Has(EffectType.Buff),
-      HasDebuff: Has(EffectType.Debuff),
-      HasExecute: Has(EffectType.Execute),
-
-      HasUtility: Has(EffectType.Utility),
-      HasVision: Has(EffectType.Vision),
-      HasZoneControl: Has(EffectType.ZoneControl),
-      HasSummon: Has(EffectType.Summon),
-      HasTransformation: Has(EffectType.Transformation)
+        Has(EffectType.Damage), Has(EffectType.DamageOverTime), Has(EffectType.Heal),
+        Has(EffectType.HealOverTime), Has(EffectType.Shield), Has(EffectType.CrowdControl),
+        Has(EffectType.Buff), Has(EffectType.Debuff), Has(EffectType.Mobility),
+        Has(EffectType.Execute), Has(EffectType.Utility), Has(EffectType.Vision),
+        Has(EffectType.ZoneControl), Has(EffectType.Summon), Has(EffectType.Transformation)
     );
   }
 
-  // =========================================================
-  // KIT PROFILE (unchanged)
-  // =========================================================
-
   private static HeroKitProfile BuildKitProfile(HeroSkillKitSnapshot kit)
   {
-    var skills = kit.AllSkills;
-
-    int damage = skills.Count(s => s.Effects.HasDamage);
-    int cc = skills.Count(s => s.Effects.HasCrowdControl);
-    int mob = skills.Count(s => s.Effects.HasMobility);
-
-    int sustain = skills.Count(s =>
-      s.Effects.HasHeal || s.Effects.HasHealOverTime || s.Effects.HasShield);
-
-    int utility = skills.Count(s =>
-      s.Effects.HasUtility || s.Effects.HasVision || s.Effects.HasZoneControl);
-
-    return new HeroKitProfile(
-      damage,
-      cc,
-      mob,
-      sustain,
-      utility,
-      skills.Any(s => s.Effects.HasSummon),
-      skills.Any(s => s.Effects.HasTransformation),
-      skills.Any(s => s.Effects.HasExecute),
-      damage >= BurstDamageThreshold && !skills.Any(s => s.Effects.HasDamageOverTime),
-      sustain >= SustainThreshold,
-      cc >= ControlThreshold,
-      mob >= MobilityThreshold
-    );
+    var s = kit.AllSkills;
+    int d = s.Count(x => x.Effects.HasDamage), cc = s.Count(x => x.Effects.HasCrowdControl), mob = s.Count(x => x.Effects.HasMobility);
+    int sus = s.Count(x => x.Effects.HasHeal || x.Effects.HasHealOverTime || x.Effects.HasShield);
+    int uti = s.Count(x => x.Effects.HasUtility || x.Effects.HasVision || x.Effects.HasZoneControl);
+    return new HeroKitProfile(d, cc, mob, sus, uti, s.Any(x => x.Effects.HasSummon), s.Any(x => x.Effects.HasTransformation), s.Any(x => x.Effects.HasExecute), d >= BurstDamageThreshold && !s.Any(x => x.Effects.HasDamageOverTime), sus >= SustainThreshold, cc >= ControlThreshold, mob >= MobilityThreshold);
   }
 }
