@@ -5,7 +5,7 @@ using HeroService.Domain.Heroes.Versioned.Snapshotting;
 using HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 using HeroService.Domain.Heroes.Versioned.Snapshotting.Skills;
 
-namespace HeroService.Application.Snapshotting;
+namespace HeroService.Application.Heroes.Versioned.Snapshotting;
 
 public sealed class SnapshotResolver
 {
