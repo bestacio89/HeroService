@@ -2,6 +2,7 @@
 using Franz.Common.Mapping.Abstractions;
 using Franz.Common.Mediator.Handlers;
 using HeroService.Contracts.DTOs.Snapshots;
+using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Contracts.Persistence.Modifiers;
 using HeroService.Contracts.Persistence.Skills;
 using HeroService.Contracts.Queries.Snapshots;
@@ -15,7 +16,7 @@ namespace HeroService.Application.Heroes.Versioned.Snapshotting.Queries;
 public sealed class BrowseHeroSnapshotsQueryHandler
     : IQueryHandler<BrowseHeroSnapshotsQuery, IReadOnlyList<HeroSnapshotDto>>
 {
-  private readonly IEntityRepository<Hero, Guid> _heroRepository;
+  private readonly IHeroRepository _heroRepository;
   private readonly ISkillRepository _skillRepository;
   private readonly ISkillBaseStatsRepository _skillBaseStatsRepository;
   private readonly ISkillModifierRepository _skillModifierRepository;
@@ -24,7 +25,7 @@ public sealed class BrowseHeroSnapshotsQueryHandler
   private readonly IFranzMapper _mapper;
 
   public BrowseHeroSnapshotsQueryHandler(
-      IEntityRepository<Hero, Guid> heroRepository,
+      IHeroRepository heroRepository,
       ISkillRepository skillRepository,
       ISkillBaseStatsRepository skillBaseStatsRepository,
       ISkillModifierRepository skillModifierRepository,
