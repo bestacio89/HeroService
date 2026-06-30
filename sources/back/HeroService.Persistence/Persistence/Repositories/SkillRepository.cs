@@ -42,6 +42,7 @@ public sealed class SkillRepository : ISkillRepository
     return await _dbContext.Set<Skill>()
         .AsNoTracking()
         .Include(x => x.Effects)
+        .Include(x => x.BaseStats)
         .Where(x => idList.Contains(x.Id))
         .ToListAsync(cancellationToken);
   }
