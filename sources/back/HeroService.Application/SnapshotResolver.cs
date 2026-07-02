@@ -69,6 +69,7 @@ public sealed class SnapshotResolver
   private static SkillExecutionSnapshot BuildExecution(SkillBaseStats? s, SkillModifier? m)
   {
     float? Apply(float? v, float? mult) => v.HasValue ? v.Value * (mult ?? 1f) : null;
+
     return new SkillExecutionSnapshot(
         Apply(s?.BaseCooldown, m?.CooldownMultiplier),
         Apply(s?.BaseManaCost, m?.ManaCostMultiplier),
@@ -77,10 +78,11 @@ public sealed class SnapshotResolver
         Apply(s?.BaseShieldValue, m?.ShieldMultiplier),
         Apply(s?.BaseCastTime, m?.CastTimeMultiplier),
         Apply(s?.BaseChannelDuration, m?.ChannelDurationMultiplier),
-        Apply(s?.BaseRange, m?.RangeMultiplier),
-        Apply(s?.BaseCrowdControlDuration, m?.CrowdControlDurationMultiplier)
+        Apply(s?.BaseCrowdControlDuration, m?.CrowdControlDurationMultiplier), // ← 8th
+        Apply(s?.BaseRange, m?.RangeMultiplier)                 // ← 9th
     );
   }
+
 
   private static SkillEffectSnapshot BuildEffects(IEnumerable<SkillEffect> effects)
   {
