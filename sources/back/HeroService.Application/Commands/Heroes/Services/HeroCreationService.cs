@@ -1,5 +1,6 @@
 ﻿using Franz.Common.Business.Domain.Factories;
 using Franz.Common.Business.Repositories;
+using Franz.Common.Errors;
 using Franz.Common.Mediator.Context;
 using HeroService.Application.Commands.Heroes.Services;
 using HeroService.Contracts.DTOs.Requests;
@@ -76,22 +77,22 @@ public sealed class HeroCreationService : IHeroCreationService
     await _uniquenessValidator.EnsureUniqueHeroNameAsync(
         request.Name,
         cancellationToken);
-
+    if (string.IsNullOrWhiteSpace(request.Name))
+      throw new BusinessException("422", "Please provide a valid hero name.");
     // =====================================================
     // 1. Resolve reference data
     // =====================================================
 
     var mythology = await _mythologies.GetByNameAsync(request.Mythology, cancellationToken)
-        ?? throw new InvalidOperationException($"Mythology '{request.Mythology}' not found.");
-
+        ?? throw new BusinessException("422", "All Heroes Belong to a Mythology. Please provide a valid Mythology.");
     var heroClass = await _heroClasses.GetByNameAsync(request.HeroClass, cancellationToken)
-        ?? throw new InvalidOperationException($"HeroClass '{request.HeroClass}' not found.");
+        ?? throw new BusinessException("422", "All Heroes Posses a Class. Please provide a valid Class.");
 
     var archetype = await _archetypes.GetByNameAsync(request.Archetype, cancellationToken)
-        ?? throw new InvalidOperationException($"Archetype '{request.Archetype}' not found.");
+        ?? throw new BusinessException("422", "All Heroes Belong to an Archetype. Please provide a valid Archetype.");
 
     var culture = await _cultures.GetByNameAsync(request.Culture, cancellationToken)
-        ?? throw new InvalidOperationException($"Culture '{request.Culture}' not found.");
+        ?? throw new BusinessException("422", "All Heroes Belong to a Cutural Region. Please provide a valid Culture.");
 
     // =====================================================
     // 2. Create aggregate root
