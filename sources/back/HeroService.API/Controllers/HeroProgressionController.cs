@@ -8,7 +8,7 @@ namespace HeroService.Api.Controllers;
 
 
 [ApiController]
-[Route("api/v1/hero-progression")]
+[Route("hero-progression")]
 public sealed class HeroProgressionController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

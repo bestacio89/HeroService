@@ -9,7 +9,7 @@ namespace HeroService.Api.Controllers;
 
 
 [ApiController]
-[Route("api/v1/skill-scaling")]
+[Route("skill-scaling")]
 public sealed class SkillScalingModifierController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

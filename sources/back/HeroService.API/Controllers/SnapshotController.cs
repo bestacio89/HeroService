@@ -8,7 +8,7 @@ namespace HeroService.Api.Controllers;
 
 
 [ApiController]
-[Route("api/v1/snapshots/heroes")]
+[Route("snapshots/heroes")]
 public sealed class HeroSnapshotController : ControllerBase
 {
   private readonly IDispatcher _mediator;

@@ -9,7 +9,7 @@ namespace HeroService.Api.Controllers;
 
 
 [ApiController]
-[Route("api/v1/mythology-types")]
+[Route("mythology-types")]
 public sealed class MythologyTypeController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

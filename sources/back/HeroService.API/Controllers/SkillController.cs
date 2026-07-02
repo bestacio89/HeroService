@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HeroService.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/skills")]
+[Route("skills")]
 public sealed class SkillController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

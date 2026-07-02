@@ -10,7 +10,7 @@ namespace HeroService.Api.Controllers;
 
 
 [ApiController]
-[Route("api/v1/origin-archetypes")]
+[Route("origin-archetypes")]
 public sealed class OriginArchetypeController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

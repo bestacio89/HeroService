@@ -9,7 +9,7 @@ namespace HeroService.Api.Controllers;
 
 
 [ApiController]
-[Route("api/v1/game-versions")]
+[Route("game-versions")]
 public sealed class GameVersionController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

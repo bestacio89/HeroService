@@ -9,7 +9,7 @@ namespace HeroService.API.Controllers;
 
 
 [ApiController]
-[Route("api/v1/heroes")]
+[Route("heroes")]
 public sealed class HeroController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;

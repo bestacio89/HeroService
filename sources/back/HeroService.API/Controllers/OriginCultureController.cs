@@ -9,7 +9,7 @@ namespace HeroService.Api.Controllers;
 
 
 [ApiController]
-[Route("api/v1/origin-cultures")]
+[Route("origin-cultures")]
 public sealed class OriginCultureController : ControllerBase
 {
   private readonly IDispatcher _dispatcher;
