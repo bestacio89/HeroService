@@ -1,8 +1,7 @@
 ﻿using Franz.Common.Business.Repositories;
 using Franz.Common.Mediator.Context;
 using Franz.Common.Mediator.Handlers;
-using HeroService.Contracts.Commands.Heroes.Classifications.OriginArchetype;
-
+using HeroService.Contracts.Commands.Heroes.Classifications.OriginArchetypes;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
 
 namespace HeroService.Application.Commands.Heroes.Classifications.OriginArchetypes;

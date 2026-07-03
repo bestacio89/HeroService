@@ -1,6 +1,5 @@
 ﻿using Franz.Common.Mediator.Dispatchers;
-using HeroService.Contracts.Commands.Heroes.Classifications.NewFolder;
-using HeroService.Contracts.Commands.Heroes.Classifications.OriginArchetype;
+using HeroService.Contracts.Commands.Heroes.Classifications.OriginArchetypes;
 using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Contracts.Queries.Heroes.Classification.OriginArchetypes;
 using Microsoft.AspNetCore.Mvc;
