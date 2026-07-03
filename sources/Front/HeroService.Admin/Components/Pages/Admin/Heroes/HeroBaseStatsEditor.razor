@@ -167,5 +167,5 @@
 </MudExpansionPanel>
 
 @code {
-    [Parameter] public HeroCreateRequestDto Model { get; set; } = default!;
+    [Parameter, EditorRequired] public HeroCreateRequestDto Model { get; set; } = default!;
 }
