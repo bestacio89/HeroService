@@ -1,0 +1,41 @@
+﻿@page "/admin/heroes"
+@inject IHeroClient HeroClient
+@inject NavigationManager Nav
+
+<MudPaper Elevation="2" Class="pa-4">
+
+    <MudTable Items="_heroes"
+              Hover="true"
+              Bordered="true"
+              Striped="true"
+              Dense="true">
+
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Class</MudTh>
+            <MudTh>Culture</MudTh>
+            <MudTh>Mythology</MudTh>
+            <MudTh>Archetype</MudTh>
+        </HeaderContent>
+
+        <RowTemplate Context="hero">
+            <MudTd>@hero.Name</MudTd>
+            <MudTd>@hero.Class?.Name</MudTd>
+            <MudTd>@hero.Affiliation?.Culture?.Name</MudTd>
+            <MudTd>@hero.Affiliation?.Mythology?.Name</MudTd>
+            <MudTd>@hero.Affiliation?.Archetype?.Name</MudTd>
+        </RowTemplate>
+
+    </MudTable>
+
+</MudPaper>
+
+@code {
+    private List<HeroDto> _heroes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await HeroClient.BrowseAsync();
+        _heroes = result?.ToList() ?? new List<HeroDto>();
+    }
+}
