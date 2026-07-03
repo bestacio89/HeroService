@@ -1,0 +1,28 @@
+﻿@using System.Linq.Expressions
+@using HeroService.Contracts.DTOs.Heroes
+@using MudBlazor
+
+<MudSelect T="Guid"
+           Label="Origin Culture"
+           Value="Value"
+           ValueChanged="ValueChanged"
+           ValueExpression="ValueExpression">
+
+    @foreach (var item in Items)
+    {
+        <MudSelectItem T="Guid" Value="@item.Id">
+            @item.Name
+        </MudSelectItem>
+    }
+
+</MudSelect>
+
+@code {
+    [Parameter] public IReadOnlyList<OriginCultureDto> Items { get; set; } = [];
+
+    [Parameter] public Guid Value { get; set; }
+
+    [Parameter] public EventCallback<Guid> ValueChanged { get; set; }
+
+    [Parameter] public Expression<Func<Guid>>? ValueExpression { get; set; }
+}
