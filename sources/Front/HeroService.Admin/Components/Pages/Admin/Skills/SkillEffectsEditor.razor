@@ -1,0 +1,176 @@
+﻿@using HeroService.Contracts.DTOs.Skills
+@using HeroService.Domain.Heroes.Skills
+@using MudBlazor
+
+<MudExpansionPanel Text="Effects">
+
+    <MudStack Row="true" Spacing="2">
+        <MudButton Color="Color.Primary" OnClick="AddEffect">
+            Add Effect
+        </MudButton>
+    </MudStack>
+
+    @if (_effects.Count == 0)
+    {
+        <MudText Typo="Typo.caption" Class="mt-2">
+            No effects defined.
+        </MudText>
+    }
+
+    @for (int i = 0; i < _effects.Count; i++)
+    {
+        var index = i;
+
+        <MudPaper Class="pa-3 mt-3" Elevation="1">
+
+            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.subtitle2">Effect @index</MudText>
+
+                <MudButton Color="Color.Error"
+                           Size="Size.Small"
+                           OnClick="@(() => RemoveEffect(index))">
+                    Remove
+                </MudButton>
+            </MudStack>
+
+            <MudDivider Class="my-2" />
+
+            <MudGrid Spacing="2">
+
+                <MudItem xs="4">
+                    <MudSelect T="EffectType"
+                               Label="Effect Type"
+                               @bind-Value="_effects[index].EffectType">
+                        @foreach (var type in Enum.GetValues<EffectType>())
+                        {
+                            <MudSelectItem T="EffectType" Value="@type">@type</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudSelect T="TargetType"
+                               Label="Target Type"
+                               @bind-Value="_effects[index].TargetType">
+                        @foreach (var type in Enum.GetValues<TargetType>())
+                        {
+                            <MudSelectItem T="TargetType" Value="@type">@type</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudSelect T="StackType"
+                               Label="Stack Type"
+                               @bind-Value="_effects[index].StackType">
+                        @foreach (var type in Enum.GetValues<StackType>())
+                        {
+                            <MudSelectItem T="StackType" Value="@type">@type</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudNumericField T="float" Label="Magnitude"
+                                     @bind-Value="_effects[index].Magnitude" />
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudNumericField T="float" Label="Duration"
+                                     @bind-Value="_effects[index].Duration" />
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudNumericField T="float" Label="Radius"
+                                     @bind-Value="_effects[index].Radius" />
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudNumericField T="int" Label="Max Stacks"
+                                     @bind-Value="_effects[index].MaxStacks" />
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudCheckBox T="bool"
+                                 Label="Instant"
+                                 @bind-Checked="_effects[index].IsInstant" />
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudCheckBox T="bool"
+                                 Label="Periodic"
+                                 @bind-Checked="_effects[index].IsPeriodic" />
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudCheckBox T="bool"
+                                 Label="Channelled"
+                                 @bind-Checked="_effects[index].IsChannelled" />
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudNumericField T="float?"
+                                     Label="AD Ratio"
+                                     @bind-Value="_effects[index].AttackDamageRatio" />
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudNumericField T="float?"
+                                     Label="AP Ratio"
+                                     @bind-Value="_effects[index].AbilityPowerRatio" />
+                </MudItem>
+
+                <MudItem xs="4">
+                    <MudNumericField T="float?"
+                                     Label="Max HP Ratio"
+                                     @bind-Value="_effects[index].MaxHealthRatio" />
+                </MudItem>
+
+            </MudGrid>
+        </MudPaper>
+    }
+
+</MudExpansionPanel>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<SkillEffectDto> Effects { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<SkillEffectDto>> EffectsChanged { get; set; }
+
+    private List<SkillEffectDto> _effects = new();
+
+    protected override void OnParametersSet()
+    {
+        _effects = Effects ?? new List<SkillEffectDto>();
+    }
+
+    private async Task AddEffect()
+    {
+        _effects.Add(new SkillEffectDto
+        {
+            EffectType = EffectType.Damage,
+            TargetType = TargetType.Enemy,
+            StackType = StackType.None,
+            MaxStacks = 1
+        });
+
+        await Notify();
+    }
+
+    private async Task RemoveEffect(int index)
+    {
+        if (index < 0 || index >= _effects.Count)
+            return;
+
+        _effects.RemoveAt(index);
+        await Notify();
+    }
+
+    private async Task Notify()
+    {
+        if (EffectsChanged.HasDelegate)
+            await EffectsChanged.InvokeAsync(_effects);
+    }
+}
