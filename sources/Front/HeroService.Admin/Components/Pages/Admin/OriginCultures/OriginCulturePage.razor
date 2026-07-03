@@ -1,0 +1,66 @@
+﻿@page "/admin/origin-cultures"
+@using HeroService.Client.Http.Abstractions
+@using MudBlazor
+@using HeroService.Contracts.DTOs.Heroes
+@using HeroService.Contracts.Commands.Heroes.Classifications.OriginCulture
+@inject IOriginCultureClient Client
+@inject IDialogService DialogService
+
+<LifecycleAdminPage TDto="OriginCultureDto"
+                    TCreate="CreateOriginCultureCommand"
+                    TRename="RenameOriginCultureCommand"
+                    Title="Origin Cultures"
+                    Items="Items"
+                    IsLoading="IsLoading"
+                    OnRefresh="Load"
+                    OnCreate="Create"
+                    OnRename="Rename"
+                    OnRetire="Retire">
+
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+    </HeaderContent>
+
+    <RowTemplate Context="item">
+        <MudTd>@item.Name</MudTd>
+    </RowTemplate>
+
+</LifecycleAdminPage>
+
+@code {
+    private IReadOnlyList<OriginCultureDto> Items = [];
+    private bool IsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+        => await Load();
+
+    private async Task Load()
+    {
+        IsLoading = true;
+        Items = await Client.GetAllAsync();
+        IsLoading = false;
+    }
+
+    private async Task Create()
+    {
+        var dialog = await DialogService.ShowAsync<OriginCultureDialog>("Create");
+        await dialog.Result;
+        await Load();
+    }
+
+    private async Task Rename(OriginCultureDto item)
+    {
+        var dialog = await DialogService.ShowAsync<OriginCultureDialog>(
+            "Rename",
+            new DialogParameters { ["Item"] = item });
+
+        await dialog.Result;
+        await Load();
+    }
+
+    private async Task Retire(OriginCultureDto item)
+    {
+        await Client.RetireAsync(item.Id);
+        await Load();
+    }
+}
