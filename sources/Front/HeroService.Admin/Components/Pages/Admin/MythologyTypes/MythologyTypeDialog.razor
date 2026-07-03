@@ -1,0 +1,68 @@
+﻿@using HeroService.Client.Http.Abstractions
+@using HeroService.Contracts.Commands.Heroes.Classifications.MythologyTypes
+@using HeroService.Contracts.DTOs.Heroes
+@using MudBlazor
+@inject IMythologyTypeClient Client
+@inject MudBlazor.IMudDialogInstance MudDialog
+
+<MudDialog>
+    <DialogContent>
+
+        <MudText Typo="Typo.h6">
+            @(IsEdit ? "Rename Mythology Type" : "Create Mythology Type")
+        </MudText>
+
+        <MudTextField Label="Name"
+                      @bind-Value="Name"
+                      Required="true" />
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="Cancel">
+            Cancel
+        </MudButton>
+
+        <MudButton Color="Color.Primary"
+                   OnClick="Save"
+                   Disabled="@string.IsNullOrWhiteSpace(Name)">
+            Save
+        </MudButton>
+
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public MythologyTypeDto? Item { get; set; }
+
+    private string Name = string.Empty;
+    private bool IsEdit => Item is not null;
+
+    protected override void OnInitialized()
+    {
+        if (Item is not null)
+            Name = Item.Name;
+    }
+
+    private async Task Save()
+    {
+        if (IsEdit)
+        {
+            var command = new RenameMythologyTypeCommand(Item!.Id, Name);
+            await Client.RenameAsync(Item.Id, command);
+        }
+        else
+        {
+            var command = new CreateMythologyTypeCommand(Name);
+            await Client.CreateAsync(command);
+        }
+
+        MudDialog.Close();
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

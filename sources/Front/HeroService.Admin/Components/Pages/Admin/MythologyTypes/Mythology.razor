@@ -1,0 +1,65 @@
+﻿@page "/admin/mythology"
+@using HeroService.Client.Http.Abstractions
+@using MudBlazor
+@using HeroService.Contracts.DTOs.Heroes
+@using HeroService.Contracts.Commands.Heroes.Classifications.MythologyTypes
+@inject IMythologyTypeClient Client
+@inject IDialogService DialogService
+
+<LifecycleAdminPage TDto="MythologyTypeDto"
+                    TCreate="CreateMythologyTypeCommand"
+                    TRename="RenameMythologyTypeCommand"
+                    Title="Mythology Types"
+                    Items="Items"
+                    IsLoading="IsLoading"
+                    OnRefresh="Load"
+                    OnCreate="Create"
+                    OnRename="Rename"
+                    OnRetire="Retire">
+
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+    </HeaderContent>
+
+    <RowTemplate Context="item">
+        <MudTd>@item.Name</MudTd>
+    </RowTemplate>
+
+</LifecycleAdminPage>
+
+@code {
+    private IReadOnlyList<MythologyTypeDto> Items = [];
+    private bool IsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+        => await Load();
+
+    private async Task Load()
+    {
+        IsLoading = true;
+        Items = await Client.GetAllAsync();
+        IsLoading = false;
+    }
+
+    private async Task Create()
+    {
+        var dialog = await DialogService.ShowAsync<MythologyTypeDialog>("Create");
+        await dialog.Result;
+        await Load();
+    }
+
+    private async Task Rename(MythologyTypeDto item)
+    {
+        var dialog = await DialogService.ShowAsync<MythologyTypeDialog>("Rename",
+            new DialogParameters { ["Item"] = item });
+
+        await dialog.Result;
+        await Load();
+    }
+
+    private async Task Retire(MythologyTypeDto item)
+    {
+        await Client.RetireAsync(item.Id);
+        await Load();
+    }
+}
