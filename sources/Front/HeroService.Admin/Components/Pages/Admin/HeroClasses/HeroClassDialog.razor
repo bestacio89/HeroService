@@ -1,0 +1,79 @@
+﻿@using HeroService.Client.Http.Abstractions
+@using HeroService.Contracts.Commands.Heroes
+@using MudBlazor
+
+@inject IHeroClassClient Client
+@inject IMudDialogInstance MudDialog
+@inject ISnackbar Snackbar
+
+<MudDialog>
+
+    <DialogContent>
+
+        <MudText Typo="Typo.h6">Create Hero Class</MudText>
+
+        <MudTextField Label="Name"
+                      @bind-Value="Name"
+                      Required="true"
+                      Disabled="IsLoading" />
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="Cancel"
+                   Disabled="IsLoading">
+            Cancel
+        </MudButton>
+
+        <MudButton Color="Color.Primary"
+                   OnClick="Save"
+                   Disabled="@IsSaveDisabled">
+            Save
+        </MudButton>
+
+    </DialogActions>
+
+</MudDialog>
+@code {
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    private string Name = string.Empty;
+    private bool IsLoading = false;
+
+    private bool IsSaveDisabled =>
+        IsLoading || string.IsNullOrWhiteSpace(Name);
+
+    private async Task Save()
+    {
+        if (IsLoading)
+            return;
+
+        IsLoading = true;
+
+        try
+        {
+            await Client.CreateAsync(new CreateHeroClassCommand(Name));
+
+            Snackbar.Add("Hero Class created", Severity.Success);
+
+            if (OnSaved.HasDelegate)
+                await OnSaved.InvokeAsync();
+
+            MudDialog.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

@@ -1,0 +1,112 @@
+﻿@page "/admin/hero-classes"
+@using HeroService.Contracts.DTOs.Heroes
+@using MudBlazor
+@using HeroService.Client.Http.Abstractions
+@inject IHeroClassClient Client
+@inject IDialogService DialogService
+
+@page "/admin/hero-classes"
+
+@using HeroService.Contracts.DTOs.Heroes
+@using HeroService.Client.Http.Abstractions
+@inject IHeroClassClient Client
+@inject IDialogService DialogService
+
+<MudPaper Class="pa-4">
+
+    <MudStack Row="true"
+              Justify="Justify.SpaceBetween"
+              AlignItems="AlignItems.Center">
+
+        <MudText Typo="Typo.h5">Hero Classes</MudText>
+
+        <MudButton Color="Color.Primary"
+                   OnClick="OpenCreateDialog">
+            Create
+        </MudButton>
+
+    </MudStack>
+
+    <MudDivider Class="my-2" />
+
+    @if (IsLoading)
+    {
+        <MudProgressLinear Indeterminate="true" />
+    }
+    else if (!Items.Any())
+    {
+        <MudAlert Severity="Severity.Info">
+            No hero classes found
+        </MudAlert>
+    }
+    else
+    {
+        <MudTable Items="Items" Hover="true" Dense="true">
+
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh Style="width:120px;">Actions</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd>@context.Name</MudTd>
+
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Disabled="true" />
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Disabled="true" />
+                </MudTd>
+            </RowTemplate>
+
+        </MudTable>
+    }
+
+</MudPaper>
+@code {
+    private IReadOnlyCollection<HeroClassDto> Items = [];
+    private bool IsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        IsLoading = true;
+
+        try
+        {
+            Items = await Client.GetAllAsync();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            { "OnSaved", EventCallback.Factory.Create(this, Load) }
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Small
+        };
+
+        var dialog = await DialogService.ShowAsync<HeroClassDialog>(
+            "Create Hero Class",
+            parameters,
+            options);
+
+        await dialog.Result;
+    }
+}
+}
