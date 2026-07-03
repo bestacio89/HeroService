@@ -4,6 +4,7 @@ using Franz.Common.EntityFramework.Auditing;
 using HeroService.Application.Commands.Skills.Services;
 using HeroService.Contracts.Commands.Skills;
 using HeroService.Domain.Heroes.Skills;
+using Microsoft.Azure.Cosmos.Linq;
 
 namespace HeroService.Application.Commands.Skills.Services;
 
@@ -66,7 +67,7 @@ public sealed class SkillCreationService : ISkillCreationService
 
     skill.Define(
         request.Name,
-        ParseSkillType(request.SkillType),
+        request.skillType,
         createdBy
     );
 
@@ -111,12 +112,12 @@ public sealed class SkillCreationService : ISkillCreationService
 
           effect.Define(
               skill.Id,
-              ParseEffectType(dto.EffectType),
+              dto.EffectType,
               dto.Magnitude,
               dto.Duration,
               dto.Radius,
-              ParseTargetType(dto.TargetType),
-              ParseStackType(dto.StackType),
+              dto.TargetType,
+              dto.StackType,
               dto.MaxStacks,
               dto.AttackDamageRatio,
               dto.AbilityPowerRatio,
@@ -142,18 +143,6 @@ public sealed class SkillCreationService : ISkillCreationService
     return skill.Id;
   }
 
-  // =====================================================
-  // MAPPERS (still acceptable here)
-  // =====================================================
-  private static SkillType ParseSkillType(string type)
-    => Enum.Parse<SkillType>(type, ignoreCase: true);
 
-  private static EffectType ParseEffectType(string type)
-    => Enum.Parse<EffectType>(type, ignoreCase: true);
 
-  private static TargetType ParseTargetType(string type)
-    => Enum.Parse<TargetType>(type, ignoreCase: true);
-
-  private static StackType ParseStackType(string type)
-    => Enum.Parse<StackType>(type, ignoreCase: true);
 }

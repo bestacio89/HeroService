@@ -1,4 +1,6 @@
-﻿namespace HeroService.Contracts.DTOs.Skills;
+﻿using HeroService.Domain.Heroes.Skills;
+
+namespace HeroService.Contracts.DTOs.Skills;
 
 public sealed class SkillDto
 {
@@ -6,7 +8,7 @@ public sealed class SkillDto
 
   public string Name { get; set; } = string.Empty;
 
-  public string SkillType { get; set; } = string.Empty;
+  public SkillType SkillType { get; set; }
 
   public List<SkillEffectDto> Effects { get; set; } = new();
 

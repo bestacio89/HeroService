@@ -19,19 +19,19 @@ public sealed class SkillProfile : FranzMapProfile
 
           Name = skill.Name,
 
-          SkillType = skill.SkillType.ToString(),
+          SkillType = skill.SkillType,
 
           Effects = skill.Effects
               .Select(effect => new SkillEffectDto
               {
-                EffectType = effect.EffectType.ToString(),
+                EffectType = effect.EffectType,
 
                 Magnitude = effect.Magnitude,
                 Duration = effect.Duration,
                 Radius = effect.Radius,
 
-                TargetType = effect.TargetType.ToString(),
-                StackType = effect.StackType.ToString(),
+                TargetType = effect.TargetType,
+                StackType = effect.StackType,
 
                 MaxStacks = effect.MaxStacks,
 
@@ -68,14 +68,14 @@ public sealed class SkillProfile : FranzMapProfile
     CreateMap<SkillEffect, SkillEffectDto>()
         .ConstructUsing(effect => new SkillEffectDto
         {
-          EffectType = effect.EffectType.ToString(),
+          EffectType = effect.EffectType,
 
           Magnitude = effect.Magnitude,
           Duration = effect.Duration,
           Radius = effect.Radius,
 
-          TargetType = effect.TargetType.ToString(),
-          StackType = effect.StackType.ToString(),
+          TargetType = effect.TargetType,
+          StackType = effect.StackType,
 
           MaxStacks = effect.MaxStacks,
 
