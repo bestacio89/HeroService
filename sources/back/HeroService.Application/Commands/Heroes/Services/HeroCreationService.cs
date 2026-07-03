@@ -7,6 +7,7 @@ using HeroService.Contracts.DTOs.Requests;
 using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Contracts.Persistence.Skills;
 using HeroService.Domain.Heroes.Affiliations;
+using HeroService.Domain.Heroes.Affiliations.Classifications;
 using HeroService.Domain.Heroes.Core;
 using HeroService.Domain.Heroes.Core.Skills;
 using HeroService.Domain.Heroes.Skills;
@@ -21,11 +22,11 @@ public sealed class HeroCreationService : IHeroCreationService
   private readonly IEntityRepository<HeroBaseStats, Guid> _baseStatsRepository;
   private readonly IEntityRepository<HeroLore, Guid> _loreRepository;
 
-  private readonly IMythologyRepository _mythologies;
-  private readonly IHeroClassRepository _heroClasses;
-  private readonly IArchetypeRepository _archetypes;
-  private readonly IOriginCultureRepository _cultures;
-
+  private readonly IEntityRepository<MythologyType, Guid> _mythologies;
+  private readonly IEntityRepository<HeroClass, Guid> _heroClasses;
+  private readonly IEntityRepository<OriginArchetype, Guid> _archetypes;
+  private readonly IEntityRepository<OriginCulture, Guid> _cultures;
+  
   private readonly ISkillRepository _skills;
 
   private readonly IHeroUniquenessValidator _uniquenessValidator;
@@ -39,10 +40,11 @@ public sealed class HeroCreationService : IHeroCreationService
       IEntityRepository<HeroBaseStats, Guid> baseStatsRepository,
       IEntityRepository<HeroLore, Guid> loreRepository,
 
-      IMythologyRepository mythologies,
-      IHeroClassRepository heroClasses,
-      IArchetypeRepository archetypes,
-      IOriginCultureRepository cultures,
+
+      IEntityRepository<MythologyType, Guid> mythologies,
+      IEntityRepository<HeroClass, Guid> heroClasses,
+      IEntityRepository<OriginArchetype, Guid> archetypes,
+     IEntityRepository<OriginCulture, Guid> cultures,
       ISkillRepository skills,
 
       IHeroUniquenessValidator uniquenessValidator)
@@ -83,15 +85,15 @@ public sealed class HeroCreationService : IHeroCreationService
     // 1. Resolve reference data
     // =====================================================
 
-    var mythology = await _mythologies.GetByNameAsync(request.Mythology, cancellationToken)
+    var mythology = await _mythologies.GetByIdAsync(request.MythologyTypeId, cancellationToken)
         ?? throw new BusinessException("422", "All Heroes Belong to a Mythology. Please provide a valid Mythology.");
-    var heroClass = await _heroClasses.GetByNameAsync(request.HeroClass, cancellationToken)
+    var heroClass = await _heroClasses.GetByIdAsync(request.HeroClassId, cancellationToken)
         ?? throw new BusinessException("422", "All Heroes Posses a Class. Please provide a valid Class.");
 
-    var archetype = await _archetypes.GetByNameAsync(request.Archetype, cancellationToken)
+    var archetype = await _archetypes.GetByIdAsync(request.OriginArchetypeId, cancellationToken)
         ?? throw new BusinessException("422", "All Heroes Belong to an Archetype. Please provide a valid Archetype.");
 
-    var culture = await _cultures.GetByNameAsync(request.Culture, cancellationToken)
+    var culture = await _cultures.GetByIdAsync(request.OriginArchetypeId, cancellationToken)
         ?? throw new BusinessException("422", "All Heroes Belong to a Cutural Region. Please provide a valid Culture.");
 
     // =====================================================
