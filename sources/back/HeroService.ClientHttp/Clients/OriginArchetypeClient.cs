@@ -1,6 +1,5 @@
 ﻿using HeroService.Client.Http.Abstractions;
-using HeroService.Contracts.Commands.Heroes.Classifications.NewFolder;
-using HeroService.Contracts.Commands.Heroes.Classifications.OriginArchetype;
+using HeroService.Contracts.Commands.Heroes.Classifications.OriginArchetypes;
 using HeroService.Contracts.DTOs.Heroes;
 using System;
 using System.Net.Http.Json;

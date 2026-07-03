@@ -1,20 +1,17 @@
-﻿using HeroService.Contracts.DTOs.Heroes;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using HeroService.Contracts.Commands.Heroes;
+using HeroService.Contracts.DTOs.Heroes;
 
 namespace HeroService.Client.Http.Abstractions;
 
 public interface IHeroClassClient
 {
-  Task<HeroClassDto?> GetByIdAsync(
-      Guid id,
-      CancellationToken cancellationToken = default);
+  // READ
+  Task<IReadOnlyCollection<HeroClassDto>> GetAllAsync(CancellationToken ct = default);
 
-  Task<HeroClassDto?> GetByNameAsync(
-      string name,
-      CancellationToken cancellationToken = default);
+  Task<HeroClassDto?> GetByIdAsync(Guid id, CancellationToken ct = default);
 
-  Task<IReadOnlyCollection<HeroClassDto>> GetAllAsync(
-      CancellationToken cancellationToken = default);
+  Task<HeroClassDto?> GetByNameAsync(string name, CancellationToken ct = default);
+
+  // WRITE (matches controller POST)
+  Task<Guid> CreateAsync(CreateHeroClassCommand command, CancellationToken ct = default);
 }
