@@ -1,0 +1,51 @@
+﻿@page "/admin/mythology-types"
+@using HeroService.Contracts.DTOs.Heroes
+@using HeroService.Client.Http.Abstractions
+@inject IMythologyTypeClient MythologyTypeClient
+@inject NavigationManager Nav
+
+<MudPaper Class="pa-4">
+
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h5">Mythology Types</MudText>
+
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   OnClick="@(() => Nav.NavigateTo("/admin/mythology-types/create"))">
+            Create Mythology Type
+        </MudButton>
+    </MudStack>
+
+    <MudDivider Class="my-3" />
+
+    <MudTable Items="_items" Hover="true" Striped="true">
+
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+
+        <RowTemplate Context="item">
+            <MudTd>@item.Name</MudTd>
+
+            <MudTd>
+                <MudButton Size="Size.Small"
+                           OnClick="@(() => Nav.NavigateTo($"/admin/mythology-types/{item.Id}"))">
+                    Manage
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+
+    </MudTable>
+
+</MudPaper>
+
+@code {
+    private List<MythologyTypeDto> _items = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await MythologyTypeClient.GetAllAsync();
+        _items = result?.ToList() ?? new();
+    }
+}
