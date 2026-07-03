@@ -1,0 +1,171 @@
+﻿@using HeroService.Contracts.DTOs.Requests
+@using MudBlazor
+
+<MudExpansionPanel Text="Base Stats">
+
+    <!-- CORE -->
+    <MudExpansionPanel Text="Core Survivability" Dense="true">
+
+        <MudGrid Spacing="2">
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Base Health"
+                                 @bind-Value="Model.BaseStats.BaseHealth" />
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Base Mana"
+                                 @bind-Value="Model.BaseStats.BaseMana" />
+            </MudItem>
+
+        </MudGrid>
+
+    </MudExpansionPanel>
+
+    <!-- DAMAGE -->
+    <MudExpansionPanel Text="Damage Profile" Dense="true">
+
+        <MudGrid Spacing="2">
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Attack Damage"
+                                 @bind-Value="Model.BaseStats.BaseAttackDamage" />
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Ability Power"
+                                 @bind-Value="Model.BaseStats.BaseAbilityPower" />
+            </MudItem>
+
+        </MudGrid>
+
+    </MudExpansionPanel>
+
+    <!-- TEMPO -->
+    <MudExpansionPanel Text="Combat Tempo" Dense="true">
+
+        <MudGrid Spacing="2">
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Attack Speed"
+                                 @bind-Value="Model.BaseStats.BaseAttackSpeed" />
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Cast Speed"
+                                 @bind-Value="Model.BaseStats.BaseCastSpeed" />
+            </MudItem>
+
+        </MudGrid>
+
+    </MudExpansionPanel>
+
+    <!-- CRITICAL -->
+    <MudExpansionPanel Text="Critical Profile" Dense="true">
+
+        <MudGrid Spacing="2">
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Crit Chance"
+                                 @bind-Value="Model.BaseStats.BaseCritChance" />
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Crit Damage Multiplier"
+                                 @bind-Value="Model.BaseStats.BaseCritDamageMultiplier" />
+            </MudItem>
+
+        </MudGrid>
+
+    </MudExpansionPanel>
+
+    <!-- DEFENSE -->
+    <MudExpansionPanel Text="Defensive Profile" Dense="true">
+
+        <MudGrid Spacing="2">
+
+            <MudItem xs="4">
+                <MudNumericField T="float"
+                                 Label="Armor"
+                                 @bind-Value="Model.BaseStats.BaseArmor" />
+            </MudItem>
+
+            <MudItem xs="4">
+                <MudNumericField T="float"
+                                 Label="Magic Resistance"
+                                 @bind-Value="Model.BaseStats.BaseMagicResistance" />
+            </MudItem>
+
+            <MudItem xs="4">
+                <MudNumericField T="float"
+                                 Label="Damage Reduction"
+                                 @bind-Value="Model.BaseStats.BaseDamageReduction" />
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Shield Multiplier"
+                                 @bind-Value="Model.BaseStats.BaseShieldStrengthMultiplier" />
+            </MudItem>
+
+        </MudGrid>
+
+    </MudExpansionPanel>
+
+    <!-- POSITION -->
+    <MudExpansionPanel Text="Positioning" Dense="true">
+
+        <MudGrid Spacing="2">
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Movement Speed"
+                                 @bind-Value="Model.BaseStats.BaseMovementSpeed" />
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Attack Range"
+                                 @bind-Value="Model.BaseStats.BaseAttackRange" />
+            </MudItem>
+
+        </MudGrid>
+
+    </MudExpansionPanel>
+
+    <!-- RESOURCE -->
+    <MudExpansionPanel Text="Resource & Sustain" Dense="true">
+
+        <MudGrid Spacing="2">
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Cooldown Reduction"
+                                 @bind-Value="Model.BaseStats.BaseCooldownReduction" />
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Resource Regeneration"
+                                 @bind-Value="Model.BaseStats.BaseResourceRegeneration" />
+            </MudItem>
+
+        </MudGrid>
+
+    </MudExpansionPanel>
+
+ 
+      
+</MudExpansionPanel>
+
+@code {
+    [Parameter] public HeroCreateRequestDto Model { get; set; } = default!;
+}

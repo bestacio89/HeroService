@@ -1,0 +1,88 @@
+﻿@using HeroService.Client.Http.Abstractions
+@using HeroService.Contracts.DTOs.Heroes
+@using HeroService.Contracts.DTOs.Requests
+@using MudBlazor
+@inject IHeroClassClient HeroClassClient
+@inject IMythologyTypeClient MythologyClient
+@inject IOriginCultureClient CultureClient
+@inject IOriginArchetypeClient ArchetypeClient
+
+<MudGrid Spacing="2">
+
+    <MudItem xs="12" sm="6">
+        <MudSelect T="Guid"
+                   Label="Hero Class"
+                   @bind-Value="Model.HeroClassId">
+            @foreach (var item in HeroClasses)
+            {
+                <MudSelectItem T="Guid" Value="@item.Id">
+                    @item.Name
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="6">
+        <MudSelect T="Guid"
+                   Label="Mythology"
+                   @bind-Value="Model.MythologyTypeId">
+            @foreach (var item in Mythologies)
+            {
+                <MudSelectItem T="Guid" Value="@item.Id">
+                    @item.Name
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="6">
+        <MudSelect T="Guid"
+                   Label="Origin Culture"
+                   @bind-Value="Model.OriginCultureId">
+            @foreach (var item in Cultures)
+            {
+                <MudSelectItem T="Guid" Value="@item.Id">
+                    @item.Name
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="6">
+        <MudSelect T="Guid"
+                   Label="Origin Archetype"
+                   @bind-Value="Model.OriginArchetypeId">
+            @foreach (var item in Archetypes)
+            {
+                <MudSelectItem T="Guid" Value="@item.Id">
+                    @item.Name
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+</MudGrid>
+
+@code {
+    [Parameter] public HeroCreateRequestDto Model { get; set; } = default!;
+
+    private IReadOnlyCollection<HeroClassDto> HeroClasses = [];
+    private IReadOnlyCollection<MythologyTypeDto> Mythologies = [];
+    private IReadOnlyCollection<OriginCultureDto> Cultures = [];
+    private IReadOnlyCollection<OriginArchetypeDto> Archetypes = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var heroClassesTask = HeroClassClient.GetAllAsync();
+        var mythTask = MythologyClient.GetAllAsync();
+        var cultureTask = CultureClient.GetAllAsync();
+        var archetypeTask = ArchetypeClient.GetAllAsync();
+
+        await Task.WhenAll(heroClassesTask, mythTask, cultureTask, archetypeTask);
+
+        HeroClasses = await heroClassesTask;
+        Mythologies = await mythTask;
+        Cultures = await cultureTask;
+        Archetypes = await archetypeTask;
+    }
+}

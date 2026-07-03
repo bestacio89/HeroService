@@ -1,0 +1,24 @@
+﻿@using HeroService.Contracts.DTOs.Requests
+@using MudBlazor
+
+<MudExpansionPanel Text="Lore">
+
+    <MudTextField Label="Title"
+                  @bind-Value="Model.Lore.Title"
+                  Immediate="true" />
+
+    <MudTextField Label="Description"
+                  Lines="3"
+                  @bind-Value="Model.Lore.Description"
+                  Immediate="true" />
+
+    <MudTextField Label="Background Story"
+                  Lines="8"
+                  @bind-Value="Model.Lore.BackgroundStory"
+                  Immediate="true" />
+
+</MudExpansionPanel>
+
+@code {
+    [Parameter] public HeroCreateRequestDto Model { get; set; } = default!;
+}
