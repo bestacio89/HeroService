@@ -1,38 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HeroService.Contracts.DTOs.Requests;
+﻿namespace HeroService.Contracts.DTOs.Requests;
 
 public sealed class HeroBaseStatsCreateRequestDto
 {
-  public float BaseHealth { get; init; }
-  public float BaseMana { get; init; }
+  // =========================
+  // CORE SURVIVABILITY
+  // =========================
+  public float BaseHealth { get; set; }
+  public float BaseMana { get; set; }
 
-  public float BaseAttackDamage { get; init; }
-  public float BaseAbilityPower { get; init; }
+  // =========================
+  // DAMAGE PROFILE
+  // =========================
+  public float BaseAttackDamage { get; set; }
+  public float BaseAbilityPower { get; set; }
 
-  public float BaseAttackSpeed { get; init; }
-  public float BaseCritChance { get; init; }
-  public float BaseCritDamageMultiplier { get; init; }
+  // =========================
+  // TEMPO / COMBAT FLOW
+  // =========================
+  public float BaseAttackSpeed { get; set; }
+  public float BaseCastSpeed { get; set; }
 
-  public float BaseArmor { get; init; }
-  public float BaseMagicResistance { get; init; }
+  // =========================
+  // CRITICAL PROFILE
+  // =========================
+  public float BaseCritChance { get; set; }
+  public float BaseCritDamageMultiplier { get; set; }
 
-  public float BaseDamageReduction { get; init; }   // ✅ ADD
+  // =========================
+  // DEFENSIVE PROFILE
+  // =========================
+  public float BaseArmor { get; set; }
+  public float BaseMagicResistance { get; set; }
+  public float BaseDamageReduction { get; set; }
+  public float BaseShieldStrengthMultiplier { get; set; }
 
-  public float BaseShieldStrengthMultiplier { get; init; } // ✅ ADD
+  // =========================
+  // POSITIONING PROFILE
+  // =========================
+  public float BaseMovementSpeed { get; set; }
+  public float BaseAttackRange { get; set; }
 
-  public float BaseMovementSpeed { get; init; }
-  public float BaseAttackRange { get; init; }
-
-  public float BaseCastSpeed { get; init; } // optional but consistent
-
-  public float BaseCooldownReduction { get; init; }
-  public float BaseResourceRegeneration { get; init; }
-
-  public float HealthScalingPerLevel { get; init; }
-  public float ManaScalingPerLevel { get; init; }
-  public float AttackDamageScalingPerLevel { get; init; }
-  public float AbilityPowerScalingPerLevel { get; init; }
+  // =========================
+  // RESOURCE PROFILE
+  // =========================
+  public float BaseCooldownReduction { get; set; }
+  public float BaseResourceRegeneration { get; set; }
 }
