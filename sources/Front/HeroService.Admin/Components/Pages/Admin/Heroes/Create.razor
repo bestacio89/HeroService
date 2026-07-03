@@ -1,0 +1,46 @@
+﻿@page "/admin/heroes/create"
+@using HeroService.Client.Http.Abstractions
+@using HeroService.Contracts.DTOs.Requests
+@using MudBlazor
+
+@inject IHeroClient HeroClient
+@inject IDialogService DialogService
+
+<MudPaper Class="pa-4">
+
+    <MudText Typo="Typo.h5">Create Hero</MudText>
+
+    <MudDivider Class="my-2" />
+
+    <MudStack Spacing="3">
+
+        <MudTextField Label="Name"
+                      @bind-Value="Model.Name" />
+
+        <HeroAffiliationSelector Model="Model" />
+
+        <HeroBaseStatsEditor Model="Model.BaseStats" />
+
+        <HeroSkillKitEditor Model="Model.SkillKit" />
+
+        <HeroLoreEditor Model="Model.Lore" />
+
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   OnClick="CreateHero">
+            Create
+        </MudButton>
+
+    </MudStack>
+
+</MudPaper>
+@code {
+    private HeroCreateRequestDto Model = new();
+
+    private async Task CreateHero()
+    {
+        var id = await HeroClient.CreateAsync(Model);
+
+        // optional navigation later
+    }
+}

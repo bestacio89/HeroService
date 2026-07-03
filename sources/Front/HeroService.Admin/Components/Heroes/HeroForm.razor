@@ -1,0 +1,42 @@
+﻿@using HeroService.Contracts.DTOs.Heroes
+@using MudBlazor
+<MudForm>
+
+    <MudTextField T="string"
+                  Label="Hero Name"
+                  Value="Model.Name"
+                  ValueChanged="v => Model.Name = v" />
+
+    <HeroClassSelector Items="HeroClasses"
+                       Value="Model.HeroClassId"
+                       ValueChanged="v => Model.HeroClassId = v"
+                       ValueExpression="() => Model.HeroClassId" />
+
+    <MythologyTypeSelector Items="Mythologies"
+                            Value="Model.MythologyId"
+                            ValueChanged="v => Model.MythologyId = v"
+                            ValueExpression="() => Model.MythologyId" />
+
+    <OriginCultureSelector Items="Cultures"
+                           Value="Model.OriginCultureId"
+                           ValueChanged="v => Model.OriginCultureId = v"
+                           ValueExpression="() => Model.OriginCultureId" />
+
+    <OriginArchetypeSelector Items="Archetypes"
+                             Value="Model.OriginArchetypeId"
+                             ValueChanged="v => Model.OriginArchetypeId = v"
+                             ValueExpression="() => Model.OriginArchetypeId" />
+
+</MudForm>
+
+@code {
+    [Parameter] public HeroCreateModel Model { get; set; } = default!;
+
+    [Parameter] public IReadOnlyList<HeroClassDto> HeroClasses { get; set; } = [];
+
+    [Parameter] public IReadOnlyList<MythologyTypeDto> Mythologies { get; set; } = [];
+
+    [Parameter] public IReadOnlyList<OriginCultureDto> Cultures { get; set; } = [];
+
+    [Parameter] public IReadOnlyList<OriginArchetypeDto> Archetypes { get; set; } = [];
+}
