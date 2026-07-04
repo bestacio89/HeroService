@@ -2,9 +2,7 @@
 using Franz.Common.Business.Repositories;
 using Franz.Common.Mediator.Pipelines.Core;
 using HeroService.Contracts.Persistence.GameVersions;
-using HeroService.Contracts.Persistence.Skills;
 using HeroService.Domain.Heroes.Skills;
-using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 
 namespace HeroService.Persistence.Seeding;
 
@@ -12,183 +10,149 @@ public sealed class SkillSeeder : ISeeder
 {
   public int Order => 4;
 
+  private readonly IEntityFactory<Guid, Skill> _skillFactory;
   private readonly IEntityFactory<Guid, SkillBaseStats> _baseStatsFactory;
-  private readonly IEntityRepository<SkillBaseStats, Guid> _baseStatsRepo;
-
   private readonly IEntityFactory<Guid, SkillEffect> _effectFactory;
+
+  private readonly IEntityRepository<Skill, Guid> _skills;
+  private readonly IEntityRepository<SkillBaseStats, Guid> _baseStatsRepo;
   private readonly IEntityRepository<SkillEffect, Guid> _effectRepo;
 
-  private readonly ISkillRepository _skills;
   private readonly IGameVersionRepository _versions;
   private readonly IUnitOfWork _uow;
 
   public SkillSeeder(
+      IEntityFactory<Guid, Skill> skillFactory,
       IEntityFactory<Guid, SkillBaseStats> baseStatsFactory,
-      IEntityRepository<SkillBaseStats, Guid> baseStatsRepo,
       IEntityFactory<Guid, SkillEffect> effectFactory,
+      IEntityRepository<Skill, Guid> skills,
+      IEntityRepository<SkillBaseStats, Guid> baseStatsRepo,
       IEntityRepository<SkillEffect, Guid> effectRepo,
-      ISkillRepository skills,
       IGameVersionRepository versions,
       IUnitOfWork uow)
   {
+    _skillFactory = skillFactory;
     _baseStatsFactory = baseStatsFactory;
-    _baseStatsRepo = baseStatsRepo;
     _effectFactory = effectFactory;
-    _effectRepo = effectRepo;
+
     _skills = skills;
+    _baseStatsRepo = baseStatsRepo;
+    _effectRepo = effectRepo;
+
     _versions = versions;
     _uow = uow;
   }
 
   public async Task SeedAsync(CancellationToken ct)
   {
-    if ((await _baseStatsRepo.GetAllAsync(ct)).Any())
+    if ((await _skills.GetAllAsync(ct)).Any())
       return;
 
-    var version = await _versions.GetByVersionNumberAsync("1.0.0", ct)
-        ?? throw new InvalidOperationException("Missing GameVersion 1.0.0");
 
-    // =====================================================
-    // LOAD SKILLS
-    // =====================================================
 
-    var mjolnir = await GetSkill("Mjolnir Strike", ct);
-    var thunderLeap = await GetSkill("Thunder Leap", ct);
-    var stormAura = await GetSkill("Storm Aura", ct);
-    var lightningChain = await GetSkill("Lightning Chain", ct);
-    var thorUlt = await GetSkill("God of Thunder", ct);
+    var skills = new List<Skill>
+    {
+      CreateSkill("Mjolnir Strike", SkillType.Damage, 6f, 40f, 120f,
+        EffectType.Damage, EffectType.CrowdControl),
 
-    var lionsMight = await GetSkill("Lion's Might", ct);
-    var hydraStrike = await GetSkill("Hydra Strike", ct);
-    var titanGrip = await GetSkill("Titan Grip", ct);
-    var laborsRush = await GetSkill("Labors Rush", ct);
-    var heraUlt = await GetSkill("Divine Endurance", ct);
+      CreateSkill("Thunder Leap", SkillType.Mobility, 8f, 50f, 80f,
+        EffectType.Mobility, EffectType.Damage),
 
-    // =====================================================
-    // SKILL DEFINITIONS
-    // =====================================================
+      CreateSkill("Storm Aura", SkillType.Shield, 12f, 60f, 0f,
+        EffectType.Shield, EffectType.Utility),
 
-    await DefineSkill(mjolnir.Id, ct,
-      cooldown: 6f, mana: 40f, damage: 120f,
-      effects: new[] { EffectType.Damage });
+      CreateSkill("Lightning Chain", SkillType.Damage, 5f, 35f, 90f,
+        EffectType.Damage, EffectType.ZoneControl),
 
-    await DefineSkill(thunderLeap.Id, ct,
-      cooldown: 8f, mana: 50f, damage: 80f,
-      effects: new[] { EffectType.Damage, EffectType.Mobility });
+      CreateSkill("God of Thunder", SkillType.Ultimate, 90f, 100f, 300f,
+        EffectType.Damage, EffectType.CrowdControl),
 
-    await DefineSkill(stormAura.Id, ct,
-      cooldown: 12f, mana: 60f, shield: 100f,
-      effects: new[] { EffectType.Shield, EffectType.Utility });
+      CreateSkill("Lion's Might", SkillType.Buff, 7f, 30f, 100f,
+        EffectType.Damage, EffectType.Shield),
 
-    await DefineSkill(lightningChain.Id, ct,
-      cooldown: 5f, mana: 35f, damage: 90f,
-      effects: new[] { EffectType.Damage, EffectType.ZoneControl });
+      CreateSkill("Hydra Strike", SkillType.Damage, 4f, 25f, 140f,
+        EffectType.Damage, EffectType.DamageOverTime),
 
-    await DefineSkill(thorUlt.Id, ct,
-      cooldown: 90f, mana: 100f, damage: 300f,
-      effects: new[]
-      {
-        EffectType.Damage,
-        EffectType.CrowdControl,
-        EffectType.ZoneControl
-      });
+      CreateSkill("Titan Grip", SkillType.Shield, 10f, 40f, 0f,
+        EffectType.Shield, EffectType.Buff),
 
-    await DefineSkill(lionsMight.Id, ct,
-      cooldown: 7f, mana: 30f, damage: 100f,
-      effects: new[] { EffectType.Damage, EffectType.Shield });
+      CreateSkill("Labors Rush", SkillType.Mobility, 9f, 45f, 0f,
+        EffectType.Mobility, EffectType.Utility),
 
-    await DefineSkill(hydraStrike.Id, ct,
-      cooldown: 4f, mana: 25f, damage: 140f,
-      effects: new[] { EffectType.Damage });
+      CreateSkill("Divine Endurance", SkillType.Ultimate, 85f, 120f, 0f,
+        EffectType.Shield, EffectType.Utility)
+    };
 
-    await DefineSkill(titanGrip.Id, ct,
-      cooldown: 10f, mana: 40f, shield: 150f,
-      effects: new[] { EffectType.Shield });
-
-    await DefineSkill(laborsRush.Id, ct,
-      cooldown: 9f, mana: 45f,
-      effects: new[] { EffectType.Mobility, EffectType.Utility });
-
-    await DefineSkill(heraUlt.Id, ct,
-      cooldown: 85f, mana: 120f, shield: 200f,
-      effects: new[] { EffectType.Shield, EffectType.Utility });
+    foreach (var skill in skills)
+      await _skills.AddAsync(skill, ct);
 
     await _uow.CommitAsync(ct);
   }
 
-  // =====================================================
-  // CORE CREATION
-  // =====================================================
-
-  private async Task DefineSkill(
-      Guid skillId,
-      CancellationToken ct,
-      float cooldown = 0f,
-      float mana = 0f,
-      float damage = 0f,
-      float healing = 0f,
-      float shield = 0f,
-      float cast = 0f,
-      float channel = 0f,
-      float cc = 0f,
-      float range = 0f,
-      EffectType[] effects = null!)
+  // -------------------------
+  // Aggregate construction only
+  // -------------------------
+  private Skill CreateSkill(
+      string name,
+      SkillType type,
+      float cooldown,
+      float mana,
+      float damage,
+      EffectType effectA,
+      EffectType effectB)
   {
-    // -------------------------
-    // BASE STATS
-    // -------------------------
-    var baseStats = _baseStatsFactory.Create();
+    var skill = _skillFactory.Create();
 
-    baseStats.Define(
-      skillId,
+    skill.Define(name, type, "skill-seeder");
+
+    var stats = _baseStatsFactory.Create();
+    stats.Define(
+      skill.Id,
       cooldown,
       mana,
       damage,
-      healing,
-      shield,
-      cast,
-      channel,
-      cc,
-      range,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
       "skill-seeder"
     );
 
-    await _baseStatsRepo.AddAsync(baseStats, ct);
+    skill.SetBaseStats(stats);
 
-    // -------------------------
-    // EFFECTS
-    // -------------------------
-    effects ??= Array.Empty<EffectType>();
+    skill.AddEffect(CreateEffect(skill.Id, effectA));
+    skill.AddEffect(CreateEffect(skill.Id, effectB));
 
-    foreach (var effect in effects)
-    {
-      var e = _effectFactory.Create();
-
-      e.Define(
-        skillId: skillId,
-        effectType: effect,
-        magnitude: 1f,
-        duration: 0f,
-        radius: 0f,
-        targetType: TargetType.Enemy,
-        stackType: StackType.None,
-        maxStacks: 0,
-        adRatio: null,
-        apRatio: null,
-        hpRatio: null,
-        isPeriodic: false,
-        isInstant: true,
-        isChannelled: false,
-        createdBy: "skill-seeder"
-      );
-
-      await _effectRepo.AddAsync(e, ct);
-    }
+    return skill;
   }
 
-  private async Task<Skill> GetSkill(string name, CancellationToken ct)
+  // -------------------------
+  // Effect factory (pure)
+  // -------------------------
+  private SkillEffect CreateEffect(Guid skillId, EffectType type)
   {
-    return await _skills.GetByNameAsync(name, ct)
-        ?? throw new InvalidOperationException($"Missing skill: {name}");
+    var effect = _effectFactory.Create();
+
+    effect.Define(
+      skillId,
+      type,
+      magnitude: 1f,
+      duration: 0f,
+      radius: 0f,
+      targetType: TargetType.Enemy,
+      stackType: StackType.None,
+      maxStacks: 0,
+      adRatio: null,
+      apRatio: null,
+      hpRatio: null,
+      isPeriodic: false,
+      isInstant: true,
+      isChannelled: false,
+      createdBy: "skill-seeder"
+    );
+
+    return effect;
   }
 }

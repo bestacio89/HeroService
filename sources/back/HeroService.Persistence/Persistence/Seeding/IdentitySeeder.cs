@@ -55,7 +55,7 @@ public sealed class IdentitySeeder : ISeeder
     var system = "seed-system";
 
     // =========================================================
-    // HERO CLASSES
+    // HERO CLASSES (GAMEPLAY ROLE AXIS)
     // =========================================================
     await SeedClass("Warrior", system, ct);
     await SeedClass("Tank", system, ct);
@@ -65,13 +65,13 @@ public sealed class IdentitySeeder : ISeeder
     await SeedClass("Support", system, ct);
 
     // =========================================================
-    // ARCHETYPES
+    // ORIGIN ARCHETYPES (ONTOLOGICAL IDENTITY ONLY)
     // =========================================================
-    await SeedArchetype("Bruiser", system, ct);
     await SeedArchetype("Divine", system, ct);
-    await SeedArchetype("Trickster", system, ct);
-    await SeedArchetype("Berserker", system, ct);
-    await SeedArchetype("Protector", system, ct);
+    await SeedArchetype("Demigod", system, ct);
+    await SeedArchetype("Demon-Bound", system, ct);
+    await SeedArchetype("Cursed", system, ct);
+    await SeedArchetype("Hybrid", system, ct);
 
     // =========================================================
     // MYTHOLOGIES
