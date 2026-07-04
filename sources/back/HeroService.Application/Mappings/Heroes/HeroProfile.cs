@@ -60,8 +60,6 @@ public class HeroProfile : FranzMapProfile
                 ) : null!
             ));
 
-    CreateMap<HeroBaseStats, HeroBaseStatsDto>();
-    CreateMap<HeroSkillKit, HeroSkillKitDto>();
     CreateMap<HeroClass, HeroClassDto>()
         .ConstructUsing(src => new HeroClassDto(
             src.Id,
