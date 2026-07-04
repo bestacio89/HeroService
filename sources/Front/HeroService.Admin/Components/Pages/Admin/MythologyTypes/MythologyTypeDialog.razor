@@ -1,5 +1,4 @@
 ﻿@inject IMythologyTypeClient Client
-@inject MudBlazor.IMudDialogInstance MudDialog
 
 <MudDialog>
     <DialogContent>
@@ -30,6 +29,7 @@
 </MudDialog>
 
 @code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public MythologyTypeDto? Item { get; set; }
 
     private string Name = string.Empty;

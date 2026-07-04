@@ -7,74 +7,90 @@
 
 <MudContainer MaxWidth="MaxWidth.Large">
 
-    <!-- HEADER -->
-    <MudText Typo="Typo.h4" Class="mb-1">
-        Codex Management System
-    </MudText>
+    <!-- HERO HEADER -->
+    <MudPaper Class="pa-6 mb-6 codex-hero" Elevation="6">
 
-    <MudText Typo="Typo.subtitle2" Color="Color.Secondary" Class="mb-4">
-        Author heroes, skills and world structures for gameplay generation
-    </MudText>
+        <MudStack Spacing="1">
 
-    <MudDivider Class="mb-6" />
+            <MudText Typo="Typo.h3" Class="codex-title">
+                Codex Management System
+            </MudText>
 
-    <!-- PRIMARY WORKFLOW -->
-    <MudText Typo="Typo.h6" Class="mb-2">
+            <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+                Author heroes, abilities and world structures for procedural gameplay generation
+            </MudText>
+
+        </MudStack>
+
+    </MudPaper>
+
+    <!-- CORE PIPELINE -->
+    <MudText Typo="Typo.h5" Class="mb-3">
         Core Authoring Pipeline
     </MudText>
 
     <MudGrid Spacing="3">
 
-        <!-- HEROES -->
         <MudItem xs="12" md="6">
-            <MudPaper Class="pa-4" Elevation="3">
+            <MudPaper Class="pa-5 codex-card" Elevation="4">
 
-                <MudText Typo="Typo.h6">Heroes</MudText>
+                <MudStack Spacing="2">
 
-                <MudText Typo="Typo.body2" Class="mb-3">
-                    Create and define hero identity, stats, affiliation and skill kits.
-                </MudText>
+                    <MudText Typo="Typo.h6">Heroes</MudText>
 
-                <MudStack Row="true" Spacing="2">
+                    <MudText Typo="Typo.body2">
+                        Define identity, combat role, affiliations and progression vectors.
+                    </MudText>
 
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               OnClick="@(() => Nav.NavigateTo("/admin/heroes"))">
-                        Manage Heroes
-                    </MudButton>
+                    <MudDivider Class="my-2" />
 
-                    <MudButton Variant="Variant.Outlined"
-                               OnClick="@(() => Nav.NavigateTo("/admin/heroes/create"))">
-                        Create Hero
-                    </MudButton>
+                    <MudStack Row="true" Spacing="2">
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   OnClick="@(() => Nav.NavigateTo("/admin/heroes"))">
+                            Manage
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Outlined"
+                                   OnClick="@(() => Nav.NavigateTo("/admin/heroes/create"))">
+                            Create
+                        </MudButton>
+
+                    </MudStack>
 
                 </MudStack>
 
             </MudPaper>
         </MudItem>
 
-        <!-- SKILLS -->
         <MudItem xs="12" md="6">
-            <MudPaper Class="pa-4" Elevation="3">
+            <MudPaper Class="pa-5 codex-card" Elevation="4">
 
-                <MudText Typo="Typo.h6">Skills System</MudText>
+                <MudStack Spacing="2">
 
-                <MudText Typo="Typo.body2" Class="mb-3">
-                    Define abilities, effects, scaling and execution logic.
-                </MudText>
+                    <MudText Typo="Typo.h6">Skills System</MudText>
 
-                <MudStack Row="true" Spacing="2">
+                    <MudText Typo="Typo.body2">
+                        Define abilities, scaling logic, effects and execution rules.
+                    </MudText>
 
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               OnClick="@(() => Nav.NavigateTo("/skills"))">
-                        Skills Library
-                    </MudButton>
+                    <MudDivider Class="my-2" />
 
-                    <MudButton Variant="Variant.Outlined"
-                               OnClick="@(() => Nav.NavigateTo("/skills/create"))">
-                        Forge Skill
-                    </MudButton>
+                    <MudStack Row="true" Spacing="2">
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   OnClick="@(() => Nav.NavigateTo("/admin/skills"))">
+                            Library
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Outlined"
+                                   OnClick="@(() => Nav.NavigateTo("/admin/skills/create"))">
+                            Forge
+                        </MudButton>
+
+                    </MudStack>
 
                 </MudStack>
 
@@ -85,22 +101,23 @@
 
     <MudDivider Class="my-6" />
 
-    <!-- WORLD / CLASSIFICATIONS -->
-    <MudText Typo="Typo.h6" Class="mb-2">
-        World & Classifications
+    <!-- WORLD SYSTEMS -->
+    <MudText Typo="Typo.h5" Class="mb-3">
+        World & Classification Layer
     </MudText>
 
     <MudGrid Spacing="3">
 
         <MudItem xs="12" md="4">
-            <MudPaper Class="pa-4">
+            <MudPaper Class="pa-4 codex-card" Elevation="3">
 
                 <MudText Typo="Typo.h6">Mythology</MudText>
-                <MudText Typo="Typo.body2" Class="mb-2">
-                    Cultural and mythological classification layer.
+                <MudText Typo="Typo.body2" Class="mb-3">
+                    Cultural origin frameworks and narrative lineage systems.
                 </MudText>
 
                 <MudButton Size="Size.Small"
+                           Variant="Variant.Outlined"
                            OnClick="@(() => Nav.NavigateTo("/admin/mythology"))">
                     Open
                 </MudButton>
@@ -109,21 +126,23 @@
         </MudItem>
 
         <MudItem xs="12" md="4">
-            <MudPaper Class="pa-4">
+            <MudPaper Class="pa-4 codex-card" Elevation="3">
 
-                <MudText Typo="Typo.h6">Origin Systems</MudText>
-                <MudText Typo="Typo.body2" Class="mb-2">
-                    Archetypes and cultural origins.
+                <MudText Typo="Typo.h6">Origins</MudText>
+                <MudText Typo="Typo.body2" Class="mb-3">
+                    Archetypes and cultural classification vectors.
                 </MudText>
 
                 <MudStack Row="true" Spacing="1">
 
                     <MudButton Size="Size.Small"
+                               Variant="Variant.Outlined"
                                OnClick="@(() => Nav.NavigateTo("/admin/origin-archetypes"))">
                         Archetypes
                     </MudButton>
 
                     <MudButton Size="Size.Small"
+                               Variant="Variant.Outlined"
                                OnClick="@(() => Nav.NavigateTo("/admin/origin-cultures"))">
                         Cultures
                     </MudButton>
@@ -134,14 +153,15 @@
         </MudItem>
 
         <MudItem xs="12" md="4">
-            <MudPaper Class="pa-4">
+            <MudPaper Class="pa-4 codex-card" Elevation="3">
 
                 <MudText Typo="Typo.h6">Hero Classes</MudText>
-                <MudText Typo="Typo.body2" Class="mb-2">
-                    Combat roles and gameplay archetypes.
+                <MudText Typo="Typo.body2" Class="mb-3">
+                    Combat roles and gameplay archetype definitions.
                 </MudText>
 
                 <MudButton Size="Size.Small"
+                           Variant="Variant.Outlined"
                            OnClick="@(() => Nav.NavigateTo("/admin/hero-classes"))">
                     Manage
                 </MudButton>

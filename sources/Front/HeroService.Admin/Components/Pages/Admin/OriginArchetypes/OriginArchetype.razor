@@ -1,7 +1,8 @@
 ﻿@page "/admin/origin-archetypes"
+
 @using HeroService.Client.Http.Abstractions
-@using MudBlazor
 @using HeroService.Contracts.DTOs.Heroes
+@using MudBlazor
 
 @inject IOriginArchetypeClient Client
 @inject IDialogService DialogService
@@ -17,12 +18,45 @@
                     OnRename="Rename"
                     OnRetire="Retire">
 
+    <!-- HEADER EXTENSION (semantic enrichment) -->
     <HeaderContent>
+
         <MudTh>Name</MudTh>
+
+        <MudTh Style="width:140px;">
+            Status
+        </MudTh>
+
     </HeaderContent>
 
+    <!-- ROW -->
     <RowTemplate Context="item">
-        <MudTd>@item.Name</MudTd>
+
+        <MudTd>
+            <MudStack Spacing="0">
+
+                <MudText Typo="Typo.subtitle2">
+                    @item.Name
+                </MudText>
+
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    Archetype classification node
+                </MudText>
+
+            </MudStack>
+        </MudTd>
+
+        <MudTd>
+
+            <MudChip T="string"
+                     Size="Size.Small"
+                     Color="Color.Success"
+                     Variant="Variant.Outlined">
+                Active
+            </MudChip>
+
+        </MudTd>
+
     </RowTemplate>
 
 </LifecycleAdminPage>
@@ -43,16 +77,21 @@
 
     private async Task Create()
     {
-        var dialog = await DialogService.ShowAsync<OriginArchetypeDialog>("Create");
+        var dialog = await DialogService.ShowAsync<OriginArchetypeDialog>("Create Archetype");
         await dialog.Result;
         await Load();
     }
 
     private async Task Rename(OriginArchetypeDto item)
     {
+        var parameters = new DialogParameters
+        {
+            ["Item"] = item
+        };
+
         var dialog = await DialogService.ShowAsync<OriginArchetypeDialog>(
-            "Rename",
-            new DialogParameters { ["Item"] = item });
+            "Rename Archetype",
+            parameters);
 
         await dialog.Result;
         await Load();

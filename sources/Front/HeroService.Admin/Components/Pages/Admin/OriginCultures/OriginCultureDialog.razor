@@ -3,7 +3,6 @@
 
 @using MudBlazor
 @inject IOriginCultureClient Client
-@inject MudBlazor.IMudDialogInstance MudDialog
 
 <MudDialog>
 
@@ -35,6 +34,7 @@
 
 </MudDialog>
 @code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public OriginCultureDto? Item { get; set; }
 
     private string Name = string.Empty;
@@ -61,7 +61,7 @@
 
         MudDialog.Close();
     }
-
+    private void Close() => MudDialog.Close();
     private void Cancel()
         => MudDialog.Cancel();
 }

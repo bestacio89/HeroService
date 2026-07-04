@@ -1,9 +1,6 @@
-﻿@using HeroService.Client.Http.Abstractions
-@using HeroService.Contracts.Commands.Heroes
-@using MudBlazor
-
+﻿
 @inject IHeroClassClient Client
-@inject IMudDialogInstance MudDialog
+
 @inject ISnackbar Snackbar
 
 <MudDialog>
@@ -36,6 +33,7 @@
 
 </MudDialog>
 @code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public EventCallback OnSaved { get; set; }
 
     private string Name = string.Empty;

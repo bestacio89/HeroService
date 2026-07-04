@@ -1,36 +1,77 @@
 ﻿@page "/admin/skills"
-@using HeroService.Client.Http.Abstractions
 
-@using MudBlazor
 @inject ISkillClient Client
 @inject NavigationManager Nav
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <MudPaper Class="pa-4">
 
-    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+    <!-- HEADER -->
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3">
 
-        <MudText Typo="Typo.h6">Skills</MudText>
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.h5">Skills</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                Define abilities, effects and execution rules
+            </MudText>
+        </MudStack>
 
-        <MudButton Color="Color.Primary"
-                   OnClick="@(() => Nav.NavigateTo("/Admin/Skills/Create"))">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="@(() => Nav.NavigateTo("/admin/skills/create"))">
             Create Skill
         </MudButton>
 
     </MudStack>
 
-    <MudDivider Class="my-3" />
+    <!-- DIVIDER -->
+    <MudDivider Class="mb-4" />
 
-    <MudTable Items="Items" Hover="true" Dense="true">
+    <!-- SUMMARY STRIP -->
+    <MudStack Row="true" Spacing="2" Class="mb-4">
+
+        <MudChip T="string" Color="Color.Primary" Variant="Variant.Filled">
+            Total: @Items.Count
+        </MudChip>
+
+        <MudChip T="string" Color="Color.Secondary" Variant="Variant.Outlined">
+            Types: @Items.Select(x => x.SkillType).Distinct().Count()
+        </MudChip>
+
+    </MudStack>
+
+    <!-- TABLE -->
+    <MudTable Items="Items"
+              Hover="true"
+              Bordered="false"
+              Striped="true"
+              Dense="true"
+              T="SkillDto"
+              OnRowClick="@(args => OpenDetailsAsync(args.Item))"
+              RowStyle="cursor: pointer;">
 
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Type</MudTh>
         </HeaderContent>
 
-        <RowTemplate>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>@context.SkillType</MudTd>
+        <RowTemplate Context="skill">
+
+            <MudTd>
+                <MudText Typo="Typo.subtitle2">
+                    @skill.Name
+                </MudText>
+            </MudTd>
+
+            <MudTd>
+                <MudChip T="string"
+                         Color="Color.Info"
+                         Variant="Variant.Outlined">
+                    @skill.SkillType
+                </MudChip>
+            </MudTd>
+
         </RowTemplate>
 
     </MudTable>
@@ -42,4 +83,22 @@
 
     protected override async Task OnInitializedAsync()
         => Items = await Client.GetAllAsync();
+
+    private async Task OpenDetailsAsync(SkillDto skill)
+    {
+        var details = await Client.GetDetailsAsync(skill.Id);
+
+        if (details is null)
+        {
+            Snackbar.Add("Skill details not found", Severity.Error);
+            return;
+        }
+
+        var parameters = new DialogParameters<SkillDetailsDialog>
+        {
+            { x => x.Skill, details }
+        };
+
+        await DialogService.ShowAsync<SkillDetailsDialog>(details.Name, parameters);
+    }
 }

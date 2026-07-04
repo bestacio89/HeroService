@@ -1,0 +1,175 @@
+﻿<MudDialog FullWidth="true" MaxWidth="MaxWidth.Large">
+
+    <DialogContent>
+
+        <!-- HEADER -->
+        <MudPaper Class="pa-4 mb-3" Elevation="2">
+
+            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h5">@Skill.Name</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Skill definition and execution model
+                    </MudText>
+                </MudStack>
+
+                <MudChip T="string"
+                         Color="Color.Primary"
+                         Size="Size.Small">
+                    @Skill.SkillType
+                </MudChip>
+
+            </MudStack>
+
+        </MudPaper>
+
+        <!-- CORE STATS -->
+        <MudExpansionPanels Elevation="1">
+
+            <MudExpansionPanel Text="Base Statistics" Expanded="true">
+
+                <MudGrid Spacing="2">
+
+                    @if (Skill.BaseStats?.Cooldown is not null)
+                    {
+                        <MudItem xs="6" sm="4">
+                            <MudChip T="string">Cooldown: @Skill.BaseStats.Cooldown</MudChip>
+                        </MudItem>
+                    }
+
+                    @if (Skill.BaseStats?.ManaCost is not null)
+                    {
+                        <MudItem xs="6" sm="4">
+                            <MudChip T="string">Mana: @Skill.BaseStats.ManaCost</MudChip>
+                        </MudItem>
+                    }
+
+                    @if (Skill.BaseStats?.Damage is not null)
+                    {
+                        <MudItem xs="6" sm="4">
+                            <MudChip T="string" Color="Color.Error">
+                                Damage: @Skill.BaseStats.Damage
+                            </MudChip>
+                        </MudItem>
+                    }
+
+                    @if (Skill.BaseStats?.Healing is not null)
+                    {
+                        <MudItem xs="6" sm="4">
+                            <MudChip T="string" Color="Color.Success">
+                                Healing: @Skill.BaseStats.Healing
+                            </MudChip>
+                        </MudItem>
+                    }
+
+                    @if (Skill.BaseStats?.Range is not null)
+                    {
+                        <MudItem xs="6" sm="4">
+                            <MudChip T="string">Range: @Skill.BaseStats.Range</MudChip>
+                        </MudItem>
+                    }
+
+                    @if (Skill.BaseStats?.CastTime is not null)
+                    {
+                        <MudItem xs="6" sm="4">
+                            <MudChip T="string">Cast: @Skill.BaseStats.CastTime</MudChip>
+                        </MudItem>
+                    }
+
+                </MudGrid>
+
+            </MudExpansionPanel>
+
+            <!-- EFFECT SYSTEM -->
+            <MudExpansionPanel Text="@($"Effect System ({Skill.Effects.Count})")">
+
+                @if (Skill.Effects.Count == 0)
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        No effects defined.
+                    </MudText>
+                }
+                else
+                {
+                    @foreach (var effect in Skill.Effects)
+                    {
+                        <MudPaper Class="pa-3 mb-2" Outlined="true">
+
+                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+
+                                <MudText Typo="Typo.subtitle2">
+                                    @effect.EffectType → @effect.TargetType
+                                </MudText>
+
+                                <MudStack Row="true" Spacing="1">
+
+                                    @if (effect.IsInstant)
+                                    {
+                                        <MudChip T="string" Size="Size.Small">Instant</MudChip>
+                                    }
+                                    @if (effect.IsPeriodic)
+                                    {
+                                        <MudChip T="string" Size="Size.Small">Periodic</MudChip>
+                                    }
+                                    @if (effect.IsChannelled)
+                                    {
+                                        <MudChip T="string" Size="Size.Small">Channelled</MudChip>
+                                    }
+
+                                </MudStack>
+
+                            </MudStack>
+
+                            <MudDivider Class="my-2" />
+
+                            <MudGrid Spacing="2">
+
+                                <MudItem xs="6" sm="4">Magnitude: @effect.Magnitude</MudItem>
+                                <MudItem xs="6" sm="4">Duration: @effect.Duration</MudItem>
+                                <MudItem xs="6" sm="4">Radius: @effect.Radius</MudItem>
+                                <MudItem xs="6" sm="4">Stacks: @effect.MaxStacks</MudItem>
+
+                                @if (effect.AttackDamageRatio is not null)
+                                {
+                                    <MudItem xs="6" sm="4">AD: @effect.AttackDamageRatio</MudItem>
+                                }
+
+                                @if (effect.AbilityPowerRatio is not null)
+                                {
+                                    <MudItem xs="6" sm="4">AP: @effect.AbilityPowerRatio</MudItem>
+                                }
+
+                                @if (effect.MaxHealthRatio is not null)
+                                {
+                                    <MudItem xs="6" sm="4">HP: @effect.MaxHealthRatio</MudItem>
+                                }
+
+                            </MudGrid>
+
+                        </MudPaper>
+                    }
+                }
+
+            </MudExpansionPanel>
+
+        </MudExpansionPanels>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Close">
+            Close
+        </MudButton>
+    </DialogActions>
+
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter, EditorRequired] public SkillDto Skill { get; set; } = default!;
+
+    private void Close() => MudDialog.Close();
+
+
+}

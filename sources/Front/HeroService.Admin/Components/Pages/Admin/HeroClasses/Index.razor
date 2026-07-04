@@ -1,4 +1,5 @@
 ﻿@page "/admin/hero-classes"
+
 @inject IHeroClassClient Client
 @inject IDialogService DialogService
 
@@ -6,18 +7,25 @@
 
     <MudStack Row="true"
               Justify="Justify.SpaceBetween"
-              AlignItems="AlignItems.Center">
+              AlignItems="AlignItems.Center"
+              Class="mb-2">
 
-        <MudText Typo="Typo.h5">Hero Classes</MudText>
+        <MudStack Spacing="0">
+            <MudText Typo="Typo.h5">Hero Classes</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                Combat roles and archetype definitions
+            </MudText>
+        </MudStack>
 
-        <MudButton Color="Color.Primary"
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
                    OnClick="OpenCreateDialog">
-            Create
+            Create Class
         </MudButton>
 
     </MudStack>
 
-    <MudDivider Class="my-2" />
+    <MudDivider Class="mb-3" />
 
     @if (IsLoading)
     {
@@ -25,36 +33,44 @@
     }
     else if (!Items.Any())
     {
-        <MudAlert Severity="Severity.Info">
-            No hero classes found
+        <MudAlert Severity="Severity.Info" Class="mb-2">
+            No hero classes defined.
         </MudAlert>
     }
     else
     {
-        <MudTable Items="Items" Hover="true" Dense="true">
+        <MudTable Items="Items"
+                  Hover="true"
+                  Dense="true">
 
             <HeaderContent>
                 <MudTh>Name</MudTh>
-                <MudTh Style="width:120px;">Actions</MudTh>
+                <MudTh Style="width:140px;">Actions</MudTh>
             </HeaderContent>
 
-            <RowTemplate>
-                <MudTd>@context.Name</MudTd>
+            <RowTemplate Context="item">
 
                 <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                   Disabled="true" />
-
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                   Disabled="true" />
+                    <MudText Typo="Typo.subtitle2">
+                        @item.Name
+                    </MudText>
                 </MudTd>
+
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                   Size="Size.Small"
+                                   OnClick="@(() => OpenDetails(item))" />
+                </MudTd>
+
             </RowTemplate>
 
         </MudTable>
     }
 
 </MudPaper>
+
 @code {
+
     private IReadOnlyCollection<HeroClassDto> Items = [];
     private bool IsLoading = true;
 
@@ -91,12 +107,14 @@
             MaxWidth = MaxWidth.Small
         };
 
-        var dialog = await DialogService.ShowAsync<HeroClassDialog>(
+        await DialogService.ShowAsync<HeroClassDialog>(
             "Create Hero Class",
             parameters,
             options);
-
-        await dialog.Result;
     }
-}
+
+    private void OpenDetails(HeroClassDto item)
+    {
+        // placeholder for now
+    }
 }

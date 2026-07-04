@@ -1,4 +1,5 @@
 ﻿@page "/admin/origin-cultures"
+
 @inject IOriginCultureClient Client
 @inject IDialogService DialogService
 
@@ -14,16 +15,48 @@
                     OnRetire="Retire">
 
     <HeaderContent>
+
         <MudTh>Name</MudTh>
+
+        <MudTh Style="width:140px;">
+            Classification
+        </MudTh>
+
     </HeaderContent>
 
     <RowTemplate Context="item">
-        <MudTd>@item.Name</MudTd>
+
+        <MudTd>
+            <MudStack Spacing="0">
+
+                <MudText Typo="Typo.subtitle2">
+                    @item.Name
+                </MudText>
+
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    Cultural origin system node
+                </MudText>
+
+            </MudStack>
+        </MudTd>
+
+        <MudTd>
+
+            <MudChip T="string"
+                     Size="Size.Small"
+                     Color="Color.Info"
+                     Variant="Variant.Outlined">
+                Culture
+            </MudChip>
+
+        </MudTd>
+
     </RowTemplate>
 
 </LifecycleAdminPage>
 
 @code {
+
     private IReadOnlyList<OriginCultureDto> Items = [];
     private bool IsLoading = true;
 
@@ -33,22 +66,34 @@
     private async Task Load()
     {
         IsLoading = true;
-        Items = await Client.GetAllAsync();
-        IsLoading = false;
+
+        try
+        {
+            Items = await Client.GetAllAsync();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     private async Task Create()
     {
-        var dialog = await DialogService.ShowAsync<OriginCultureDialog>("Create");
+        var dialog = await DialogService.ShowAsync<OriginCultureDialog>("Create Culture");
         await dialog.Result;
         await Load();
     }
 
     private async Task Rename(OriginCultureDto item)
     {
+        var parameters = new DialogParameters
+        {
+            ["Item"] = item
+        };
+
         var dialog = await DialogService.ShowAsync<OriginCultureDialog>(
-            "Rename",
-            new DialogParameters { ["Item"] = item });
+            "Rename Culture",
+            parameters);
 
         await dialog.Result;
         await Load();
