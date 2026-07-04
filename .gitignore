@@ -86,3 +86,5 @@ Thumbs.db
 *.opendb
 *.VC.db
 *.svd
+*.log
+nuget.config
