@@ -6,13 +6,13 @@ namespace HeroService.Contracts.DTOs.Requests;
 
 public sealed class HeroSkillKitCreateRequestDto
 {
-  public string PassiveSkill { get; init; } = string.Empty;
+  public Guid PassiveSkillId { get; set; }
 
-  public string PrimarySkill { get; init; } = string.Empty;
+  public Guid PrimarySkillId { get; set; }
 
-  public string SecondarySkill { get; init; } = string.Empty;
+  public Guid SecondarySkillId { get; set; }
 
-  public string TertiarySkill { get; init; } = string.Empty;
+  public Guid TertiarySkillId { get; set; }
 
-  public string UltimateSkill { get; init; } = string.Empty;
+  public Guid UltimateSkillId { get; set; }
 }
