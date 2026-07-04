@@ -8,7 +8,7 @@ namespace HeroService.Persistence.Seeding;
 
 public sealed class SkillSeeder : ISeeder
 {
-  public int Order => 4;
+  public int Order => 3;
 
   private readonly IEntityFactory<Guid, Skill> _skillFactory;
   private readonly IEntityFactory<Guid, SkillBaseStats> _baseStatsFactory;
