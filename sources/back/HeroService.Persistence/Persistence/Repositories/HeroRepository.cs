@@ -51,7 +51,7 @@ public sealed class HeroRepository : IHeroRepository
       Guid id,
       CancellationToken cancellationToken = default)
   {
-    return _dbContext.Heroes
+    return BaseQuery()
         .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
   }
 
