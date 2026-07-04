@@ -2,12 +2,14 @@ using HeroService.Admin.Components;
 using HeroService.Client.Http.DependencyInjection;
 using MudBlazor.Services;
 using HeroService.Admin.UI;
+using Franz.Common.Logging.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // =========================================
 // RAZOR COMPONENTS
 // =========================================
+builder.Host.UseLog();
 builder.Services
     .AddRazorComponents()
     .AddInteractiveServerComponents();
