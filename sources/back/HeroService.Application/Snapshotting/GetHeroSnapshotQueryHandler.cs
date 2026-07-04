@@ -3,6 +3,7 @@ using Franz.Common.Mapping.Abstractions;
 using Franz.Common.Mediator.Handlers;
 using HeroService.Contracts.DTOs.Snapshots;
 using HeroService.Contracts.Persistence.GameVersions;
+using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Contracts.Persistence.Modifiers;
 using HeroService.Contracts.Persistence.Skills;
 using HeroService.Contracts.Queries.Snapshots;
@@ -16,7 +17,7 @@ namespace HeroService.Application.Heroes.Versioned.Snapshotting.Queries;
 public sealed class GetHeroSnapshotQueryHandler
     : IQueryHandler<GetHeroSnapshotQuery, HeroSnapshotDto>
 {
-  private readonly IEntityRepository<Hero, Guid> _heroRepository;
+  private readonly IHeroRepository _heroRepository;
   private readonly ISkillRepository _skillRepository;
   private readonly ISkillBaseStatsRepository _skillBaseStatsRepository;
   private readonly ISkillModifierRepository _skillModifierRepository;
@@ -26,7 +27,7 @@ public sealed class GetHeroSnapshotQueryHandler
   private readonly IFranzMapper _mapper;
 
   public GetHeroSnapshotQueryHandler(
-      IEntityRepository<Hero, Guid> heroRepository,
+      IHeroRepository heroRepository,
       ISkillRepository skillRepository,
       ISkillBaseStatsRepository skillBaseStatsRepository,
       ISkillModifierRepository skillModifierRepository,
@@ -49,7 +50,7 @@ public sealed class GetHeroSnapshotQueryHandler
     GetHeroSnapshotQuery request,
     CancellationToken ct)
   {
-    var hero = await _heroRepository.GetByIdAsync(request.HeroId, ct)
+    var hero = await _heroRepository.GetDetailsAsync(request.HeroId, ct)
         ?? throw new InvalidOperationException(
             $"Hero '{request.HeroId}' not found.");
 
