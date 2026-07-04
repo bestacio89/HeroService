@@ -26,7 +26,7 @@ public sealed class HeroCreationService : IHeroCreationService
   private readonly IEntityRepository<HeroClass, Guid> _heroClasses;
   private readonly IEntityRepository<OriginArchetype, Guid> _archetypes;
   private readonly IEntityRepository<OriginCulture, Guid> _cultures;
-  
+
   private readonly ISkillRepository _skills;
 
   private readonly IHeroUniquenessValidator _uniquenessValidator;
@@ -157,27 +157,31 @@ public sealed class HeroCreationService : IHeroCreationService
     // 6. Skills
     // =====================================================
 
-    var passiveSkill = await _skills.GetByNameAsync(request.SkillKit.PassiveSkill, cancellationToken)
-        ?? throw new InvalidOperationException($"Skill '{request.SkillKit.PassiveSkill}' not found.");
+    var requestedSkillIds = new[]
+    {
+      request.SkillKit.PassiveSkillId,
+      request.SkillKit.PrimarySkillId,
+      request.SkillKit.SecondarySkillId,
+      request.SkillKit.TertiarySkillId,
+      request.SkillKit.UltimateSkillId
+    };
 
-    var primarySkill = await _skills.GetByNameAsync(request.SkillKit.PrimarySkill, cancellationToken)
-        ?? throw new InvalidOperationException($"Skill '{request.SkillKit.PrimarySkill}' not found.");
+    var resolvedSkills = await _skills.GetByIdsAsync(requestedSkillIds, cancellationToken);
 
-    var secondarySkill = await _skills.GetByNameAsync(request.SkillKit.SecondarySkill, cancellationToken)
-        ?? throw new InvalidOperationException($"Skill '{request.SkillKit.SecondarySkill}' not found.");
+    var missingSkillIds = requestedSkillIds
+        .Distinct()
+        .Except(resolvedSkills.Select(skill => skill.Id))
+        .ToList();
 
-    var tertiarySkill = await _skills.GetByNameAsync(request.SkillKit.TertiarySkill, cancellationToken)
-        ?? throw new InvalidOperationException($"Skill '{request.SkillKit.TertiarySkill}' not found.");
-
-    var ultimateSkill = await _skills.GetByNameAsync(request.SkillKit.UltimateSkill, cancellationToken)
-        ?? throw new InvalidOperationException($"Skill '{request.SkillKit.UltimateSkill}' not found.");
+    if (missingSkillIds.Count > 0)
+      throw new BusinessException("422", $"Please provide valid skills. Unknown skill id(s): {string.Join(", ", missingSkillIds)}.");
 
     var skillKit = new HeroSkillKit(
-        passiveSkill.Id,
-        primarySkill.Id,
-        secondarySkill.Id,
-        tertiarySkill.Id,
-        ultimateSkill.Id
+        request.SkillKit.PassiveSkillId,
+        request.SkillKit.PrimarySkillId,
+        request.SkillKit.SecondarySkillId,
+        request.SkillKit.TertiarySkillId,
+        request.SkillKit.UltimateSkillId
     );
 
     // =====================================================
