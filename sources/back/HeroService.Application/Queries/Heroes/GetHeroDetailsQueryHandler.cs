@@ -9,7 +9,7 @@ using HeroService.Domain.Heroes.Core;
 namespace HeroService.Application.Queries.Heroes;
 
 public sealed class GetHeroDetailsQueryHandler
-    : IQueryHandler<GetHeroDetailsQuery, HeroDetailsDto>
+    : IQueryHandler<GetHeroDetailsQuery, HeroDto>
 {
   private readonly IHeroRepository _heroRepository;
   private readonly IFranzMapper _mapper;
@@ -22,7 +22,7 @@ public sealed class GetHeroDetailsQueryHandler
     _mapper = mapper;
   }
 
-  public async Task<HeroDetailsDto> Handle(
+  public async Task<HeroDto> Handle(
       GetHeroDetailsQuery request,
       CancellationToken cancellationToken)
   {
@@ -33,6 +33,6 @@ public sealed class GetHeroDetailsQueryHandler
     if (hero is null)
       throw new KeyNotFoundException($"Hero '{request.HeroId}' not found.");
 
-    return _mapper.Map<Hero, HeroDetailsDto>(hero);
+    return _mapper.Map<Hero, HeroDto>(hero);
   }
 }

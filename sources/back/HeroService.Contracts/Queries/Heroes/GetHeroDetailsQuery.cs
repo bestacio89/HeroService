@@ -5,4 +5,4 @@ namespace HeroService.Contracts.Queries.Heroes;
 
 public sealed record GetHeroDetailsQuery(
     Guid HeroId
-) : IQuery<HeroDetailsDto>;
+) : IQuery<HeroDto>;
