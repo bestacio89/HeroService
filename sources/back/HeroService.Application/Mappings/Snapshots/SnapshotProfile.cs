@@ -47,7 +47,13 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
       ),
       new SkillEffectSnapshotDto(
           src.Effects.HasDamage, src.Effects.HasDamageOverTime, src.Effects.HasHeal,
-          src.Effects.HasHealOverTime, src.Effects.HasShield, src.Effects.HasCrowdControl,
+          src.Effects.HasHealOverTime, src.Effects.HasShield,
+          src.Effects.HasSlow, src.Effects.HasRoot, src.Effects.HasStun,
+          src.Effects.HasSilence, src.Effects.HasDisarm, src.Effects.HasBlind,
+          src.Effects.HasFear, src.Effects.HasCharm, src.Effects.HasTaunt,
+          src.Effects.HasConfuse, src.Effects.HasSleep,
+          src.Effects.HasKnockback, src.Effects.HasKnockUp, src.Effects.HasPull,
+          src.Effects.HasFreeze, src.Effects.HasPetrify,
           src.Effects.HasBuff, src.Effects.HasDebuff, src.Effects.HasMobility,
           src.Effects.HasExecute, src.Effects.HasUtility, src.Effects.HasVision,
           src.Effects.HasZoneControl, src.Effects.HasSummon, src.Effects.HasTransformation

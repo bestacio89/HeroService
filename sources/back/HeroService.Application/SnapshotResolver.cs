@@ -90,7 +90,13 @@ public sealed class SnapshotResolver
     bool Has(EffectType t) => list.Any(e => e.EffectType == t);
     return new SkillEffectSnapshot(
         Has(EffectType.Damage), Has(EffectType.DamageOverTime), Has(EffectType.Heal),
-        Has(EffectType.HealOverTime), Has(EffectType.Shield), Has(EffectType.CrowdControl),
+        Has(EffectType.HealOverTime), Has(EffectType.Shield),
+        Has(EffectType.Slow), Has(EffectType.Root), Has(EffectType.Stun),
+        Has(EffectType.Silence), Has(EffectType.Disarm), Has(EffectType.Blind),
+        Has(EffectType.Fear), Has(EffectType.Charm), Has(EffectType.Taunt),
+        Has(EffectType.Confuse), Has(EffectType.Sleep),
+        Has(EffectType.Knockback), Has(EffectType.KnockUp), Has(EffectType.Pull),
+        Has(EffectType.Freeze), Has(EffectType.Petrify),
         Has(EffectType.Buff), Has(EffectType.Debuff), Has(EffectType.Mobility),
         Has(EffectType.Execute), Has(EffectType.Utility), Has(EffectType.Vision),
         Has(EffectType.ZoneControl), Has(EffectType.Summon), Has(EffectType.Transformation)
@@ -100,7 +106,7 @@ public sealed class SnapshotResolver
   private static HeroKitProfile BuildKitProfile(HeroSkillKitSnapshot kit)
   {
     var s = kit.AllSkills;
-    int d = s.Count(x => x.Effects.HasDamage), cc = s.Count(x => x.Effects.HasCrowdControl), mob = s.Count(x => x.Effects.HasMobility);
+    int d = s.Count(x => x.Effects.HasDamage), cc = s.Count(x => x.Effects.HasAnyCrowdControl), mob = s.Count(x => x.Effects.HasMobility);
     int sus = s.Count(x => x.Effects.HasHeal || x.Effects.HasHealOverTime || x.Effects.HasShield);
     int uti = s.Count(x => x.Effects.HasUtility || x.Effects.HasVision || x.Effects.HasZoneControl);
     return new HeroKitProfile(d, cc, mob, sus, uti, s.Any(x => x.Effects.HasSummon), s.Any(x => x.Effects.HasTransformation), s.Any(x => x.Effects.HasExecute), d >= BurstDamageThreshold && !s.Any(x => x.Effects.HasDamageOverTime), sus >= SustainThreshold, cc >= ControlThreshold, mob >= MobilityThreshold);
