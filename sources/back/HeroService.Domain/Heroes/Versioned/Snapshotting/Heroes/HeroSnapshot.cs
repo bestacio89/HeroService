@@ -73,7 +73,7 @@ public sealed class HeroSnapshot
 {
   public Guid HeroId { get; }
   public Guid GameVersionId { get; }
-
+  public string HeroName { get; } = string.Empty;
   public HeroStatSnapshot Stats { get; }
   public HeroSkillKitSnapshot SkillKit { get; }
 
@@ -90,12 +90,14 @@ public sealed class HeroSnapshot
 
   public HeroSnapshot(
       Guid heroId,
+      string heroName,
       Guid gameVersionId,
       HeroStatSnapshot stats,
       HeroSkillKitSnapshot skillKit,
       HeroKitProfile kitProfile)
   {
     HeroId = heroId;
+    HeroName = heroName;
     GameVersionId = gameVersionId;
     Stats = stats;
     SkillKit = skillKit;

@@ -12,6 +12,7 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
     CreateMap<HeroSnapshot, HeroSnapshotDto>()
         .ConstructUsing(src => new HeroSnapshotDto(
             src.HeroId,
+            src.HeroName,
             src.GameVersionId,
             new HeroStatSnapshotDto(
                 src.Stats.Health, src.Stats.Mana, src.Stats.AttackDamage, src.Stats.AbilityPower,
