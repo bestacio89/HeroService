@@ -76,7 +76,25 @@ public enum EffectType
   // CONTROL SYSTEM
   // =========================================================
 
-  CrowdControl, // unified CC bucket (stun, slow, root, silence, knock-up, etc.)
+  Slow,
+  Root,
+  Stun,
+  Silence,
+  Disarm,
+  Blind,
+
+  Fear,
+  Charm,
+  Taunt,
+  Confuse,
+  Sleep,
+
+  Knockback,
+  KnockUp,
+  Pull,
+
+  Freeze,
+  Petrify,
 
   // =========================================================
   // STATE MODIFIERS
