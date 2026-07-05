@@ -2,6 +2,8 @@
 
 public sealed record SkillSnapshotDto(
     Guid SkillId,
+    string SkilleName,
     SkillExecutionSnapshotDto Execution,
-    SkillEffectSnapshotDto Effects
+    SkillEffectSnapshotDto Effects,
+    IReadOnlyList<EffectExecutionSnapshotDto> EffectExecutions
 );
