@@ -16,8 +16,4 @@
     <ProjectReference Include="..\..\back\HeroService.ClientHttp\HeroService.Client.Http.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\Skills\" />
-  </ItemGroup>
-
 </Project>
