@@ -1,5 +1,8 @@
 ﻿@page "/admin/skills"
 
+@using HeroService.Domain.Heroes.Skills
+@using HeroService.Admin.Components.Pages.Admin.Skills
+
 @inject ISkillClient Client
 @inject NavigationManager Nav
 @inject IDialogService DialogService
@@ -66,7 +69,7 @@
 
             <MudTd>
                 <MudChip T="string"
-                         Color="Color.Info"
+                         Color="@SkillTheme.GetColor(skill.SkillType)"
                          Variant="Variant.Outlined">
                     @skill.SkillType
                 </MudChip>
