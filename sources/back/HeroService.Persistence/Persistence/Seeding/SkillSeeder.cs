@@ -6,30 +6,6 @@ using HeroService.Persistence.Persistence.Seeding;
 
 namespace HeroService.Persistence.Seeding;
 
-/// <summary>
-/// Seeds the skill catalog with multi-effect behavioral richness.
-///
-/// THOR — Engage + Burst archetype
-///   Kit behavioral sequences that item conditions reward:
-///     Mobility → ZoneControl       (Thunder Leap engage)
-///     Damage → CrowdControl        (Mjolnir burst into lockdown)
-///     Buff → Damage                (Storm Aura empowered strike)
-///     Damage → Debuff → Damage     (Lightning Chain poke)
-///     Damage → ZoneControl         (God of Thunder teamfight)
-///
-/// HERAKLES — Sustain + Bruiser archetype
-///   Kit behavioral sequences that item conditions reward:
-///     Shield → Buff                (Titan Grip defensive setup)
-///     Buff → Buff                  (Lion's Might double empower)
-///     Damage → Debuff              (Hydra Strike anti-heal)
-///     Mobility → Buff              (Labors Rush aggressive repositioning)
-///     Shield → Buff                (Divine Endurance unkillable window)
-///
-/// Effects are ordered deliberately — EffectSequenceTracker in MatchService
-/// reads the order effects fire when a skill is cast. First effect = primary
-/// behavioral identity of the skill. Second effect = secondary behavioral
-/// consequence that creates item condition opportunities.
-/// </summary>
 public sealed class SkillSeeder : ISeeder
 {
   public int Order => 3;
@@ -37,27 +13,36 @@ public sealed class SkillSeeder : ISeeder
   private readonly IEntityFactory<Guid, Skill> _skillFactory;
   private readonly IEntityFactory<Guid, SkillEffect> _effectFactory;
   private readonly IEntityFactory<Guid, SkillLore> _loreFactory;
+  private readonly IEntityFactory<Guid, SkillBaseStats> _statsFactory;
 
   private readonly IEntityRepository<Skill, Guid> _skills;
   private readonly IEntityRepository<SkillEffect, Guid> _effects;
   private readonly IEntityRepository<SkillLore, Guid> _lore;
+  private readonly IEntityRepository<SkillBaseStats, Guid> _stats;
+
   private readonly IUnitOfWork _unitOfWork;
 
   public SkillSeeder(
       IEntityFactory<Guid, Skill> skillFactory,
       IEntityFactory<Guid, SkillEffect> effectFactory,
       IEntityFactory<Guid, SkillLore> loreFactory,
+      IEntityFactory<Guid, SkillBaseStats> statsFactory,
       IEntityRepository<Skill, Guid> skills,
       IEntityRepository<SkillEffect, Guid> effects,
       IEntityRepository<SkillLore, Guid> lore,
+      IEntityRepository<SkillBaseStats, Guid> stats,
       IUnitOfWork unitOfWork)
   {
     _skillFactory = skillFactory;
     _effectFactory = effectFactory;
     _loreFactory = loreFactory;
+    _statsFactory = statsFactory;
+
     _skills = skills;
     _effects = effects;
     _lore = lore;
+    _stats = stats;
+
     _unitOfWork = unitOfWork;
   }
 
@@ -72,236 +57,225 @@ public sealed class SkillSeeder : ISeeder
     // THOR
     // =====================================================
 
-    // 1. Mjolnir Strike — Damage → CrowdControl
-    //    Primary: burst damage on single target
-    //    Secondary: brief stun on impact (hammer weight)
-    //    Item condition: [Damage, CrowdControl] → "strike into control" window
     await CreateAsync(ct, system,
         name: "Mjolnir Strike",
         type: SkillType.Damage,
         loreBrief: "Thor crushes a single enemy with divine hammer force.",
         loreDesc: "A lightning-charged hammer impact from above.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 6f,
+            ManaCost: 50f,
+            Damage: 150f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.3f,
+            ChannelDuration: null,
+            CC: 0.75f,
+            Range: 4f),
         effects: new[]
         {
-                Effect(EffectType.Damage,
-                    magnitude: 150f, duration: 0f,   radius: 0f,
-                    target: TargetType.Enemy,         stack: StackType.None,
-                    adRatio: 1.4f,                    isInstant: true),
-
-                Effect(EffectType.Stun,
-                    magnitude: 0f,   duration: 0.75f, radius: 0f,
-                    target: TargetType.Enemy,         stack: StackType.None,
-                    isInstant: false),
+            Effect(EffectType.Damage, 150f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.4f, isInstant: true),
+            Effect(EffectType.Stun, 0f, 0.75f, 0f, TargetType.Enemy, StackType.None, 1, isInstant: false),
         });
 
-    // 2. Thunder Leap — Mobility → ZoneControl
-    //    Primary: leap to target area (repositioning)
-    //    Secondary: landing shockwave denies zone
-    //    Item condition: [Mobility, ZoneControl] → "engage into denial" window
     await CreateAsync(ct, system,
         name: "Thunder Leap",
         type: SkillType.Mobility,
         loreBrief: "Thor leaps and shatters the ground upon landing.",
         loreDesc: "Shockwave of lightning expands outward.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 10f,
+            ManaCost: 40f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0f,
+            ChannelDuration: null,
+            CC: 1.2f,
+            Range: 8f),
         effects: new[]
         {
-                Effect(EffectType.Mobility,
-                    magnitude: 0f,   duration: 0f,   radius: 0f,
-                    target: TargetType.Self,          stack: StackType.None,
-                    isInstant: true),
-
-                Effect(EffectType.ZoneControl,
-                    magnitude: 80f,  duration: 1.2f, radius: 4f,
-                    target: TargetType.AreaEnemies,   stack: StackType.None,
-                    adRatio: 0.6f,                    isInstant: false),
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None),
+            Effect(EffectType.ZoneControl, 80f, 1.2f, 4f, TargetType.AreaEnemies, StackType.None, adRatio: 0.6f, isInstant: false),
         });
 
-    // 3. Storm Aura — Buff → Damage
-    //    Primary: empowers Thor (attack speed + stats)
-    //    Secondary: periodic lightning damage to nearby enemies while active
-    //    Item condition: [Buff, Damage] → "self-empower into aura damage" window
     await CreateAsync(ct, system,
         name: "Storm Aura",
         type: SkillType.Buff,
         loreBrief: "Thor surrounds himself with continuous storm energy.",
         loreDesc: "Electric aura pulses around the body.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 14f,
+            ManaCost: 60f,
+            Damage: 20f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0f,
+            ChannelDuration: 6f,
+            CC: null,
+            Range: 3f),
         effects: new[]
         {
-                Effect(EffectType.Buff,
-                    magnitude: 25f,  duration: 6f,   radius: 0f,
-                    target: TargetType.Self,          stack: StackType.RefreshDuration,
-                    isPeriodic: true,               isInstant: false),
-
-                Effect(EffectType.Damage,
-                    magnitude: 20f,  duration: 6f,   radius: 3f,
-                    target: TargetType.AreaEnemies,   stack: StackType.None,
-                    apRatio: 0.3f,                    isPeriodic: true,
-                    isInstant: false),
+            Effect(EffectType.Buff, 25f, 6f, 0f, TargetType.Self, StackType.RefreshDuration, isPeriodic: true, isInstant: false),
+            Effect(EffectType.Damage, 20f, 6f, 3f, TargetType.AreaEnemies, StackType.None, apRatio: 0.3f, isPeriodic: true, isInstant: false),
         });
 
-    // 4. Lightning Chain — Damage → Debuff
-    //    Primary: chain lightning jumps between enemies
-    //    Secondary: reduces armor/resistance briefly (electricity weakens)
-    //    Item condition: [Damage, Debuff] → "damage into weaken" poke chain
     await CreateAsync(ct, system,
         name: "Lightning Chain",
         type: SkillType.Damage,
         loreBrief: "Lightning jumps between enemies in a devastating arc.",
         loreDesc: "Electric arcs chain across targets.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 8f,
+            ManaCost: 55f,
+            Damage: 90f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CC: 2f,
+            Range: 7f),
         effects: new[]
         {
-                Effect(EffectType.Damage,
-                    magnitude: 90f,  duration: 0f,   radius: 0f,
-                    target: TargetType.Chain,         stack: StackType.None,
-                    adRatio: 1.0f,                    isInstant: true),
-
-                Effect(EffectType.Debuff,
-                    magnitude: 15f,  duration: 2f,   radius: 0f,
-                    target: TargetType.Chain,         stack: StackType.None,
-                    isInstant: false),
+            Effect(EffectType.Damage, 90f, 0f, 0f, TargetType.Chain, StackType.None, adRatio: 1.0f, isInstant: true),
+            Effect(EffectType.Debuff, 15f, 2f, 0f, TargetType.Chain, StackType.None, isInstant: false),
         });
 
-    // 5. God of Thunder — Damage → ZoneControl
-    //    Primary: massive AoE lightning damage
-    //    Secondary: sustained zone denial (lightning pillars)
-    //    Item condition: [Damage, ZoneControl] → "ult into teamfight control"
     await CreateAsync(ct, system,
         name: "God of Thunder",
         type: SkillType.Ultimate,
         loreBrief: "Thor unleashes full divine storm upon the battlefield.",
         loreDesc: "Sky fractures with continuous lightning strikes.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 90f,
+            ManaCost: 120f,
+            Damage: 300f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.5f,
+            ChannelDuration: 4f,
+            CC: 4f,
+            Range: 6f),
         effects: new[]
         {
-                Effect(EffectType.Damage,
-                    magnitude: 300f, duration: 0f,   radius: 6f,
-                    target: TargetType.AreaEnemies,   stack: StackType.None,
-                    adRatio: 2.5f,                    isInstant: true),
-
-                Effect(EffectType.ZoneControl,
-                    magnitude: 0f,   duration: 4f,   radius: 6f,
-                    target: TargetType.AreaEnemies,   stack: StackType.None,
-                    isPeriodic: true,               isInstant: false),
+            Effect(EffectType.Damage, 300f, 0f, 6f, TargetType.AreaEnemies, StackType.None, adRatio: 2.5f, isInstant: true),
+            Effect(EffectType.ZoneControl, 0f, 4f, 6f, TargetType.AreaEnemies, StackType.None, isPeriodic: true, isInstant: false),
         });
 
     // =====================================================
     // HERAKLES
     // =====================================================
 
-    // 1. Lion's Might — Buff → Buff
-    //    Primary: raw strength bonus (attack damage)
-    //    Secondary: critical strike empowerment
-    //    Item condition: [Buff, Buff] → "double empower before striking"
     await CreateAsync(ct, system,
         name: "Lion's Might",
         type: SkillType.Buff,
         loreBrief: "Herakles channels the strength of the Nemean Lion.",
         loreDesc: "Golden aura of overwhelming strength.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 45f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0f,
+            ChannelDuration: 8f,
+            CC: null,
+            Range: 0f),
         effects: new[]
         {
-                Effect(EffectType.Buff,
-                    magnitude: 40f,  duration: 8f,   radius: 0f,
-                    target: TargetType.Self,          stack: StackType.Refresh,
-                    hpRatio: 0.25f,                   isInstant: false),
-
-                Effect(EffectType.Buff,
-                    magnitude: 20f,  duration: 8f,   radius: 0f,
-                    target: TargetType.Self,          stack: StackType.Refresh,
-                    isInstant: false),
+            Effect(EffectType.Buff, 40f, 8f, 0f, TargetType.Self, StackType.Refresh, hpRatio: 0.25f),
+            Effect(EffectType.Buff, 20f, 8f, 0f, TargetType.Self, StackType.Refresh),
         });
 
-    // 2. Hydra Strike — Damage → Debuff
-    //    Primary: crushing blow
-    //    Secondary: grievous wound (reduces enemy healing)
-    //    Item condition: [Damage, Debuff] → "punish into anti-heal"
     await CreateAsync(ct, system,
         name: "Hydra Strike",
         type: SkillType.Damage,
         loreBrief: "A crushing strike inspired by the Hydra's relentless nature.",
         loreDesc: "Multiple phantom blows overlap the impact.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 170f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.25f,
+            ChannelDuration: null,
+            CC: null,
+            Range: 2f),
         effects: new[]
         {
-                Effect(EffectType.Damage,
-                    magnitude: 170f, duration: 0f,   radius: 0f,
-                    target: TargetType.Enemy,         stack: StackType.None,
-                    adRatio: 1.5f,                    isInstant: true),
-
-                Effect(EffectType.Debuff,
-                    magnitude: 40f,  duration: 3f,   radius: 0f,
-                    target: TargetType.Enemy,         stack: StackType.None,
-                    isInstant: false),
+            Effect(EffectType.Damage, 170f, 0f, 0f, TargetType.Enemy, StackType.None, adRatio: 1.5f),
+            Effect(EffectType.Debuff, 40f, 3f, 0f, TargetType.Enemy, StackType.None),
         });
 
-    // 3. Titan Grip — Shield → Buff
-    //    Primary: divine shield
-    //    Secondary: damage reduction while shield is active
-    //    Item condition: [Shield, Buff] → "layered defense" sustain
     await CreateAsync(ct, system,
         name: "Titan Grip",
         type: SkillType.Shield,
         loreBrief: "Herakles withstands any force with divine resilience.",
         loreDesc: "A titan-like shield manifests around him.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 16f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: 120f,
+            CastTime: 0f,
+            ChannelDuration: 5f,
+            CC: null,
+            Range: 0f),
         effects: new[]
         {
-                Effect(EffectType.Shield,
-                    magnitude: 120f, duration: 5f,   radius: 0f,
-                    target: TargetType.Self,          stack: StackType.None,
-                    hpRatio: 0.4f,                    isInstant: false),
-
-                Effect(EffectType.Buff,
-                    magnitude: 20f,  duration: 5f,   radius: 0f,
-                    target: TargetType.Self,          stack: StackType.None,
-                    isInstant: false),
+            Effect(EffectType.Shield, 120f, 5f, 0f, TargetType.Self, StackType.None, hpRatio: 0.4f),
+            Effect(EffectType.Buff, 20f, 5f, 0f, TargetType.Self, StackType.None),
         });
 
-    // 4. Labors Rush — Mobility → Buff
-    //    Primary: forward charge (repositioning)
-    //    Secondary: attack speed burst post-dash
-    //    Item condition: [Mobility, Buff] → "aggressive repositioning into haste"
     await CreateAsync(ct, system,
         name: "Labors Rush",
         type: SkillType.Mobility,
         loreBrief: "Herakles surges forward with unstoppable momentum.",
         loreDesc: "A heroic blur of motion and strength.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 9f,
+            ManaCost: 35f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0f,
+            ChannelDuration: 3f,
+            CC: null,
+            Range: 6f),
         effects: new[]
         {
-                Effect(EffectType.Mobility,
-                    magnitude: 0f,   duration: 0f,   radius: 0f,
-                    target: TargetType.Self,          stack: StackType.Refresh,
-                    isInstant: true),
-
-                Effect(EffectType.Buff,
-                    magnitude: 30f,  duration: 3f,   radius: 0f,
-                    target: TargetType.Self,          stack: StackType.Refresh,
-                    isInstant: false),
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.Refresh),
+            Effect(EffectType.Buff, 30f, 3f, 0f, TargetType.Self, StackType.Refresh),
         });
 
-    // 5. Divine Endurance — Shield → Buff
-    //    Primary: massive divine shield (unkillable window)
-    //    Secondary: regeneration while shield holds
-    //    Item condition: [Shield, Buff] → "unkillable sustain" ultimate window
     await CreateAsync(ct, system,
         name: "Divine Endurance",
         type: SkillType.Ultimate,
         loreBrief: "Herakles enters a divine state of unmatched endurance.",
         loreDesc: "Golden aura of mythic resilience.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 110f,
+            ManaCost: 140f,
+            Damage: null,
+            Healing: 50f,
+            Shield: 250f,
+            CastTime: 0f,
+            ChannelDuration: 10f,
+            CC: null,
+            Range: 0f),
         effects: new[]
         {
-                Effect(EffectType.Shield,
-                    magnitude: 250f, duration: 10f,  radius: 0f,
-                    target: TargetType.Self,          stack: StackType.Refresh,
-                    hpRatio: 0.6f,                    isInstant: false),
-
-                Effect(EffectType.Buff,
-                    magnitude: 50f,  duration: 10f,  radius: 0f,
-                    target: TargetType.Self,          stack: StackType.Refresh,
-                    isPeriodic: true,               isInstant: false),
+            Effect(EffectType.Shield, 250f, 10f, 0f, TargetType.Self, StackType.Refresh, hpRatio: 0.6f),
+            Effect(EffectType.Buff, 50f, 10f, 0f, TargetType.Self, StackType.Refresh, isPeriodic: true),
         });
 
     await _unitOfWork.CommitAsync(ct);
   }
 
   // =========================================================
-  // CREATE HELPER — skill + effects + lore in one call
+  // CREATE CORE
   // =========================================================
 
   private async Task CreateAsync(
@@ -311,15 +285,37 @@ public sealed class SkillSeeder : ISeeder
       SkillType type,
       string loreBrief,
       string loreDesc,
-      EffectParams[] effects)
+      EffectParams[] effects,
+      BaseStatsParams? baseStats = null)
   {
     var skill = _skillFactory.Create();
     skill.Define(name, type, system);
     await _skills.AddAsync(skill, ct);
 
+    if (baseStats is not null)
+    {
+      var stats = _statsFactory.Create();
+
+      stats.Define(
+          skill.Id,
+          baseStats.Value.Cooldown,
+          baseStats.Value.ManaCost,
+          baseStats.Value.Damage,
+          baseStats.Value.Healing,
+          baseStats.Value.Shield,
+          baseStats.Value.CastTime,
+          baseStats.Value.ChannelDuration,
+          baseStats.Value.CC,
+          baseStats.Value.Range,
+          system);
+
+      await _stats.AddAsync(stats, ct);
+    }
+
     foreach (var p in effects)
     {
       var effect = _effectFactory.Create();
+
       effect.Define(
           skill.Id,
           p.EffectType,
@@ -347,8 +343,7 @@ public sealed class SkillSeeder : ISeeder
   }
 
   // =========================================================
-  // EFFECT PARAMS — lightweight value struct for seeder clarity
-  // Avoids 13-argument positional calls inline
+  // EFFECT PARAMS
   // =========================================================
 
   private readonly record struct EffectParams(
@@ -358,13 +353,13 @@ public sealed class SkillSeeder : ISeeder
       float Radius,
       TargetType TargetType,
       StackType StackType,
-      int MaxStacks,
-      float? AdRatio,
-      float? ApRatio,
-      float? HpRatio,
-      bool IsPeriodic,
-      bool IsInstant,
-      bool IsChannelled);
+      int MaxStacks = 1,
+      float? AdRatio = null,
+      float? ApRatio = null,
+      float? HpRatio = null,
+      bool IsPeriodic = false,
+      bool IsInstant = true,
+      bool IsChannelled = false);
 
   private static EffectParams Effect(
       EffectType effectType,
@@ -384,4 +379,19 @@ public sealed class SkillSeeder : ISeeder
              target, stack, maxStacks,
              adRatio, apRatio, hpRatio,
              isPeriodic, isInstant, isChannelled);
+
+  // =========================================================
+  // BASE STATS PARAMS
+  // =========================================================
+
+  private readonly record struct BaseStatsParams(
+      float? Cooldown,
+      float? ManaCost,
+      float? Damage,
+      float? Healing,
+      float? Shield,
+      float? CastTime,
+      float? ChannelDuration,
+      float? CC,
+      float? Range);
 }
