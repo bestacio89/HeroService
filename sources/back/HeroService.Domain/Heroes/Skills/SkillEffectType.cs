@@ -4,16 +4,16 @@ namespace HeroService.Domain.Heroes.Skills;
 
 /// <summary>
 /// Defines the semantic category of a SkillEffect.
-///
+/// 
 /// Domain Role:
 /// EffectType represents the *intent and resolution category* of a skill effect,
 /// describing what kind of gameplay outcome it produces during combat simulation.
-///
+/// 
 /// It does NOT define how the effect is executed, only what it represents.
 /// The actual execution logic is handled by the SnapshotResolver.
-///
+/// 
 /// This enum is a **core semantic contract** for the combat simulation engine.
-///
+/// 
 /// Matchmaking Relevance:
 /// - Directly influences combat role classification and team composition analysis.
 /// - Used to determine:
@@ -25,25 +25,25 @@ namespace HeroService.Domain.Heroes.Skills;
 ///   • "Does this team have enough CC?"
 ///   • "Is this composition too burst-heavy?"
 ///   • "Does this team lack sustain?"
-///
+/// 
 /// Invariants:
 /// - Each SkillEffect must map to exactly one EffectType.
 /// - EffectType is a closed set and should only evolve through explicit game design decisions.
 /// - It must remain stable across versions to preserve snapshot determinism.
-///
+/// 
 /// Relationships:
 /// - Used by SkillEffect as its primary classification.
 /// - Consumed by SnapshotResolver to route execution logic.
 /// - Influences HeroSkillKit evaluation and matchmaking scoring.
 /// - Works in conjunction with TargetType and StackType to fully describe effect behavior.
-///
+/// 
 /// Versioning / Snapshot Impact:
 /// - Highly sensitive to balance and gameplay evolution.
 /// - Adding or modifying EffectTypes requires:
 ///   • SnapshotResolver updates
 ///   • Rebalancing of affected skills
 ///   • Potential recalibration of matchmaking heuristics
-///
+/// 
 /// Developer Notes:
 /// - DO NOT encode execution logic inside this enum.
 /// - DO NOT infer behavior directly from this enum in domain entities.
@@ -52,7 +52,7 @@ namespace HeroService.Domain.Heroes.Skills;
 ///   • combat simulation
 ///   • balance system
 ///   • matchmaking evaluation
-///
+/// 
 /// Architectural Insight:
 /// - EffectType is the "grammar" of your combat system.
 /// - SkillBaseStats defines magnitude.

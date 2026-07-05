@@ -4,15 +4,15 @@ namespace HeroService.Domain.Heroes.Skills;
 
 /// <summary>
 /// Defines the high-level archetypal category of a Skill.
-///
+/// 
 /// Domain Role:
 /// SkillType represents the *design intent category* of a Skill at a macro level.
 /// It is used to group abilities by their primary gameplay purpose,
 /// such as dealing damage, providing utility, control, or mobility.
-///
+/// 
 /// SkillType is a **coarse classification layer** and does NOT define execution logic.
 /// The actual behavior of a Skill is determined by its SkillEffects during snapshot resolution.
-///
+/// 
 /// Matchmaking Relevance:
 /// - Used for high-level analysis of Hero kits and team composition balance.
 /// - Supports evaluation of:
@@ -24,20 +24,20 @@ namespace HeroService.Domain.Heroes.Skills;
 ///   • “Does this team lack mobility?”
 ///   • “Is this composition too control-heavy?”
 ///   • “Is damage profile too concentrated in one role?”
-///
+/// 
 /// Invariants:
 /// - Each Skill must have exactly one primary SkillType.
 /// - SkillType must remain stable across gameplay versions unless explicitly rebalanced.
 /// - SkillType does NOT dictate behavior; it only describes intent.
 /// - Must remain aligned with underlying SkillEffects to avoid classification drift.
-///
+/// 
 /// Relationships:
 /// - Assigned to a Skill aggregate.
 /// - Works alongside:
 ///   • SkillEffects (behavioral definition)
 ///   • SkillBaseStats (numerical definition)
 ///   • SnapshotResolver (execution engine)
-///
+/// 
 /// Versioning / Snapshot Impact:
 /// - Medium to high impact depending on reclassification scope.
 /// - Changing SkillType can affect:
@@ -45,13 +45,13 @@ namespace HeroService.Domain.Heroes.Skills;
 ///   • Matchmaking classification
 ///   • Team composition heuristics
 /// - Requires validation against existing HeroSkillKit compositions when modified.
-///
+/// 
 /// Developer Notes:
 /// - DO NOT use SkillType as a substitute for logic branching.
 /// - DO NOT assume execution behavior from this enum.
 /// - SkillType is a *semantic label*, not a runtime rule.
 /// - Any gameplay behavior must be derived from SkillEffects and resolved in SnapshotResolver.
-///
+/// 
 /// Architectural Insight:
 /// - SkillType defines “what the skill is supposed to represent.”
 /// - SkillEffects define “what the skill actually does.”
