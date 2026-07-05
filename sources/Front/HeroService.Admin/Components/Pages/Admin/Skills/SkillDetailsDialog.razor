@@ -1,11 +1,16 @@
-﻿<MudDialog FullWidth="true" MaxWidth="MaxWidth.Large">
+﻿@using HeroService.Domain.Heroes.Skills
+@using HeroService.Admin.Components.Pages.Admin.Skills
+
+<MudDialog FullWidth="true" MaxWidth="MaxWidth.Large">
 
     <DialogContent>
 
         <!-- HEADER -->
         <MudPaper Class="pa-4 mb-3" Elevation="2">
 
-            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <MudStack Row="true"
+                      Justify="Justify.SpaceBetween"
+                      AlignItems="AlignItems.Center">
 
                 <MudStack Spacing="0">
                     <MudText Typo="Typo.h5">@Skill.Name</MudText>
@@ -170,6 +175,4 @@
     [Parameter, EditorRequired] public SkillDto Skill { get; set; } = default!;
 
     private void Close() => MudDialog.Close();
-
-
 }
