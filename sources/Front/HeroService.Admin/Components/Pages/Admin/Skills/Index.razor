@@ -11,7 +11,10 @@
 <MudPaper Class="pa-4">
 
     <!-- HEADER -->
-    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3">
+    <MudStack Row="true"
+              Justify="Justify.SpaceBetween"
+              AlignItems="AlignItems.Center"
+              Class="mb-3">
 
         <MudStack Spacing="1">
             <MudText Typo="Typo.h5">Skills</MudText>
@@ -28,17 +31,20 @@
 
     </MudStack>
 
-    <!-- DIVIDER -->
     <MudDivider Class="mb-4" />
 
     <!-- SUMMARY STRIP -->
     <MudStack Row="true" Spacing="2" Class="mb-4">
 
-        <MudChip T="string" Color="Color.Primary" Variant="Variant.Filled">
+        <MudChip T="string"
+                 Color="Color.Primary"
+                 Variant="Variant.Filled">
             Total: @Items.Count
         </MudChip>
 
-        <MudChip T="string" Color="Color.Secondary" Variant="Variant.Outlined">
+        <MudChip T="string"
+                 Color="Color.Secondary"
+                 Variant="Variant.Outlined">
             Types: @Items.Select(x => x.SkillType).Distinct().Count()
         </MudChip>
 

@@ -20,7 +20,7 @@
                 </MudStack>
 
                 <MudChip T="string"
-                         Color="Color.Primary"
+                         Color="@SkillTheme.GetColor(Skill.SkillType)"
                          Size="Size.Small">
                     @Skill.SkillType
                 </MudChip>
@@ -101,7 +101,9 @@
                     {
                         <MudPaper Class="pa-3 mb-2" Outlined="true">
 
-                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                            <MudStack Row="true"
+                                      Justify="Justify.SpaceBetween"
+                                      AlignItems="AlignItems.Center">
 
                                 <MudText Typo="Typo.subtitle2">
                                     @effect.EffectType → @effect.TargetType
