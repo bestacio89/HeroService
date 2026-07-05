@@ -88,6 +88,7 @@ public sealed class BrowseHeroSnapshotsQueryHandler
 
       var snapshot = _resolver.ResolveHero(
           hero.Id,
+          hero.Name,
           request.GameVersionId,
           hero.BaseStats,
           heroModifierLookup.GetValueOrDefault(hero.Id),

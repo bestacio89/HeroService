@@ -16,6 +16,7 @@ public sealed class SnapshotResolver
 
   public HeroSnapshot ResolveHero(
       Guid heroId,
+      string heroName,
       Guid gameVersionId,
       HeroBaseStats baseStats,
       HeroModifier? heroModifier,
@@ -33,12 +34,13 @@ public sealed class SnapshotResolver
         ResolveSkill(skills[4], gameVersionId, skillBaseStats, skillModifiers)
     );
 
-    return new HeroSnapshot(heroId, gameVersionId, stats, kit, BuildKitProfile(kit));
+    return new HeroSnapshot(heroId, heroName, gameVersionId, stats, kit, BuildKitProfile(kit));
   }
 
   private static HeroStatSnapshot BuildHeroStats(HeroBaseStats baseStats, HeroModifier? mod)
   {
     float Apply(float v, float? m) => v * (m ?? 1f);
+
     return new HeroStatSnapshot(
         Apply(baseStats.BaseHealth, mod?.HealthMultiplier),
         Apply(baseStats.BaseMana, mod?.ManaMultiplier),
