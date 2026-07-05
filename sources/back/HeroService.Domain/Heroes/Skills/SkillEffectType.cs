@@ -65,67 +65,57 @@ public enum EffectType
   // =========================================================
   // DIRECT COMBAT OUTPUT
   // =========================================================
-
-  Damage,
-  DamageOverTime,
-  Heal,
-  HealOverTime,
-  Shield,
+  Damage = 0,
+  DamageOverTime = 1,
+  Heal = 2,
+  HealOverTime = 3,
+  Shield = 4,
 
   // =========================================================
   // CONTROL SYSTEM
   // =========================================================
+  Slow = 5,
+  Root = 6,
+  Stun = 7,
+  Silence = 8,
+  Disarm = 9,
+  Blind = 10,
 
-  Slow,
-  Root,
-  Stun,
-  Silence,
-  Disarm,
-  Blind,
+  Fear = 11,
+  Charm = 12,
+  Taunt = 13,
+  Confuse = 14,
+  Sleep = 15,
 
-  Fear,
-  Charm,
-  Taunt,
-  Confuse,
-  Sleep,
+  Knockback = 16,
+  KnockUp = 17,
+  Pull = 18,
 
-  Knockback,
-  KnockUp,
-  Pull,
-
-  Freeze,
-  Petrify,
+  Freeze = 19,
+  Petrify = 20,
 
   // =========================================================
   // STATE MODIFIERS
   // =========================================================
-
-  Buff,
-  Debuff,
+  Buff = 21,
+  Debuff = 22,
 
   // =========================================================
   // POSITIONING / MOVEMENT SYSTEM
   // =========================================================
-
-  Mobility,
+  Mobility = 23,
 
   // =========================================================
   // EXECUTION SYSTEM
   // =========================================================
-
-  Execute,
+  Execute = 24,
 
   // =========================================================
   // UTILITY / STRATEGIC EFFECTS
   // =========================================================
-
-  Utility,
-
-  Vision,
-
-  ZoneControl,
-
-  Summon,
-
-  Transformation
+  Utility = 25,
+  Vision = 26,
+  ZoneControl = 27,
+  Summon = 28,
+  Transformation = 29
 }

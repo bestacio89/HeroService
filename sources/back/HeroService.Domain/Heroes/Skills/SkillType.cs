@@ -61,26 +61,26 @@ namespace HeroService.Domain.Heroes.Skills;
 public enum SkillType
 {
   /// <summary>Primary damage-dealing abilities (burst or sustained).</summary>
-  Damage,
+  Damage = 0,
 
   /// <summary>Healing abilities applied to self or allies.</summary>
-  Heal,
+  Heal = 1,
 
   /// <summary>Protective abilities that absorb or mitigate damage.</summary>
-  Shield,
+  Shield = 2,
 
   /// <summary>Movement-based abilities such as dashes, blinks, or repositioning tools.</summary>
-  Mobility,
+  Mobility = 3,
 
   /// <summary>Control-based abilities such as stun, root, silence, knock-up, slow.</summary>
-  Control,
+  Control = 4,
 
   /// <summary>Positive enhancements applied to self or allies.</summary>
-  Buff,
+  Buff = 5,
 
   /// <summary>Negative status effects applied to enemies.</summary>
-  Debuff,
+  Debuff = 6,
 
   /// <summary>High-impact ultimate abilities with enhanced scaling or special rules.</summary>
-  Ultimate
+  Ultimate = 7
 }
