@@ -39,24 +39,81 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
   }
 
   private static SkillSnapshotDto MapSkill(SkillSnapshot src) => new(
-      src.SkillId,
-      new SkillExecutionSnapshotDto(
-          src.Execution.Cooldown ?? 0f, src.Execution.ManaCost ?? 0f, src.Execution.Damage ?? 0f,
-          src.Execution.Healing ?? 0f, src.Execution.ShieldValue ?? 0f, src.Execution.CastTime ?? 0f,
-          src.Execution.ChannelDuration ?? 0f, src.Execution.Range ?? 0f, src.Execution.CrowdControlDuration ?? 0f
-      ),
-      new SkillEffectSnapshotDto(
-          src.Effects.HasDamage, src.Effects.HasDamageOverTime, src.Effects.HasHeal,
-          src.Effects.HasHealOverTime, src.Effects.HasShield,
-          src.Effects.HasSlow, src.Effects.HasRoot, src.Effects.HasStun,
-          src.Effects.HasSilence, src.Effects.HasDisarm, src.Effects.HasBlind,
-          src.Effects.HasFear, src.Effects.HasCharm, src.Effects.HasTaunt,
-          src.Effects.HasConfuse, src.Effects.HasSleep,
-          src.Effects.HasKnockback, src.Effects.HasKnockUp, src.Effects.HasPull,
-          src.Effects.HasFreeze, src.Effects.HasPetrify,
-          src.Effects.HasBuff, src.Effects.HasDebuff, src.Effects.HasMobility,
-          src.Effects.HasExecute, src.Effects.HasUtility, src.Effects.HasVision,
-          src.Effects.HasZoneControl, src.Effects.HasSummon, src.Effects.HasTransformation
-      )
-  );
+    src.SkillId,
+    src.Name,
+
+    new SkillExecutionSnapshotDto(
+        src.Execution.Cooldown ?? 0f,
+        src.Execution.ManaCost ?? 0f,
+        src.Execution.Damage ?? 0f,
+        src.Execution.Healing ?? 0f,
+        src.Execution.ShieldValue ?? 0f,
+        src.Execution.CastTime ?? 0f,
+        src.Execution.ChannelDuration ?? 0f,
+        src.Execution.Range ?? 0f,
+        src.Execution.CrowdControlDuration ?? 0f
+    ),
+
+    new SkillEffectSnapshotDto(
+        src.Effects.HasDamage,
+        src.Effects.HasDamageOverTime,
+        src.Effects.HasHeal,
+        src.Effects.HasHealOverTime,
+        src.Effects.HasShield,
+
+        src.Effects.HasSlow,
+        src.Effects.HasRoot,
+        src.Effects.HasStun,
+        src.Effects.HasSilence,
+        src.Effects.HasDisarm,
+        src.Effects.HasBlind,
+
+        src.Effects.HasFear,
+        src.Effects.HasCharm,
+        src.Effects.HasTaunt,
+        src.Effects.HasConfuse,
+        src.Effects.HasSleep,
+
+        src.Effects.HasKnockback,
+        src.Effects.HasKnockUp,
+        src.Effects.HasPull,
+
+        src.Effects.HasFreeze,
+        src.Effects.HasPetrify,
+
+        src.Effects.HasBuff,
+        src.Effects.HasDebuff,
+
+        src.Effects.HasMobility,
+        src.Effects.HasExecute,
+
+        src.Effects.HasUtility,
+        src.Effects.HasVision,
+        src.Effects.HasZoneControl,
+        src.Effects.HasSummon,
+        src.Effects.HasTransformation
+    ),
+
+    src.EffectExecutions.Select(e => new EffectExecutionSnapshotDto(
+        e.EffectType,
+        e.SourceSkillId,
+        e.CasterId,
+        e.TargetIds,
+
+        e.FinalMagnitude,
+        e.FinalDuration,
+        e.FinalRadius,
+
+        e.StacksApplied,
+
+        e.IsInstant,
+        e.IsPeriodic,
+        e.IsChannelled,
+
+        e.TickInterval,
+        e.ChannelDuration,
+
+        e.TargetType
+    )).ToList()
+);
 }
