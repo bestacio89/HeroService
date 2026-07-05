@@ -12,6 +12,11 @@ namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Skills;
 /// Any addition to EffectType requires a corresponding addition here,
 /// plus an update to SnapshotResolver.BuildEffects().
 ///
+/// HasAnyCrowdControl below is a *derived* convenience property, not a
+/// stored field — it does not violate the 1:1 mirror contract, it just
+/// saves callers from OR-ing all 16 CC flags by hand (e.g. HeroKitProfile's
+/// CrowdControlSkillCount / IsControlOriented).
+///
 /// Purpose:
 /// - Enables fast, allocation-free kit analysis at snapshot time.
 /// - Drives HeroKitProfile computation (matchmaking + item affinity).
@@ -41,7 +46,25 @@ public sealed record SkillEffectSnapshot(
   // CONTROL SYSTEM
   // =========================================================
 
-  bool HasCrowdControl,
+  bool HasSlow,
+  bool HasRoot,
+  bool HasStun,
+  bool HasSilence,
+  bool HasDisarm,
+  bool HasBlind,
+
+  bool HasFear,
+  bool HasCharm,
+  bool HasTaunt,
+  bool HasConfuse,
+  bool HasSleep,
+
+  bool HasKnockback,
+  bool HasKnockUp,
+  bool HasPull,
+
+  bool HasFreeze,
+  bool HasPetrify,
 
   // =========================================================
   // STATE MODIFIERS
@@ -71,4 +94,16 @@ public sealed record SkillEffectSnapshot(
   bool HasZoneControl,
   bool HasSummon,
   bool HasTransformation
-);
+)
+{
+  /// <summary>
+  /// Derived, not stored — true if any of the 16 granular CC flags is set.
+  /// Kept for callers (like HeroKitProfile) that only care about CC density,
+  /// not which specific CC types are present.
+  /// </summary>
+  public bool HasAnyCrowdControl =>
+      HasSlow || HasRoot || HasStun || HasSilence || HasDisarm || HasBlind ||
+      HasFear || HasCharm || HasTaunt || HasConfuse || HasSleep ||
+      HasKnockback || HasKnockUp || HasPull ||
+      HasFreeze || HasPetrify;
+}
