@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HeroService.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialForm : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -83,7 +83,7 @@ namespace HeroService.Persistence.Migrations
                     HealthMultiplier = table.Column<float>(type: "real", nullable: true),
                     ManaMultiplier = table.Column<float>(type: "real", nullable: true),
                     AttackDamageMultiplier = table.Column<float>(type: "real", nullable: true),
-                    AbilityPowerMultiplier = table.Column<float>(type: "real", nullable: true),
+                    MagicDamageMultiplier = table.Column<float>(type: "real", nullable: true),
                     AttackSpeedMultiplier = table.Column<float>(type: "real", nullable: true),
                     CastSpeedMultiplier = table.Column<float>(type: "real", nullable: true),
                     CritChanceMultiplier = table.Column<float>(type: "real", nullable: true),
@@ -118,7 +118,7 @@ namespace HeroService.Persistence.Migrations
                     HealthPerLevel = table.Column<float>(type: "real", nullable: false),
                     ManaPerLevel = table.Column<float>(type: "real", nullable: false),
                     AttackDamagePerLevel = table.Column<float>(type: "real", nullable: false),
-                    AbilityPowerPerLevel = table.Column<float>(type: "real", nullable: false),
+                    MagicDamagePerLevel = table.Column<float>(type: "real", nullable: false),
                     ArmorPerLevel = table.Column<float>(type: "real", nullable: false),
                     MagicResistancePerLevel = table.Column<float>(type: "real", nullable: false),
                     AttackSpeedPerLevel = table.Column<float>(type: "real", nullable: false),
@@ -403,11 +403,13 @@ namespace HeroService.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     SkillId = table.Column<Guid>(type: "uuid", nullable: false),
                     EffectType = table.Column<int>(type: "integer", nullable: false),
+                    BuffType = table.Column<int>(type: "integer", nullable: true),
+                    DebuffType = table.Column<int>(type: "integer", nullable: true),
                     Magnitude = table.Column<float>(type: "real", nullable: false),
                     Duration = table.Column<float>(type: "real", nullable: false),
                     Radius = table.Column<float>(type: "real", nullable: false),
                     AttackDamageRatio = table.Column<float>(type: "real", nullable: true),
-                    AbilityPowerRatio = table.Column<float>(type: "real", nullable: true),
+                    MagicDamageRatio = table.Column<float>(type: "real", nullable: true),
                     MaxHealthRatio = table.Column<float>(type: "real", nullable: true),
                     IsPeriodic = table.Column<bool>(type: "boolean", nullable: false),
                     IsInstant = table.Column<bool>(type: "boolean", nullable: false),
@@ -444,7 +446,7 @@ namespace HeroService.Persistence.Migrations
                     BaseHealth = table.Column<float>(type: "real", nullable: false),
                     BaseMana = table.Column<float>(type: "real", nullable: false),
                     BaseAttackDamage = table.Column<float>(type: "real", nullable: false),
-                    BaseAbilityPower = table.Column<float>(type: "real", nullable: false),
+                    BaseMagicDamage = table.Column<float>(type: "real", nullable: false),
                     BaseAttackSpeed = table.Column<float>(type: "real", nullable: false),
                     BaseCastSpeed = table.Column<float>(type: "real", nullable: false),
                     BaseCritChance = table.Column<float>(type: "real", nullable: false),

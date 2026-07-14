@@ -222,9 +222,6 @@ namespace HeroService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<float>("BaseAbilityPower")
-                        .HasColumnType("real");
-
                     b.Property<float>("BaseArmor")
                         .HasColumnType("real");
 
@@ -253,6 +250,9 @@ namespace HeroService.Persistence.Migrations
                         .HasColumnType("real");
 
                     b.Property<float>("BaseHealth")
+                        .HasColumnType("real");
+
+                    b.Property<float>("BaseMagicDamage")
                         .HasColumnType("real");
 
                     b.Property<float>("BaseMagicResistance")
@@ -390,9 +390,6 @@ namespace HeroService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<float>("AbilityPowerPerLevel")
-                        .HasColumnType("real");
-
                     b.Property<float>("ArmorPerLevel")
                         .HasColumnType("real");
 
@@ -432,6 +429,9 @@ namespace HeroService.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<float>("MagicDamagePerLevel")
+                        .HasColumnType("real");
 
                     b.Property<float>("MagicResistancePerLevel")
                         .HasColumnType("real");
@@ -561,11 +561,11 @@ namespace HeroService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<float?>("AbilityPowerRatio")
-                        .HasColumnType("real");
-
                     b.Property<float?>("AttackDamageRatio")
                         .HasColumnType("real");
+
+                    b.Property<int?>("BuffType")
+                        .HasColumnType("integer");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -576,6 +576,9 @@ namespace HeroService.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("DateDeleted")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DebuffType")
+                        .HasColumnType("integer");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("text");
@@ -603,6 +606,9 @@ namespace HeroService.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<float?>("MagicDamageRatio")
+                        .HasColumnType("real");
 
                     b.Property<float>("Magnitude")
                         .HasColumnType("real");
@@ -728,9 +734,6 @@ namespace HeroService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<float?>("AbilityPowerMultiplier")
-                        .HasColumnType("real");
-
                     b.Property<float?>("ArmorMultiplier")
                         .HasColumnType("real");
 
@@ -788,6 +791,9 @@ namespace HeroService.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<float?>("MagicDamageMultiplier")
+                        .HasColumnType("real");
 
                     b.Property<float?>("MagicResistanceMultiplier")
                         .HasColumnType("real");
