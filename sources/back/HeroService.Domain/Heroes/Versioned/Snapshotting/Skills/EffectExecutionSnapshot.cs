@@ -10,22 +10,28 @@ public sealed record EffectExecutionSnapshot
     // =========================================================
     // IDENTITY
     // =========================================================
+
     EffectType EffectType,
+
+    BuffType? BuffType,
+    DebuffType? DebuffType,
 
     Guid SourceSkillId,
     Guid CasterId,
 
     IReadOnlyList<Guid> TargetIds,
 
+
     // =========================================================
-    // RESOLVED NUMERICS (FROM SkillEffect + Stats)
+    // RESOLVED NUMERICS
     // =========================================================
 
-    float FinalMagnitude,     // derived from Magnitude + AD/AP/HP ratios
-    float FinalDuration,      // derived from Duration + modifiers
-    float FinalRadius,        // derived from Radius + buffs
+    float FinalMagnitude,
+    float FinalDuration,
+    float FinalRadius,
 
-    int StacksApplied,        // resolved via StackType + MaxStacks
+    int StacksApplied,
+
 
     // =========================================================
     // EXECUTION MODE
@@ -35,11 +41,12 @@ public sealed record EffectExecutionSnapshot
     bool IsPeriodic,
     bool IsChannelled,
 
-    float TickInterval,       // ONLY if IsPeriodic
-    float ChannelDuration,    // ONLY if IsChannelled
+    float TickInterval,
+    float ChannelDuration,
+
 
     // =========================================================
-    // TARGETING RESULT
+    // TARGETING
     // =========================================================
 
     TargetType TargetType

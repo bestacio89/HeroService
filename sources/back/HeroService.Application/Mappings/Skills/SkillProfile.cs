@@ -26,18 +26,46 @@ public sealed class SkillProfile : FranzMapProfile
               {
                 EffectType = effect.EffectType,
 
+                // =========================================
+                // STATE MODIFIER SEMANTICS
+                // =========================================
+
+                BuffType = effect.BuffType,
+
+                DebuffType = effect.DebuffType,
+
+
+                // =========================================
+                // EFFECT VALUES
+                // =========================================
+
                 Magnitude = effect.Magnitude,
                 Duration = effect.Duration,
                 Radius = effect.Radius,
+
+
+                // =========================================
+                // TARGETING
+                // =========================================
 
                 TargetType = effect.TargetType,
                 StackType = effect.StackType,
 
                 MaxStacks = effect.MaxStacks,
 
+
+                // =========================================
+                // SCALING
+                // =========================================
+
                 AttackDamageRatio = effect.AttackDamageRatio,
-                AbilityPowerRatio = effect.AbilityPowerRatio,
+                MagicDamageRatio = effect.MagicDamageRatio,
                 MaxHealthRatio = effect.MaxHealthRatio,
+
+
+                // =========================================
+                // EXECUTION FLAGS
+                // =========================================
 
                 IsPeriodic = effect.IsPeriodic,
                 IsInstant = effect.IsInstant,
@@ -45,21 +73,26 @@ public sealed class SkillProfile : FranzMapProfile
               })
               .ToList(),
 
-           BaseStats = skill.BaseStats != null
+
+          BaseStats = skill.BaseStats != null
             ? new SkillBaseStatsDto
             {
               Cooldown = skill.BaseStats.BaseCooldown,
               ManaCost = skill.BaseStats.BaseManaCost,
+
               Damage = skill.BaseStats.BaseDamage,
               Healing = skill.BaseStats.BaseHealing,
               ShieldValue = skill.BaseStats.BaseShieldValue,
+
               CastTime = skill.BaseStats.BaseCastTime,
               ChannelDuration = skill.BaseStats.BaseChannelDuration,
+
               Range = skill.BaseStats.BaseRange,
               CrowdControlDuration = skill.BaseStats.BaseCrowdControlDuration
             }
             : null
-       });
+        });
+
 
     // =========================================
     // SkillEffect
@@ -70,23 +103,53 @@ public sealed class SkillProfile : FranzMapProfile
         {
           EffectType = effect.EffectType,
 
+
+          // =========================================
+          // STATE MODIFIER SEMANTICS
+          // =========================================
+
+          BuffType = effect.BuffType,
+
+          DebuffType = effect.DebuffType,
+
+
+          // =========================================
+          // EFFECT VALUES
+          // =========================================
+
           Magnitude = effect.Magnitude,
           Duration = effect.Duration,
           Radius = effect.Radius,
+
+
+          // =========================================
+          // TARGETING
+          // =========================================
 
           TargetType = effect.TargetType,
           StackType = effect.StackType,
 
           MaxStacks = effect.MaxStacks,
 
+
+          // =========================================
+          // SCALING
+          // =========================================
+
           AttackDamageRatio = effect.AttackDamageRatio,
-          AbilityPowerRatio = effect.AbilityPowerRatio,
+          MagicDamageRatio = effect.MagicDamageRatio,
           MaxHealthRatio = effect.MaxHealthRatio,
+
+
+          // =========================================
+          // EXECUTION FLAGS
+          // =========================================
 
           IsPeriodic = effect.IsPeriodic,
           IsInstant = effect.IsInstant,
           IsChannelled = effect.IsChannelled
         });
+
 
     // =========================================
     // SkillBaseStats
@@ -97,15 +160,18 @@ public sealed class SkillProfile : FranzMapProfile
         {
           Cooldown = stats.BaseCooldown,
           ManaCost = stats.BaseManaCost,
+
           Damage = stats.BaseDamage,
           Healing = stats.BaseHealing,
           ShieldValue = stats.BaseShieldValue,
+
           CastTime = stats.BaseCastTime,
           ChannelDuration = stats.BaseChannelDuration,
+
           Range = stats.BaseRange,
-          CrowdControlDuration = stats.BaseCrowdControlDuration,
-       
-           });
+          CrowdControlDuration = stats.BaseCrowdControlDuration
+        });
+
 
     // =========================================
     // SkillLore

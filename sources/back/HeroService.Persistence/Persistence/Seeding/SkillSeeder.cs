@@ -116,7 +116,17 @@ public sealed class SkillSeeder : ISeeder
             Range: 3f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 25f, 6f, 0f, TargetType.Self, StackType.RefreshDuration, isPeriodic: true, isInstant: false),
+            Effect(
+    EffectType.Buff,
+    25f,
+    6f,
+    0f,
+    TargetType.Self,
+    StackType.RefreshDuration,
+    isPeriodic: true,
+    isInstant: false,
+    buffType: BuffType.AttackDamage),
+
             Effect(EffectType.Damage, 20f, 6f, 3f, TargetType.AreaEnemies, StackType.None, apRatio: 0.3f, isPeriodic: true, isInstant: false),
         });
 
@@ -183,8 +193,8 @@ public sealed class SkillSeeder : ISeeder
             Range: 0f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 40f, 8f, 0f, TargetType.Self, StackType.Refresh, hpRatio: 0.25f),
-            Effect(EffectType.Buff, 20f, 8f, 0f, TargetType.Self, StackType.Refresh),
+          Effect( EffectType.Buff, 40f, 8f, 0f, TargetType.Self, StackType.Refresh, hpRatio: 0.25f, buffType: BuffType.MaxHealth),
+          Effect( EffectType.Buff, 20f, 8f, 0f, TargetType.Self, StackType.Refresh, buffType: BuffType.AttackDamage),
         });
 
     await CreateAsync(ct, system,
@@ -205,7 +215,7 @@ public sealed class SkillSeeder : ISeeder
         effects: new[]
         {
             Effect(EffectType.Damage, 170f, 0f, 0f, TargetType.Enemy, StackType.None, adRatio: 1.5f),
-            Effect(EffectType.Debuff, 40f, 3f, 0f, TargetType.Enemy, StackType.None),
+            Effect(EffectType.Debuff, 40f,  3f,  0f,  TargetType.Enemy, StackType.None, debuffType: DebuffType.ArmorReduction),
         });
 
     await CreateAsync(ct, system,
@@ -226,7 +236,7 @@ public sealed class SkillSeeder : ISeeder
         effects: new[]
         {
             Effect(EffectType.Shield, 120f, 5f, 0f, TargetType.Self, StackType.None, hpRatio: 0.4f),
-            Effect(EffectType.Buff, 20f, 5f, 0f, TargetType.Self, StackType.None),
+            Effect(EffectType.Buff, 20f, 5f, 0f, TargetType.Self, StackType.None, buffType: BuffType.DamageReduction),
         });
 
     await CreateAsync(ct, system,
@@ -247,7 +257,7 @@ public sealed class SkillSeeder : ISeeder
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.Refresh),
-            Effect(EffectType.Buff, 30f, 3f, 0f, TargetType.Self, StackType.Refresh),
+            Effect(EffectType.Buff, 30f, 3f, 0f, TargetType.Self, StackType.Refresh, buffType: BuffType.MovementSpeed),
         });
 
     await CreateAsync(ct, system,
@@ -317,21 +327,29 @@ public sealed class SkillSeeder : ISeeder
       var effect = _effectFactory.Create();
 
       effect.Define(
-          skill.Id,
-          p.EffectType,
-          p.Magnitude,
-          p.Duration,
-          p.Radius,
-          p.TargetType,
-          p.StackType,
-          p.MaxStacks,
-          p.AdRatio,
-          p.ApRatio,
-          p.HpRatio,
-          p.IsPeriodic,
-          p.IsInstant,
-          p.IsChannelled,
-          system);
+    skill.Id,
+    p.EffectType,
+
+    p.Magnitude,
+    p.Duration,
+    p.Radius,
+
+    p.TargetType,
+    p.StackType,
+    p.MaxStacks,
+
+    p.AdRatio,
+    p.ApRatio,
+    p.HpRatio,
+
+    p.IsPeriodic,
+    p.IsInstant,
+    p.IsChannelled,
+
+    p.BuffType,
+    p.DebuffType,
+
+    system);
 
       skill.AddEffect(effect);
       await _effects.AddAsync(effect, ct);
@@ -347,38 +365,71 @@ public sealed class SkillSeeder : ISeeder
   // =========================================================
 
   private readonly record struct EffectParams(
-      EffectType EffectType,
-      float Magnitude,
-      float Duration,
-      float Radius,
-      TargetType TargetType,
-      StackType StackType,
-      int MaxStacks = 1,
-      float? AdRatio = null,
-      float? ApRatio = null,
-      float? HpRatio = null,
-      bool IsPeriodic = false,
-      bool IsInstant = true,
-      bool IsChannelled = false);
+    EffectType EffectType,
+    float Magnitude,
+    float Duration,
+    float Radius,
+
+    TargetType TargetType,
+    StackType StackType,
+
+    int MaxStacks = 1,
+
+    float? AdRatio = null,
+    float? ApRatio = null,
+    float? HpRatio = null,
+
+    bool IsPeriodic = false,
+    bool IsInstant = true,
+    bool IsChannelled = false,
+
+    BuffType? BuffType = null,
+    DebuffType? DebuffType = null);
 
   private static EffectParams Effect(
-      EffectType effectType,
-      float magnitude,
-      float duration,
-      float radius,
-      TargetType target,
-      StackType stack,
-      int maxStacks = 1,
-      float? adRatio = null,
-      float? apRatio = null,
-      float? hpRatio = null,
-      bool isPeriodic = false,
-      bool isInstant = true,
-      bool isChannelled = false)
-      => new(effectType, magnitude, duration, radius,
-             target, stack, maxStacks,
-             adRatio, apRatio, hpRatio,
-             isPeriodic, isInstant, isChannelled);
+    EffectType effectType,
+    float magnitude,
+    float duration,
+    float radius,
+
+    TargetType target,
+    StackType stack,
+
+    int maxStacks = 1,
+
+    float? adRatio = null,
+    float? apRatio = null,
+    float? hpRatio = null,
+
+    bool isPeriodic = false,
+    bool isInstant = true,
+    bool isChannelled = false,
+
+    BuffType? buffType = null,
+    DebuffType? debuffType = null)
+  {
+    return new EffectParams(
+        effectType,
+        magnitude,
+        duration,
+        radius,
+
+        target,
+        stack,
+
+        maxStacks,
+
+        adRatio,
+        apRatio,
+        hpRatio,
+
+        isPeriodic,
+        isInstant,
+        isChannelled,
+
+        buffType,
+        debuffType);
+  }
 
   // =========================================================
   // BASE STATS PARAMS

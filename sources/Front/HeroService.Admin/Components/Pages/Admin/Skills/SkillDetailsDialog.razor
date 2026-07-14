@@ -1,7 +1,4 @@
-﻿@using HeroService.Domain.Heroes.Skills
-@using HeroService.Admin.Components.Pages.Admin.Skills
-
-<MudDialog FullWidth="true" MaxWidth="MaxWidth.Large">
+﻿<MudDialog FullWidth="true" MaxWidth="MaxWidth.Large">
 
     <DialogContent>
 
@@ -13,11 +10,18 @@
                       AlignItems="AlignItems.Center">
 
                 <MudStack Spacing="0">
-                    <MudText Typo="Typo.h5">@Skill.Name</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+
+                    <MudText Typo="Typo.h5">
+                        @Skill.Name
+                    </MudText>
+
+                    <MudText Typo="Typo.body2"
+                             Color="Color.Secondary">
                         Skill definition and execution model
                     </MudText>
+
                 </MudStack>
+
 
                 <MudChip T="string"
                          Color="@SkillTheme.GetColor(Skill.SkillType)"
@@ -29,56 +33,125 @@
 
         </MudPaper>
 
+
+
         <!-- CORE STATS -->
         <MudExpansionPanels Elevation="1">
 
-            <MudExpansionPanel Text="Base Statistics" Expanded="true">
+            <MudExpansionPanel Text="Base Statistics"
+                               Expanded="true">
 
                 <MudGrid Spacing="2">
 
                     @if (Skill.BaseStats?.Cooldown is not null)
                     {
                         <MudItem xs="6" sm="4">
-                            <MudChip T="string">Cooldown: @Skill.BaseStats.Cooldown</MudChip>
+                            <MudChip T="string">
+                                Cooldown: @Skill.BaseStats.Cooldown
+                            </MudChip>
                         </MudItem>
                     }
+
 
                     @if (Skill.BaseStats?.ManaCost is not null)
                     {
                         <MudItem xs="6" sm="4">
-                            <MudChip T="string">Mana: @Skill.BaseStats.ManaCost</MudChip>
+                            <MudChip T="string">
+                                Mana: @Skill.BaseStats.ManaCost
+                            </MudChip>
                         </MudItem>
                     }
+
 
                     @if (Skill.BaseStats?.Damage is not null)
                     {
                         <MudItem xs="6" sm="4">
-                            <MudChip T="string" Color="Color.Error">
+
+                            <MudChip T="string"
+                                     Color="Color.Error">
+
                                 Damage: @Skill.BaseStats.Damage
+
                             </MudChip>
+
                         </MudItem>
                     }
+
 
                     @if (Skill.BaseStats?.Healing is not null)
                     {
                         <MudItem xs="6" sm="4">
-                            <MudChip T="string" Color="Color.Success">
+
+                            <MudChip T="string"
+                                     Color="Color.Success">
+
                                 Healing: @Skill.BaseStats.Healing
+
                             </MudChip>
+
                         </MudItem>
                     }
+
+
+                    @if (Skill.BaseStats?.ShieldValue is not null)
+                    {
+                        <MudItem xs="6" sm="4">
+
+                            <MudChip T="string"
+                                     Color="Color.Info">
+
+                                Shield: @Skill.BaseStats.ShieldValue
+
+                            </MudChip>
+
+                        </MudItem>
+                    }
+
 
                     @if (Skill.BaseStats?.Range is not null)
                     {
                         <MudItem xs="6" sm="4">
-                            <MudChip T="string">Range: @Skill.BaseStats.Range</MudChip>
+
+                            <MudChip T="string">
+                                Range: @Skill.BaseStats.Range
+                            </MudChip>
+
                         </MudItem>
                     }
+
 
                     @if (Skill.BaseStats?.CastTime is not null)
                     {
                         <MudItem xs="6" sm="4">
-                            <MudChip T="string">Cast: @Skill.BaseStats.CastTime</MudChip>
+
+                            <MudChip T="string">
+                                Cast: @Skill.BaseStats.CastTime
+                            </MudChip>
+
+                        </MudItem>
+                    }
+
+
+                    @if (Skill.BaseStats?.ChannelDuration is not null)
+                    {
+                        <MudItem xs="6" sm="4">
+
+                            <MudChip T="string">
+                                Channel: @Skill.BaseStats.ChannelDuration
+                            </MudChip>
+
+                        </MudItem>
+                    }
+
+
+                    @if (Skill.BaseStats?.CrowdControlDuration is not null)
+                    {
+                        <MudItem xs="6" sm="4">
+
+                            <MudChip T="string">
+                                CC Duration: @Skill.BaseStats.CrowdControlDuration
+                            </MudChip>
+
                         </MudItem>
                     }
 
@@ -86,95 +159,262 @@
 
             </MudExpansionPanel>
 
+
+
+
             <!-- EFFECT SYSTEM -->
             <MudExpansionPanel Text="@($"Effect System ({Skill.Effects.Count})")">
 
+
                 @if (Skill.Effects.Count == 0)
                 {
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    <MudText Typo="Typo.body2"
+                             Color="Color.Secondary">
+
                         No effects defined.
+
                     </MudText>
                 }
                 else
                 {
+
                     @foreach (var effect in Skill.Effects)
                     {
-                        <MudPaper Class="pa-3 mb-2" Outlined="true">
+
+                        <MudPaper Class="pa-3 mb-2"
+                                  Outlined="true">
+
 
                             <MudStack Row="true"
                                       Justify="Justify.SpaceBetween"
                                       AlignItems="AlignItems.Center">
 
-                                <MudText Typo="Typo.subtitle2">
-                                    @effect.EffectType → @effect.TargetType
-                                </MudText>
 
-                                <MudStack Row="true" Spacing="1">
+                                <MudStack Spacing="0">
 
-                                    @if (effect.IsInstant)
+                                    <MudText Typo="Typo.subtitle2">
+
+                                        @effect.EffectType
+                                        →
+                                        @effect.TargetType
+
+                                    </MudText>
+
+
+                                    @if (effect.BuffType is not null)
                                     {
-                                        <MudChip T="string" Size="Size.Small">Instant</MudChip>
+                                        <MudText Typo="Typo.caption"
+                                                 Color="Color.Success">
+
+                                            Buff:
+                                            @effect.BuffType
+
+                                        </MudText>
                                     }
-                                    @if (effect.IsPeriodic)
+
+
+                                    @if (effect.DebuffType is not null)
                                     {
-                                        <MudChip T="string" Size="Size.Small">Periodic</MudChip>
-                                    }
-                                    @if (effect.IsChannelled)
-                                    {
-                                        <MudChip T="string" Size="Size.Small">Channelled</MudChip>
+                                        <MudText Typo="Typo.caption"
+                                                 Color="Color.Error">
+
+                                            Debuff:
+                                            @effect.DebuffType
+
+                                        </MudText>
                                     }
 
                                 </MudStack>
 
+
+
+                                <MudStack Row="true"
+                                          Spacing="1">
+
+
+                                    @if (effect.IsInstant)
+                                    {
+                                        <MudChip T="string"
+                                                 Size="Size.Small">
+
+                                            Instant
+
+                                        </MudChip>
+                                    }
+
+
+                                    @if (effect.IsPeriodic)
+                                    {
+                                        <MudChip T="string"
+                                                 Size="Size.Small">
+
+                                            Periodic
+
+                                        </MudChip>
+                                    }
+
+
+                                    @if (effect.IsChannelled)
+                                    {
+                                        <MudChip T="string"
+                                                 Size="Size.Small">
+
+                                            Channelled
+
+                                        </MudChip>
+                                    }
+
+
+                                </MudStack>
+
+
                             </MudStack>
+
+
 
                             <MudDivider Class="my-2" />
 
+
+
                             <MudGrid Spacing="2">
 
-                                <MudItem xs="6" sm="4">Magnitude: @effect.Magnitude</MudItem>
-                                <MudItem xs="6" sm="4">Duration: @effect.Duration</MudItem>
-                                <MudItem xs="6" sm="4">Radius: @effect.Radius</MudItem>
-                                <MudItem xs="6" sm="4">Stacks: @effect.MaxStacks</MudItem>
+
+                                <MudItem xs="6"
+                                         sm="4">
+
+                                    Magnitude:
+                                    @effect.Magnitude
+
+                                </MudItem>
+
+
+                                <MudItem xs="6"
+                                         sm="4">
+
+                                    Duration:
+                                    @effect.Duration
+
+                                </MudItem>
+
+
+                                <MudItem xs="6"
+                                         sm="4">
+
+                                    Radius:
+                                    @effect.Radius
+
+                                </MudItem>
+
+
+                                <MudItem xs="6"
+                                         sm="4">
+
+                                    Stacks:
+                                    @effect.MaxStacks
+
+                                </MudItem>
+
+
 
                                 @if (effect.AttackDamageRatio is not null)
                                 {
-                                    <MudItem xs="6" sm="4">AD: @effect.AttackDamageRatio</MudItem>
+                                    <MudItem xs="6"
+                                             sm="4">
+
+                                        AD Ratio:
+                                        @effect.AttackDamageRatio
+
+                                    </MudItem>
                                 }
 
-                                @if (effect.AbilityPowerRatio is not null)
+
+
+                                @if (effect.MagicDamageRatio is not null)
                                 {
-                                    <MudItem xs="6" sm="4">AP: @effect.AbilityPowerRatio</MudItem>
+                                    <MudItem xs="6"
+                                             sm="4">
+
+                                        Magic Ratio:
+                                        @effect.MagicDamageRatio
+
+                                    </MudItem>
                                 }
+
+
 
                                 @if (effect.MaxHealthRatio is not null)
                                 {
-                                    <MudItem xs="6" sm="4">HP: @effect.MaxHealthRatio</MudItem>
+                                    <MudItem xs="6"
+                                             sm="4">
+
+                                        HP Ratio:
+                                        @effect.MaxHealthRatio
+
+                                    </MudItem>
                                 }
+
+
+
+                                @if (effect.StackType != StackType.None)
+                                {
+                                    <MudItem xs="6"
+                                             sm="4">
+
+                                        Stack Type:
+                                        @effect.StackType
+
+                                    </MudItem>
+                                }
+
 
                             </MudGrid>
 
+
                         </MudPaper>
+
                     }
+
                 }
+
 
             </MudExpansionPanel>
 
+
+
         </MudExpansionPanels>
+
 
     </DialogContent>
 
+
+
     <DialogActions>
-        <MudButton Variant="Variant.Text" OnClick="Close">
+
+        <MudButton Variant="Variant.Text"
+                   OnClick="Close">
+
             Close
+
         </MudButton>
+
     </DialogActions>
+
 
 </MudDialog>
 
-@code {
-    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
-    [Parameter, EditorRequired] public SkillDto Skill { get; set; } = default!;
 
-    private void Close() => MudDialog.Close();
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+
+    [Parameter, EditorRequired]
+    public SkillDto Skill { get; set; } = default!;
+
+
+    private void Close()
+        => MudDialog.Close();
+
 }

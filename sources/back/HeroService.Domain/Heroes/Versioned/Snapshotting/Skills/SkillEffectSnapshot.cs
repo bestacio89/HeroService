@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HeroService.Domain.Heroes.Skills;
 
 namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Skills;
 
@@ -7,21 +8,21 @@ namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Skills;
 /// A boolean fingerprint of the EffectTypes present in a skill.
 ///
 /// Design Contract:
-/// This record must remain a strict 1:1 mirror of the EffectType enum.
+/// This record mirrors the EffectType enum at a high level.
 /// Every value in EffectType maps to exactly one Has* property here.
-/// Any addition to EffectType requires a corresponding addition here,
-/// plus an update to SnapshotResolver.BuildEffects().
 ///
-/// HasAnyCrowdControl below is a *derived* convenience property, not a
-/// stored field — it does not violate the 1:1 mirror contract, it just
-/// saves callers from OR-ing all 16 CC flags by hand (e.g. HeroKitProfile's
-/// CrowdControlSkillCount / IsControlOriented).
+/// Additional semantic classifications:
+/// - BuffType provides specialization for EffectType.Buff.
+/// - DebuffType provides specialization for EffectType.Debuff.
+///
+/// These collections do not replace the EffectType mirror.
+/// They enrich state modifier analysis without exploding the fingerprint.
 ///
 /// Purpose:
 /// - Enables fast, allocation-free kit analysis at snapshot time.
 /// - Drives HeroKitProfile computation (matchmaking + item affinity).
-/// - Does NOT store magnitude, duration, or target information.
-///   Those live in SkillExecutionSnapshot and SkillEffect respectively.
+/// - Does NOT store magnitude, duration, or targeting information.
+///   Those live in EffectExecutionSnapshot.
 ///
 /// Relationships:
 /// - Produced by SnapshotResolver.BuildEffects()
@@ -41,6 +42,7 @@ public sealed record SkillEffectSnapshot(
   bool HasHealOverTime,
 
   bool HasShield,
+
 
   // =========================================================
   // CONTROL SYSTEM
@@ -66,6 +68,7 @@ public sealed record SkillEffectSnapshot(
   bool HasFreeze,
   bool HasPetrify,
 
+
   // =========================================================
   // STATE MODIFIERS
   // =========================================================
@@ -73,17 +76,20 @@ public sealed record SkillEffectSnapshot(
   bool HasBuff,
   bool HasDebuff,
 
+
   // =========================================================
   // POSITIONING / MOVEMENT SYSTEM
   // =========================================================
 
   bool HasMobility,
 
+
   // =========================================================
   // EXECUTION SYSTEM
   // =========================================================
 
   bool HasExecute,
+
 
   // =========================================================
   // UTILITY / STRATEGIC EFFECTS
@@ -93,17 +99,42 @@ public sealed record SkillEffectSnapshot(
   bool HasVision,
   bool HasZoneControl,
   bool HasSummon,
-  bool HasTransformation
+  bool HasTransformation,
+
+
+  // =========================================================
+  // STATE MODIFIER SEMANTICS
+  // =========================================================
+
+  IReadOnlySet<BuffType> BuffTypes,
+
+  IReadOnlySet<DebuffType> DebuffTypes
+
 )
 {
   /// <summary>
-  /// Derived, not stored — true if any of the 16 granular CC flags is set.
-  /// Kept for callers (like HeroKitProfile) that only care about CC density,
-  /// not which specific CC types are present.
+  /// Derived convenience property.
+  /// 
+  /// Returns true if any crowd control effect exists.
+  /// Does not store additional state.
   /// </summary>
   public bool HasAnyCrowdControl =>
       HasSlow || HasRoot || HasStun || HasSilence || HasDisarm || HasBlind ||
       HasFear || HasCharm || HasTaunt || HasConfuse || HasSleep ||
       HasKnockback || HasKnockUp || HasPull ||
       HasFreeze || HasPetrify;
+
+
+  /// <summary>
+  /// Returns true when the skill applies a specific buff category.
+  /// </summary>
+  public bool HasBuffType(BuffType type) =>
+      BuffTypes.Contains(type);
+
+
+  /// <summary>
+  /// Returns true when the skill applies a specific debuff category.
+  /// </summary>
+  public bool HasDebuffType(DebuffType type) =>
+      DebuffTypes.Contains(type);
 }
