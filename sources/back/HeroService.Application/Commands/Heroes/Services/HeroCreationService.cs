@@ -123,7 +123,7 @@ public sealed class HeroCreationService : IHeroCreationService
         request.BaseStats.BaseHealth,
         request.BaseStats.BaseMana,
         request.BaseStats.BaseAttackDamage,
-        request.BaseStats.BaseAbilityPower,
+        request.BaseStats.BaseMagicDamage,
         request.BaseStats.BaseAttackSpeed,
         request.BaseStats.BaseCritChance,
         request.BaseStats.BaseCritDamageMultiplier,

@@ -37,7 +37,7 @@ public class HeroProfile : FranzMapProfile
                     h.BaseStats.BaseHealth,
                     h.BaseStats.BaseMana,
                     h.BaseStats.BaseAttackDamage,
-                    h.BaseStats.BaseAbilityPower,
+                    h.BaseStats.BaseMagicDamage,
                     h.BaseStats.BaseAttackSpeed,
                     h.BaseStats.BaseCritChance,
                     h.BaseStats.BaseCritDamageMultiplier,

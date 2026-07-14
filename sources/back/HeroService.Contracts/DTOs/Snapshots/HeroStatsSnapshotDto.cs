@@ -5,7 +5,7 @@ public sealed record HeroStatSnapshotDto(
     float Mana,
 
     float AttackDamage,
-    float AbilityPower,
+    float MagicDamage,
 
     float AttackSpeed,
     float CastSpeed,

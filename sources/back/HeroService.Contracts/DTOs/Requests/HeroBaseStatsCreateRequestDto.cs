@@ -12,7 +12,7 @@ public sealed class HeroBaseStatsCreateRequestDto
   // DAMAGE PROFILE
   // =========================
   public float BaseAttackDamage { get; set; }
-  public float BaseAbilityPower { get; set; }
+  public float BaseMagicDamage { get; set; }
 
   // =========================
   // TEMPO / COMBAT FLOW

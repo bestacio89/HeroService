@@ -34,7 +34,7 @@ public sealed class CreateHeroModifierCommandHandler
         manaMultiplier: request.ManaMultiplier,
 
         attackDamageMultiplier: request.AttackDamageMultiplier,
-        abilityPowerMultiplier: request.AbilityPowerMultiplier,
+        magicDamageMultiplier: request.AbilityPowerMultiplier,
 
         attackSpeedMultiplier: request.AttackSpeedMultiplier,
         castSpeedMultiplier: request.CastSpeedMultiplier,

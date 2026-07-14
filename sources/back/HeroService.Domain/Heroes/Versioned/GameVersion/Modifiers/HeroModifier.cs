@@ -26,7 +26,7 @@ public class HeroModifier : Entity<Guid>
   // DAMAGE PROFILE
   // =========================
   public float? AttackDamageMultiplier { get; private set; }
-  public float? AbilityPowerMultiplier { get; private set; }
+  public float? MagicDamageMultiplier { get; private set; }
 
   // =========================
   // TEMPO / COMBAT FLOW
@@ -75,7 +75,7 @@ public class HeroModifier : Entity<Guid>
       float? manaMultiplier,
 
       float? attackDamageMultiplier,
-      float? abilityPowerMultiplier,
+      float? magicDamageMultiplier,
 
       float? attackSpeedMultiplier,
       float? castSpeedMultiplier,
@@ -110,7 +110,7 @@ public class HeroModifier : Entity<Guid>
     ManaMultiplier = manaMultiplier;
 
     AttackDamageMultiplier = attackDamageMultiplier;
-    AbilityPowerMultiplier = abilityPowerMultiplier;
+    MagicDamageMultiplier = magicDamageMultiplier;
 
     AttackSpeedMultiplier = attackSpeedMultiplier;
     CastSpeedMultiplier = castSpeedMultiplier;

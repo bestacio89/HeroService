@@ -14,13 +14,26 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
             src.HeroId,
             src.HeroName,
             src.GameVersionId,
+
             new HeroStatSnapshotDto(
-                src.Stats.Health, src.Stats.Mana, src.Stats.AttackDamage, src.Stats.AbilityPower,
-                src.Stats.AttackSpeed, src.Stats.CastSpeed, src.Stats.CritChance, src.Stats.CritDamageMultiplier,
-                src.Stats.Armor, src.Stats.MagicResistance, src.Stats.DamageReduction,
-                src.Stats.ShieldStrengthMultiplier, src.Stats.MovementSpeed, src.Stats.AttackRange,
-                src.Stats.CooldownReduction, src.Stats.ResourceRegeneration
+                src.Stats.Health,
+                src.Stats.Mana,
+                src.Stats.AttackDamage,
+                src.Stats.AbilityPower,
+                src.Stats.AttackSpeed,
+                src.Stats.CastSpeed,
+                src.Stats.CritChance,
+                src.Stats.CritDamageMultiplier,
+                src.Stats.Armor,
+                src.Stats.MagicResistance,
+                src.Stats.DamageReduction,
+                src.Stats.ShieldStrengthMultiplier,
+                src.Stats.MovementSpeed,
+                src.Stats.AttackRange,
+                src.Stats.CooldownReduction,
+                src.Stats.ResourceRegeneration
             ),
+
             new HeroSkillKitSnapshotDto(
                 MapSkill(src.SkillKit.Passive),
                 MapSkill(src.SkillKit.Primary),
@@ -28,39 +41,65 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
                 MapSkill(src.SkillKit.Tertiary),
                 MapSkill(src.SkillKit.Ultimate)
             ),
+
             new HeroKitProfileDto(
-                src.KitProfile.DamageSkillCount, src.KitProfile.CrowdControlSkillCount,
-                src.KitProfile.MobilitySkillCount, src.KitProfile.SustainSkillCount,
-                src.KitProfile.UtilitySkillCount, src.KitProfile.HasSummon,
-                src.KitProfile.HasTransformation, src.KitProfile.HasExecute,
-                src.KitProfile.IsBurstOriented, src.KitProfile.IsSustainOriented,
-                src.KitProfile.IsControlOriented, src.KitProfile.IsMobilityOriented
+                src.KitProfile.DamageSkillCount,
+                src.KitProfile.CrowdControlSkillCount,
+                src.KitProfile.MobilitySkillCount,
+                src.KitProfile.SustainSkillCount,
+                src.KitProfile.UtilitySkillCount,
+                src.KitProfile.HasSummon,
+                src.KitProfile.HasTransformation,
+                src.KitProfile.HasExecute,
+                src.KitProfile.IsBurstOriented,
+                src.KitProfile.IsSustainOriented,
+                src.KitProfile.IsControlOriented,
+                src.KitProfile.IsMobilityOriented
             )
         ));
   }
+
 
   private static SkillSnapshotDto MapSkill(SkillSnapshot src) => new(
     src.SkillId,
     src.Name,
 
+
+    // =========================================================
+    // EXECUTION SNAPSHOT
+    // =========================================================
+
     new SkillExecutionSnapshotDto(
         src.Execution.Cooldown ?? 0f,
         src.Execution.ManaCost ?? 0f,
+
         src.Execution.Damage ?? 0f,
         src.Execution.Healing ?? 0f,
         src.Execution.ShieldValue ?? 0f,
+
         src.Execution.CastTime ?? 0f,
         src.Execution.ChannelDuration ?? 0f,
+
         src.Execution.Range ?? 0f,
         src.Execution.CrowdControlDuration ?? 0f
     ),
 
+
+    // =========================================================
+    // EFFECT FINGERPRINT SNAPSHOT
+    // =========================================================
+
     new SkillEffectSnapshotDto(
         src.Effects.HasDamage,
         src.Effects.HasDamageOverTime,
+
         src.Effects.HasHeal,
         src.Effects.HasHealOverTime,
+
         src.Effects.HasShield,
+
+
+        // CONTROL
 
         src.Effects.HasSlow,
         src.Effects.HasRoot,
@@ -82,39 +121,80 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
         src.Effects.HasFreeze,
         src.Effects.HasPetrify,
 
+
+        // STATE
+
         src.Effects.HasBuff,
         src.Effects.HasDebuff,
 
+
+        // POSITIONING
+
         src.Effects.HasMobility,
+
+
+        // EXECUTION
+
         src.Effects.HasExecute,
+
+
+        // UTILITY
 
         src.Effects.HasUtility,
         src.Effects.HasVision,
         src.Effects.HasZoneControl,
         src.Effects.HasSummon,
-        src.Effects.HasTransformation
+        src.Effects.HasTransformation,
+
+
+        // STATE DETAILS
+
+        src.Effects.BuffTypes,
+        src.Effects.DebuffTypes
     ),
 
-    src.EffectExecutions.Select(e => new EffectExecutionSnapshotDto(
-        e.EffectType,
-        e.SourceSkillId,
-        e.CasterId,
-        e.TargetIds,
 
-        e.FinalMagnitude,
-        e.FinalDuration,
-        e.FinalRadius,
+    // =========================================================
+    // RESOLVED EFFECT EXECUTIONS
+    // =========================================================
 
-        e.StacksApplied,
+    src.EffectExecutions
+        .Select(e => new EffectExecutionSnapshotDto(
 
-        e.IsInstant,
-        e.IsPeriodic,
-        e.IsChannelled,
+            e.EffectType,
 
-        e.TickInterval,
-        e.ChannelDuration,
+            // NEW SEMANTIC DATA
 
-        e.TargetType
-    )).ToList()
-);
+            e.BuffType,
+            e.DebuffType,
+
+
+            e.SourceSkillId,
+            e.CasterId,
+
+            e.TargetIds,
+
+
+            e.FinalMagnitude,
+            e.FinalDuration,
+            e.FinalRadius,
+
+
+            e.StacksApplied,
+
+
+            e.IsInstant,
+            e.IsPeriodic,
+            e.IsChannelled,
+
+
+            e.TickInterval,
+            e.ChannelDuration,
+
+
+            e.TargetType
+
+        ))
+        .ToList()
+  );
 }

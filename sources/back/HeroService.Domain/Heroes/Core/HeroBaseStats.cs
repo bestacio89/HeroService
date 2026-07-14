@@ -14,7 +14,7 @@ public class HeroBaseStats : Entity<Guid>
   // DAMAGE PROFILE
   // =========================
   public float BaseAttackDamage { get; private set; }
-  public float BaseAbilityPower { get; private set; }
+  public float BaseMagicDamage { get; private set; }
 
   // =========================
   // TEMPO / COMBAT FLOW
@@ -58,7 +58,7 @@ public class HeroBaseStats : Entity<Guid>
       float baseMana,
 
       float baseAttackDamage,
-      float baseAbilityPower,
+      float baseMagicDamage,
 
       float baseAttackSpeed,
       float baseCastSpeed,
@@ -89,7 +89,7 @@ public class HeroBaseStats : Entity<Guid>
     BaseMana = baseMana;
 
     BaseAttackDamage = baseAttackDamage;
-    BaseAbilityPower = baseAbilityPower;
+    BaseMagicDamage = baseMagicDamage;
 
     BaseAttackSpeed = baseAttackSpeed;
     BaseCastSpeed = baseCastSpeed;

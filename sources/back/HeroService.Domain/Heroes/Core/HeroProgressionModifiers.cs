@@ -14,7 +14,7 @@ public class HeroProgressionModifiers : Entity<Guid>
   // DAMAGE SCALING
   // =========================
   public float AttackDamagePerLevel { get; private set; }
-  public float AbilityPowerPerLevel { get; private set; }
+  public float MagicDamagePerLevel { get; private set; }
 
   // =========================
   // DEFENSIVE SCALING
@@ -42,7 +42,7 @@ public class HeroProgressionModifiers : Entity<Guid>
       float manaPerLevel,
 
       float attackDamagePerLevel,
-      float abilityPowerPerLevel,
+      float magicDamagePerLevel,
 
       float armorPerLevel,
       float magicResistancePerLevel,
@@ -63,7 +63,7 @@ public class HeroProgressionModifiers : Entity<Guid>
     ManaPerLevel = manaPerLevel;
 
     AttackDamagePerLevel = attackDamagePerLevel;
-    AbilityPowerPerLevel = abilityPowerPerLevel;
+    MagicDamagePerLevel = magicDamagePerLevel;
 
     ArmorPerLevel = armorPerLevel;
     MagicResistancePerLevel = magicResistancePerLevel;

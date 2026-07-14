@@ -32,7 +32,7 @@ public sealed class UpdateHeroModifierCommandHandler
         healthMultiplier: request.HealthMultiplier,
         manaMultiplier: request.ManaMultiplier,
         attackDamageMultiplier: request.AttackDamageMultiplier,
-        abilityPowerMultiplier: request.AbilityPowerMultiplier,
+        magicDamageMultiplier: request.AbilityPowerMultiplier,
         attackSpeedMultiplier: request.AttackSpeedMultiplier,
         castSpeedMultiplier: request.CastSpeedMultiplier,
         critChanceMultiplier: request.CritChanceMultiplier,

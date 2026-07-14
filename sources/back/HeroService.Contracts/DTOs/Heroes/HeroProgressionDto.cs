@@ -6,7 +6,7 @@ public sealed record HeroProgressionModifiersDto(
     float HealthPerLevel,
     float ManaPerLevel,
     float AttackDamagePerLevel,
-    float AbilityPowerPerLevel,
+    float MagicDamagePerLevel,
     float ArmorPerLevel,
     float MagicResistancePerLevel,
     float AttackSpeedPerLevel,

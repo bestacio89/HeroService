@@ -10,7 +10,7 @@ public sealed record HeroModifierDto(
     float? HealthMultiplier,
     float? ManaMultiplier,
     float? AttackDamageMultiplier,
-    float? AbilityPowerMultiplier,
+    float? MagicDamageMultiplier,
     float? AttackSpeedMultiplier,
     float? CastSpeedMultiplier,
     float? CritChanceMultiplier,

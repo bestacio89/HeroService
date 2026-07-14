@@ -5,7 +5,7 @@ public sealed record HeroBaseStatsDto(
     float BaseMana,
 
     float BaseAttackDamage,
-    float BaseAbilityPower,
+    float BaseMagicDamage,
 
     float BaseAttackSpeed,
     float BaseCritChance,

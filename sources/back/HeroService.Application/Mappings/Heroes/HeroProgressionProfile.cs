@@ -15,7 +15,7 @@ public sealed class HeroProgressionProfile : FranzMapProfile
             mod.HealthPerLevel,
             mod.ManaPerLevel,
             mod.AttackDamagePerLevel,
-            mod.AbilityPowerPerLevel,
+            mod.MagicDamagePerLevel,
             mod.ArmorPerLevel,
             mod.MagicResistancePerLevel,
             mod.AttackSpeedPerLevel,
