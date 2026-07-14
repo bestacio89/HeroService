@@ -1,49 +1,50 @@
-# Base stage for runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-windowsservercore-ltsc2019 AS base
+# syntax=docker/dockerfile:1
+
+# ---------------------------------------------------------
+# Base runtime image
+# ---------------------------------------------------------
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-# Set the HEALTHCHECK to ensure container health
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl --silent --fail http://localhost:80/health || exit 1
-
-# SDK stage for building the application
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# ---------------------------------------------------------
+# Build stage
+# ---------------------------------------------------------
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy nuget config and necessary csproj files
+# Copy nuget config and project files first (Docker layer caching:
+# restore only re-runs if a .csproj or nuget.config actually changed)
 COPY ["nuget.config", "."]
-COPY ["sources/back/Franz.API/Franz.API.csproj", "sources/back/Franz.API/"]
-COPY ["sources/back/Franz.Persistence/Franz.Persistence.csproj", "sources/back/Franz.Persistence/"]
-COPY ["sources/back/Franz.Domain/Franz.Domain.csproj", "sources/back/Franz.Domain/"]
-COPY ["sources/back/Franz.Application/Franz.Application.csproj", "sources/back/Franz.Application/"]
-COPY ["sources/back/Franz.Contracts/Franz.Contracts.csproj", "sources/back/Franz.Contracts/"]
+COPY ["sources/back/HeroService.API/HeroService.API.csproj", "sources/back/HeroService.API/"]
+COPY ["sources/back/HeroService.Application/HeroService.Application.csproj", "sources/back/HeroService.Application/"]
+COPY ["sources/back/HeroService.Contracts/HeroService.Contracts.csproj", "sources/back/HeroService.Contracts/"]
+COPY ["sources/back/HeroService.Domain/HeroService.Domain.csproj", "sources/back/HeroService.Domain/"]
+COPY ["sources/back/HeroService.Persistence/HeroService.Persistence.csproj", "sources/back/HeroService.Persistence/"]
 
-# Restore dependencies
-RUN dotnet restore "sources/back/Franz.API/Franz.API.csproj"
+RUN dotnet restore "sources/back/HeroService.API/HeroService.API.csproj"
 
-# Copy the rest of the source code
+# Copy the rest of the source and build
 COPY . .
+WORKDIR "/src/sources/back/HeroService.API"
+RUN dotnet build "HeroService.API.csproj" -c Release -o /app/build
 
-# Build the application
-WORKDIR "/src/sources/back/Franz.API"
-RUN dotnet build "Franz.API.csproj" -c Release -o /app/build
-
-# Publish stage for preparing the release artifact
+# ---------------------------------------------------------
+# Publish stage
+# ---------------------------------------------------------
 FROM build AS publish
-RUN dotnet publish "Franz.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "HeroService.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Final stage for creating the runtime image
+# ---------------------------------------------------------
+# Final runtime image
+# ---------------------------------------------------------
 FROM base AS final
 WORKDIR /app
 
-# Copy the build artifact from the publish stage
 COPY --from=publish /app/publish .
 
-# Create a non-root user to enhance security
-RUN useradd -m myuser
-USER myuser
+RUN useradd -m appuser
+USER appuser
 
-# Set the entrypoint for the application
-ENTRYPOINT ["dotnet", "Franz.API.dll"]
+ENTRYPOINT ["dotnet", "HeroService.API.dll"]

@@ -4,6 +4,7 @@
 
   <ItemGroup>
     <PackageReference Include="Franz.Common.Business" />
+    <PackageReference Include="Franz.Common.Caching" />
     <PackageReference Include="Franz.Common.Hosting" />
     <PackageReference Include="Franz.Common.Mapping" />
     <PackageReference Include="Franz.Common.Mediator" />
