@@ -2,32 +2,49 @@
 
 namespace HeroService.Contracts.Commands.Modifiers;
 
-public sealed record UpdateHeroModifierCommand(
-    Guid HeroModifierId,
+public sealed class UpdateHeroModifierCommand : ICommand
+{
+  public Guid HeroModifierId { get; set; }
 
-    float? HealthMultiplier,
-    float? ManaMultiplier,
 
-    float? AttackDamageMultiplier,
-    float? AbilityPowerMultiplier,
-    float? IgnoreEnemyDefenseMultiplier,
+  public float? HealthMultiplier { get; set; }
 
-    float? AttackSpeedMultiplier,
-    float? CastSpeedMultiplier,
+  public float? ManaMultiplier { get; set; }
 
-    float? CritChanceMultiplier,
-    float? CritDamageMultiplier,
 
-    float? ArmorMultiplier,
-    float? MagicResistanceMultiplier,
-    float? DamageReductionMultiplier,
+  public float? AttackDamageMultiplier { get; set; }
 
-    float? ShieldStrengthMultiplier,
+  public float? MagicDamageMultiplier { get; set; }
 
-    float? MovementSpeedMultiplier,
-    float? AttackRangeMultiplier,
+  public float? IgnoreEnemyDefenseMultiplier { get; set; }
 
-    float? CooldownReductionMultiplier,
-    float? ResourceRegenerationMultiplier
 
-) : ICommand;
+  public float? AttackSpeedMultiplier { get; set; }
+
+  public float? CastSpeedMultiplier { get; set; }
+
+
+  public float? CritChanceMultiplier { get; set; }
+
+  public float? CritDamageMultiplier { get; set; }
+
+
+  public float? ArmorMultiplier { get; set; }
+
+  public float? MagicResistanceMultiplier { get; set; }
+
+  public float? DamageReductionMultiplier { get; set; }
+
+
+  public float? ShieldStrengthMultiplier { get; set; }
+
+
+  public float? MovementSpeedMultiplier { get; set; }
+
+  public float? AttackRangeMultiplier { get; set; }
+
+
+  public float? CooldownReductionMultiplier { get; set; }
+
+  public float? ResourceRegenerationMultiplier { get; set; }
+}

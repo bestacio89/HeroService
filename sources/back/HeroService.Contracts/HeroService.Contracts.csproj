@@ -10,10 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Queries\Modifiers\GetHeroModifiersByVersionQuery.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Franz.Common.Business" />
     <PackageReference Include="Franz.Common.Caching" />
     <PackageReference Include="Franz.Common.Mediator" />
@@ -30,10 +26,6 @@
     <Folder Include="Features\Example\Persistence\" />
     <Folder Include="Features\Example\Infrastructure\" />
     <Folder Include="Infrastructure\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Queries\Modifiers\GetHeroModifiersByVersionQuery.cs" />
   </ItemGroup>
 
 </Project>

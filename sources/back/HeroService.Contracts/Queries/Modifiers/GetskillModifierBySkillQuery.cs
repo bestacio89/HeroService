@@ -7,5 +7,5 @@ using System.Text;
 namespace HeroService.Contracts.Queries.Modifiers;
 
 public sealed record GetSkillModifierBySkillQuery(
-    Guid SkillId
+   Guid SkillId
 ) : IQuery<SkillModifierDto>;
