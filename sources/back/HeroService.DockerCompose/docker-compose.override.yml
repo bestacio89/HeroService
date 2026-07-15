@@ -1,22 +1,25 @@
 version: '3.8'
 
-# Local/demo overrides. ASPNETCORE_ENVIRONMENT is deliberately set to
-# "Development" here (not "Docker") so Program.cs's
-#   if (app.Environment.IsDevelopment()) { db.Database.MigrateAsync(); seeder.RunAsync(); }
-# branch actually runs — otherwise the container boots against an empty,
-# unmigrated database and every request 500s. If you want a real "Docker"
-# environment distinct from "Development" later, that check in Program.cs
-# needs to change too, not just this file.
+# Local/demo overrides. The container gets its OWN environment name ("Docker"),
+# deliberately separate from "Development" — Development is what your IDE/CLI
+# uses when you run the API locally outside a container, and it needs
+# 127.0.0.1/localhost values. "Docker" needs the compose service hostnames
+# (postgres/redis/kafka). Overloading one name for both breaks whichever one
+# isn't currently being tested.
+#
+# Program.cs's seeding check was IsDevelopment()-only, which would skip
+# migrate+seed for "Docker" — it now also needs to accept the Docker
+# environment (see the two IsDevelopment() calls in Program.cs).
 
 services:
   heroservice.api:
     container_name: heroservice_api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80
 
   heroservice.consumer:
     container_name: heroservice_consumer
     environment:
-      - DOTNET_ENVIRONMENT=Development
+      - DOTNET_ENVIRONMENT=Docker
     restart: unless-stopped
