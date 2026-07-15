@@ -2,10 +2,21 @@
 using HeroService.Contracts.DTOs.Skills;
 using HeroService.Domain.Heroes.Skills;
 
-public sealed record CreateSkillCommand(
-    string Name,
-    SkillType skillType,
-    SkillLoreDto Lore,
-    SkillBaseStatsDto BaseStats,
-    List<SkillEffectDto> Effects
-) : ICommand<Guid>;
+namespace HeroService.Contracts.Commands.Skills;
+
+public sealed class CreateSkillCommand : ICommand<Guid>
+{
+  public string Name { get; set; } = string.Empty;
+
+
+  public SkillType SkillType { get; set; }
+
+
+  public SkillLoreDto Lore { get; set; } = new();
+
+
+  public SkillBaseStatsDto BaseStats { get; set; } = new();
+
+
+  public List<SkillEffectDto> Effects { get; set; } = [];
+}
