@@ -82,7 +82,22 @@ public static class ServiceCollectionExtensions
       Configure(client, baseUrl, configureHttpClient);
     });
 
+    ///=======================================
+    /// MODIFIERS
+    ///=======================================
+    services.AddHttpClient<IHeroModifierClient, HeroModifierClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
+    services.AddHttpClient<ISkillModifierClient, SkillModifierClient>(client =>
+    {
+      Configure(client, baseUrl, configureHttpClient);
+    });
+
+
     return services;
+
+    
   }
 
   private static void Configure(
