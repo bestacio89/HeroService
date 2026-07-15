@@ -1,0 +1,175 @@
+﻿@page "/admin/skill-modifiers"
+@namespace HeroService.Admin.Components.Pages.Admin.SkillModifiers
+
+<PageTitle>Skill Modifiers</PageTitle>
+
+<MudPaper Class="pa-4">
+
+    <MudStack Spacing="3">
+
+        <MudStack Row="true"
+                  Justify="Justify.SpaceBetween"
+                  AlignItems="AlignItems.Center">
+
+            <MudStack Spacing="0">
+
+                <MudText Typo="Typo.h5">
+                    Skill Modifiers
+                </MudText>
+
+                <MudText Typo="Typo.body2"
+                         Color="Color.Secondary">
+                    Manage skill balance adjustments by game version.
+                </MudText>
+
+            </MudStack>
+
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="OpenCreateDialog">
+                Create Modifier
+            </MudButton>
+
+        </MudStack>
+
+
+        <MudDivider />
+
+
+        <MudTable Items="Modifiers"
+                  Hover="true"
+                  Dense="true"
+                  Loading="Loading">
+
+            <HeaderContent>
+
+                <MudTh>
+                    Skill
+                </MudTh>
+
+
+                <MudTh>
+                    Game Version
+                </MudTh>
+
+
+                <MudTh>
+                    Damage
+                </MudTh>
+
+
+                <MudTh>
+                    Cooldown
+                </MudTh>
+
+
+                <MudTh>
+                    Mana Cost
+                </MudTh>
+
+
+                <MudTh>
+                    Healing
+                </MudTh>
+
+
+                <MudTh>
+                    Range
+                </MudTh>
+
+
+                <MudTh>
+                    Actions
+                </MudTh>
+
+            </HeaderContent>
+
+
+            <RowTemplate>
+
+                <MudTd DataLabel="Skill">
+
+                    @GetSkillName(context.SkillId)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Game Version">
+
+                    @ActiveGameVersion
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Damage">
+
+                    @DisplayMultiplier(context.DamageMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Cooldown">
+
+                    @DisplayMultiplier(context.CooldownMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Mana Cost">
+
+                    @DisplayMultiplier(context.ManaCostMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Healing">
+
+                    @DisplayMultiplier(context.HealingMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Range">
+
+                    @DisplayMultiplier(context.RangeMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Actions">
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Primary"
+                                   Title="Edit Modifier"
+                                   OnClick="@(() => OpenEditDialog(context))" />
+
+                </MudTd>
+
+            </RowTemplate>
+
+
+            <NoRecordsContent>
+
+                <MudText Typo="Typo.body2"
+                         Color="Color.Secondary">
+                    No active skill modifiers found.
+                </MudText>
+
+            </NoRecordsContent>
+
+
+            <LoadingContent>
+
+                <MudText Typo="Typo.body2">
+                    Loading skill modifiers...
+                </MudText>
+
+            </LoadingContent>
+
+
+        </MudTable>
+
+    </MudStack>
+
+</MudPaper>

@@ -17,7 +17,7 @@
             </MudText>
 
             <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
-                Author heroes, abilities and world structures for procedural gameplay generation
+                Author heroes, abilities, balance data and world structures for procedural gameplay generation
             </MudText>
 
         </MudStack>
@@ -99,7 +99,79 @@
 
     </MudGrid>
 
+
     <MudDivider Class="my-6" />
+
+
+    <!-- BALANCE SYSTEMS -->
+    <MudText Typo="Typo.h5" Class="mb-3">
+        Balance & Tuning Layer
+    </MudText>
+
+    <MudGrid Spacing="3">
+
+        <MudItem xs="12" md="6">
+
+            <MudPaper Class="pa-5 codex-card" Elevation="4">
+
+                <MudStack Spacing="2">
+
+                    <MudText Typo="Typo.h6">
+                        Hero Modifiers
+                    </MudText>
+
+                    <MudText Typo="Typo.body2">
+                        Apply version-based balance adjustments without changing hero definitions.
+                    </MudText>
+
+                    <MudDivider Class="my-2" />
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Secondary"
+                               OnClick="@(() => Nav.NavigateTo("/admin/hero-modifiers"))">
+                        Manage
+                    </MudButton>
+
+                </MudStack>
+
+            </MudPaper>
+
+        </MudItem>
+
+
+        <MudItem xs="12" md="6">
+
+            <MudPaper Class="pa-5 codex-card" Elevation="4">
+
+                <MudStack Spacing="2">
+
+                    <MudText Typo="Typo.h6">
+                        Skill Modifiers
+                    </MudText>
+
+                    <MudText Typo="Typo.body2">
+                        Tune ability values, effects and scaling independently from skill definitions.
+                    </MudText>
+
+                    <MudDivider Class="my-2" />
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Secondary"
+                               OnClick="@(() => Nav.NavigateTo("/admin/skill-modifiers"))">
+                        Manage
+                    </MudButton>
+
+                </MudStack>
+
+            </MudPaper>
+
+        </MudItem>
+
+    </MudGrid>
+
+
+    <MudDivider Class="my-6" />
+
 
     <!-- WORLD SYSTEMS -->
     <MudText Typo="Typo.h5" Class="mb-3">
@@ -109,9 +181,11 @@
     <MudGrid Spacing="3">
 
         <MudItem xs="12" md="4">
+
             <MudPaper Class="pa-4 codex-card" Elevation="3">
 
                 <MudText Typo="Typo.h6">Mythology</MudText>
+
                 <MudText Typo="Typo.body2" Class="mb-3">
                     Cultural origin frameworks and narrative lineage systems.
                 </MudText>
@@ -123,12 +197,16 @@
                 </MudButton>
 
             </MudPaper>
+
         </MudItem>
 
+
         <MudItem xs="12" md="4">
+
             <MudPaper Class="pa-4 codex-card" Elevation="3">
 
                 <MudText Typo="Typo.h6">Origins</MudText>
+
                 <MudText Typo="Typo.body2" Class="mb-3">
                     Archetypes and cultural classification vectors.
                 </MudText>
@@ -150,12 +228,16 @@
                 </MudStack>
 
             </MudPaper>
+
         </MudItem>
 
+
         <MudItem xs="12" md="4">
+
             <MudPaper Class="pa-4 codex-card" Elevation="3">
 
                 <MudText Typo="Typo.h6">Hero Classes</MudText>
+
                 <MudText Typo="Typo.body2" Class="mb-3">
                     Combat roles and gameplay archetype definitions.
                 </MudText>
@@ -167,6 +249,7 @@
                 </MudButton>
 
             </MudPaper>
+
         </MudItem>
 
     </MudGrid>

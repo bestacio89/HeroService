@@ -1,0 +1,187 @@
+﻿@page "/admin/hero-modifiers"
+@namespace HeroService.Admin.Components.Pages.Admin.HeroModifiers
+
+<PageTitle>Hero Modifiers</PageTitle>
+
+<MudPaper Class="pa-4">
+
+    <MudStack Spacing="3">
+
+        <MudStack Row="true"
+                  Justify="Justify.SpaceBetween"
+                  AlignItems="AlignItems.Center">
+
+            <MudStack Spacing="0">
+
+                <MudText Typo="Typo.h5">
+                    Hero Modifiers
+                </MudText>
+
+                <MudText Typo="Typo.body2"
+                         Color="Color.Secondary">
+                    Manage hero balance adjustments by game version.
+                </MudText>
+
+            </MudStack>
+
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="OpenCreateDialog">
+                Create Modifier
+            </MudButton>
+
+        </MudStack>
+
+
+        <MudDivider />
+
+
+        <MudTable Items="Modifiers"
+                  Hover="true"
+                  Dense="true"
+                  Loading="Loading">
+
+            <HeaderContent>
+
+                <MudTh>
+                    Hero
+                </MudTh>
+
+
+                <MudTh>
+                    Game Version
+                </MudTh>
+
+
+                <MudTh>
+                    Health
+                </MudTh>
+
+
+                <MudTh>
+                    Mana
+                </MudTh>
+
+
+                <MudTh>
+                    Attack Damage
+                </MudTh>
+
+
+                <MudTh>
+                    Magic Damage
+                </MudTh>
+
+
+                <MudTh>
+                    Armor
+                </MudTh>
+
+
+                <MudTh>
+                    Movement Speed
+                </MudTh>
+
+
+                <MudTh>
+                    Actions
+                </MudTh>
+
+            </HeaderContent>
+
+
+            <RowTemplate>
+
+                <MudTd DataLabel="Hero">
+
+                    @GetHeroName(context.HeroId)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Game Version">
+
+                    @ActiveGameVersion
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Health">
+
+                    @DisplayMultiplier(context.HealthMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Mana">
+
+                    @DisplayMultiplier(context.ManaMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Attack Damage">
+
+                    @DisplayMultiplier(context.AttackDamageMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Magic Damage">
+
+                    @DisplayMultiplier(context.MagicDamageMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Armor">
+
+                    @DisplayMultiplier(context.ArmorMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Movement Speed">
+
+                    @DisplayMultiplier(context.MovementSpeedMultiplier)
+
+                </MudTd>
+
+
+                <MudTd DataLabel="Actions">
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Primary"
+                                   Title="Edit Modifier"
+                                   OnClick="@(() => OpenEditDialog(context))" />
+
+                </MudTd>
+
+            </RowTemplate>
+
+
+            <NoRecordsContent>
+
+                <MudText Typo="Typo.body2"
+                         Color="Color.Secondary">
+                    No active hero modifiers found.
+                </MudText>
+
+            </NoRecordsContent>
+
+
+            <LoadingContent>
+
+                <MudText Typo="Typo.body2">
+                    Loading hero modifiers...
+                </MudText>
+
+            </LoadingContent>
+
+
+        </MudTable>
+
+    </MudStack>
+
+</MudPaper>
