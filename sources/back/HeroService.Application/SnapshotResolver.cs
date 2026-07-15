@@ -1,5 +1,6 @@
 ﻿using HeroService.Domain.Heroes.Core;
 using HeroService.Domain.Heroes.Skills;
+using HeroService.Domain.Heroes.Versioned.GameVersion;
 using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 using HeroService.Domain.Heroes.Versioned.Snapshotting;
 using HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
@@ -18,106 +19,256 @@ public sealed class SnapshotResolver
   public HeroSnapshot ResolveHero(
       Guid heroId,
       string heroName,
-      Guid gameVersionId,
+      GameVersion activeVersion,
       HeroBaseStats baseStats,
-      HeroModifier? heroModifier,
+      HeroModifier heroModifier,
       IReadOnlyList<Skill> skills,
       IReadOnlyDictionary<Guid, SkillBaseStats> skillBaseStats,
       IReadOnlyDictionary<Guid, SkillModifier> skillModifiers)
   {
-    var stats = BuildHeroStats(baseStats, heroModifier);
+    ValidateSnapshotContext(
+        activeVersion,
+        heroModifier,
+        skills,
+        skillBaseStats,
+        skillModifiers);
 
-    var kit = new HeroSkillKitSnapshot(
-        ResolveSkill(skills[0], gameVersionId, skillBaseStats, skillModifiers),
-        ResolveSkill(skills[1], gameVersionId, skillBaseStats, skillModifiers),
-        ResolveSkill(skills[2], gameVersionId, skillBaseStats, skillModifiers),
-        ResolveSkill(skills[3], gameVersionId, skillBaseStats, skillModifiers),
-        ResolveSkill(skills[4], gameVersionId, skillBaseStats, skillModifiers)
-    );
+
+    var stats =
+        BuildHeroStats(
+            baseStats,
+            heroModifier);
+
+
+    var kit =
+        new HeroSkillKitSnapshot(
+            ResolveSkill(
+                skills[0],
+                activeVersion.Id,
+                skillBaseStats,
+                skillModifiers),
+
+            ResolveSkill(
+                skills[1],
+                activeVersion.Id,
+                skillBaseStats,
+                skillModifiers),
+
+            ResolveSkill(
+                skills[2],
+                activeVersion.Id,
+                skillBaseStats,
+                skillModifiers),
+
+            ResolveSkill(
+                skills[3],
+                activeVersion.Id,
+                skillBaseStats,
+                skillModifiers),
+
+            ResolveSkill(
+                skills[4],
+                activeVersion.Id,
+                skillBaseStats,
+                skillModifiers)
+        );
+
 
     return new HeroSnapshot(
         heroId,
         heroName,
-        gameVersionId,
+        activeVersion.Id,
         stats,
         kit,
         BuildKitProfile(kit));
   }
 
 
+  private static void ValidateSnapshotContext(
+      GameVersion activeVersion,
+      HeroModifier heroModifier,
+      IReadOnlyList<Skill> skills,
+      IReadOnlyDictionary<Guid, SkillBaseStats> skillBaseStats,
+      IReadOnlyDictionary<Guid, SkillModifier> skillModifiers)
+  {
+    if (!activeVersion.IsActive)
+    {
+      throw new InvalidOperationException(
+          $"Cannot resolve snapshot. Game version '{activeVersion.Id}' is not active.");
+    }
+
+
+    if (heroModifier.GameVersionId != activeVersion.Id)
+    {
+      throw new InvalidOperationException(
+          $"Hero modifier does not belong to active version '{activeVersion.Id}'.");
+    }
+
+
+    foreach (var skill in skills)
+    {
+      if (!skillBaseStats.ContainsKey(skill.Id))
+      {
+        throw new InvalidOperationException(
+            $"Skill '{skill.Name}' has no base stats.");
+      }
+
+
+      if (!skillModifiers.ContainsKey(skill.Id))
+      {
+        throw new InvalidOperationException(
+            $"Skill '{skill.Name}' has no modifier for active version '{activeVersion.Id}'.");
+      }
+    }
+  }
+
+
   private static HeroStatSnapshot BuildHeroStats(
       HeroBaseStats baseStats,
-      HeroModifier? mod)
+      HeroModifier modifier)
   {
-    float Apply(float v, float? multiplier)
-        => v * (multiplier ?? 1f);
+    static float Apply(
+        float value,
+        float? multiplier)
+        => value * (multiplier ?? 1f);
+
 
     return new HeroStatSnapshot(
-        Apply(baseStats.BaseHealth, mod?.HealthMultiplier),
-        Apply(baseStats.BaseMana, mod?.ManaMultiplier),
-        Apply(baseStats.BaseAttackDamage, mod?.AttackDamageMultiplier),
-        Apply(baseStats.BaseMagicDamage, mod?.MagicDamageMultiplier),
-        Apply(baseStats.BaseAttackSpeed, mod?.AttackSpeedMultiplier),
-        Apply(baseStats.BaseCritChance, mod?.CritChanceMultiplier),
-        Apply(baseStats.BaseCritDamageMultiplier, mod?.CritDamageMultiplier),
-        Apply(baseStats.BaseArmor, mod?.ArmorMultiplier),
-        Apply(baseStats.BaseMagicResistance, mod?.MagicResistanceMultiplier),
-        Apply(baseStats.BaseDamageReduction, mod?.DamageReductionMultiplier),
-        Apply(baseStats.BaseShieldStrengthMultiplier, mod?.ShieldStrengthMultiplier),
-        Apply(baseStats.BaseMovementSpeed, mod?.MovementSpeedMultiplier),
-        Apply(baseStats.BaseAttackRange, mod?.AttackRangeMultiplier),
-        Apply(baseStats.BaseCastSpeed, mod?.CastSpeedMultiplier),
-        Apply(baseStats.BaseCooldownReduction, mod?.CooldownReductionMultiplier),
-        Apply(baseStats.BaseResourceRegeneration, mod?.ResourceRegenerationMultiplier)
+        Apply(baseStats.BaseHealth,
+            modifier.HealthMultiplier),
+
+        Apply(baseStats.BaseMana,
+            modifier.ManaMultiplier),
+
+        Apply(baseStats.BaseAttackDamage,
+            modifier.AttackDamageMultiplier),
+
+        Apply(baseStats.BaseMagicDamage,
+            modifier.MagicDamageMultiplier),
+
+        Apply(baseStats.BaseAttackSpeed,
+            modifier.AttackSpeedMultiplier),
+
+        Apply(baseStats.BaseCritChance,
+            modifier.CritChanceMultiplier),
+
+        Apply(baseStats.BaseCritDamageMultiplier,
+            modifier.CritDamageMultiplier),
+
+        Apply(baseStats.BaseArmor,
+            modifier.ArmorMultiplier),
+
+        Apply(baseStats.BaseMagicResistance,
+            modifier.MagicResistanceMultiplier),
+
+        Apply(baseStats.BaseDamageReduction,
+            modifier.DamageReductionMultiplier),
+
+        Apply(baseStats.BaseShieldStrengthMultiplier,
+            modifier.ShieldStrengthMultiplier),
+
+        Apply(baseStats.BaseMovementSpeed,
+            modifier.MovementSpeedMultiplier),
+
+        Apply(baseStats.BaseAttackRange,
+            modifier.AttackRangeMultiplier),
+
+        Apply(baseStats.BaseCastSpeed,
+            modifier.CastSpeedMultiplier),
+
+        Apply(baseStats.BaseCooldownReduction,
+            modifier.CooldownReductionMultiplier),
+
+        Apply(baseStats.BaseResourceRegeneration,
+            modifier.ResourceRegenerationMultiplier)
     );
   }
 
 
   private static SkillSnapshot ResolveSkill(
       Skill skill,
-      Guid gameVersionId,
+      Guid versionId,
       IReadOnlyDictionary<Guid, SkillBaseStats> skillBaseStats,
       IReadOnlyDictionary<Guid, SkillModifier> skillModifiers)
   {
-    skillBaseStats.TryGetValue(skill.Id, out var baseStats);
-    skillModifiers.TryGetValue(skill.Id, out var modifier);
+    if (!skillBaseStats.TryGetValue(
+            skill.Id,
+            out var stats))
+    {
+      throw new InvalidOperationException(
+          $"Missing base stats for skill '{skill.Name}'.");
+    }
+
+
+    if (!skillModifiers.TryGetValue(
+            skill.Id,
+            out var modifier))
+    {
+      throw new InvalidOperationException(
+          $"Missing modifier for skill '{skill.Name}' in version '{versionId}'.");
+    }
+
 
     return new SkillSnapshot(
         skill.Id,
         skill.Name,
-        gameVersionId,
-        BuildExecution(baseStats, modifier),
+        versionId,
+        BuildExecution(stats, modifier),
         BuildEffects(skill.Effects),
-        BuildEffectExecutions(skill, baseStats, modifier)
-    );
+        BuildEffectExecutions(
+            skill,
+            modifier));
   }
 
 
   private static SkillExecutionSnapshot BuildExecution(
-      SkillBaseStats? stats,
-      SkillModifier? modifier)
+      SkillBaseStats stats,
+      SkillModifier modifier)
   {
-    float? Apply(float? value, float? multiplier)
+    static float? Apply(
+        float? value,
+        float? multiplier)
         => value.HasValue
             ? value.Value * (multiplier ?? 1f)
             : null;
 
+
     return new SkillExecutionSnapshot(
-        Apply(stats?.BaseCooldown, modifier?.CooldownMultiplier),
-        Apply(stats?.BaseManaCost, modifier?.ManaCostMultiplier),
+        Apply(
+            stats.BaseCooldown,
+            modifier.CooldownMultiplier),
 
-        Apply(stats?.BaseDamage, modifier?.DamageMultiplier),
-        Apply(stats?.BaseHealing, modifier?.HealingMultiplier),
-        Apply(stats?.BaseShieldValue, modifier?.ShieldMultiplier),
+        Apply(
+            stats.BaseManaCost,
+            modifier.ManaCostMultiplier),
 
-        Apply(stats?.BaseCastTime, modifier?.CastTimeMultiplier),
-        Apply(stats?.BaseChannelDuration, modifier?.ChannelDurationMultiplier),
+        Apply(
+            stats.BaseDamage,
+            modifier.DamageMultiplier),
 
-        Apply(stats?.BaseCrowdControlDuration,
-            modifier?.CrowdControlDurationMultiplier),
+        Apply(
+            stats.BaseHealing,
+            modifier.HealingMultiplier),
 
-        Apply(stats?.BaseRange,
-            modifier?.RangeMultiplier)
+        Apply(
+            stats.BaseShieldValue,
+            modifier.ShieldMultiplier),
+
+        Apply(
+            stats.BaseCastTime,
+            modifier.CastTimeMultiplier),
+
+        Apply(
+            stats.BaseChannelDuration,
+            modifier.ChannelDurationMultiplier),
+
+        Apply(
+            stats.BaseCrowdControlDuration,
+            modifier.CrowdControlDurationMultiplier),
+
+        Apply(
+            stats.BaseRange,
+            modifier.RangeMultiplier)
     );
   }
 
@@ -125,34 +276,32 @@ public sealed class SnapshotResolver
   private static SkillEffectSnapshot BuildEffects(
       IEnumerable<SkillEffect> effects)
   {
-    var list = effects as IReadOnlyList<SkillEffect>
-               ?? effects.ToList();
+    var list = effects.ToList();
 
 
     bool Has(EffectType type)
-        => list.Any(e => e.EffectType == type);
+        => list.Any(x => x.EffectType == type);
 
 
-    var buffTypes = list
-        .Where(e => e.EffectType == EffectType.Buff)
-        .Where(e => e.BuffType.HasValue)
-        .Select(e => e.BuffType!.Value)
-        .ToHashSet();
+    var buffTypes =
+        list
+            .Where(x =>
+                x.EffectType == EffectType.Buff &&
+                x.BuffType.HasValue)
+            .Select(x => x.BuffType!.Value)
+            .ToHashSet();
 
 
-    var debuffTypes = list
-        .Where(e => e.EffectType == EffectType.Debuff)
-        .Where(e => e.DebuffType.HasValue)
-        .Select(e => e.DebuffType!.Value)
-        .ToHashSet();
+    var debuffTypes =
+        list
+            .Where(x =>
+                x.EffectType == EffectType.Debuff &&
+                x.DebuffType.HasValue)
+            .Select(x => x.DebuffType!.Value)
+            .ToHashSet();
 
 
     return new SkillEffectSnapshot(
-
-        // =====================================================
-        // DIRECT COMBAT OUTPUT
-        // =====================================================
-
         Has(EffectType.Damage),
         Has(EffectType.DamageOverTime),
 
@@ -160,11 +309,6 @@ public sealed class SnapshotResolver
         Has(EffectType.HealOverTime),
 
         Has(EffectType.Shield),
-
-
-        // =====================================================
-        // CONTROL SYSTEM
-        // =====================================================
 
         Has(EffectType.Slow),
         Has(EffectType.Root),
@@ -186,43 +330,18 @@ public sealed class SnapshotResolver
         Has(EffectType.Freeze),
         Has(EffectType.Petrify),
 
-
-        // =====================================================
-        // STATE MODIFIERS
-        // =====================================================
-
         Has(EffectType.Buff),
         Has(EffectType.Debuff),
 
-
-        // =====================================================
-        // POSITIONING
-        // =====================================================
-
         Has(EffectType.Mobility),
 
-
-        // =====================================================
-        // EXECUTION
-        // =====================================================
-
         Has(EffectType.Execute),
-
-
-        // =====================================================
-        // UTILITY
-        // =====================================================
 
         Has(EffectType.Utility),
         Has(EffectType.Vision),
         Has(EffectType.ZoneControl),
         Has(EffectType.Summon),
         Has(EffectType.Transformation),
-
-
-        // =====================================================
-        // STATE MODIFIER SEMANTICS
-        // =====================================================
 
         buffTypes,
         debuffTypes
@@ -232,66 +351,30 @@ public sealed class SnapshotResolver
 
   private static IReadOnlyList<EffectExecutionSnapshot> BuildEffectExecutions(
       Skill skill,
-      SkillBaseStats? baseStats,
-      SkillModifier? modifier)
+      SkillModifier modifier)
   {
-    var results = new List<EffectExecutionSnapshot>();
-
-    foreach (var effect in skill.Effects)
-    {
-      results.Add(
-          ResolveEffect(skill, effect, baseStats, modifier));
-    }
-
-    return results;
+    return skill.Effects
+        .Select(effect =>
+            ResolveEffect(
+                skill,
+                effect,
+                modifier))
+        .ToList();
   }
 
 
   private static EffectExecutionSnapshot ResolveEffect(
       Skill skill,
       SkillEffect effect,
-      SkillBaseStats? baseStats,
-      SkillModifier? modifier)
+      SkillModifier modifier)
   {
-    float Apply(float value, float? multiplier)
+    static float Apply(
+        float value,
+        float? multiplier)
         => value * (multiplier ?? 1f);
 
 
-    var finalMagnitude =
-        Apply(effect.Magnitude,
-            modifier?.DamageMultiplier);
-
-
-    var finalDuration =
-        Apply(effect.Duration,
-            modifier?.CrowdControlDurationMultiplier);
-
-
-    var finalRadius =
-        Apply(effect.Radius,
-            modifier?.RangeMultiplier);
-
-
-    var stacks =
-        effect.StackType == StackType.None
-            ? 1
-            : effect.MaxStacks;
-
-
-    float tickInterval =
-        effect.IsPeriodic
-            ? 0.25f
-            : 0f;
-
-
-    float channelDuration =
-        effect.IsChannelled
-            ? effect.Duration
-            : 0f;
-
-
     return new EffectExecutionSnapshot(
-
         effect.EffectType,
 
         effect.BuffType,
@@ -301,18 +384,33 @@ public sealed class SnapshotResolver
         Guid.Empty,
         Array.Empty<Guid>(),
 
-        finalMagnitude,
-        finalDuration,
-        finalRadius,
+        Apply(
+            effect.Magnitude,
+            modifier.DamageMultiplier),
 
-        stacks,
+        Apply(
+            effect.Duration,
+            modifier.CrowdControlDurationMultiplier),
+
+        Apply(
+            effect.Radius,
+            modifier.RangeMultiplier),
+
+        effect.StackType == StackType.None
+            ? 1
+            : effect.MaxStacks,
 
         effect.IsInstant,
         effect.IsPeriodic,
         effect.IsChannelled,
 
-        tickInterval,
-        channelDuration,
+        effect.IsPeriodic
+            ? 0.25f
+            : 0f,
+
+        effect.IsChannelled
+            ? effect.Duration
+            : 0f,
 
         effect.TargetType
     );
@@ -325,26 +423,26 @@ public sealed class SnapshotResolver
     var skills = kit.AllSkills;
 
 
-    int damageCount =
+    var damageCount =
         skills.Count(x => x.Effects.HasDamage);
 
 
-    int crowdControlCount =
+    var crowdControlCount =
         skills.Count(x => x.Effects.HasAnyCrowdControl);
 
 
-    int mobilityCount =
+    var mobilityCount =
         skills.Count(x => x.Effects.HasMobility);
 
 
-    int sustainCount =
+    var sustainCount =
         skills.Count(x =>
             x.Effects.HasHeal ||
             x.Effects.HasHealOverTime ||
             x.Effects.HasShield);
 
 
-    int utilityCount =
+    var utilityCount =
         skills.Count(x =>
             x.Effects.HasUtility ||
             x.Effects.HasVision ||

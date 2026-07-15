@@ -6,10 +6,9 @@ public interface IHeroSnapshotClient
 {
   Task<HeroSnapshotDto?> GetAsync(
       Guid heroId,
-      Guid gameVersionId,
+    
       CancellationToken cancellationToken = default);
 
   Task<IReadOnlyList<HeroSnapshotDto>> BrowseAsync(
-      Guid gameVersionId,
-      CancellationToken cancellationToken = default);
+            CancellationToken cancellationToken = default);
 }

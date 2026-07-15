@@ -15,20 +15,18 @@ public sealed class HeroSnapshotClient : IHeroSnapshotClient
 
   public async Task<HeroSnapshotDto?> GetAsync(
       Guid heroId,
-      Guid gameVersionId,
       CancellationToken cancellationToken = default)
   {
     return await _httpClient.GetFromJsonAsync<HeroSnapshotDto>(
-        $"api/v1/snapshots/heroes/{heroId}/{gameVersionId}",
+        $"api/v1/snapshots/heroes/{heroId}",
         cancellationToken);
   }
 
   public async Task<IReadOnlyList<HeroSnapshotDto>> BrowseAsync(
-      Guid gameVersionId,
       CancellationToken cancellationToken = default)
   {
     return await _httpClient.GetFromJsonAsync<IReadOnlyList<HeroSnapshotDto>>(
-               $"api/v1/snapshots/heroes/browse/{gameVersionId}",
+               $"api/v1/snapshots/heroes/browse",
                cancellationToken)
            ?? [];
   }

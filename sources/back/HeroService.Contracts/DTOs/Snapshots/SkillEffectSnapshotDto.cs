@@ -1,5 +1,4 @@
 ﻿using HeroService.Domain.Heroes.Skills;
-using System.Collections.Generic;
 
 namespace HeroService.Contracts.DTOs.Snapshots;
 
@@ -7,10 +6,6 @@ namespace HeroService.Contracts.DTOs.Snapshots;
 /// DTO mirror of SkillEffectSnapshot.
 /// </summary>
 public sealed record SkillEffectSnapshotDto(
-
-    // =========================================================
-    // DIRECT COMBAT OUTPUT
-    // =========================================================
 
     bool HasDamage,
     bool HasDamageOverTime,
@@ -20,10 +15,6 @@ public sealed record SkillEffectSnapshotDto(
 
     bool HasShield,
 
-
-    // =========================================================
-    // CONTROL SYSTEM
-    // =========================================================
 
     bool HasSlow,
     bool HasRoot,
@@ -46,31 +37,15 @@ public sealed record SkillEffectSnapshotDto(
     bool HasPetrify,
 
 
-    // =========================================================
-    // STATE MODIFIERS
-    // =========================================================
-
     bool HasBuff,
     bool HasDebuff,
 
 
-    // =========================================================
-    // POSITIONING
-    // =========================================================
-
     bool HasMobility,
 
 
-    // =========================================================
-    // EXECUTION
-    // =========================================================
-
     bool HasExecute,
 
-
-    // =========================================================
-    // UTILITY
-    // =========================================================
 
     bool HasUtility,
     bool HasVision,
@@ -79,13 +54,9 @@ public sealed record SkillEffectSnapshotDto(
     bool HasTransformation,
 
 
-    // =========================================================
-    // STATE MODIFIER DETAILS
-    // =========================================================
+    IReadOnlyCollection<BuffType> BuffTypes,
 
-    IReadOnlySet<BuffType> BuffTypes,
-
-    IReadOnlySet<DebuffType> DebuffTypes
+    IReadOnlyCollection<DebuffType> DebuffTypes
 )
 {
   public bool HasAnyCrowdControl =>

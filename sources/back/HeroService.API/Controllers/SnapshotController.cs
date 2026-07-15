@@ -21,14 +21,14 @@ public sealed class HeroSnapshotController : ControllerBase
   // --------------------------------------------------
   // SINGLE HERO SNAPSHOT
   // --------------------------------------------------
-  [HttpGet("{heroId:guid}/{gameVersionId:guid}")]
+  [HttpGet("{heroId:guid}")]
   public async Task<ActionResult<HeroSnapshotDto>> Get(
       Guid heroId,
       Guid gameVersionId,
       CancellationToken ct)
   {
     var result = await _mediator.SendAsync(
-        new GetHeroSnapshotQuery(heroId, gameVersionId),
+        new GetHeroSnapshotQuery(heroId),
         ct);
 
     return Ok(result);
@@ -37,13 +37,12 @@ public sealed class HeroSnapshotController : ControllerBase
   // --------------------------------------------------
   // ALL HERO SNAPSHOTS (BROWSE)
   // --------------------------------------------------
-  [HttpGet("browse/{gameVersionId:guid}")]
+  [HttpGet("browse")]
   public async Task<ActionResult<IReadOnlyList<HeroSnapshotDto>>> Browse(
-      Guid gameVersionId,
       CancellationToken ct)
   {
     var result = await _mediator.SendAsync(
-        new BrowseHeroSnapshotsQuery(gameVersionId),
+        new BrowseHeroSnapshotsQuery(),
         ct);
 
     return Ok(result);
