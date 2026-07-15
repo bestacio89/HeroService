@@ -1,6 +1,6 @@
 ﻿using Franz.Common.Business.Repositories;
 using Franz.Common.Mediator.Handlers;
-using HeroService.Contracts.Commands.Modfifiers;
+using HeroService.Contracts.Commands.Modifiers;
 using HeroService.Contracts.Persistence.Modifiers;
 using HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 using System;

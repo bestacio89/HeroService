@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HeroService.Contracts.Commands.Modfifiers;
+namespace HeroService.Contracts.Commands.Modifiers;
 
 public sealed record UpdateSkillModifierCommand(
     Guid SkillModifierId,
@@ -16,4 +16,4 @@ public sealed record UpdateSkillModifierCommand(
     float ChannelDurationMultiplier,
     float CrowdControlDurationMultiplier,
     float RangeMultiplier
-) : ICommand;
+) : ICommand 
