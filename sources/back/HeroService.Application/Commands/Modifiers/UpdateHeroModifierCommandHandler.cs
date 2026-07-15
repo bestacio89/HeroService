@@ -39,7 +39,7 @@ public sealed class UpdateHeroModifierCommandHandler
         manaMultiplier: request.ManaMultiplier,
 
         attackDamageMultiplier: request.AttackDamageMultiplier,
-        magicDamageMultiplier: request.AbilityPowerMultiplier,
+        magicDamageMultiplier: request.MagicDamageMultiplier,
 
         ignoreEnemyDefenseAdjustment: request.IgnoreEnemyDefenseMultiplier,
 
