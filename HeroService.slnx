@@ -11,6 +11,7 @@
   </Folder>
   <Folder Name="/3- Adapters/">
     <Project Path="sources/back/HeroService.API/HeroService.API.csproj" />
+    <Project Path="sources/Front/HeroService.Admin/HeroService.Admin.csproj" />
   </Folder>
   <Folder Name="/4- Tests/">
     <Project Path="TestProject1/HeroService.Testing.csproj" />

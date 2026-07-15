@@ -2,15 +2,15 @@
   <img width="200" src="./Docs/assets/FranzTemplate.png" alt="Franz Logo"/>
 </p>
 
-<h1 align="center">API Project — Powered by Franz</h1>
-<p align="center"><b>Deterministic Architecture for Event-Driven .NET Microservices</b></p>
+<h1 align="center">HeroService</h1>
+<p align="center"><b>Versioned hero, skill, and balance-data service for a mythology-themed action game — built on Franz</b></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/.NET-10%2B-blueviolet" />
+  <img src="https://img.shields.io/badge/.NET-10-blueviolet" />
   <img src="https://img.shields.io/badge/Architecture-Clean%20%7C%20DDD%20%7C%20CQRS-brightgreen" />
-  <img src="https://img.shields.io/badge/Resilience-Polly-blue" />
-  <img src="https://img.shields.io/badge/Observability-OpenTelemetry-yellow" />
-  <img src="https://img.shields.io/badge/Messaging-Kafka%20%7C%20RabbitMQ-orange" />
+  <img src="https://img.shields.io/badge/Cache-Redis-red" />
+  <img src="https://img.shields.io/badge/Database-PostgreSQL-336791" />
+  <img src="https://img.shields.io/badge/Messaging-Kafka-orange" />
   <img src="https://img.shields.io/badge/MultiCloud-Azure%20%7C%20AWS%20%7C%20GCP-9cf" />
   <img src="https://img.shields.io/badge/IaC-Terraform%20%7C%20Bicep-success" />
   <img src="https://img.shields.io/badge/CI%2FCD-Azure%20DevOps%20%7C%20GitHub%20%7C%20GitLab-informational" />
@@ -18,347 +18,134 @@
 
 ---
 
-# 🔥⚡ Overview — *Architecture as Code* ⚡🔥
+## What this actually is
 
-This API is built on top of **Franz 1.7.5**, inheriting Franz’s deterministic patterns:
+HeroService owns every hero in a mythology-themed action game — 18 heroes spanning Norse, Greek,
+Egyptian, Japanese, Mesopotamian, and Hindu mythology, across six gameplay classes (Warrior,
+Assassin, Mage, Tank, Support, Ranger). For each hero it owns: base stats, a five-slot skill kit
+(Passive / Primary / Secondary / Tertiary / Ultimate), cosmetic skins, and — the part that actually
+makes this interesting architecturally — **balance data that is versioned and immutable**, not
+just mutable rows that get patched in place.
 
-- **Architecture is not documentation — it is *law***.
-- Every rule is enforced at:
-  - **compile-time** (ArchUnitNET tests)  
-  - **runtime** (Franz pipelines & DI enforcement)  
-- The project ships with:
-  - **multi-cloud IaC**,  
-  - **multi-CI/CD**,  
-  - **Docker-first builds**,  
-  - **observability**,  
-  - and **resilience** baked in.
+It's also the project I use to stress-test [Franz.Common](https://github.com/bestacio89/Franz.Common),
+the framework underneath it — 61+ packages, 730k+ downloads on NuGet, sole-authored. HeroService is
+where framework decisions get proven against a real, non-trivial domain before they ship.
 
-> **Spaghetti-free by design. Compliant by force. Enterprise by nature.**
+## The core design decision: balance data is versioned, not mutated
 
----
+A `GameVersion` is a frozen balance snapshot. `HeroModifier` and `SkillModifier` rows are scoped to
+a specific `GameVersionId`, and once a version is published, its modifiers don't change — a
+rebalance patch means creating a *new* `GameVersion`, not editing an old one in place. That one
+decision is what makes everything downstream simple:
 
-# ✨ Features
+- **Deterministic snapshots.** `GetHeroSnapshotQuery(HeroId, GameVersionId)` and
+  `BrowseHeroSnapshotsQuery(GameVersionId)` resolve a hero's fully-computed combat stats (base +
+  modifiers + skill kit) for a given balance version. Same inputs, same output, always — no hidden
+  time-dependency.
+- **Caching without the usual invalidation headache.** Because a snapshot is pure given
+  `(HeroId, GameVersionId)`, it can be cached aggressively (Redis, via `Franz.Common.Caching`)
+  without a cache-invalidation strategy chasing every write — the only way a cached snapshot goes
+  stale is a deliberate hotfix to an already-published version, which is a rare, ops-controlled
+  event rather than a routine one.
+- **Match Service reads once, not repeatedly.** The wider game architecture freezes an immutable
+  per-match participant snapshot at match creation — no further queries to Hero or User aggregates
+  once a match starts. HeroService's snapshot endpoints are exactly what makes that possible.
 
-### 🏗 Architecture as Code (ArchUnitNET)
-Strict rules for:
-- Handlers  
-- Repositories  
-- DTO naming  
-- Dependency boundaries  
-- Layer isolation  
+## Architecture
 
-> *No PR merges if architecture rules fail.*
+- **CQRS via `Franz.Common.Mediator`** — every read is a query handler, every write a command
+  handler, no service-layer god classes.
+- **Clean layering**: `HeroService.Domain` (entities, no framework dependencies) →
+  `HeroService.Contracts` (DTOs, queries, commands, repository interfaces) →
+  `HeroService.Application` (handlers) → `HeroService.Persistence` (EF Core, repositories, seeders)
+  → `HeroService.API` (controllers) / `HeroService.Consumer` (Kafka event handling) /
+  `HeroService.ClientHttp` (typed HTTP client for other services).
+- **Architecture-as-code**: layer-dependency rules (no domain → infrastructure leakage, handler
+  naming conventions, repository lifetime rules) are enforced by dedicated test projects, not just
+  documented and hoped for.
+- **EF Core + PostgreSQL**, with a full seeding pipeline: mythologies, origin archetypes, cultures,
+  hero classes, all 18 heroes, all 90 skills (5 per hero), and their balance modifiers — the
+  database comes up populated, not empty.
 
-### 📦 Mediator Pipelines (Franz.Mediator)
-- Validation  
-- Logging  
-- Resilience (Polly)  
-- OpenTelemetry instrumentation  
-- Correlation + tenant propagation  
+## Getting started
 
-### 🔒 Resilience (Polly)
-Fully integrated:
-- Retries  
-- Timeouts  
-- Circuit breakers  
-- Bulkheads  
-- Fallbacks
+```bash
+git clone https://github.com/bestacio89/HeroService.git
+cd HeroService
+docker-compose -f sources/back/HeroService.DockerCompose/docker-compose.yml up --build
+```
 
-### 📊 Observability
-- Serilog + structured logs  
-- OpenTelemetry tracing  
-- CorrelationId everywhere  
-- ELK enrichers  
+That's Postgres, Redis, Kafka/Zookeeper, the API, and the Consumer — one command, seeded database,
+no manual setup. API comes up on `http://localhost:8080`, Swagger at `/swagger`.
 
-### 📡 Messaging-Ready
-- Kafka  
-- RabbitMQ  
-- Azure Event Grid  
-- Outbox/inbox via Franz persistence providers  
+To run just the API against local tooling instead:
 
-### 🐳 Container-First
-- Multi-stage Dockerfile  
-- Non-root runtime  
-- Built-in healthchecks  
-
-### ☁ Cloud-Ready
-- Terraform (AWS + GCP)  
-- Azure Bicep  
-- Built-in networking, service wiring, secrets  
-
-### 🔄 Multi-CI/CD
-- Azure DevOps  
-- GitHub Actions  
-- GitLab CI  
-- Shared job templates
-
----
-
-# 🚀 Getting Started
-
-## Prerequisites
-- **.NET 9+ SDK**
-- Docker (optional)
-
-## Install Dependencies
 ```bash
 dotnet restore
-````
-
-## Run the API
-
-```bash
-dotnet run
+dotnet run --project sources/back/HeroService.API
 ```
 
-Swagger UI:
-👉 [http://localhost:5000/swagger](http://localhost:5000/swagger)
+## API surface
 
----
+| Controller | Owns |
+|---|---|
+| `HeroController` | Hero CRUD and lookups |
+| `SkillController` | Skill definitions, effects, base stats |
+| `SnapshotController` | Resolved, version-scoped hero snapshots (the cached, high-traffic endpoint) |
+| `VersionController` | Game balance versions |
+| `HeroProgressionController` | Per-level stat scaling |
+| `SkillScalingModifierController` | Per-version skill balance modifiers |
+| `HeroClassController` / `MythologyTypeController` / `OriginArchetypeController` / `OriginCultureController` | Identity/classification axes (class, mythology, archetype, culture) |
 
-# 🧩 Franz Bootstrap Template
+## Infrastructure as code
 
-```csharp
-var builder = WebApplication.CreateBuilder(args);
-
-// Logging + Observability
-builder.Host.UseHybridLog();
-builder.Services.AddOpenApi();
-
-// Application & Persistence
-builder.Services.RegisterApplicationServices();
-builder.Services.RegisterPersistenceServices<ApplicationDbContext>(builder.Configuration);
-builder.Services.AddDatabase<ApplicationDbContext>(builder.Environment, builder.Configuration);
-
-// HTTP Architecture
-builder.Services.AddHttpArchitecture(builder.Environment, builder.Configuration);
-builder.Services.AddMessagingInHttpContext(builder.Configuration);
-builder.Services.AddHttpServices(builder.Configuration, TimeSpan.FromSeconds(30));
-builder.Services.AddExternalServices(builder.Configuration);
-
-// Mediator Pipelines
-builder.Services.AddFranzMediatorDefault()
-    .AddFranzEventValidationPipeline()
-    .AddMediatorOpenTelemetry()
-    .AddMediatorEventOpenTelemetry(new ActivitySource("Franz.Mediator"));
-
-// Resilience
-builder.Services.AddFranzResilience(builder.Configuration);
-
-// CORS + API Versioning
-builder.Services.AddApiVersioning(o => o.DefaultApiVersion = new ApiVersion(1, 0));
-builder.Services.AddCors(p => p.AddPolicy("AllowAll", b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
-
-var app = builder.Build();
-
-// HTTP Pipeline
-app.UseCors("AllowAll");
-app.UseHttpArchitecture();
-
-app.MapControllers();
-app.Run();
-```
-
----
-
-# 🔄 CI/CD Matrix
-
-| Platform           | Path                 | Notes                               |
-| ------------------ | -------------------- | ----------------------------------- |
-| **Azure DevOps**   | `pipelines/`         | Library templates + infra pipelines |
-| **GitHub Actions** | `.github/workflows/` | GH-native runners + OIDC            |
-| **GitLab CI**      | `.gitlab/ci/`        | Complete GitLab chains              |
-
----
-
-# ☁ Multi-Cloud Infrastructure (IaC)
-
-### **Azure (Bicep)**
-
-* AppService / AKS
-* Private networking
-* KeyVault integration
-
-### **AWS (Terraform)**
-
-* EKS / ECS
-* ALB / NLB
-* RDS / DynamoDB
-
-### **GCP (Terraform)**
-
-* GKE
-* Cloud Run
-* Pub/Sub
-
----
-
-# 🐳 Docker
-
-```bash
-docker build -t api-project .
-docker run -p 8080:80 api-project
-```
-
-Includes:
-
-* Non-root execution
-* Health endpoint
-* Multi-stage build
-
----
-
-# 🧪 Architecture Rules (Franz Tribunal)
-
-Franz enforces rules such as:
-
-* `*CommandHandler` must implement `ICommandHandler<,>`
-* `*QueryHandler` must implement `IQueryHandler<,>`
-* DTOs must end with `Dto`
-* Repositories follow scoped lifetime rules
-* No cycle dependencies
-* No infrastructure leak into domain
-
-> **If architecture fails, the merge fails.**
-
----
-
-# 📡 Messaging Example
-
-```csharp
-public class KafkaConsumerService : IHostedService
-{
-    private readonly IConsumer<string, string> _consumer;
-    private readonly IMessageHandler _handler;
-
-    public KafkaConsumerService(IOptions<MessagingOptions> opts, IMessageHandler handler)
-    {
-        _consumer = new ConsumerBuilder<string, string>(
-            new ConsumerConfig { BootstrapServers = opts.Value.BootStrapServers, GroupId = opts.Value.GroupID }
-        ).Build();
-        _handler = handler;
-    }
-
-    public Task StartAsync(CancellationToken ct)
-    {
-        _consumer.Subscribe("my-topic");
-
-        Task.Run(() =>
-        {
-            while (!ct.IsCancellationRequested)
-            {
-                var msg = _consumer.Consume(ct);
-                _handler.Process(new Message(msg.Message.Value));
-            }
-        });
-
-        return Task.CompletedTask;
-    }
-}
-```
-
----
-
-# 👑 Philosophy — *The Anti-Spaghetti Manifesto*
-
-> “Most teams enforce architecture through code reviews.
-> This repo enforces it through **law**.”
-
-* Architecture is deterministic
-* Rules > opinions
-* Defaults are sacred
-* DI rejects invalid code
-* Creativity is allowed — spaghetti is not
-
----
-
-# 🦉 Architectural Creed
+Real, non-toy IaC for all three major clouds, not just one demonstrated and the others implied:
 
 ```
-FFFFFFFFF  RRRRRR    AAAAA   N   N  ZZZZZZZ
-F         R    R   A     A  NN  N       ZZ
-FFFFFF    RRRRRR   AAAAAAA  N N N     ZZZ
-F         R   R    A     A  N  NN    ZZ
-F         R    R   A     A  N   N   ZZZZZZZ
+Infrastructure/
+├── AzureDevOps-Bicep/     # Azure: AKS, networking, KeyVault
+├── Terraform-AWS/         # AWS: EKS/ECS, RDS, MSK/Amazon MQ, networking
+└── Terraform-GCP/         # GCP: GKE/Cloud Run, Pub/Sub-equivalent, networking
 ```
 
----
+Each cloud module toggles between Kafka and RabbitMQ, and between container-orchestrated
+(EKS/GKE) and serverless (ECS/Cloud Run) compute, via Terraform variables — not three
+copy-pasted, hard-coded stacks.
 
-# 🏗 C4 Architecture (Mermaid)
+CI/CD is mirrored across three platforms with real per-cloud jobs, not one pipeline pretending to
+support all three:
 
-### C1 — System Context
+| Platform | Path |
+|---|---|
+| Azure DevOps | `pipelines/` |
+| GitHub Actions | `.github/workflows/` |
+| GitLab CI | `.gitlab/ci/` |
 
-```mermaid
-C4Context
-    Person(user, "Client", "Uses the API")
-    System(api, "Franz-Powered API", "Provides domain services")
-    SystemDb(db, "Database", "Stores application data")
-    SystemQueue(kafka, "Kafka / RabbitMQ", "Message broker")
-    System_Ext(ext, "External Services", "Third-party APIs")
+## Tech stack
 
-    Rel(user, api, "Consumes")
-    Rel(api, db, "Reads/Writes")
-    Rel(api, kafka, "Publishes/Consumes")
-    Rel(api, ext, "Integrates with")
+| Concern | Choice |
+|---|---|
+| Runtime | .NET 10 |
+| Framework | [Franz.Common](https://github.com/bestacio89/Franz.Common) (CQRS/Mediator, Caching, EF Core integration, Resilience, Hosting) |
+| Database | PostgreSQL via EF Core |
+| Cache | Redis (`Franz.Common.Caching`) |
+| Messaging | Kafka (`HeroService.Consumer`) |
+| Resilience | Polly (retries, circuit breaker, timeout) |
+| Containerization | Docker, multi-stage builds, non-root runtime |
+
+## Project structure
+
+```
+sources/back/
+├── HeroService.Domain/         # Entities, value objects — no framework dependencies
+├── HeroService.Contracts/      # DTOs, queries, commands, repository interfaces
+├── HeroService.Application/    # Command/query handlers
+├── HeroService.Persistence/    # EF Core, repositories, seeders
+├── HeroService.API/            # Controllers, composition root
+├── HeroService.Consumer/       # Kafka event consumption
+└── HeroService.ClientHttp/     # Typed HTTP client for other services
 ```
 
-### C2 — Containers
+## License
 
-```mermaid
-C4Container
-    System_Boundary(api, "Franz API") {
-        Container(web, "API Service", "ASP.NET + Franz", "Controllers, DI, mediator")
-        ContainerDb(db, "Database", "SQL/NoSQL", "Application state")
-        Container(queue, "Kafka/RabbitMQ", "Message Broker", "Async messaging")
-    }
-
-    Person(user, "Client")
-    System_Ext(ext, "External Service")
-
-    Rel(user, web, "REST/JSON")
-    Rel(web, db, "Reads/Writes")
-    Rel(web, queue, "Publishes")
-    Rel(web, ext, "Integrates with")
-```
-
-### C3 — Components
-
-```mermaid
-C4Component
-    Container_Boundary(api, "API Service") {
-        Component(controller, "Controllers", "ASP.NET", "Expose endpoints")
-        Component(mediator, "Mediator", "Franz.Mediator", "Dispatches requests")
-        Component(handler, "Handlers", "Command/Query Handlers", "Business logic")
-        Component(repo, "Repositories", "EF Core", "Persistence layer")
-    }
-
-    Rel(controller, mediator, "Dispatches")
-    Rel(mediator, handler, "Routes to")
-    Rel(handler, repo, "Reads/Writes")
-```
-
----
-
-# 🛠 Developer Environment (IDE-as-Code)
-
-Recommended Extensions:
-
-* GitLens
-* Terraform
-* Bicep
-* Docker
-* Kubernetes
-* Serilog Analyzer
-* YAML
-* Markdown Mermaid Preview
-* Copilot
-
-> **Same workspace, same cockpit — every developer, every machine.**
-
----
-
-# 📜 License
-
-MIT License.
-
-
+See [`LICENSE.txt`](./LICENSE.txt).
