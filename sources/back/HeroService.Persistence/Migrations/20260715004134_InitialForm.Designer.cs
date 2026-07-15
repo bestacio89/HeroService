@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HeroService.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260714163022_InitialForm")]
+    [Migration("20260715004134_InitialForm")]
     partial class InitialForm
     {
         /// <inheritdoc />
@@ -824,23 +824,23 @@ namespace HeroService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<float>("CastTimeMultiplier")
+                    b.Property<float?>("CastTimeMultiplier")
                         .HasColumnType("real");
 
-                    b.Property<float>("ChannelDurationMultiplier")
+                    b.Property<float?>("ChannelDurationMultiplier")
                         .HasColumnType("real");
 
-                    b.Property<float>("CooldownMultiplier")
+                    b.Property<float?>("CooldownMultiplier")
                         .HasColumnType("real");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<float>("CrowdControlDurationMultiplier")
+                    b.Property<float?>("CrowdControlDurationMultiplier")
                         .HasColumnType("real");
 
-                    b.Property<float>("DamageMultiplier")
+                    b.Property<float?>("DamageMultiplier")
                         .HasColumnType("real");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -855,7 +855,7 @@ namespace HeroService.Persistence.Migrations
                     b.Property<Guid>("GameVersionId")
                         .HasColumnType("uuid");
 
-                    b.Property<float>("HealingMultiplier")
+                    b.Property<float?>("HealingMultiplier")
                         .HasColumnType("real");
 
                     b.Property<bool>("IsDeleted")
@@ -867,13 +867,13 @@ namespace HeroService.Persistence.Migrations
                     b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<float>("ManaCostMultiplier")
+                    b.Property<float?>("ManaCostMultiplier")
                         .HasColumnType("real");
 
-                    b.Property<float>("RangeMultiplier")
+                    b.Property<float?>("RangeMultiplier")
                         .HasColumnType("real");
 
-                    b.Property<float>("ShieldMultiplier")
+                    b.Property<float?>("ShieldMultiplier")
                         .HasColumnType("real");
 
                     b.Property<Guid>("SkillId")
