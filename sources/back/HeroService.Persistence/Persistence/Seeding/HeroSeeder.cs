@@ -66,14 +66,13 @@ public sealed class HeroSeeder : ISeeder
 
     const string system = "seed-system";
 
-    // =========================
-    // Reference data
-    // =========================
+
     var warrior = await _classes.GetByNameAsync("Warrior", ct)
         ?? throw new InvalidOperationException("Missing HeroClass: Warrior");
 
     var tank = await _classes.GetByNameAsync("Tank", ct)
         ?? throw new InvalidOperationException("Missing HeroClass: Tank");
+
 
     var greek = await _mythologies.GetByNameAsync("Greek", ct)
         ?? throw new InvalidOperationException("Missing Mythology: Greek");
@@ -81,8 +80,10 @@ public sealed class HeroSeeder : ISeeder
     var norse = await _mythologies.GetByNameAsync("Norse", ct)
         ?? throw new InvalidOperationException("Missing Mythology: Norse");
 
+
     var divine = await _archetypes.GetByNameAsync("Divine", ct)
         ?? throw new InvalidOperationException("Missing Archetype: Divine");
+
 
     var europe = await _cultures.GetByNameAsync("Europe", ct)
         ?? throw new InvalidOperationException("Missing Culture: Europe");
@@ -90,12 +91,11 @@ public sealed class HeroSeeder : ISeeder
     var mediterranean = await _cultures.GetByNameAsync("Mediterranean", ct)
         ?? throw new InvalidOperationException("Missing Culture: Mediterranean");
 
-    // =========================
-    // Skills
-    // =========================
+
     Skill GetSkill(string name) =>
         _skills.GetByNameAsync(name, ct).GetAwaiter().GetResult()
         ?? throw new InvalidOperationException($"Missing Skill: {name}");
+
 
     var mjolnir = GetSkill("Mjolnir Strike");
     var thunderLeap = GetSkill("Thunder Leap");
@@ -103,35 +103,64 @@ public sealed class HeroSeeder : ISeeder
     var lightningChain = GetSkill("Lightning Chain");
     var thorUlt = GetSkill("God of Thunder");
 
+
     var lionsMight = GetSkill("Lion's Might");
     var hydraStrike = GetSkill("Hydra Strike");
     var titanGrip = GetSkill("Titan Grip");
     var laborsRush = GetSkill("Labors Rush");
     var heraUlt = GetSkill("Divine Endurance");
 
+
     // =========================================================
     // THOR
     // =========================================================
+
     var thor = _heroFactory.Create();
 
     var thorStats = _statsFactory.Create();
+
     thorStats.Define(
         thor.Id,
-        700, 200, 85, 40,
-        1.0f, 1.0f,
-        0.05f, 1.5f,
-        30, 25, 0,
+
+        700,
+        200,
+
+        85,
+        40,
+
+        0.10f, // Ignore Enemy Defense
+
         1.0f,
-        5, 1.0f,
-        0.05f, 1.0f,
+        1.0f,
+
+        0.05f,
+        1.5f,
+
+        30,
+        25,
+        0,
+
+        1.0f,
+
+        5,
+        1.0f,
+
+        0.05f,
+        1.0f,
+
         system);
+
 
     thor.Define(
         "Thor",
         warrior.Id,
-        new HeroAffiliation(divine.Id, norse.Id, europe.Id),
+        new HeroAffiliation(
+            divine.Id,
+            norse.Id,
+            europe.Id),
         thorStats,
         system);
+
 
     thor.SetSkillKit(new HeroSkillKit(
         stormAura.Id,
@@ -140,37 +169,70 @@ public sealed class HeroSeeder : ISeeder
         thunderLeap.Id,
         thorUlt.Id));
 
-    var thorLore = CreateLore(thor.Id,
+
+    var thorLore = CreateLore(
+        thor.Id,
         "God of Thunder",
         "A relentless divine warrior wielding storm power.",
         "Born of Asgard, Thor embodies raw storm fury and protection of realms.",
         system);
 
+
     await PersistHero(thor, thorLore, ct);
+
+
 
     // =========================================================
     // HERAKLES
     // =========================================================
+
     var herakles = _heroFactory.Create();
 
     var heraklesStats = _statsFactory.Create();
+
+
     heraklesStats.Define(
         herakles.Id,
-        900, 150, 95, 20,
-        0.9f, 1.0f,
-        0.08f, 2.0f,
-        40, 35, 0.05f,
+
+        900,
+        150,
+
+        95,
+        20,
+
+        0.05f, // Ignore Enemy Defense
+
+        0.9f,
+        1.0f,
+
+        0.08f,
+        2.0f,
+
+        40,
+        35,
+        0.05f,
+
         1.3f,
-        4, 1.0f,
-        0.03f, 1.2f,
+
+        4,
+        1.0f,
+
+        0.03f,
+        1.2f,
+
         system);
+
 
     herakles.Define(
         "Herakles",
         tank.Id,
-        new HeroAffiliation(divine.Id, greek.Id, mediterranean.Id),
+        new HeroAffiliation(
+            divine.Id,
+            greek.Id,
+            mediterranean.Id),
         heraklesStats,
         system);
+
 
     herakles.SetSkillKit(new HeroSkillKit(
         lionsMight.Id,
@@ -179,27 +241,48 @@ public sealed class HeroSeeder : ISeeder
         laborsRush.Id,
         heraUlt.Id));
 
-    var heraklesLore = CreateLore(herakles.Id,
+
+    var heraklesLore = CreateLore(
+        herakles.Id,
         "The Labors of a Demigod",
         "A relentless force of endurance and mythic strength.",
         "Herakles walks the path of divine trials, embodying resilience beyond mortal limits.",
         system);
 
+
     await PersistHero(herakles, heraklesLore, ct);
+
 
     await _uow.CommitAsync(ct);
   }
 
-  private async Task PersistHero(Hero hero, HeroLore lore, CancellationToken ct)
+
+  private async Task PersistHero(
+      Hero hero,
+      HeroLore lore,
+      CancellationToken ct)
   {
     await _heroes.AddAsync(hero, ct);
     await _loreRepo.AddAsync(lore, ct);
   }
 
-  private HeroLore CreateLore(Guid heroId, string title, string desc, string bg, string system)
+
+  private HeroLore CreateLore(
+      Guid heroId,
+      string title,
+      string desc,
+      string bg,
+      string system)
   {
     var lore = _loreFactory.Create();
-    lore.Define(heroId, title, desc, bg, system);
+
+    lore.Define(
+        heroId,
+        title,
+        desc,
+        bg,
+        system);
+
     return lore;
   }
 }

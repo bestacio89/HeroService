@@ -6,6 +6,7 @@ public sealed record HeroStatSnapshotDto(
 
     float AttackDamage,
     float MagicDamage,
+    float IgnoreEnemyDefense,
 
     float AttackSpeed,
     float CastSpeed,

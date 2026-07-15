@@ -31,6 +31,7 @@ public sealed class HeroCreationService : IHeroCreationService
 
   private readonly IHeroUniquenessValidator _uniquenessValidator;
 
+
   public HeroCreationService(
       IEntityFactory<Guid, Hero> heroFactory,
       IEntityFactory<Guid, HeroBaseStats> baseStatsFactory,
@@ -40,11 +41,10 @@ public sealed class HeroCreationService : IHeroCreationService
       IEntityRepository<HeroBaseStats, Guid> baseStatsRepository,
       IEntityRepository<HeroLore, Guid> loreRepository,
 
-
       IEntityRepository<MythologyType, Guid> mythologies,
       IEntityRepository<HeroClass, Guid> heroClasses,
       IEntityRepository<OriginArchetype, Guid> archetypes,
-     IEntityRepository<OriginCulture, Guid> cultures,
+      IEntityRepository<OriginCulture, Guid> cultures,
       ISkillRepository skills,
 
       IHeroUniquenessValidator uniquenessValidator)
@@ -67,81 +67,104 @@ public sealed class HeroCreationService : IHeroCreationService
     _uniquenessValidator = uniquenessValidator;
   }
 
+
   public async Task<Guid> CreateAsync(
-    HeroCreateRequestDto request,
-    CancellationToken cancellationToken)
+      HeroCreateRequestDto request,
+      CancellationToken cancellationToken)
   {
     var userId = MediatorContext.Current.UserId ?? "system";
 
-    // =====================================================
-    // 0. HARD PRECONDITION (via validator - NOT repository)
-    // =====================================================
+
     await _uniquenessValidator.EnsureUniqueHeroNameAsync(
         request.Name,
         cancellationToken);
+
+
     if (string.IsNullOrWhiteSpace(request.Name))
-      throw new BusinessException("422", "Please provide a valid hero name.");
-    // =====================================================
-    // 1. Resolve reference data
-    // =====================================================
+      throw new BusinessException(
+          "422",
+          "Please provide a valid hero name.");
 
-    var mythology = await _mythologies.GetByIdAsync(request.MythologyTypeId, cancellationToken)
-        ?? throw new BusinessException("422", "All Heroes Belong to a Mythology. Please provide a valid Mythology.");
-    var heroClass = await _heroClasses.GetByIdAsync(request.HeroClassId, cancellationToken)
-        ?? throw new BusinessException("422", "All Heroes Posses a Class. Please provide a valid Class.");
 
-    var archetype = await _archetypes.GetByIdAsync(request.OriginArchetypeId, cancellationToken)
-        ?? throw new BusinessException("422", "All Heroes Belong to an Archetype. Please provide a valid Archetype.");
+    var mythology =
+        await _mythologies.GetByIdAsync(
+            request.MythologyTypeId,
+            cancellationToken)
+        ?? throw new BusinessException(
+            "422",
+            "All Heroes Belong to a Mythology. Please provide a valid Mythology.");
 
-    var culture = await _cultures.GetByIdAsync(request.OriginArchetypeId, cancellationToken)
-        ?? throw new BusinessException("422", "All Heroes Belong to a Cutural Region. Please provide a valid Culture.");
 
-    // =====================================================
-    // 2. Create aggregate root
-    // =====================================================
+    var heroClass =
+        await _heroClasses.GetByIdAsync(
+            request.HeroClassId,
+            cancellationToken)
+        ?? throw new BusinessException(
+            "422",
+            "All Heroes Posses a Class. Please provide a valid Class.");
+
+
+    var archetype =
+        await _archetypes.GetByIdAsync(
+            request.OriginArchetypeId,
+            cancellationToken)
+        ?? throw new BusinessException(
+            "422",
+            "All Heroes Belong to an Archetype. Please provide a valid Archetype.");
+
+
+    var culture =
+        await _cultures.GetByIdAsync(
+            request.OriginArchetypeId,
+            cancellationToken)
+        ?? throw new BusinessException(
+            "422",
+            "All Heroes Belong to a Cutural Region. Please provide a valid Culture.");
+
 
     var hero = _heroFactory.Create();
 
-    // =====================================================
-    // 3. Affiliation
-    // =====================================================
 
     var affiliation = new HeroAffiliation(
         archetype.Id,
         mythology.Id,
-        culture.Id
-    );
+        culture.Id);
 
-    // =====================================================
-    // 4. Base Stats
-    // =====================================================
 
     var baseStats = _baseStatsFactory.Create();
 
+
     baseStats.Define(
         hero.Id,
+
         request.BaseStats.BaseHealth,
         request.BaseStats.BaseMana,
+
         request.BaseStats.BaseAttackDamage,
         request.BaseStats.BaseMagicDamage,
+
+        request.BaseStats.BaseIgnoreEnemyDefense,
+
         request.BaseStats.BaseAttackSpeed,
+        request.BaseStats.BaseCastSpeed,
+
         request.BaseStats.BaseCritChance,
         request.BaseStats.BaseCritDamageMultiplier,
+
         request.BaseStats.BaseArmor,
         request.BaseStats.BaseMagicResistance,
         request.BaseStats.BaseDamageReduction,
+
         request.BaseStats.BaseShieldStrengthMultiplier,
+
         request.BaseStats.BaseMovementSpeed,
         request.BaseStats.BaseAttackRange,
-        request.BaseStats.BaseCastSpeed,
+
         request.BaseStats.BaseCooldownReduction,
         request.BaseStats.BaseResourceRegeneration,
-        userId
-    );
 
-    // =====================================================
-    // 5. Lore
-    // =====================================================
+        userId);
+
 
     var lore = _loreFactory.Create();
 
@@ -150,61 +173,62 @@ public sealed class HeroCreationService : IHeroCreationService
         request.Lore.Title,
         request.Lore.Description,
         request.Lore.BackgroundStory,
-        userId
-    );
+        userId);
 
-    // =====================================================
-    // 6. Skills
-    // =====================================================
 
     var requestedSkillIds = new[]
     {
-      request.SkillKit.PassiveSkillId,
-      request.SkillKit.PrimarySkillId,
-      request.SkillKit.SecondarySkillId,
-      request.SkillKit.TertiarySkillId,
-      request.SkillKit.UltimateSkillId
+        request.SkillKit.PassiveSkillId,
+        request.SkillKit.PrimarySkillId,
+        request.SkillKit.SecondarySkillId,
+        request.SkillKit.TertiarySkillId,
+        request.SkillKit.UltimateSkillId
     };
 
-    var resolvedSkills = await _skills.GetByIdsAsync(requestedSkillIds, cancellationToken);
+
+    var resolvedSkills =
+        await _skills.GetByIdsAsync(
+            requestedSkillIds,
+            cancellationToken);
+
 
     var missingSkillIds = requestedSkillIds
         .Distinct()
         .Except(resolvedSkills.Select(skill => skill.Id))
         .ToList();
 
+
     if (missingSkillIds.Count > 0)
-      throw new BusinessException("422", $"Please provide valid skills. Unknown skill id(s): {string.Join(", ", missingSkillIds)}.");
+    {
+      throw new BusinessException(
+          "422",
+          $"Please provide valid skills. Unknown skill id(s): {string.Join(", ", missingSkillIds)}.");
+    }
+
 
     var skillKit = new HeroSkillKit(
         request.SkillKit.PassiveSkillId,
         request.SkillKit.PrimarySkillId,
         request.SkillKit.SecondarySkillId,
         request.SkillKit.TertiarySkillId,
-        request.SkillKit.UltimateSkillId
-    );
+        request.SkillKit.UltimateSkillId);
 
-    // =====================================================
-    // 7. Initialize Hero
-    // =====================================================
 
     hero.Define(
         request.Name,
         heroClass.Id,
         affiliation,
         baseStats,
-        userId
-    );
+        userId);
+
 
     hero.SetSkillKit(skillKit);
 
-    // =====================================================
-    // 8. Persist
-    // =====================================================
 
     await _heroes.AddAsync(hero, cancellationToken);
     await _baseStatsRepository.AddAsync(baseStats, cancellationToken);
     await _loreRepository.AddAsync(lore, cancellationToken);
+
 
     return hero.Id;
   }

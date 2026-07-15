@@ -13,11 +13,13 @@ namespace HeroService.Persistence.Seeding;
 public sealed class HeroModifierSeeder : ISeeder
 {
   public int Order => 6;
+
   private readonly IEntityFactory<Guid, HeroModifier> _heroModifierFactory;
   private readonly IGameVersionRepository _versions;
   private readonly IEntityRepository<HeroModifier, Guid> _modifiers;
   private readonly IEntityRepository<Hero, Guid> _heroes;
   private readonly IUnitOfWork _uow;
+
 
   public HeroModifierSeeder(
       IEntityFactory<Guid, HeroModifier> heroModifierFactory,
@@ -33,36 +35,38 @@ public sealed class HeroModifierSeeder : ISeeder
     _uow = uow;
   }
 
-  // =========================================================
-  // SEED ORDER (CRITICAL FOR PIPELINE EXECUTION)
-  // =========================================================
-
 
   public async Task SeedAsync(CancellationToken ct)
   {
-    // =====================================================
-    // Idempotency check (safe re-run)
-    // =====================================================
     var existing = await _modifiers.GetAllAsync(ct);
+
     if (existing.Any())
       return;
 
+
     var version = await _versions.GetActiveAsync(ct)
-        ?? throw new InvalidOperationException("No active GameVersion found.");
+        ?? throw new InvalidOperationException(
+            "No active GameVersion found.");
+
 
     var heroes = await _heroes.GetAllAsync(ct);
 
     if (heroes.Count == 0)
       return;
 
+
     var system = "seed-system";
+
 
     // =========================================================
     // THOR MODIFIER
     // =========================================================
+
     var thor = heroes.First(h => h.Name == "Thor");
 
+
     var thorMod = _heroModifierFactory.Create();
+
     thorMod.Define(
         version.Id,
         thor.Id,
@@ -72,6 +76,8 @@ public sealed class HeroModifierSeeder : ISeeder
 
         0.95f,
         1.05f,
+
+        0.05f, // +5% Ignore Enemy Defense
 
         1.00f,
         1.00f,
@@ -94,14 +100,20 @@ public sealed class HeroModifierSeeder : ISeeder
         system
     );
 
+
     await _modifiers.AddAsync(thorMod, ct);
+
+
 
     // =========================================================
     // HERAKLES MODIFIER
     // =========================================================
+
     var herakles = heroes.First(h => h.Name == "Herakles");
 
+
     var heraklesMod = _heroModifierFactory.Create();
+
     heraklesMod.Define(
         version.Id,
         herakles.Id,
@@ -111,6 +123,8 @@ public sealed class HeroModifierSeeder : ISeeder
 
         0.90f,
         0.85f,
+
+        0.02f, // +2% Ignore Enemy Defense
 
         0.95f,
         1.00f,
@@ -133,11 +147,10 @@ public sealed class HeroModifierSeeder : ISeeder
         system
     );
 
+
     await _modifiers.AddAsync(heraklesMod, ct);
 
-    // =====================================================
-    // COMMIT
-    // =====================================================
+
     await _uow.CommitAsync(ct);
   }
 }

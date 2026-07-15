@@ -17,6 +17,17 @@ public class HeroBaseStats : Entity<Guid>
   public float BaseMagicDamage { get; private set; }
 
   // =========================
+  // OFFENSIVE PENETRATION PROFILE
+  // =========================
+  /// <summary>
+  /// Percentage of enemy defenses ignored when dealing damage.
+  /// Applies to both armor and magic resistance.
+  /// Value range: 0.0 - 1.0
+  /// Example: 0.25 = 25% enemy defense ignored.
+  /// </summary>
+  public float BaseIgnoreEnemyDefense { get; private set; }
+
+  // =========================
   // TEMPO / COMBAT FLOW
   // =========================
   public float BaseAttackSpeed { get; private set; }
@@ -60,6 +71,8 @@ public class HeroBaseStats : Entity<Guid>
       float baseAttackDamage,
       float baseMagicDamage,
 
+      float baseIgnoreEnemyDefense,
+
       float baseAttackSpeed,
       float baseCastSpeed,
 
@@ -83,6 +96,10 @@ public class HeroBaseStats : Entity<Guid>
     if (heroId == Guid.Empty)
       throw new ArgumentException("HeroId is required.");
 
+    if (baseIgnoreEnemyDefense is < 0 or > 1)
+      throw new ArgumentOutOfRangeException(nameof(baseIgnoreEnemyDefense),
+          "Ignore Enemy Defense must be between 0 and 1.");
+
     HeroId = heroId;
 
     BaseHealth = baseHealth;
@@ -90,6 +107,8 @@ public class HeroBaseStats : Entity<Guid>
 
     BaseAttackDamage = baseAttackDamage;
     BaseMagicDamage = baseMagicDamage;
+
+    BaseIgnoreEnemyDefense = baseIgnoreEnemyDefense;
 
     BaseAttackSpeed = baseAttackSpeed;
     BaseCastSpeed = baseCastSpeed;

@@ -8,11 +8,19 @@ public sealed class HeroBaseStatsCreateRequestDto
   public float BaseHealth { get; set; }
   public float BaseMana { get; set; }
 
+
   // =========================
   // DAMAGE PROFILE
   // =========================
   public float BaseAttackDamage { get; set; }
   public float BaseMagicDamage { get; set; }
+
+  /// <summary>
+  /// Percentage of enemy defenses ignored by the hero.
+  /// Example: 0.15 = 15% physical and magical defense ignored.
+  /// </summary>
+  public float BaseIgnoreEnemyDefense { get; set; }
+
 
   // =========================
   // TEMPO / COMBAT FLOW
@@ -20,11 +28,13 @@ public sealed class HeroBaseStatsCreateRequestDto
   public float BaseAttackSpeed { get; set; }
   public float BaseCastSpeed { get; set; }
 
+
   // =========================
   // CRITICAL PROFILE
   // =========================
   public float BaseCritChance { get; set; }
   public float BaseCritDamageMultiplier { get; set; }
+
 
   // =========================
   // DEFENSIVE PROFILE
@@ -34,11 +44,13 @@ public sealed class HeroBaseStatsCreateRequestDto
   public float BaseDamageReduction { get; set; }
   public float BaseShieldStrengthMultiplier { get; set; }
 
+
   // =========================
   // POSITIONING PROFILE
   // =========================
   public float BaseMovementSpeed { get; set; }
   public float BaseAttackRange { get; set; }
+
 
   // =========================
   // RESOURCE PROFILE

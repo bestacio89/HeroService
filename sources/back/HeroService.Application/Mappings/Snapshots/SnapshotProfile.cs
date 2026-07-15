@@ -18,18 +18,25 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
             new HeroStatSnapshotDto(
                 src.Stats.Health,
                 src.Stats.Mana,
+
                 src.Stats.AttackDamage,
                 src.Stats.AbilityPower,
+
+                src.Stats.IgnoreEnemyDefense,
+
                 src.Stats.AttackSpeed,
                 src.Stats.CastSpeed,
                 src.Stats.CritChance,
                 src.Stats.CritDamageMultiplier,
+
                 src.Stats.Armor,
                 src.Stats.MagicResistance,
                 src.Stats.DamageReduction,
                 src.Stats.ShieldStrengthMultiplier,
+
                 src.Stats.MovementSpeed,
                 src.Stats.AttackRange,
+
                 src.Stats.CooldownReduction,
                 src.Stats.ResourceRegeneration
             ),
@@ -64,11 +71,6 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
     src.SkillId,
     src.Name,
 
-
-    // =========================================================
-    // EXECUTION SNAPSHOT
-    // =========================================================
-
     new SkillExecutionSnapshotDto(
         src.Execution.Cooldown ?? 0f,
         src.Execution.ManaCost ?? 0f,
@@ -84,11 +86,6 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
         src.Execution.CrowdControlDuration ?? 0f
     ),
 
-
-    // =========================================================
-    // EFFECT FINGERPRINT SNAPSHOT
-    // =========================================================
-
     new SkillEffectSnapshotDto(
         src.Effects.HasDamage,
         src.Effects.HasDamageOverTime,
@@ -97,9 +94,6 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
         src.Effects.HasHealOverTime,
 
         src.Effects.HasShield,
-
-
-        // CONTROL
 
         src.Effects.HasSlow,
         src.Effects.HasRoot,
@@ -121,24 +115,12 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
         src.Effects.HasFreeze,
         src.Effects.HasPetrify,
 
-
-        // STATE
-
         src.Effects.HasBuff,
         src.Effects.HasDebuff,
 
-
-        // POSITIONING
-
         src.Effects.HasMobility,
 
-
-        // EXECUTION
-
         src.Effects.HasExecute,
-
-
-        // UTILITY
 
         src.Effects.HasUtility,
         src.Effects.HasVision,
@@ -146,54 +128,36 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
         src.Effects.HasSummon,
         src.Effects.HasTransformation,
 
-
-        // STATE DETAILS
-
         src.Effects.BuffTypes,
         src.Effects.DebuffTypes
     ),
 
-
-    // =========================================================
-    // RESOLVED EFFECT EXECUTIONS
-    // =========================================================
-
     src.EffectExecutions
         .Select(e => new EffectExecutionSnapshotDto(
-
             e.EffectType,
-
-            // NEW SEMANTIC DATA
 
             e.BuffType,
             e.DebuffType,
-
 
             e.SourceSkillId,
             e.CasterId,
 
             e.TargetIds,
 
-
             e.FinalMagnitude,
             e.FinalDuration,
             e.FinalRadius,
 
-
             e.StacksApplied,
-
 
             e.IsInstant,
             e.IsPeriodic,
             e.IsChannelled,
 
-
             e.TickInterval,
             e.ChannelDuration,
 
-
             e.TargetType
-
         ))
         .ToList()
   );

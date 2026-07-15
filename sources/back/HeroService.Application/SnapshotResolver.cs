@@ -133,6 +133,12 @@ public sealed class SnapshotResolver
         => value * (multiplier ?? 1f);
 
 
+    static float ApplyAdditive(
+        float value,
+        float? adjustment)
+        => value + (adjustment ?? 0f);
+
+
     return new HeroStatSnapshot(
         Apply(baseStats.BaseHealth,
             modifier.HealthMultiplier),
@@ -140,11 +146,18 @@ public sealed class SnapshotResolver
         Apply(baseStats.BaseMana,
             modifier.ManaMultiplier),
 
+
         Apply(baseStats.BaseAttackDamage,
             modifier.AttackDamageMultiplier),
 
         Apply(baseStats.BaseMagicDamage,
             modifier.MagicDamageMultiplier),
+
+
+        ApplyAdditive(
+            baseStats.BaseIgnoreEnemyDefense,
+            modifier.IgnoreEnemyDefenseAdjustment),
+
 
         Apply(baseStats.BaseAttackSpeed,
             modifier.AttackSpeedMultiplier),
@@ -154,6 +167,7 @@ public sealed class SnapshotResolver
 
         Apply(baseStats.BaseCritDamageMultiplier,
             modifier.CritDamageMultiplier),
+
 
         Apply(baseStats.BaseArmor,
             modifier.ArmorMultiplier),
@@ -167,6 +181,7 @@ public sealed class SnapshotResolver
         Apply(baseStats.BaseShieldStrengthMultiplier,
             modifier.ShieldStrengthMultiplier),
 
+
         Apply(baseStats.BaseMovementSpeed,
             modifier.MovementSpeedMultiplier),
 
@@ -175,6 +190,7 @@ public sealed class SnapshotResolver
 
         Apply(baseStats.BaseCastSpeed,
             modifier.CastSpeedMultiplier),
+
 
         Apply(baseStats.BaseCooldownReduction,
             modifier.CooldownReductionMultiplier),
@@ -215,9 +231,7 @@ public sealed class SnapshotResolver
         versionId,
         BuildExecution(stats, modifier),
         BuildEffects(skill.Effects),
-        BuildEffectExecutions(
-            skill,
-            modifier));
+        BuildEffectExecutions(skill, modifier));
   }
 
 
@@ -234,40 +248,31 @@ public sealed class SnapshotResolver
 
 
     return new SkillExecutionSnapshot(
-        Apply(
-            stats.BaseCooldown,
+        Apply(stats.BaseCooldown,
             modifier.CooldownMultiplier),
 
-        Apply(
-            stats.BaseManaCost,
+        Apply(stats.BaseManaCost,
             modifier.ManaCostMultiplier),
 
-        Apply(
-            stats.BaseDamage,
+        Apply(stats.BaseDamage,
             modifier.DamageMultiplier),
 
-        Apply(
-            stats.BaseHealing,
+        Apply(stats.BaseHealing,
             modifier.HealingMultiplier),
 
-        Apply(
-            stats.BaseShieldValue,
+        Apply(stats.BaseShieldValue,
             modifier.ShieldMultiplier),
 
-        Apply(
-            stats.BaseCastTime,
+        Apply(stats.BaseCastTime,
             modifier.CastTimeMultiplier),
 
-        Apply(
-            stats.BaseChannelDuration,
+        Apply(stats.BaseChannelDuration,
             modifier.ChannelDurationMultiplier),
 
-        Apply(
-            stats.BaseCrowdControlDuration,
+        Apply(stats.BaseCrowdControlDuration,
             modifier.CrowdControlDurationMultiplier),
 
-        Apply(
-            stats.BaseRange,
+        Apply(stats.BaseRange,
             modifier.RangeMultiplier)
     );
   }
@@ -277,7 +282,6 @@ public sealed class SnapshotResolver
       IEnumerable<SkillEffect> effects)
   {
     var list = effects.ToList();
-
 
     bool Has(EffectType type)
         => list.Any(x => x.EffectType == type);

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
+﻿namespace HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 
 public sealed record HeroStatSnapshot
 (
@@ -11,6 +7,8 @@ public sealed record HeroStatSnapshot
 
     float AttackDamage,
     float AbilityPower,
+
+    float IgnoreEnemyDefense,
 
     float AttackSpeed,
     float CritChance,

@@ -12,6 +12,7 @@ public sealed class CreateHeroModifierCommandHandler
   private readonly IEntityFactory<Guid, HeroModifier> _factory;
   private readonly IEntityRepository<HeroModifier, Guid> _repository;
 
+
   public CreateHeroModifierCommandHandler(
       IEntityFactory<Guid, HeroModifier> factory,
       IEntityRepository<HeroModifier, Guid> repository)
@@ -20,11 +21,13 @@ public sealed class CreateHeroModifierCommandHandler
     _repository = repository;
   }
 
+
   public async Task<Guid> Handle(
       CreateHeroModifierCommand request,
       CancellationToken cancellationToken)
   {
     var modifier = _factory.Create();
+
 
     modifier.Define(
         gameVersionId: request.GameVersionId,
@@ -35,6 +38,8 @@ public sealed class CreateHeroModifierCommandHandler
 
         attackDamageMultiplier: request.AttackDamageMultiplier,
         magicDamageMultiplier: request.AbilityPowerMultiplier,
+
+        ignoreEnemyDefenseAdjustment: request.IgnoreEnemyDefenseMultiplier,
 
         attackSpeedMultiplier: request.AttackSpeedMultiplier,
         castSpeedMultiplier: request.CastSpeedMultiplier,
@@ -54,10 +59,14 @@ public sealed class CreateHeroModifierCommandHandler
         cooldownReductionMultiplier: request.CooldownReductionMultiplier,
         resourceRegenerationMultiplier: request.ResourceRegenerationMultiplier,
 
-        createdBy: "system" // ideally replace with ICurrentUserService
+        createdBy: "system"
     );
 
-    await _repository.AddAsync(modifier, cancellationToken);
+
+    await _repository.AddAsync(
+        modifier,
+        cancellationToken);
+
 
     return modifier.Id;
   }

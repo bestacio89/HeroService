@@ -24,6 +24,7 @@
 
     </MudExpansionPanel>
 
+
     <!-- DAMAGE -->
     <MudExpansionPanel Text="Damage Profile" Dense="true">
 
@@ -41,9 +42,18 @@
                                  @bind-Value="Model.BaseStats.BaseMagicDamage" />
             </MudItem>
 
+
+            <MudItem xs="6">
+                <MudNumericField T="float"
+                                 Label="Ignore Enemy Defense"
+                                 HelperText="Percentage of enemy defenses ignored."
+                                 @bind-Value="Model.BaseStats.BaseIgnoreEnemyDefense" />
+            </MudItem>
+
         </MudGrid>
 
     </MudExpansionPanel>
+
 
     <!-- TEMPO -->
     <MudExpansionPanel Text="Combat Tempo" Dense="true">
@@ -66,6 +76,7 @@
 
     </MudExpansionPanel>
 
+
     <!-- CRITICAL -->
     <MudExpansionPanel Text="Critical Profile" Dense="true">
 
@@ -86,6 +97,7 @@
         </MudGrid>
 
     </MudExpansionPanel>
+
 
     <!-- DEFENSE -->
     <MudExpansionPanel Text="Defensive Profile" Dense="true">
@@ -120,6 +132,7 @@
 
     </MudExpansionPanel>
 
+
     <!-- POSITION -->
     <MudExpansionPanel Text="Positioning" Dense="true">
 
@@ -140,6 +153,7 @@
         </MudGrid>
 
     </MudExpansionPanel>
+
 
     <!-- RESOURCE -->
     <MudExpansionPanel Text="Resource & Sustain" Dense="true">
@@ -162,10 +176,11 @@
 
     </MudExpansionPanel>
 
- 
-      
+
 </MudExpansionPanel>
 
+
 @code {
-    [Parameter, EditorRequired] public HeroCreateRequestDto Model { get; set; } = default!;
+    [Parameter, EditorRequired]
+    public HeroCreateRequestDto Model { get; set; } = default!;
 }

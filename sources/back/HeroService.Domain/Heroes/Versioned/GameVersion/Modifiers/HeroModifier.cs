@@ -6,7 +6,7 @@ namespace HeroService.Domain.Heroes.Versioned.GameVersion.Modifiers;
 /// Versioned balance layer applied to HeroBaseStats during snapshot resolution.
 ///
 /// Domain Role:
-/// HeroStatsModifier adjusts the final combat performance of a Hero
+/// HeroModifier adjusts the final combat performance of a Hero
 /// without modifying its base identity or progression curve.
 ///
 /// It represents patch-level tuning only.
@@ -27,6 +27,22 @@ public class HeroModifier : Entity<Guid>
   // =========================
   public float? AttackDamageMultiplier { get; private set; }
   public float? MagicDamageMultiplier { get; private set; }
+
+  // =========================
+  // OFFENSIVE PENETRATION PROFILE
+  // =========================
+  /// <summary>
+  /// Patch-level adjustment applied to Ignore Enemy Defense.
+  ///
+  /// This is additive because IED represents a percentage value,
+  /// not a scaling multiplier.
+  ///
+  /// Example:
+  /// Base IED: 0.20
+  /// Modifier: +0.05
+  /// Final IED: 0.25
+  /// </summary>
+  public float? IgnoreEnemyDefenseAdjustment { get; private set; }
 
   // =========================
   // TEMPO / COMBAT FLOW
@@ -77,6 +93,8 @@ public class HeroModifier : Entity<Guid>
       float? attackDamageMultiplier,
       float? magicDamageMultiplier,
 
+      float? ignoreEnemyDefenseAdjustment,
+
       float? attackSpeedMultiplier,
       float? castSpeedMultiplier,
 
@@ -103,6 +121,11 @@ public class HeroModifier : Entity<Guid>
     if (heroId == Guid.Empty)
       throw new ArgumentException("HeroId is required.");
 
+    if (ignoreEnemyDefenseAdjustment is < -1 or > 1)
+      throw new ArgumentOutOfRangeException(
+          nameof(ignoreEnemyDefenseAdjustment),
+          "Ignore Enemy Defense adjustment must be between -1 and 1.");
+
     GameVersionId = gameVersionId;
     HeroId = heroId;
 
@@ -111,6 +134,8 @@ public class HeroModifier : Entity<Guid>
 
     AttackDamageMultiplier = attackDamageMultiplier;
     MagicDamageMultiplier = magicDamageMultiplier;
+
+    IgnoreEnemyDefenseAdjustment = ignoreEnemyDefenseAdjustment;
 
     AttackSpeedMultiplier = attackSpeedMultiplier;
     CastSpeedMultiplier = castSpeedMultiplier;
