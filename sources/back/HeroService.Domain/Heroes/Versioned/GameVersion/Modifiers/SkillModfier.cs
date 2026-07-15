@@ -8,21 +8,21 @@ public class SkillModifier : Entity<Guid>
   public Guid SkillId { get; private set; }
 
   // COSTS
-  public float CooldownMultiplier { get; private set; }
-  public float ManaCostMultiplier { get; private set; }
+  public float? CooldownMultiplier { get; private set; }
+  public float? ManaCostMultiplier { get; private set; }
 
   // OUTPUT
-  public float DamageMultiplier { get; private set; }
-  public float HealingMultiplier { get; private set; }
-  public float ShieldMultiplier { get; private set; }
+  public float? DamageMultiplier { get; private set; }
+  public float? HealingMultiplier { get; private set; }
+  public float? ShieldMultiplier { get; private set; }
 
   // TEMPO
-  public float CastTimeMultiplier { get; private set; }
-  public float ChannelDurationMultiplier { get; private set; }
+  public float? CastTimeMultiplier { get; private set; }
+  public float? ChannelDurationMultiplier { get; private set; }
 
   // UTILITY
-  public float CrowdControlDurationMultiplier { get; private set; }
-  public float RangeMultiplier { get; private set; }
+  public float? CrowdControlDurationMultiplier { get; private set; }
+  public float? RangeMultiplier { get; private set; }
 
   protected SkillModifier(Guid id) : base(id) { }
 
@@ -34,18 +34,18 @@ public class SkillModifier : Entity<Guid>
     Guid gameVersionId,
     Guid skillId,
 
-    float cooldownMultiplier,
-    float manaCostMultiplier,
+    float? cooldownMultiplier,
+    float? manaCostMultiplier,
 
-    float damageMultiplier,
-    float healingMultiplier,
-    float shieldMultiplier,
+    float? damageMultiplier,
+    float? healingMultiplier,
+    float? shieldMultiplier,
 
-    float castTimeMultiplier,
-    float channelDurationMultiplier,
+    float? castTimeMultiplier,
+    float? channelDurationMultiplier,
 
-    float crowdControlDurationMultiplier,
-    float rangeMultiplier,
+    float? crowdControlDurationMultiplier,
+    float? rangeMultiplier,
 
     string createdBy)
   {
@@ -83,7 +83,7 @@ public class SkillModifier : Entity<Guid>
   // =========================================================
   // VALIDATION
   // =========================================================
-  private static float ValidatePositive(float value, string name)
+  private static float? ValidatePositive(float? value, string name)
   {
     if (value <= 0f)
       throw new ArgumentOutOfRangeException(
