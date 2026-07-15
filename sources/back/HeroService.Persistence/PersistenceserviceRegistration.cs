@@ -37,7 +37,6 @@ namespace HeroService.Persistence
       services
         .AddFranzRedisCaching(configuration);        
       services.AddUnitOfWork<ApplicationDbContext>();
-      services.AddFranzMemoryCaching();
       services.AddCustomRepositoriesFromAssembly(typeof(ApplicationDbContext).Assembly);
       services.AddEntityRepositories<ApplicationDbContext>();
       services.AddScoped<ISeeder, GameVersionSeeder>();
@@ -47,9 +46,6 @@ namespace HeroService.Persistence
       services.AddScoped<ISeeder, HeroSeeder>();
       services.AddScoped<ISeeder, HeroModifierSeeder>();
       services.AddScoped<DatabaseSeeder>();
-
-      // ? Add persistence services with dynamically determined types (if needed)
-      // Example: services.AddDatabase<TDbContext>(configuration);
 
       return services;
     }
