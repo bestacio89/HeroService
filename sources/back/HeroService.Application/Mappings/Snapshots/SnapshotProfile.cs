@@ -1,5 +1,6 @@
 ﻿using Franz.Common.Mapping.Profiles;
 using HeroService.Contracts.DTOs.Snapshots;
+using HeroService.Domain.Heroes.Versioned.Snapshotting;
 using HeroService.Domain.Heroes.Versioned.Snapshotting.Heroes;
 using HeroService.Domain.Heroes.Versioned.Snapshotting.Skills;
 
@@ -9,156 +10,50 @@ public sealed class HeroSnapshotMappingProfile : FranzMapProfile
 {
   public HeroSnapshotMappingProfile()
   {
+    // =========================================================
+    // 1. ROOT SNAPSHOT GRAPH
+    // =========================================================
     CreateMap<HeroSnapshot, HeroSnapshotDto>()
-        .ConstructUsing(src => new HeroSnapshotDto(
+        .ConstructUsing((src, mapper) => new HeroSnapshotDto(
             src.HeroId,
             src.HeroName,
             src.GameVersionId,
-
-            new HeroStatSnapshotDto(
-                src.Stats.Health,
-                src.Stats.Mana,
-
-                src.Stats.AttackDamage,
-                src.Stats.AbilityPower,
-
-                src.Stats.IgnoreEnemyDefense,
-
-                src.Stats.AttackSpeed,
-                src.Stats.CastSpeed,
-                src.Stats.CritChance,
-                src.Stats.CritDamageMultiplier,
-
-                src.Stats.Armor,
-                src.Stats.MagicResistance,
-                src.Stats.DamageReduction,
-                src.Stats.ShieldStrengthMultiplier,
-
-                src.Stats.MovementSpeed,
-                src.Stats.AttackRange,
-
-                src.Stats.CooldownReduction,
-                src.Stats.ResourceRegeneration
-            ),
-
-            new HeroSkillKitSnapshotDto(
-                MapSkill(src.SkillKit.Passive),
-                MapSkill(src.SkillKit.Primary),
-                MapSkill(src.SkillKit.Secondary),
-                MapSkill(src.SkillKit.Tertiary),
-                MapSkill(src.SkillKit.Ultimate)
-            ),
-
-            new HeroKitProfileDto(
-                src.KitProfile.DamageSkillCount,
-                src.KitProfile.CrowdControlSkillCount,
-                src.KitProfile.MobilitySkillCount,
-                src.KitProfile.SustainSkillCount,
-                src.KitProfile.UtilitySkillCount,
-                src.KitProfile.HasSummon,
-                src.KitProfile.HasTransformation,
-                src.KitProfile.HasExecute,
-                src.KitProfile.IsBurstOriented,
-                src.KitProfile.IsSustainOriented,
-                src.KitProfile.IsControlOriented,
-                src.KitProfile.IsMobilityOriented
-            )
+            mapper.Map<HeroStatSnapshot, HeroStatSnapshotDto>(src.Stats),
+            mapper.Map<HeroSkillKitSnapshot, HeroSkillKitSnapshotDto>(src.SkillKit),
+            mapper.Map<HeroKitProfile, HeroKitProfileDto>(src.KitProfile)
         ));
+
+    // =========================================================
+    // 2. SKILL KIT GROUPING
+    // =========================================================
+    CreateMap<HeroSkillKitSnapshot, HeroSkillKitSnapshotDto>()
+        .ConstructUsing((src, mapper) => new HeroSkillKitSnapshotDto(
+            mapper.Map<SkillSnapshot, SkillSnapshotDto>(src.Passive),
+            mapper.Map<SkillSnapshot, SkillSnapshotDto>(src.Primary),
+            mapper.Map<SkillSnapshot, SkillSnapshotDto>(src.Secondary),
+            mapper.Map<SkillSnapshot, SkillSnapshotDto>(src.Tertiary),
+            mapper.Map<SkillSnapshot, SkillSnapshotDto>(src.Ultimate)
+        ));
+
+    // =========================================================
+    // 3. GRANULAR SKILL SUB-GRAPH (Bypasses Static Closures)
+    // =========================================================
+    CreateMap<SkillSnapshot, SkillSnapshotDto>()
+        .ConstructUsing((src, mapper) => new SkillSnapshotDto(
+            src.SkillId,
+            src.Name,
+            mapper.Map<SkillExecutionSnapshot, SkillExecutionSnapshotDto>(src.Execution),
+            mapper.Map<SkillEffectSnapshot, SkillEffectSnapshotDto>(src.Effects),
+            mapper.Map<IReadOnlyCollection<EffectExecutionSnapshot>, List<EffectExecutionSnapshotDto>>(src.EffectExecutions)
+        ));
+
+    // =========================================================
+    // 4. CONVENTION METADATA PRE-WARMING
+    // =========================================================
+    CreateMap<HeroStatSnapshot, HeroStatSnapshotDto>();
+    CreateMap<HeroKitProfile, HeroKitProfileDto>();
+    CreateMap<SkillExecutionSnapshot, SkillExecutionSnapshotDto>();
+    CreateMap<SkillEffectSnapshot, SkillEffectSnapshotDto>();
+    CreateMap<EffectExecutionSnapshot, EffectExecutionSnapshotDto>();
   }
-
-
-  private static SkillSnapshotDto MapSkill(SkillSnapshot src) => new(
-    src.SkillId,
-    src.Name,
-
-    new SkillExecutionSnapshotDto(
-        src.Execution.Cooldown ?? 0f,
-        src.Execution.ManaCost ?? 0f,
-
-        src.Execution.Damage ?? 0f,
-        src.Execution.Healing ?? 0f,
-        src.Execution.ShieldValue ?? 0f,
-
-        src.Execution.CastTime ?? 0f,
-        src.Execution.ChannelDuration ?? 0f,
-
-        src.Execution.Range ?? 0f,
-        src.Execution.CrowdControlDuration ?? 0f
-    ),
-
-    new SkillEffectSnapshotDto(
-        src.Effects.HasDamage,
-        src.Effects.HasDamageOverTime,
-
-        src.Effects.HasHeal,
-        src.Effects.HasHealOverTime,
-
-        src.Effects.HasShield,
-
-        src.Effects.HasSlow,
-        src.Effects.HasRoot,
-        src.Effects.HasStun,
-        src.Effects.HasSilence,
-        src.Effects.HasDisarm,
-        src.Effects.HasBlind,
-
-        src.Effects.HasFear,
-        src.Effects.HasCharm,
-        src.Effects.HasTaunt,
-        src.Effects.HasConfuse,
-        src.Effects.HasSleep,
-
-        src.Effects.HasKnockback,
-        src.Effects.HasKnockUp,
-        src.Effects.HasPull,
-
-        src.Effects.HasFreeze,
-        src.Effects.HasPetrify,
-
-        src.Effects.HasBuff,
-        src.Effects.HasDebuff,
-
-        src.Effects.HasMobility,
-
-        src.Effects.HasExecute,
-
-        src.Effects.HasUtility,
-        src.Effects.HasVision,
-        src.Effects.HasZoneControl,
-        src.Effects.HasSummon,
-        src.Effects.HasTransformation,
-
-        src.Effects.BuffTypes,
-        src.Effects.DebuffTypes
-    ),
-
-    src.EffectExecutions
-        .Select(e => new EffectExecutionSnapshotDto(
-            e.EffectType,
-
-            e.BuffType,
-            e.DebuffType,
-
-            e.SourceSkillId,
-            e.CasterId,
-
-            e.TargetIds,
-
-            e.FinalMagnitude,
-            e.FinalDuration,
-            e.FinalRadius,
-
-            e.StacksApplied,
-
-            e.IsInstant,
-            e.IsPeriodic,
-            e.IsChannelled,
-
-            e.TickInterval,
-            e.ChannelDuration,
-
-            e.TargetType
-        ))
-        .ToList()
-  );
 }

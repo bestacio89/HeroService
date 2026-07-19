@@ -11,172 +11,66 @@ public sealed class SkillProfile : FranzMapProfile
     // =========================================
     // Skill
     // =========================================
-
     CreateMap<Skill, SkillDto>()
-        .ConstructUsing(skill => new SkillDto
+        .ConstructUsing((skill, context) => new SkillDto
         {
           Id = skill.Id,
-
           Name = skill.Name,
-
           SkillType = skill.SkillType,
 
-          Effects = skill.Effects
-              .Select(effect => new SkillEffectDto
-              {
-                EffectType = effect.EffectType,
-
-                // =========================================
-                // STATE MODIFIER SEMANTICS
-                // =========================================
-
-                BuffType = effect.BuffType,
-
-                DebuffType = effect.DebuffType,
-
-
-                // =========================================
-                // EFFECT VALUES
-                // =========================================
-
-                Magnitude = effect.Magnitude,
-                Duration = effect.Duration,
-                Radius = effect.Radius,
-
-
-                // =========================================
-                // TARGETING
-                // =========================================
-
-                TargetType = effect.TargetType,
-                StackType = effect.StackType,
-
-                MaxStacks = effect.MaxStacks,
-
-
-                // =========================================
-                // SCALING
-                // =========================================
-
-                AttackDamageRatio = effect.AttackDamageRatio,
-                MagicDamageRatio = effect.MagicDamageRatio,
-                MaxHealthRatio = effect.MaxHealthRatio,
-
-
-                // =========================================
-                // EXECUTION FLAGS
-                // =========================================
-
-                IsPeriodic = effect.IsPeriodic,
-                IsInstant = effect.IsInstant,
-                IsChannelled = effect.IsChannelled
-              })
-              .ToList(),
-
+          // OPTIMIZATION: Delegate nested collection mapping to the engine.
+          // This eliminates the manual inline LINQ lambda allocation storm and leverages
+          // the pre-compiled, cached execution plan of the SkillEffect profile.
+          Effects = context.Map<IReadOnlyCollection<SkillEffect>, List<SkillEffectDto>>(skill.Effects),
 
           BaseStats = skill.BaseStats != null
-            ? new SkillBaseStatsDto
-            {
-              Cooldown = skill.BaseStats.BaseCooldown,
-              ManaCost = skill.BaseStats.BaseManaCost,
-
-              Damage = skill.BaseStats.BaseDamage,
-              Healing = skill.BaseStats.BaseHealing,
-              ShieldValue = skill.BaseStats.BaseShieldValue,
-
-              CastTime = skill.BaseStats.BaseCastTime,
-              ChannelDuration = skill.BaseStats.BaseChannelDuration,
-
-              Range = skill.BaseStats.BaseRange,
-              CrowdControlDuration = skill.BaseStats.BaseCrowdControlDuration
-            }
-            : null
+                ? context.Map<SkillBaseStats, SkillBaseStatsDto>(skill.BaseStats)
+                : null
         });
-
 
     // =========================================
     // SkillEffect
     // =========================================
-
     CreateMap<SkillEffect, SkillEffectDto>()
         .ConstructUsing(effect => new SkillEffectDto
         {
           EffectType = effect.EffectType,
-
-
-          // =========================================
-          // STATE MODIFIER SEMANTICS
-          // =========================================
-
           BuffType = effect.BuffType,
-
           DebuffType = effect.DebuffType,
-
-
-          // =========================================
-          // EFFECT VALUES
-          // =========================================
-
           Magnitude = effect.Magnitude,
           Duration = effect.Duration,
           Radius = effect.Radius,
-
-
-          // =========================================
-          // TARGETING
-          // =========================================
-
           TargetType = effect.TargetType,
           StackType = effect.StackType,
-
           MaxStacks = effect.MaxStacks,
-
-
-          // =========================================
-          // SCALING
-          // =========================================
-
           AttackDamageRatio = effect.AttackDamageRatio,
           MagicDamageRatio = effect.MagicDamageRatio,
           MaxHealthRatio = effect.MaxHealthRatio,
-
-
-          // =========================================
-          // EXECUTION FLAGS
-          // =========================================
-
           IsPeriodic = effect.IsPeriodic,
           IsInstant = effect.IsInstant,
           IsChannelled = effect.IsChannelled
         });
 
-
     // =========================================
     // SkillBaseStats
     // =========================================
-
     CreateMap<SkillBaseStats, SkillBaseStatsDto>()
         .ConstructUsing(stats => new SkillBaseStatsDto
         {
           Cooldown = stats.BaseCooldown,
           ManaCost = stats.BaseManaCost,
-
           Damage = stats.BaseDamage,
           Healing = stats.BaseHealing,
           ShieldValue = stats.BaseShieldValue,
-
           CastTime = stats.BaseCastTime,
           ChannelDuration = stats.BaseChannelDuration,
-
           Range = stats.BaseRange,
           CrowdControlDuration = stats.BaseCrowdControlDuration
         });
 
-
     // =========================================
     // SkillLore
     // =========================================
-
     CreateMap<SkillLore, SkillLoreDto>()
         .ConstructUsing(lore => new SkillLoreDto
         {

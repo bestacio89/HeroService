@@ -1,4 +1,5 @@
 ﻿using HeroService.Admin.Components.Models;
+using HeroService.Contracts.Commands.Skills;
 
 namespace HeroService.Admin.Mappers;
 
