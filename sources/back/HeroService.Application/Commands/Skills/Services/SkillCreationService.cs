@@ -76,7 +76,7 @@ public sealed class SkillCreationService : ISkillCreationService
 
     skill.Define(
         request.Name,
-        request.skillType,
+        request.SkillType,
         createdBy);
 
 

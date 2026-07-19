@@ -19,4 +19,17 @@ public sealed class CreateSkillCommand : ICommand<Guid>
 
 
   public List<SkillEffectDto> Effects { get; set; } = [];
+  public CreateSkillCommand(
+    string name,
+    SkillType skillType,
+    SkillLoreDto lore,
+    SkillBaseStatsDto baseStats,
+    List<SkillEffectDto> effects)
+  {
+    Name = name;
+    SkillType = skillType;
+    Lore = lore;
+    BaseStats = baseStats;
+    Effects = effects;
+  }
 }

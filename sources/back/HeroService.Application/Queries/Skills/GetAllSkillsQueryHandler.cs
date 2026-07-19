@@ -1,4 +1,5 @@
-﻿using Franz.Common.Mapping.Abstractions;
+﻿using Franz.Common.Business.Repositories;
+using Franz.Common.Mapping.Abstractions;
 using Franz.Common.Mediator.Handlers;
 using HeroService.Contracts.DTOs.Skills;
 using HeroService.Contracts.Persistence.Skills;
@@ -10,11 +11,11 @@ namespace HeroService.Application.Queries.Skills;
 public sealed class GetAllSkillsQueryHandler
     : IQueryHandler<GetAllSkillsQuery, IReadOnlyCollection<SkillDto>>
 {
-  private readonly ISkillRepository _repository;
+  private readonly IEntityRepository<Skill, Guid> _repository;
   private readonly IFranzMapper _mapper;
 
   public GetAllSkillsQueryHandler(
-      ISkillRepository repository,
+      IEntityRepository<Skill, Guid> repository,
       IFranzMapper mapper)
   {
     _repository = repository;
@@ -25,7 +26,7 @@ public sealed class GetAllSkillsQueryHandler
       GetAllSkillsQuery query,
       CancellationToken cancellationToken)
   {
-    var skills = await _repository.GetAllWithDetailsAsync(
+    var skills = await _repository.GetAllAsync(
         cancellationToken);
 
     return _mapper.Map<
