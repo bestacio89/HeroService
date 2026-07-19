@@ -57,12 +57,12 @@ public sealed class IdentitySeeder : ISeeder
     // =========================================================
     // HERO CLASSES (GAMEPLAY ROLE AXIS)
     // =========================================================
-    await SeedClass("Warrior", system, ct);
-    await SeedClass("Tank", system, ct);
-    await SeedClass("Mage", system, ct);
     await SeedClass("Assassin", system, ct);
+    await SeedClass("Mage", system, ct);
     await SeedClass("Ranger", system, ct);
     await SeedClass("Support", system, ct);
+    await SeedClass("Tank", system, ct);
+    await SeedClass("Warrior", system, ct);
 
     // =========================================================
     // ORIGIN ARCHETYPES (ONTOLOGICAL IDENTITY ONLY)
@@ -75,12 +75,16 @@ public sealed class IdentitySeeder : ISeeder
 
     // =========================================================
     // MYTHOLOGIES
+    // Mesopotamian and Hindu are new additions required by the 18-hero roster
+    // (Enki and Rama). Celtic is retained even though unused by this roster.
     // =========================================================
     await SeedMythology("Greek", system, ct);
     await SeedMythology("Norse", system, ct);
     await SeedMythology("Egyptian", system, ct);
     await SeedMythology("Japanese", system, ct);
     await SeedMythology("Celtic", system, ct);
+    await SeedMythology("Mesopotamian", system, ct);
+    await SeedMythology("Hindu", system, ct);
 
     // =========================================================
     // CULTURES
