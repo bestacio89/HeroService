@@ -54,8 +54,8 @@ builder.Services.AddHttpArchitecture(env, config);
 // =========================================================
 // MEDIATOR PIPELINES
 // =========================================================
-builder.Services.AddFranzMediator(
-    new[] { typeof(CreateHeroCommandHandler).Assembly })
+builder.Services.AddFranzMediatorV2Default (null ,
+    typeof(CreateHeroCommandHandler).Assembly)
   .AddFranzSerilogAuditPipeline()
   .AddFranzSerilogLoggingPipeline();
 
@@ -95,6 +95,7 @@ app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 // =========================================================
 app.UseHttpArchitecture();
 //app.UseAuthorization();
+app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
   app.UseEndpoints(endpoints =>

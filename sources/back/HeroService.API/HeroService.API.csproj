@@ -29,6 +29,7 @@
     <PackageReference Include="Franz.Common.Http.EntityFramework" />
     <PackageReference Include="Franz.Common.Mediator.Polly" />
     <PackageReference Include="Franz.Common.Mediator.OpenTelemetry" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
