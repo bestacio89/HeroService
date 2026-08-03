@@ -10,12 +10,9 @@ using HeroService.Persistence.Persistence.Seeding;
 namespace HeroService.Persistence.Seeding;
 
 /// <summary>
-/// Version-scoped balance multipliers for all 90 skills, seeded against
-/// GameVersion 1.0.0. All multipliers are neutral (1.0f = no change from
-/// SkillBaseStats) -- the codex only supplies base stats, not a balance-patch
-/// delta, so this is the "1.0.0 as shipped, unpatched" baseline. A future
-/// rebalance seeder for a new GameVersion is where real per-skill
-/// multipliers would live.
+/// Version-scoped balance multipliers for all 150 skills, seeded against
+/// GameVersion 1.0.0. Neutral (1.0f) -- see HeroModifierSeeder remarks for
+/// why: no real balance-patch delta exists yet.
 /// </summary>
 public sealed class SkillModifierSeeder : ISeeder
 {
@@ -53,10 +50,10 @@ public sealed class SkillModifierSeeder : ISeeder
     // =====================================================
     // THOR
     // =====================================================
-    var lightningCharge = await GetSkill("Lightning Charge", ct);
+    var staticCharge = await GetSkill("Static Charge", ct);
     var thunderStrike = await GetSkill("Thunder Strike", ct);
     var hammersCall = await GetSkill("Hammer's Call", ct);
-    var asgardsGuard = await GetSkill("Asgard's Guard", ct);
+    var mjolnirBlows = await GetSkill("Mjolnir Blows", ct);
     var asgardsWrath = await GetSkill("Asgard's Wrath", ct);
 
     // =====================================================
@@ -65,16 +62,34 @@ public sealed class SkillModifierSeeder : ISeeder
     var bloodlust = await GetSkill("Bloodlust", ct);
     var bloodHarvest = await GetSkill("Blood Harvest", ct);
     var butchersCharge = await GetSkill("Butcher's Charge", ct);
-    var warCry = await GetSkill("War Cry", ct);
+    var spearBlows = await GetSkill("Spear Blows", ct);
     var warsFury = await GetSkill("War's Fury", ct);
+
+    // =====================================================
+    // GUAN YU
+    // =====================================================
+    var unshakeableLoyalty = await GetSkill("Unshakeable Loyalty", ct);
+    var greenDragonBlade = await GetSkill("Green Dragon Blade", ct);
+    var redHareCharge = await GetSkill("Red Hare Charge", ct);
+    var halberdSweep = await GetSkill("Halberd Sweep", ct);
+    var oathoftheThreeBrothers = await GetSkill("Oath of the Three Brothers", ct);
+
+    // =====================================================
+    // OGUN
+    // =====================================================
+    var livingMetal = await GetSkill("Living Metal", ct);
+    var ironEdge = await GetSkill("Iron Edge", ct);
+    var blacksmithsStride = await GetSkill("Blacksmith's Stride", ct);
+    var macheteBlows = await GetSkill("Machete Blows", ct);
+    var forgesWrath = await GetSkill("Forge's Wrath", ct);
 
     // =====================================================
     // SUSANOO
     // =====================================================
-    var typhoonsBreath = await GetSkill("Typhoon's Breath", ct);
+    var breathofBattle = await GetSkill("Breath of Battle", ct);
     var galeBlade = await GetSkill("Gale Blade", ct);
     var typhoonStep = await GetSkill("Typhoon Step", ct);
-    var cuttingWind = await GetSkill("Cutting Wind", ct);
+    var kusanagiStrikes = await GetSkill("Kusanagi Strikes", ct);
     var orochi = await GetSkill("Orochi", ct);
 
     // =====================================================
@@ -83,226 +98,376 @@ public sealed class SkillModifierSeeder : ISeeder
     var deceit = await GetSkill("Deceit", ct);
     var twinBlades = await GetSkill("Twin Blades", ct);
     var shadowFlee = await GetSkill("Shadow Flee", ct);
-    var poisonedDagger = await GetSkill("Poisoned Dagger", ct);
+    var sneakingDaggers = await GetSkill("Sneaking Daggers", ct);
     var trickstersVerdict = await GetSkill("Trickster's Verdict", ct);
-
-    // =====================================================
-    // NYX
-    // =====================================================
-    var childofNight = await GetSkill("Child of Night", ct);
-    var nightfallVeil = await GetSkill("Nightfall Veil", ct);
-    var starstep = await GetSkill("Starstep", ct);
-    var shadowClaws = await GetSkill("Shadow Claws", ct);
-    var everlastingNight = await GetSkill("Everlasting Night", ct);
 
     // =====================================================
     // SET
     // =====================================================
-    var desertVenom = await GetSkill("Desert Venom", ct);
-    var desertsBreath = await GetSkill("Desert's Breath", ct);
-    var jackalsHunt = await GetSkill("Jackal's Hunt", ct);
-    var corrosiveSands = await GetSkill("Corrosive Sands", ct);
-    var curseofChaos = await GetSkill("Curse of Chaos", ct);
+    var desertsBlood = await GetSkill("Desert's Blood", ct);
+    var sandstorm = await GetSkill("Sandstorm", ct);
+    var chaosMist = await GetSkill("Chaos Mist", ct);
+    var khopeshBlows = await GetSkill("Khopesh Blows", ct);
+    var setsJudgment = await GetSkill("Set's Judgment", ct);
+
+    // =====================================================
+    // KALI
+    // =====================================================
+    var bloodRapture = await GetSkill("Blood Rapture", ct);
+    var danceofBlades = await GetSkill("Dance of Blades", ct);
+    var goddesssLeap = await GetSkill("Goddess's Leap", ct);
+    var manyBlades = await GetSkill("Many Blades", ct);
+    var destructiveFury = await GetSkill("Destructive Fury", ct);
+
+    // =====================================================
+    // CAMAZOTZ
+    // =====================================================
+    var nocturnalFlight = await GetSkill("Nocturnal Flight", ct);
+    var bloodSwarm = await GetSkill("Blood Swarm", ct);
+    var raptorDive = await GetSkill("Raptor Dive", ct);
+    var clawsandFangs = await GetSkill("Claws and Fangs", ct);
+    var feastofXibalba = await GetSkill("Feast of Xibalba", ct);
+
+    // =====================================================
+    // NYX
+    // =====================================================
+    var nightfallVeil = await GetSkill("Nightfall Veil", ct);
+    var bladeofDarkness = await GetSkill("Blade of Darkness", ct);
+    var shadowStep = await GetSkill("Shadow Step", ct);
+    var shadowBlades = await GetSkill("Shadow Blades", ct);
+    var everlastingNight = await GetSkill("Everlasting Night", ct);
 
     // =====================================================
     // ZEUS
     // =====================================================
-    var ostatic = await GetSkill("Static", ct);
+    var celestialCharge = await GetSkill("Celestial Charge", ct);
     var targetedBolt = await GetSkill("Targeted Bolt", ct);
     var olympusGale = await GetSkill("Olympus Gale", ct);
-    var electricArc = await GetSkill("Electric Arc", ct);
-    var skysFury = await GetSkill("Sky's Fury", ct);
+    var sparks = await GetSkill("Sparks", ct);
+    var skysWrath = await GetSkill("Sky's Wrath", ct);
 
     // =====================================================
-    // AMUN-RA
+    // RA
     // =====================================================
-    var radiance = await GetSkill("Radiance", ct);
-    var solarDisc = await GetSkill("Solar Disc", ct);
-    var celestialBarque = await GetSkill("Celestial Barque", ct);
-    var sacredBurn = await GetSkill("Sacred Burn", ct);
-    var eternalNoon = await GetSkill("Eternal Noon", ct);
+    var solarFire = await GetSkill("Solar Fire", ct);
+    var solarRay = await GetSkill("Solar Ray", ct);
+    var ascension = await GetSkill("Ascension", ct);
+    var rays = await GetSkill("Rays", ct);
+    var noonJudgment = await GetSkill("Noon Judgment", ct);
 
     // =====================================================
-    // CHRONOS
+    // AGNI
     // =====================================================
-    var timeSlip = await GetSkill("Time Slip", ct);
-    var hourFracture = await GetSkill("Hour Fracture", ct);
-    var temporalLeap = await GetSkill("Temporal Leap", ct);
-    var temporalShard = await GetSkill("Temporal Shard", ct);
-    var hourglassReversal = await GetSkill("Hourglass Reversal", ct);
+    var combustion = await GetSkill("Combustion", ct);
+    var flameJavelin = await GetSkill("Flame Javelin", ct);
+    var blazingTrail = await GetSkill("Blazing Trail", ct);
+    var emberSpit = await GetSkill("Ember Spit", ct);
+    var pillarofFire = await GetSkill("Pillar of Fire", ct);
+
+    // =====================================================
+    // RAIJIN
+    // =====================================================
+    var stormsRhythm = await GetSkill("Storm's Rhythm", ct);
+    var thunderclap = await GetSkill("Thunderclap", ct);
+    var thunderStep = await GetSkill("Thunder Step", ct);
+    var drumRolls = await GetSkill("Drum Rolls", ct);
+    var drumFury = await GetSkill("Drum Fury", ct);
+
+    // =====================================================
+    // MARDUK
+    // =====================================================
+    var tabletsofDestiny = await GetSkill("Tablets of Destiny", ct);
+    var netoftheWinds = await GetSkill("Net of the Winds", ct);
+    var primordialBreath = await GetSkill("Primordial Breath", ct);
+    var shardsofPower = await GetSkill("Shards of Power", ct);
+    var sealofTiamat = await GetSkill("Seal of Tiamat", ct);
 
     // =====================================================
     // HERAKLES
     // =====================================================
-    var titanicStrength = await GetSkill("Titanic Strength", ct);
+    var herosEndurance = await GetSkill("Hero's Endurance", ct);
     var nemeanGrip = await GetSkill("Nemean Grip", ct);
     var lionsCharge = await GetSkill("Lion's Charge", ct);
-    var lionsSkin = await GetSkill("Lion's Skin", ct);
+    var clubBlows = await GetSkill("Club Blows", ct);
     var twelveLabors = await GetSkill("Twelve Labors", ct);
 
     // =====================================================
-    // ANUBIS
+    // YMIR
     // =====================================================
-    var guardianoftheThreshold = await GetSkill("Guardian of the Threshold", ct);
-    var judgmentsVeil = await GetSkill("Judgment's Veil", ct);
-    var passageofShadows = await GetSkill("Passage of Shadows", ct);
-    var funeraryScepter = await GetSkill("Funerary Scepter", ct);
-    var weighingofSouls = await GetSkill("Weighing of Souls", ct);
+    var fleshofIce = await GetSkill("Flesh of Ice", ct);
+    var glacialShard = await GetSkill("Glacial Shard", ct);
+    var wallofFrost = await GetSkill("Wall of Frost", ct);
+    var frostFists = await GetSkill("Frost Fists", ct);
+    var gripofFrost = await GetSkill("Grip of Frost", ct);
 
     // =====================================================
-    // HEL
+    // GEB
     // =====================================================
-    var chilloftheDead = await GetSkill("Chill of the Dead", ct);
-    var graspoftheFallen = await GetSkill("Grasp of the Fallen", ct);
-    var walkoftheDead = await GetSkill("Walk of the Dead", ct);
-    var icyBreath = await GetSkill("Icy Breath", ct);
-    var domainofHelheim = await GetSkill("Domain of Helheim", ct);
+    var stoneSkin = await GetSkill("Stone Skin", ct);
+    var telluricShard = await GetSkill("Telluric Shard", ct);
+    var earthenAegis = await GetSkill("Earthen Aegis", ct);
+    var stoneFists = await GetSkill("Stone Fists", ct);
+    var cataclysm = await GetSkill("Cataclysm", ct);
 
     // =====================================================
-    // ISIS
+    // KUMBHAKARNA
     // =====================================================
-    var ancientMagic = await GetSkill("Ancient Magic", ct);
-    var healingWing = await GetSkill("Healing Wing", ct);
-    var isissFlight = await GetSkill("Isis's Flight", ct);
-    var rayofLight = await GetSkill("Ray of Light", ct);
-    var osirissReprieve = await GetSkill("Osiris's Reprieve", ct);
+    var giantsSlumber = await GetSkill("Giant's Slumber", ct);
+    var greatSweep = await GetSkill("Great Sweep", ct);
+    var ponderousStride = await GetSkill("Ponderous Stride", ct);
+    var massiveBackhand = await GetSkill("Massive Backhand", ct);
+    var terribleAwakening = await GetSkill("Terrible Awakening", ct);
+
+    // =====================================================
+    // GILGAMESH
+    // =====================================================
+    var twoThirdsDivine = await GetSkill("Two-Thirds Divine", ct);
+    var celestialSlash = await GetSkill("Celestial Slash", ct);
+    var chargeofUruk = await GetSkill("Charge of Uruk", ct);
+    var royalBlows = await GetSkill("Royal Blows", ct);
+    var kingsJudgment = await GetSkill("King's Judgment", ct);
 
     // =====================================================
     // FREYJA
     // =====================================================
-    var valkyriesFavor = await GetSkill("Valkyries' Favor", ct);
+    var vanirsFavor = await GetSkill("Vanir's Favor", ct);
     var valkyriesBlessing = await GetSkill("Valkyries' Blessing", ct);
     var falconFlight = await GetSkill("Falcon Flight", ct);
-    var goldenBlade = await GetSkill("Golden Blade", ct);
-    var fieldofFolkvangr = await GetSkill("Field of Folkvangr", ct);
+    var goldenShards = await GetSkill("Golden Shards", ct);
+    var dawnofFolkvangr = await GetSkill("Dawn of Folkvangr", ct);
 
     // =====================================================
-    // ENKI
+    // ISIS
     // =====================================================
-    var watersWisdom = await GetSkill("Water's Wisdom", ct);
-    var streamofWisdom = await GetSkill("Stream of Wisdom", ct);
-    var undercurrent = await GetSkill("Undercurrent", ct);
-    var invigoratingWave = await GetSkill("Invigorating Wave", ct);
-    var abzu = await GetSkill("Abzu", ct);
+    var ancestralMagic = await GetSkill("Ancestral Magic", ct);
+    var healingWing = await GetSkill("Healing Wing", ct);
+    var veilofIsis = await GetSkill("Veil of Isis", ct);
+    var breathofLife = await GetSkill("Breath of Life", ct);
+    var osirissResurrection = await GetSkill("Osiris's Resurrection", ct);
+
+    // =====================================================
+    // APHRODITE
+    // =====================================================
+    var grace = await GetSkill("Grace", ct);
+    var embrace = await GetSkill("Embrace", ct);
+    var flightofDoves = await GetSkill("Flight of Doves", ct);
+    var ardentKisses = await GetSkill("Ardent Kisses", ct);
+    var intoxicatingCharm = await GetSkill("Intoxicating Charm", ct);
+
+    // =====================================================
+    // GUANYIN
+    // =====================================================
+    var compassion = await GetSkill("Compassion", ct);
+    var willowWater = await GetSkill("Willow Water", ct);
+    var lotusStep = await GetSkill("Lotus Step", ct);
+    var jadeDroplets = await GetSkill("Jade Droplets", ct);
+    var oceanofMercy = await GetSkill("Ocean of Mercy", ct);
+
+    // =====================================================
+    // BRIGID
+    // =====================================================
+    var eternalFlame = await GetSkill("Eternal Flame", ct);
+    var forgeShield = await GetSkill("Forge Shield", ct);
+    var emberBreath = await GetSkill("Ember Breath", ct);
+    var sacredEmbers = await GetSkill("Sacred Embers", ct);
+    var inspiringBlaze = await GetSkill("Inspiring Blaze", ct);
 
     // =====================================================
     // ARTEMIS
     // =====================================================
     var huntresssEye = await GetSkill("Huntress's Eye", ct);
-    var lunarArrow = await GetSkill("Lunar Arrow", ct);
+    var piercingArrow = await GetSkill("Piercing Arrow", ct);
     var doesLeap = await GetSkill("Doe's Leap", ct);
-    var rainofArrows = await GetSkill("Rain of Arrows", ct);
-    var sacredHunt = await GetSkill("Sacred Hunt", ct);
-
-    // =====================================================
-    // VIDAR
-    // =====================================================
-    var avengingSilence = await GetSkill("Avenging Silence", ct);
-    var silencingShaft = await GetSkill("Silencing Shaft", ct);
-    var ironStride = await GetSkill("Iron Stride", ct);
-    var crushingBoot = await GetSkill("Crushing Boot", ct);
-    var fenrirsVengeance = await GetSkill("Fenrir's Vengeance", ct);
+    var lunarShots = await GetSkill("Lunar Shots", ct);
+    var arrowoftheMoon = await GetSkill("Arrow of the Moon", ct);
 
     // =====================================================
     // RAMA
     // =====================================================
-    var discipline = await GetSkill("Discipline", ct);
-    var arrowofDharma = await GetSkill("Arrow of Dharma", ct);
-    var princesStride = await GetSkill("Prince's Stride", ct);
-    var chainedShot = await GetSkill("Chained Shot", ct);
+    var princesPrecision = await GetSkill("Prince's Precision", ct);
+    var blazingShaft = await GetSkill("Blazing Shaft", ct);
+    var princesStep = await GetSkill("Prince's Step", ct);
+    var arrowsofKodanda = await GetSkill("Arrows of Kodanda", ct);
     var brahmastra = await GetSkill("Brahmastra", ct);
 
+    // =====================================================
+    // HOUYI
+    // =====================================================
+    var nineSuns = await GetSkill("Nine Suns", ct);
+    var solarArrow = await GetSkill("Solar Arrow", ct);
+    var huntersRoll = await GetSkill("Hunter's Roll", ct);
+    var burningArrows = await GetSkill("Burning Arrows", ct);
+    var volleyofTenSuns = await GetSkill("Volley of Ten Suns", ct);
+
+    // =====================================================
+    // ULLR
+    // =====================================================
+    var wintersFavor = await GetSkill("Winter's Favor", ct);
+    var piercingShaft = await GetSkill("Piercing Shaft", ct);
+    var icyGlide = await GetSkill("Icy Glide", ct);
+    var yewArrows = await GetSkill("Yew Arrows", ct);
+    var duelistsChallenge = await GetSkill("Duelist's Challenge", ct);
+
+    // =====================================================
+    // NEITH
+    // =====================================================
+    var threadofFate = await GetSkill("Thread of Fate", ct);
+    var huntingShaft = await GetSkill("Hunting Shaft", ct);
+    var weaversStep = await GetSkill("Weaver's Step", ct);
+    var wovenArrows = await GetSkill("Woven Arrows", ct);
+    var weboftheWorld = await GetSkill("Web of the World", ct);
+
     // Neutral (1.0f) multipliers for every skill -- see class remarks.
-    await CreateAsync(version.Id, lightningCharge.Id, ct);
+    await CreateAsync(version.Id, staticCharge.Id, ct);
     await CreateAsync(version.Id, thunderStrike.Id, ct);
     await CreateAsync(version.Id, hammersCall.Id, ct);
-    await CreateAsync(version.Id, asgardsGuard.Id, ct);
+    await CreateAsync(version.Id, mjolnirBlows.Id, ct);
     await CreateAsync(version.Id, asgardsWrath.Id, ct);
     await CreateAsync(version.Id, bloodlust.Id, ct);
     await CreateAsync(version.Id, bloodHarvest.Id, ct);
     await CreateAsync(version.Id, butchersCharge.Id, ct);
-    await CreateAsync(version.Id, warCry.Id, ct);
+    await CreateAsync(version.Id, spearBlows.Id, ct);
     await CreateAsync(version.Id, warsFury.Id, ct);
-    await CreateAsync(version.Id, typhoonsBreath.Id, ct);
+    await CreateAsync(version.Id, unshakeableLoyalty.Id, ct);
+    await CreateAsync(version.Id, greenDragonBlade.Id, ct);
+    await CreateAsync(version.Id, redHareCharge.Id, ct);
+    await CreateAsync(version.Id, halberdSweep.Id, ct);
+    await CreateAsync(version.Id, oathoftheThreeBrothers.Id, ct);
+    await CreateAsync(version.Id, livingMetal.Id, ct);
+    await CreateAsync(version.Id, ironEdge.Id, ct);
+    await CreateAsync(version.Id, blacksmithsStride.Id, ct);
+    await CreateAsync(version.Id, macheteBlows.Id, ct);
+    await CreateAsync(version.Id, forgesWrath.Id, ct);
+    await CreateAsync(version.Id, breathofBattle.Id, ct);
     await CreateAsync(version.Id, galeBlade.Id, ct);
     await CreateAsync(version.Id, typhoonStep.Id, ct);
-    await CreateAsync(version.Id, cuttingWind.Id, ct);
+    await CreateAsync(version.Id, kusanagiStrikes.Id, ct);
     await CreateAsync(version.Id, orochi.Id, ct);
     await CreateAsync(version.Id, deceit.Id, ct);
     await CreateAsync(version.Id, twinBlades.Id, ct);
     await CreateAsync(version.Id, shadowFlee.Id, ct);
-    await CreateAsync(version.Id, poisonedDagger.Id, ct);
+    await CreateAsync(version.Id, sneakingDaggers.Id, ct);
     await CreateAsync(version.Id, trickstersVerdict.Id, ct);
-    await CreateAsync(version.Id, childofNight.Id, ct);
+    await CreateAsync(version.Id, desertsBlood.Id, ct);
+    await CreateAsync(version.Id, sandstorm.Id, ct);
+    await CreateAsync(version.Id, chaosMist.Id, ct);
+    await CreateAsync(version.Id, khopeshBlows.Id, ct);
+    await CreateAsync(version.Id, setsJudgment.Id, ct);
+    await CreateAsync(version.Id, bloodRapture.Id, ct);
+    await CreateAsync(version.Id, danceofBlades.Id, ct);
+    await CreateAsync(version.Id, goddesssLeap.Id, ct);
+    await CreateAsync(version.Id, manyBlades.Id, ct);
+    await CreateAsync(version.Id, destructiveFury.Id, ct);
+    await CreateAsync(version.Id, nocturnalFlight.Id, ct);
+    await CreateAsync(version.Id, bloodSwarm.Id, ct);
+    await CreateAsync(version.Id, raptorDive.Id, ct);
+    await CreateAsync(version.Id, clawsandFangs.Id, ct);
+    await CreateAsync(version.Id, feastofXibalba.Id, ct);
     await CreateAsync(version.Id, nightfallVeil.Id, ct);
-    await CreateAsync(version.Id, starstep.Id, ct);
-    await CreateAsync(version.Id, shadowClaws.Id, ct);
+    await CreateAsync(version.Id, bladeofDarkness.Id, ct);
+    await CreateAsync(version.Id, shadowStep.Id, ct);
+    await CreateAsync(version.Id, shadowBlades.Id, ct);
     await CreateAsync(version.Id, everlastingNight.Id, ct);
-    await CreateAsync(version.Id, desertVenom.Id, ct);
-    await CreateAsync(version.Id, desertsBreath.Id, ct);
-    await CreateAsync(version.Id, jackalsHunt.Id, ct);
-    await CreateAsync(version.Id, corrosiveSands.Id, ct);
-    await CreateAsync(version.Id, curseofChaos.Id, ct);
-    await CreateAsync(version.Id, ostatic.Id, ct);
+    await CreateAsync(version.Id, celestialCharge.Id, ct);
     await CreateAsync(version.Id, targetedBolt.Id, ct);
     await CreateAsync(version.Id, olympusGale.Id, ct);
-    await CreateAsync(version.Id, electricArc.Id, ct);
-    await CreateAsync(version.Id, skysFury.Id, ct);
-    await CreateAsync(version.Id, radiance.Id, ct);
-    await CreateAsync(version.Id, solarDisc.Id, ct);
-    await CreateAsync(version.Id, celestialBarque.Id, ct);
-    await CreateAsync(version.Id, sacredBurn.Id, ct);
-    await CreateAsync(version.Id, eternalNoon.Id, ct);
-    await CreateAsync(version.Id, timeSlip.Id, ct);
-    await CreateAsync(version.Id, hourFracture.Id, ct);
-    await CreateAsync(version.Id, temporalLeap.Id, ct);
-    await CreateAsync(version.Id, temporalShard.Id, ct);
-    await CreateAsync(version.Id, hourglassReversal.Id, ct);
-    await CreateAsync(version.Id, titanicStrength.Id, ct);
+    await CreateAsync(version.Id, sparks.Id, ct);
+    await CreateAsync(version.Id, skysWrath.Id, ct);
+    await CreateAsync(version.Id, solarFire.Id, ct);
+    await CreateAsync(version.Id, solarRay.Id, ct);
+    await CreateAsync(version.Id, ascension.Id, ct);
+    await CreateAsync(version.Id, rays.Id, ct);
+    await CreateAsync(version.Id, noonJudgment.Id, ct);
+    await CreateAsync(version.Id, combustion.Id, ct);
+    await CreateAsync(version.Id, flameJavelin.Id, ct);
+    await CreateAsync(version.Id, blazingTrail.Id, ct);
+    await CreateAsync(version.Id, emberSpit.Id, ct);
+    await CreateAsync(version.Id, pillarofFire.Id, ct);
+    await CreateAsync(version.Id, stormsRhythm.Id, ct);
+    await CreateAsync(version.Id, thunderclap.Id, ct);
+    await CreateAsync(version.Id, thunderStep.Id, ct);
+    await CreateAsync(version.Id, drumRolls.Id, ct);
+    await CreateAsync(version.Id, drumFury.Id, ct);
+    await CreateAsync(version.Id, tabletsofDestiny.Id, ct);
+    await CreateAsync(version.Id, netoftheWinds.Id, ct);
+    await CreateAsync(version.Id, primordialBreath.Id, ct);
+    await CreateAsync(version.Id, shardsofPower.Id, ct);
+    await CreateAsync(version.Id, sealofTiamat.Id, ct);
+    await CreateAsync(version.Id, herosEndurance.Id, ct);
     await CreateAsync(version.Id, nemeanGrip.Id, ct);
     await CreateAsync(version.Id, lionsCharge.Id, ct);
-    await CreateAsync(version.Id, lionsSkin.Id, ct);
+    await CreateAsync(version.Id, clubBlows.Id, ct);
     await CreateAsync(version.Id, twelveLabors.Id, ct);
-    await CreateAsync(version.Id, guardianoftheThreshold.Id, ct);
-    await CreateAsync(version.Id, judgmentsVeil.Id, ct);
-    await CreateAsync(version.Id, passageofShadows.Id, ct);
-    await CreateAsync(version.Id, funeraryScepter.Id, ct);
-    await CreateAsync(version.Id, weighingofSouls.Id, ct);
-    await CreateAsync(version.Id, chilloftheDead.Id, ct);
-    await CreateAsync(version.Id, graspoftheFallen.Id, ct);
-    await CreateAsync(version.Id, walkoftheDead.Id, ct);
-    await CreateAsync(version.Id, icyBreath.Id, ct);
-    await CreateAsync(version.Id, domainofHelheim.Id, ct);
-    await CreateAsync(version.Id, ancientMagic.Id, ct);
-    await CreateAsync(version.Id, healingWing.Id, ct);
-    await CreateAsync(version.Id, isissFlight.Id, ct);
-    await CreateAsync(version.Id, rayofLight.Id, ct);
-    await CreateAsync(version.Id, osirissReprieve.Id, ct);
-    await CreateAsync(version.Id, valkyriesFavor.Id, ct);
+    await CreateAsync(version.Id, fleshofIce.Id, ct);
+    await CreateAsync(version.Id, glacialShard.Id, ct);
+    await CreateAsync(version.Id, wallofFrost.Id, ct);
+    await CreateAsync(version.Id, frostFists.Id, ct);
+    await CreateAsync(version.Id, gripofFrost.Id, ct);
+    await CreateAsync(version.Id, stoneSkin.Id, ct);
+    await CreateAsync(version.Id, telluricShard.Id, ct);
+    await CreateAsync(version.Id, earthenAegis.Id, ct);
+    await CreateAsync(version.Id, stoneFists.Id, ct);
+    await CreateAsync(version.Id, cataclysm.Id, ct);
+    await CreateAsync(version.Id, giantsSlumber.Id, ct);
+    await CreateAsync(version.Id, greatSweep.Id, ct);
+    await CreateAsync(version.Id, ponderousStride.Id, ct);
+    await CreateAsync(version.Id, massiveBackhand.Id, ct);
+    await CreateAsync(version.Id, terribleAwakening.Id, ct);
+    await CreateAsync(version.Id, twoThirdsDivine.Id, ct);
+    await CreateAsync(version.Id, celestialSlash.Id, ct);
+    await CreateAsync(version.Id, chargeofUruk.Id, ct);
+    await CreateAsync(version.Id, royalBlows.Id, ct);
+    await CreateAsync(version.Id, kingsJudgment.Id, ct);
+    await CreateAsync(version.Id, vanirsFavor.Id, ct);
     await CreateAsync(version.Id, valkyriesBlessing.Id, ct);
     await CreateAsync(version.Id, falconFlight.Id, ct);
-    await CreateAsync(version.Id, goldenBlade.Id, ct);
-    await CreateAsync(version.Id, fieldofFolkvangr.Id, ct);
-    await CreateAsync(version.Id, watersWisdom.Id, ct);
-    await CreateAsync(version.Id, streamofWisdom.Id, ct);
-    await CreateAsync(version.Id, undercurrent.Id, ct);
-    await CreateAsync(version.Id, invigoratingWave.Id, ct);
-    await CreateAsync(version.Id, abzu.Id, ct);
+    await CreateAsync(version.Id, goldenShards.Id, ct);
+    await CreateAsync(version.Id, dawnofFolkvangr.Id, ct);
+    await CreateAsync(version.Id, ancestralMagic.Id, ct);
+    await CreateAsync(version.Id, healingWing.Id, ct);
+    await CreateAsync(version.Id, veilofIsis.Id, ct);
+    await CreateAsync(version.Id, breathofLife.Id, ct);
+    await CreateAsync(version.Id, osirissResurrection.Id, ct);
+    await CreateAsync(version.Id, grace.Id, ct);
+    await CreateAsync(version.Id, embrace.Id, ct);
+    await CreateAsync(version.Id, flightofDoves.Id, ct);
+    await CreateAsync(version.Id, ardentKisses.Id, ct);
+    await CreateAsync(version.Id, intoxicatingCharm.Id, ct);
+    await CreateAsync(version.Id, compassion.Id, ct);
+    await CreateAsync(version.Id, willowWater.Id, ct);
+    await CreateAsync(version.Id, lotusStep.Id, ct);
+    await CreateAsync(version.Id, jadeDroplets.Id, ct);
+    await CreateAsync(version.Id, oceanofMercy.Id, ct);
+    await CreateAsync(version.Id, eternalFlame.Id, ct);
+    await CreateAsync(version.Id, forgeShield.Id, ct);
+    await CreateAsync(version.Id, emberBreath.Id, ct);
+    await CreateAsync(version.Id, sacredEmbers.Id, ct);
+    await CreateAsync(version.Id, inspiringBlaze.Id, ct);
     await CreateAsync(version.Id, huntresssEye.Id, ct);
-    await CreateAsync(version.Id, lunarArrow.Id, ct);
+    await CreateAsync(version.Id, piercingArrow.Id, ct);
     await CreateAsync(version.Id, doesLeap.Id, ct);
-    await CreateAsync(version.Id, rainofArrows.Id, ct);
-    await CreateAsync(version.Id, sacredHunt.Id, ct);
-    await CreateAsync(version.Id, avengingSilence.Id, ct);
-    await CreateAsync(version.Id, silencingShaft.Id, ct);
-    await CreateAsync(version.Id, ironStride.Id, ct);
-    await CreateAsync(version.Id, crushingBoot.Id, ct);
-    await CreateAsync(version.Id, fenrirsVengeance.Id, ct);
-    await CreateAsync(version.Id, discipline.Id, ct);
-    await CreateAsync(version.Id, arrowofDharma.Id, ct);
-    await CreateAsync(version.Id, princesStride.Id, ct);
-    await CreateAsync(version.Id, chainedShot.Id, ct);
+    await CreateAsync(version.Id, lunarShots.Id, ct);
+    await CreateAsync(version.Id, arrowoftheMoon.Id, ct);
+    await CreateAsync(version.Id, princesPrecision.Id, ct);
+    await CreateAsync(version.Id, blazingShaft.Id, ct);
+    await CreateAsync(version.Id, princesStep.Id, ct);
+    await CreateAsync(version.Id, arrowsofKodanda.Id, ct);
     await CreateAsync(version.Id, brahmastra.Id, ct);
+    await CreateAsync(version.Id, nineSuns.Id, ct);
+    await CreateAsync(version.Id, solarArrow.Id, ct);
+    await CreateAsync(version.Id, huntersRoll.Id, ct);
+    await CreateAsync(version.Id, burningArrows.Id, ct);
+    await CreateAsync(version.Id, volleyofTenSuns.Id, ct);
+    await CreateAsync(version.Id, wintersFavor.Id, ct);
+    await CreateAsync(version.Id, piercingShaft.Id, ct);
+    await CreateAsync(version.Id, icyGlide.Id, ct);
+    await CreateAsync(version.Id, yewArrows.Id, ct);
+    await CreateAsync(version.Id, duelistsChallenge.Id, ct);
+    await CreateAsync(version.Id, threadofFate.Id, ct);
+    await CreateAsync(version.Id, huntingShaft.Id, ct);
+    await CreateAsync(version.Id, weaversStep.Id, ct);
+    await CreateAsync(version.Id, wovenArrows.Id, ct);
+    await CreateAsync(version.Id, weboftheWorld.Id, ct);
 
     await _uow.CommitAsync(ct);
   }

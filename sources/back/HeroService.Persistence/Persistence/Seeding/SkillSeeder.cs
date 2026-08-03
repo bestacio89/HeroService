@@ -7,14 +7,20 @@ using HeroService.Persistence.Persistence.Seeding;
 namespace HeroService.Persistence.Seeding;
 
 /// <summary>
-/// Seeds the full 18-hero Skill roster (5 skills per Hero: Passive, Primary,
-/// Secondary, Tertiary, Ultimate), translated and mapped from the
-/// "codex_complet_heros_items_v10" design document. Numeric values (cooldown,
-/// mana cost, damage, healing, shield, cast time, channel duration, crowd
-/// control duration, range, AD/MD/HP ratios) are taken verbatim from the codex.
-/// EffectType granularity for "CrowdControl"-tagged skills (not a real enum
-/// member) was resolved to the specific mechanic named in the codex's flavor
-/// text; skills with no flavor text (Tertiary/S3 slots) are marked INFERRED.
+/// Seeds the full 30-hero Skill roster (5 skills per Hero: Passive, Primary,
+/// Secondary, Tertiary, Ultimate), translated and mapped from
+/// "codex_heros_v17" (Mickael's revised codex, 5 heroes per class).
+///
+/// NOTE: the codex's 5 kit slots are "Attaque de base / Passive / Primary /
+/// Secondary / Ultimate" -- no slot is literally named "Tertiary". Since the
+/// domain's HeroSkillKit needs exactly 5 named slots and "Attaque de base"
+/// is the one left over, it is mapped to TertiarySkillId here. Worth realigning
+/// naming with Mickael for the next revision, not blocking on it now.
+///
+/// EffectType tags are taken directly from the codex -- all 25 distinct tags
+/// used verified as real EffectType enum members (no generic categories this
+/// time). AD/MD ratios are not given by the codex; assigned per hero's
+/// dominant stat (AD-dominant vs MD-dominant/mixed), scaled by slot.
 /// </summary>
 public sealed class SkillSeeder : ISeeder
 {
@@ -68,106 +74,107 @@ public sealed class SkillSeeder : ISeeder
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Lightning Charge",
+        name: "Static Charge",
         type: SkillType.Buff,
-        description: "Heavy, slow but devastating hammer blows. Each strike charges a small amount of lightning.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "After casting a spell, his next basic attack electrifies the target and nearby enemies.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
-            Damage: null,
+            Damage: 50f,
             Healing: null,
             Shield: null,
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+            Effect(EffectType.Buff, 0f, 4f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+            Effect(EffectType.Damage, 50f, 0f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.4f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Thunder Strike",
         type: SkillType.Damage,
-        description: "Slams Mjolnir into the ground: area damage and a brief stun around the point of impact.",
-        visualExplanation: "Ground-targeted area effect.",
+        description: "Hurls a bolt of lightning in a straight line; the first enemy struck is stunned.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 8.0f,
-            ManaCost: 60f,
-            Damage: 240f,
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 220f,
             Healing: null,
             Shield: null,
-            CastTime: 0.3f,
+            CastTime: 0.4f,
             ChannelDuration: null,
-            CrowdControlDuration: 0.8f,
-            Range: 3.0f),
+            CrowdControlDuration: 1f,
+            Range: 8f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 240f, 0f, 3.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.0f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Stun, 0f, 0.8f, 3.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 220f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.1f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Stun, 0f, 1f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Hammer's Call",
         type: SkillType.Mobility,
-        description: "Hurls Mjolnir at the target, then launches himself to retrieve it (offensive gap-closer).",
-        visualExplanation: "Single-target line skillshot.",
+        description: "Throws Mjolnir at a point; reactivating teleports Thor to the hammer.",
+        visualExplanation: "Zone.",
         baseStats: new BaseStatsParams(
-            Cooldown: 12.0f,
-            ManaCost: 70f,
-            Damage: 180f,
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: 130f,
             Healing: null,
             Shield: null,
             CastTime: 0.2f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 6.0f),
+            Range: 6f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 180f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.8f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 130f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.8f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Asgard's Guard",
-        type: SkillType.Shield,
-        description: "Braces behind a shield of storm energy, absorbing incoming damage.",
-        visualExplanation: "Self-cast, no target.",
+        name: "Mjolnir Blows",
+        type: SkillType.Damage,
+        description: "Heavy, slow strikes; each hit crackles a spark onto the target.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 14.0f,
-            ManaCost: 80f,
-            Damage: null,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
             Healing: null,
-            Shield: 300f,
-            CastTime: 0.2f,
+            Shield: null,
+            CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 0.0f),
+            Range: 1.8f),
         effects: new[]
         {
-            Effect(EffectType.Shield, 300f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: 0.15f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Asgard's Wrath",
         type: SkillType.Ultimate,
-        description: "Channels the storm: his attack speed explodes and every strike hurls lightning at nearby enemies.",
-        visualExplanation: "Self-cast, no target.",
+        description: "Calls lightning down on a wide area, launching enemies into the air.",
+        visualExplanation: "Zone.",
         baseStats: new BaseStatsParams(
-            Cooldown: 60.0f,
+            Cooldown: 88f,
             ManaCost: 120f,
-            Damage: 150f,
+            Damage: 400f,
             Healing: null,
             Shield: null,
-            CastTime: 0.5f,
-            ChannelDuration: 4.0f,
-            CrowdControlDuration: null,
-            Range: 4.0f),
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 6f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 4.0f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: BuffType.AttackSpeed, debuffType: null),
-            Effect(EffectType.Damage, 150f, 4.0f, 4.0f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: 1.2f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 400f, 0f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.8f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.KnockUp, 0f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
     // =====================================================
@@ -177,8 +184,8 @@ public sealed class SkillSeeder : ISeeder
     await CreateAsync(ct, system,
         name: "Bloodlust",
         type: SkillType.Buff,
-        description: "Fast, furious spear strikes. A struck enemy bleeds briefly.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "Ares recovers part of the damage he deals as life.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -197,97 +204,96 @@ public sealed class SkillSeeder : ISeeder
     await CreateAsync(ct, system,
         name: "Blood Harvest",
         type: SkillType.Damage,
-        description: "Sweeps his spear in a wide arc: damage to all nearby enemies, healing him for each target struck.",
-        visualExplanation: "Cone-shaped area effect.",
+        description: "Sweeps his spear in a cone, opening wounds that bleed over time.",
+        visualExplanation: "Cone.",
         baseStats: new BaseStatsParams(
-            Cooldown: 7.0f,
+            Cooldown: 8f,
             ManaCost: 55f,
-            Damage: 220f,
-            Healing: 120f,
+            Damage: 180f,
+            Healing: null,
             Shield: null,
-            CastTime: 0.25f,
-            ChannelDuration: null,
+            CastTime: 0.3f,
+            ChannelDuration: 3f,
             CrowdControlDuration: null,
             Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 220f, 0f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.1f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Heal, 120f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 180f, 0f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.9f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.DamageOverTime, 90f, 3f, 3.5f, TargetType.AreaEnemies, StackType.RefreshDuration, 1, adRatio: 0.4f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Butcher's Charge",
         type: SkillType.Mobility,
-        description: "Rushes forward in a straight line, impaling enemies in his path and knocking them back slightly.",
-        visualExplanation: "Movement, straight line.",
+        description: "Rushes forward and knocks back the first enemy struck.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 11.0f,
-            ManaCost: 65f,
-            Damage: 160f,
+            Cooldown: 11f,
+            ManaCost: 60f,
+            Damage: 150f,
             Healing: null,
             Shield: null,
             CastTime: 0.2f,
             ChannelDuration: null,
             CrowdControlDuration: 0.5f,
-            Range: 7.0f),
+            Range: 7f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 160f, 0f, 1.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.7f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Knockback, 0f, 0.5f, 1.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 150f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.8f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Knockback, 0f, 0.5f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "War Cry",
-        type: SkillType.Debuff,
-        description: "Lets out a terrifying war cry, unsettling nearby enemies.",
-        visualExplanation: "Self-cast, radius around Ares.",
+        name: "Spear Blows",
+        type: SkillType.Damage,
+        description: "Fast, furious strikes; a struck enemy bleeds briefly.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 13.0f,
-            ManaCost: 70f,
-            Damage: null,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 62f,
             Healing: null,
             Shield: null,
-            CastTime: 0.3f,
+            CastTime: null,
             ChannelDuration: null,
-            CrowdControlDuration: 1.5f,
-            Range: 4.0f),
+            CrowdControlDuration: null,
+            Range: 1.8f),
         effects: new[]
         {
-            Effect(EffectType.Fear, 0f, 1.5f, 4.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 62f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "War's Fury",
         type: SkillType.Ultimate,
-        description: "Enters a killing rage: damage reduction, immunity to slows, and amplified strikes for the duration.",
-        visualExplanation: "Self-cast, no target.",
+        description: "Enters a rage: increased damage and speed, briefly terrifying nearby enemies on activation.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
-            Cooldown: 65.0f,
-            ManaCost: 130f,
+            Cooldown: 85f,
+            ManaCost: 140f,
             Damage: null,
             Healing: null,
             Shield: null,
-            CastTime: 0.4f,
-            ChannelDuration: 6.0f,
-            CrowdControlDuration: null,
-            Range: 0.0f),
+            CastTime: 0.3f,
+            ChannelDuration: 6f,
+            CrowdControlDuration: 1f,
+            Range: 4f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 6.0f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: 0.1f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
-            Effect(EffectType.Buff, 0f, 6.0f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.DamageReduction, debuffType: null),
-            Effect(EffectType.Buff, 0f, 6.0f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.Tenacity, debuffType: null),
+            Effect(EffectType.Buff, 0f, 6f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+            Effect(EffectType.Fear, 0f, 1f, 4f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
     // =====================================================
-    // SUSANOO (WARRIOR)
+    // GUAN YU (WARRIOR)
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Typhoon's Breath",
+        name: "Unshakeable Loyalty",
         type: SkillType.Buff,
-        description: "Swift katana strikes in pairs. The wind hisses with every cut.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "Below a health threshold, Guan Yu gains damage reduction that grows as he weakens.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -300,90 +306,306 @@ public sealed class SkillSeeder : ISeeder
             Range: null),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackSpeed, debuffType: null),
+            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: 0.15f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.DamageReduction, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Green Dragon Blade",
+        type: SkillType.Damage,
+        description: "Cleaves the air in a line, slicing every enemy aligned.",
+        visualExplanation: "Line.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 50f,
+            Damage: 210f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.35f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 7.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 210f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.0f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Red Hare Charge",
+        type: SkillType.Mobility,
+        description: "Rides forward and topples enemies struck.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: 140f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: 0.6f,
+            Range: 7f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 140f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.7f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Knockback, 0f, 0.6f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Halberd Sweep",
+        type: SkillType.Damage,
+        description: "Wide, sweeping strikes hitting a short line in front of him.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 58f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 1.9f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 58f, 0f, 1.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.55f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Oath of the Three Brothers",
+        type: SkillType.Ultimate,
+        description: "A devastating charge along a long line, stunning every enemy crossed.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 90f,
+            ManaCost: 130f,
+            Damage: 360f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.2f,
+            Range: 9f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 360f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Stun, 0f, 1.2f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // OGUN (WARRIOR)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Living Metal",
+        type: SkillType.Debuff,
+        description: "Ogun's attacks corrode the target's armor, stacking.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: null),
+        effects: new[]
+        {
+            Effect(EffectType.Debuff, 8f, 4f, 0f, TargetType.Enemy, StackType.Additive, 4, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.ArmorReduction),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Iron Edge",
+        type: SkillType.Damage,
+        description: "A cone strike that leaves a burning gash over time.",
+        visualExplanation: "Cone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 8f,
+            ManaCost: 55f,
+            Damage: 170f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.3f,
+            ChannelDuration: 3f,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 170f, 0f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.85f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.DamageOverTime, 80f, 3f, 3.5f, TargetType.AreaEnemies, StackType.RefreshDuration, 1, adRatio: 0.35f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Blacksmith's Stride",
+        type: SkillType.Mobility,
+        description: "Advances while striking the ground, slowing enemies in his path.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 11f,
+            ManaCost: 55f,
+            Damage: 110f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.2f,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Slow, 30f, 1.2f, 4f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 110f, 0f, 4f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.5f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Machete Blows",
+        type: SkillType.Damage,
+        description: "Iron strikes that gradually wear down the enemy's guard.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 1.8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Forge's Wrath",
+        type: SkillType.Ultimate,
+        description: "Slams his weapon down: a seismic wave in an area stuns enemies.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 88f,
+            ManaCost: 125f,
+            Damage: 380f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.5f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.3f,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 380f, 0f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.7f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Stun, 0f, 1.3f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // SUSANOO (WARRIOR)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Breath of Battle",
+        type: SkillType.Buff,
+        description: "Every third strike releases a cutting gust around him.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 55f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3f),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Capped, 3, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackSpeed, debuffType: null),
+            Effect(EffectType.Damage, 55f, 0f, 3f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.5f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Gale Blade",
         type: SkillType.Damage,
-        description: "Hurls a blade of wind that pierces through enemies in a line.",
-        visualExplanation: "Single-target line skillshot, pierces.",
+        description: "Hurls a blade of wind that passes through enemies in a line.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 6.0f,
+            Cooldown: 6f,
             ManaCost: 50f,
             Damage: 200f,
             Healing: null,
             Shield: null,
-            CastTime: 0.2f,
+            CastTime: 0.25f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 7.0f),
+            Range: 7f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 200f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.9f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 200f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.95f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Typhoon Step",
         type: SkillType.Mobility,
-        description: "Surges forward in a whirl, passing through the target and striking everything in his path.",
-        visualExplanation: "Movement, straight line.",
+        description: "A cutting dash that wounds enemies crossed.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 10.0f,
-            ManaCost: 60f,
-            Damage: 170f,
+            Cooldown: 9f,
+            ManaCost: 55f,
+            Damage: 150f,
             Healing: null,
             Shield: null,
             CastTime: 0.15f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 6.5f),
+            Range: 6f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 170f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.85f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 150f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.75f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Cutting Wind",
+        name: "Kusanagi Strikes",
         type: SkillType.Damage,
-        description: "A sharp gust that slices and briefly staggers anyone caught in it.",
-        visualExplanation: "Cone-shaped area effect.",
+        description: "Swift strikes in pairs; the wind hisses with every pass.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 9.0f,
-            ManaCost: 55f,
-            Damage: 190f,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
             Healing: null,
             Shield: null,
-            CastTime: 0.25f,
+            CastTime: null,
             ChannelDuration: null,
-            CrowdControlDuration: 0.4f,
-            Range: 4.0f),
+            CrowdControlDuration: null,
+            Range: 1.9f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 190f, 0f, 4.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.8f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Slow, 30f, 0.4f, 4.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Orochi",
         type: SkillType.Ultimate,
-        description: "Summons the eight-headed serpent: each head strikes a different nearby target, stacking damage.",
-        visualExplanation: "Self-cast, radius around Susanoo.",
+        description: "Summons the eight-headed serpent, which strikes nearby enemies for several seconds.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
-            Cooldown: 70.0f,
-            ManaCost: 140f,
-            Damage: 320f,
+            Cooldown: 85f,
+            ManaCost: 130f,
+            Damage: 340f,
             Healing: null,
             Shield: null,
-            CastTime: 0.6f,
-            ChannelDuration: null,
+            CastTime: 0.5f,
+            ChannelDuration: 4f,
             CrowdControlDuration: null,
-            Range: 5.0f),
+            Range: 5f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 320f, 0f, 5.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.4f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Summon, 0f, 0f, 5.0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Summon, 0f, 4f, 5f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 340f, 4f, 5f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: 1.5f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
         });
 
     // =====================================================
@@ -393,8 +615,8 @@ public sealed class SkillSeeder : ISeeder
     await CreateAsync(ct, system,
         name: "Deceit",
         type: SkillType.Buff,
-        description: "Quick, treacherous daggers. Striking from behind deals bonus damage.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "After casting a spell, Loki briefly becomes invisible.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -407,16 +629,16 @@ public sealed class SkillSeeder : ISeeder
             Range: null),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.CriticalDamage, debuffType: null),
+            Effect(EffectType.Buff, 0f, 1.5f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.MovementSpeed, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Twin Blades",
         type: SkillType.Damage,
-        description: "Throws two daggers that boomerang back, marking any enemies struck.",
-        visualExplanation: "Single-target line skillshot, returns.",
+        description: "Throws two poisoned daggers in a line that sap life over time.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 7.0f,
+            Cooldown: 7f,
             ManaCost: 55f,
             Damage: 230f,
             Healing: null,
@@ -424,20 +646,20 @@ public sealed class SkillSeeder : ISeeder
             CastTime: 0.2f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 6.0f),
+            Range: 6f),
         effects: new[]
         {
             Effect(EffectType.Damage, 230f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.1f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 15f, 3.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.ArmorReduction),
+            Effect(EffectType.DamageOverTime, 60f, 3f, 0f, TargetType.AreaEnemies, StackType.RefreshDuration, 1, adRatio: 0.3f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Shadow Flee",
         type: SkillType.Mobility,
-        description: "Turns invisible for a moment and moves quickly in a direction.",
-        visualExplanation: "Movement, direction-targeted.",
+        description: "Teleports away, leaving a decoy in his place.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 12.0f,
+            Cooldown: 12f,
             ManaCost: 60f,
             Damage: null,
             Healing: null,
@@ -449,37 +671,35 @@ public sealed class SkillSeeder : ISeeder
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 0f, 1.5f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.MovementSpeed, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Poisoned Dagger",
-        type: SkillType.Debuff,
-        description: "A dagger coated in venom: damage over time and reduced healing on the target.",
-        visualExplanation: "Single-target line skillshot.",
+        name: "Sneaking Daggers",
+        type: SkillType.Damage,
+        description: "Quick strikes; a hit to the back deals bonus damage.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 9.0f,
-            ManaCost: 50f,
-            Damage: 140f,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 64f,
             Healing: null,
             Shield: null,
-            CastTime: 0.2f,
+            CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 5.0f),
+            Range: 1.8f),
         effects: new[]
         {
-            Effect(EffectType.DamageOverTime, 140f, 3.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 30f, 3.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.HealingReduction),
+            Effect(EffectType.Damage, 64f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.65f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Trickster's Verdict",
         type: SkillType.Ultimate,
         description: "Teleports behind a designated target and delivers an execution strike amplified by their missing health.",
-        visualExplanation: "Single-target, locked selection.",
+        visualExplanation: "Locked.",
         baseStats: new BaseStatsParams(
-            Cooldown: 75.0f,
+            Cooldown: 80f,
             ManaCost: 120f,
             Damage: 400f,
             Healing: null,
@@ -487,11 +707,329 @@ public sealed class SkillSeeder : ISeeder
             CastTime: 0.3f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 8.0f),
+            Range: 8f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Execute, 400f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.8f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Execute, 400f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.9f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // SET (ASSASSIN)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Desert's Blood",
+        type: SkillType.Debuff,
+        description: "Set's damage leaves a poison that lingers over time.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: null),
+        effects: new[]
+        {
+            Effect(EffectType.DamageOverTime, 30f, 3f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: 0.2f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Sandstorm",
+        type: SkillType.Damage,
+        description: "A cone gust that blinds enemies struck.",
+        visualExplanation: "Cone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 8f,
+            ManaCost: 55f,
+            Damage: 190f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.3f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1f,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 190f, 0f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.9f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Blind, 0f, 1f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Chaos Mist",
+        type: SkillType.Mobility,
+        description: "Dissolves into sand and reappears a short distance away.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 11f,
+            ManaCost: 55f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.1f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Khopesh Blows",
+        type: SkillType.Damage,
+        description: "Strikes charged with abrasive sand.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 62f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 1.9f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 62f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.62f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Set's Judgment",
+        type: SkillType.Ultimate,
+        description: "Descends on a designated target and executes it, harder the more wounded they are.",
+        visualExplanation: "Locked.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 78f,
+            ManaCost: 120f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.3f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 7f),
+        effects: new[]
+        {
+            Effect(EffectType.Execute, 380f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.8f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // KALI (ASSASSIN)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Blood Rapture",
+        type: SkillType.Buff,
+        description: "Every takedown briefly increases her attack speed.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: null),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 0f, 5f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackSpeed, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Dance of Blades",
+        type: SkillType.Damage,
+        description: "Whirls in place, slashing every enemy around her; while whirling, she takes 25% less damage.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 8f,
+            ManaCost: 55f,
+            Damage: 200f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.3f,
+            ChannelDuration: 1.5f,
+            CrowdControlDuration: null,
+            Range: 3f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 200f, 1.5f, 3f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: 1.0f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.Buff, 25f, 1.5f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: true, buffType: BuffType.DamageReduction, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Goddess's Leap",
+        type: SkillType.Mobility,
+        description: "Leaps to a targeted area, striking on landing.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 10f,
+            ManaCost: 55f,
+            Damage: 160f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.15f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 160f, 0f, 3f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.8f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Many Blades",
+        type: SkillType.Damage,
+        description: "Her many arms strike in a cascade.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 63f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 1.8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 63f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.63f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Destructive Fury",
+        type: SkillType.Ultimate,
+        description: "Locks onto a target and delivers a flurry of blows that finishes it off if weakened.",
+        visualExplanation: "Locked.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 75f,
+            ManaCost: 120f,
+            Damage: 370f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 7f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 370f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.7f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Execute, 120f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.5f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // CAMAZOTZ (ASSASSIN)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Nocturnal Flight",
+        type: SkillType.Buff,
+        description: "Camazotz recovers 22% of damage dealt as health — a hunter of attrition, not a burst reset.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: null),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.Lifesteal, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Blood Swarm",
+        type: SkillType.Damage,
+        description: "Sends a swarm of bats through enemies in a line.",
+        visualExplanation: "Line.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 210f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 6.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 210f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.0f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Raptor Dive",
+        type: SkillType.Mobility,
+        description: "Takes flight and dives on a targeted point.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 11f,
+            ManaCost: 55f,
+            Damage: 150f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.15f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 150f, 0f, 3f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.75f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Claws and Fangs",
+        type: SkillType.Damage,
+        description: "Quick lacerations followed by a bite.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 61f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 1.8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 61f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.61f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Feast of Xibalba",
+        type: SkillType.Ultimate,
+        description: "Locks onto a weakened target, drains it, and heals as it executes.",
+        visualExplanation: "Locked.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 78f,
+            ManaCost: 120f,
+            Damage: null,
+            Healing: 150f,
+            Shield: null,
+            CastTime: 0.3f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 7f),
+        effects: new[]
+        {
+            Effect(EffectType.Execute, 380f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.8f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Heal, 150f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     // =====================================================
@@ -499,10 +1037,10 @@ public sealed class SkillSeeder : ISeeder
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Child of Night",
+        name: "Nightfall Veil",
         type: SkillType.Buff,
-        description: "Short-range shadow claws, utterly silent.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "In darkness, Nyx gains speed and expanded vision.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -516,195 +1054,88 @@ public sealed class SkillSeeder : ISeeder
         effects: new[]
         {
             Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.MovementSpeed, debuffType: null),
+            Effect(EffectType.Vision, 0f, 0f, 4f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Nightfall Veil",
+        name: "Blade of Darkness",
         type: SkillType.Damage,
-        description: "Throws a sheet of shadow that briefly blinds and damages enemies within.",
-        visualExplanation: "Ground-targeted area effect.",
+        description: "Throws a blade of shadow that streaks in a straight line.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 8.0f,
-            ManaCost: 60f,
-            Damage: 210f,
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 220f,
             Healing: null,
             Shield: null,
-            CastTime: 0.25f,
+            CastTime: 0.2f,
             ChannelDuration: null,
-            CrowdControlDuration: 1.0f,
-            Range: 5.0f),
+            CrowdControlDuration: null,
+            Range: 6.5f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 210f, 0f, 5.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.0f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Blind, 0f, 1.0f, 5.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 220f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.05f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Starstep",
+        name: "Shadow Step",
         type: SkillType.Mobility,
-        description: "Dissolves and reappears further away; can be chained several times in a row.",
-        visualExplanation: "Movement, direction-targeted.",
+        description: "Melts into darkness and resurfaces elsewhere.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 6.0f,
-            ManaCost: 45f,
+            Cooldown: 9f,
+            ManaCost: 50f,
             Damage: null,
             Healing: null,
             Shield: null,
-            CastTime: 0.05f,
+            CastTime: 0.1f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 5.5f),
+            Range: 6f),
         effects: new[]
         {
-            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.Independent, 3, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Shadow Claws",
+        name: "Shadow Blades",
         type: SkillType.Damage,
-        description: "A rapid slash with claws of shadow.",
-        visualExplanation: "Single-target, short range.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 7.0f,
-            ManaCost: 50f,
-            Damage: 180f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.15f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 2.5f),
-        effects: new[]
-        {
-            Effect(EffectType.Damage, 180f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.9f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Everlasting Night",
-        type: SkillType.Ultimate,
-        description: "Plunges the area into darkness: enemies inside see their vision reduced, and every strike Nyx lands is amplified.",
-        visualExplanation: "Ground-targeted area effect.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 80.0f,
-            ManaCost: 130f,
-            Damage: 260f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.4f,
-            ChannelDuration: 5.0f,
-            CrowdControlDuration: null,
-            Range: 6.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Debuff, 0f, 5.0f, 6.0f, TargetType.AreaEnemies, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.VisionReduction),
-            Effect(EffectType.Damage, 260f, 5.0f, 6.0f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: 1.3f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    // =====================================================
-    // SET (ASSASSIN)
-    // =====================================================
-
-    await CreateAsync(ct, system,
-        name: "Desert Venom",
-        type: SkillType.Debuff,
-        description: "Sand-charged khopesh strikes, inflicting a light poison.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "Silent strikes that seem to leap from the dark.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
-            Damage: null,
+            Damage: 62f,
             Healing: null,
             Shield: null,
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 1.8f),
         effects: new[]
         {
-            Effect(EffectType.Debuff, 0f, 0f, 0f, TargetType.Enemy, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.HealingReduction),
+            Effect(EffectType.Damage, 62f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.62f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Desert's Breath",
-        type: SkillType.Debuff,
-        description: "A gust of stinging sand that weakens the armor of every enemy struck.",
-        visualExplanation: "Cone-shaped area effect.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 8.0f,
-            ManaCost: 60f,
-            Damage: 170f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.3f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 5.5f),
-        effects: new[]
-        {
-            Effect(EffectType.Damage, 170f, 0f, 5.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.7f, mdRatio: 0.2f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 20f, 4.0f, 5.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.ArmorReduction),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Jackal's Hunt",
-        type: SkillType.Mobility,
-        description: "Pounces on the weakened target, passing through them and repositioning behind.",
-        visualExplanation: "Movement, locked selection.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 11.0f,
-            ManaCost: 65f,
-            Damage: 200f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.15f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 6.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 200f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.0f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Corrosive Sands",
-        type: SkillType.Damage,
-        description: "A patch of corrosive sand that lingers, burning anyone who stands in it.",
-        visualExplanation: "Ground-targeted area effect.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 9.0f,
-            ManaCost: 55f,
-            Damage: 120f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.25f,
-            ChannelDuration: 3.0f,
-            CrowdControlDuration: null,
-            Range: 4.5f),
-        effects: new[]
-        {
-            Effect(EffectType.DamageOverTime, 120f, 3.0f, 4.5f, TargetType.AreaEnemies, StackType.RefreshDuration, 1, adRatio: 0.5f, mdRatio: 0.3f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Curse of Chaos",
+        name: "Everlasting Night",
         type: SkillType.Ultimate,
-        description: "Marks a target: for the duration, all damage they take is amplified and their healing reduced (never fully negated).",
-        visualExplanation: "Single-target, locked selection.",
+        description: "Plunges an area into absolute darkness, blinding enemies caught inside.",
+        visualExplanation: "Zone.",
         baseStats: new BaseStatsParams(
-            Cooldown: 70.0f,
-            ManaCost: 140f,
-            Damage: 280f,
+            Cooldown: 82f,
+            ManaCost: 125f,
+            Damage: null,
             Healing: null,
             Shield: null,
-            CastTime: 0.5f,
-            ChannelDuration: null,
+            CastTime: 0.4f,
+            ChannelDuration: 4f,
             CrowdControlDuration: null,
-            Range: 7.0f),
+            Range: 6f),
         effects: new[]
         {
-            Effect(EffectType.Execute, 280f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.5f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 25f, 6.0f, 0f, TargetType.Enemy, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.HealingReduction),
+            Effect(EffectType.Blind, 0f, 4f, 6f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.ZoneControl, 0f, 4f, 6f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
         });
 
     // =====================================================
@@ -712,117 +1143,116 @@ public sealed class SkillSeeder : ISeeder
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Static",
-        type: SkillType.Buff,
-        description: "Regular, steady lightning bolts at range.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        name: "Celestial Charge",
+        type: SkillType.Debuff,
+        description: "Zeus's spells mark the target; at three marks, they take an extra discharge.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
-            Damage: null,
+            Damage: 55f,
             Healing: null,
             Shield: null,
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackSpeed, debuffType: null),
+            Effect(EffectType.Debuff, 0f, 4f, 0f, TargetType.Enemy, StackType.Additive, 3, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.MagicResistanceReduction),
+            Effect(EffectType.Damage, 55f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Targeted Bolt",
         type: SkillType.Damage,
-        description: "Calls down lightning on a designated area: heavy magic damage.",
-        visualExplanation: "Ground-targeted area effect.",
+        description: "Calls down lightning on a chosen area.",
+        visualExplanation: "Zone.",
         baseStats: new BaseStatsParams(
-            Cooldown: 6.0f,
-            ManaCost: 80f,
-            Damage: 280f,
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 242f,
             Healing: null,
             Shield: null,
             CastTime: 0.4f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 6.5f),
+            Range: 6f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 280f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 1.1f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 242f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 1.1f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Olympus Gale",
         type: SkillType.Mobility,
-        description: "Propels himself backward in a thunderclap, knocking back and briefly stunning anyone standing too close.",
-        visualExplanation: "Self-cast, radius around Zeus.",
+        description: "Knocks back nearby enemies with a backhand and steps away.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 14.0f,
-            ManaCost: 90f,
-            Damage: 150f,
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
             Healing: null,
             Shield: null,
             CastTime: 0.2f,
             ChannelDuration: null,
-            CrowdControlDuration: 0.5f,
-            Range: 4.0f),
+            CrowdControlDuration: 1f,
+            Range: 5f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 150f, 0f, 4.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Knockback, 0f, 0.5f, 4.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Knockback, 0f, 1f, 4f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Electric Arc",
+        name: "Sparks",
         type: SkillType.Damage,
-        description: "A crackling arc of electricity that chains between enemies and weakens them.",
-        visualExplanation: "Single-target line skillshot.",
+        description: "Medium-range electric discharges.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 8.0f,
-            ManaCost: 85f,
-            Damage: 200f,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 66f,
             Healing: null,
             Shield: null,
-            CastTime: 0.5f,
+            CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 7.0f),
+            Range: 5.5f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 200f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 0.8f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 15f, 3.0f, 0f, TargetType.AreaEnemies, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.MagicResistanceReduction),
+            Effect(EffectType.Damage, 66f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Sky's Fury",
+        name: "Sky's Wrath",
         type: SkillType.Ultimate,
-        description: "A storm of lightning rains down across a wide area for several seconds.",
-        visualExplanation: "Ground-targeted area effect.",
+        description: "Unleashes a rain of lightning that jumps between enemies across a wide area.",
+        visualExplanation: "Zone.",
         baseStats: new BaseStatsParams(
-            Cooldown: 85.0f,
-            ManaCost: 180f,
-            Damage: 180f,
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: 440f,
             Healing: null,
             Shield: null,
-            CastTime: 0.8f,
-            ChannelDuration: 5.0f,
+            CastTime: 0.6f,
+            ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 8.0f),
+            Range: 6f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 180f, 5.0f, 8.0f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: 0.9f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 440f, 0f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 1.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     // =====================================================
-    // AMUN-RA (MAGE)
+    // RA (MAGE)
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Radiance",
-        type: SkillType.Buff,
-        description: "Precise, burning bolts of solar light.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        name: "Solar Fire",
+        type: SkillType.Damage,
+        description: "Ra's spells set the target ablaze, dealing damage over time.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -832,202 +1262,411 @@ public sealed class SkillSeeder : ISeeder
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.DamageOverTime, 50f, 3f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: 0.3f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Solar Ray",
+        type: SkillType.Damage,
+        description: "Fires a long beam of fire in a straight line.",
+        visualExplanation: "Line.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 242f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 242f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 1.05f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Ascension",
+        type: SkillType.Mobility,
+        description: "Rises briefly, untouchable, and lands further away.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Rays",
+        type: SkillType.Damage,
+        description: "Beams of burning light.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 66f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 66f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Noon Judgment",
+        type: SkillType.Ultimate,
+        description: "Converges light on an area, burning enemies and healing allies present.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: 440f,
+            Healing: 320f,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 440f, 0f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 1.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Heal, 320f, 0f, 6f, TargetType.AreaAllies, StackType.None, 1, adRatio: null, mdRatio: 1.1f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // AGNI (MAGE)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Combustion",
+        type: SkillType.Buff,
+        description: "Four consecutive spells trigger an explosion on the next target struck.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 55f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Capped, 4, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AbilityPower, debuffType: null),
+            Effect(EffectType.Damage, 55f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Flame Javelin",
+        type: SkillType.Damage,
+        description: "Throws a spear of fire in a line.",
+        visualExplanation: "Line.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 242f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 242f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 1.05f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Blazing Trail",
+        type: SkillType.Mobility,
+        description: "Leaps away, leaving a trail of flame on the ground.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: 3f,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.ZoneControl, 0f, 3f, 4f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Ember Spit",
+        type: SkillType.Damage,
+        description: "Throws small flames.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 66f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 66f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Pillar of Fire",
+        type: SkillType.Ultimate,
+        description: "A column of fire erupts on an area, launching enemies into the air.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 87f,
+            ManaCost: 120f,
+            Damage: 440f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 440f, 0f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 1.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.KnockUp, 0f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // RAIJIN (MAGE)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Storm's Rhythm",
+        type: SkillType.Buff,
+        description: "Every spell briefly accelerates the casting of the next one.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 0f, 3f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.CooldownReduction, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Thunderclap",
+        type: SkillType.Damage,
+        description: "Sends a shockwave in a cone in front of him.",
+        visualExplanation: "Cone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 242f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 242f, 0f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 1.05f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Thunder Step",
+        type: SkillType.Mobility,
+        description: "Moves in a flash of lightning toward a direction.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Drum Rolls",
+        type: SkillType.Damage,
+        description: "Strikes the air with his drumsticks, sending sonic waves.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 66f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 66f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Drum Fury",
+        type: SkillType.Ultimate,
+        description: "Calls lightning onto an area, stunning enemies struck.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: 440f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 440f, 0f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 1.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Stun, 0f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // MARDUK (MAGE)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Tablets of Destiny",
+        type: SkillType.Buff,
+        description: "Marduk's spells against a restrained target deal bonus damage; he trades raw power for longer, more frequent restraints.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
         effects: new[]
         {
             Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AbilityPower, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Solar Disc",
+        name: "Net of the Winds",
         type: SkillType.Damage,
-        description: "Throws a disc of fire that pierces through enemies and returns to him.",
-        visualExplanation: "Single-target line skillshot, returns.",
+        description: "Throws a net in a line that roots the first enemy caught.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 7.0f,
-            ManaCost: 75f,
-            Damage: 240f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.35f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 6.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Damage, 240f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 1.0f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Celestial Barque",
-        type: SkillType.Mobility,
-        description: "Glides swiftly along a beam of light, gaining a small shield.",
-        visualExplanation: "Movement, direction-targeted.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 13.0f,
-            ManaCost: 85f,
-            Damage: null,
-            Healing: null,
-            Shield: 120f,
-            CastTime: 0.2f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 5.5f),
-        effects: new[]
-        {
-            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Shield, 120f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: 0.4f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Sacred Burn",
-        type: SkillType.Damage,
-        description: "A burning mark that sears the target over time and weakens them.",
-        visualExplanation: "Single-target, locked selection.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 9.0f,
-            ManaCost: 80f,
-            Damage: 90f,
+            Cooldown: 6f,
+            ManaCost: 55f,
+            Damage: 218f,
             Healing: null,
             Shield: null,
             CastTime: 0.4f,
-            ChannelDuration: 4.0f,
-            CrowdControlDuration: null,
-            Range: 5.0f),
+            ChannelDuration: null,
+            CrowdControlDuration: 1.1f,
+            Range: 8f),
         effects: new[]
         {
-            Effect(EffectType.DamageOverTime, 90f, 4.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 15f, 4.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.MagicResistanceReduction),
+            Effect(EffectType.Root, 0f, 1.1f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 218f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 1.0f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Eternal Noon",
-        type: SkillType.Ultimate,
-        description: "Summons a second sun above the zone: continuous burn on enemies within, restored energy for allies within.",
-        visualExplanation: "Ground-targeted area effect.",
+        name: "Primordial Breath",
+        type: SkillType.Mobility,
+        description: "Retreats while blowing a gust that slows pursuers.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 90.0f,
-            ManaCost: 190f,
-            Damage: 140f,
-            Healing: 80f,
+            Cooldown: 10f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
             Shield: null,
-            CastTime: 0.7f,
-            ChannelDuration: 6.0f,
-            CrowdControlDuration: null,
-            Range: 7.5f),
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.1f,
+            Range: 5f),
         effects: new[]
         {
-            Effect(EffectType.DamageOverTime, 140f, 6.0f, 7.5f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: 0.85f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
-            Effect(EffectType.Heal, 80f, 6.0f, 7.5f, TargetType.AreaAllies, StackType.Refresh, 1, adRatio: null, mdRatio: 0.85f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Slow, 30f, 1.1f, 4f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
-    // =====================================================
-    // CHRONOS (MAGE)
-    // =====================================================
-
     await CreateAsync(ct, system,
-        name: "Time Slip",
-        type: SkillType.Debuff,
-        description: "Temporal fragments that slightly slow whatever they strike.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        name: "Shards of Power",
+        type: SkillType.Damage,
+        description: "Throws fragments of primordial energy.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
-            Damage: null,
+            Damage: 66f,
             Healing: null,
             Shield: null,
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 5.5f),
         effects: new[]
         {
-            Effect(EffectType.Debuff, 10f, 1.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.MovementSpeedReduction),
+            Effect(EffectType.Damage, 66f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Hour Fracture",
-        type: SkillType.Control,
-        description: "Briefly freezes an area of enemies within a bubble of slowed time.",
-        visualExplanation: "Ground-targeted area effect.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 10.0f,
-            ManaCost: 90f,
-            Damage: 180f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.4f,
-            ChannelDuration: null,
-            CrowdControlDuration: 1.5f,
-            Range: 6.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Freeze, 0f, 1.5f, 6.0f, TargetType.AreaEnemies, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 180f, 0f, 6.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 0.7f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Temporal Leap",
-        type: SkillType.Mobility,
-        description: "Vanishes and reappears where he stood a few seconds earlier (defensive repositioning).",
-        visualExplanation: "Self-cast, no target.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 16.0f,
-            ManaCost: 80f,
-            Damage: null,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.1f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 5.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 0f, 2.0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.MovementSpeed, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Temporal Shard",
-        type: SkillType.Damage,
-        description: "A shard of fractured time that damages and briefly weakens the target.",
-        visualExplanation: "Single-target line skillshot.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 7.0f,
-            ManaCost: 75f,
-            Damage: 220f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.35f,
-            ChannelDuration: null,
-            CrowdControlDuration: 0.6f,
-            Range: 6.5f),
-        effects: new[]
-        {
-            Effect(EffectType.Damage, 220f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.95f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Slow, 30f, 0.6f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Hourglass Reversal",
+        name: "Seal of Tiamat",
         type: SkillType.Ultimate,
-        description: "Radically accelerates his own spellcasting while slowing every enemy around him.",
-        visualExplanation: "Self-cast, radius around Chronos.",
+        description: "Seals an area: enemies inside are slowed and take increasing damage.",
+        visualExplanation: "Zone.",
         baseStats: new BaseStatsParams(
-            Cooldown: 95.0f,
-            ManaCost: 200f,
-            Damage: null,
+            Cooldown: 65f,
+            ManaCost: 85f,
+            Damage: 396f,
             Healing: null,
             Shield: null,
             CastTime: 0.6f,
-            ChannelDuration: 6.0f,
-            CrowdControlDuration: 2.0f,
-            Range: 7.0f),
+            ChannelDuration: null,
+            CrowdControlDuration: 1.7f,
+            Range: 6f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 6.0f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.CooldownReduction, debuffType: null),
-            Effect(EffectType.Debuff, 0f, 6.0f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.AttackSpeedReduction),
-            Effect(EffectType.Slow, 35f, 2.0f, 7.0f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.ZoneControl, 0f, 1.7f, 6f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.Slow, 35f, 1.7f, 6f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 396f, 1.7f, 6f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: 1.5f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
         });
 
     // =====================================================
@@ -1035,10 +1674,10 @@ public sealed class SkillSeeder : ISeeder
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Titanic Strength",
+        name: "Hero's Endurance",
         type: SkillType.Buff,
-        description: "Bare-fisted blows, crushing but slow.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "Every hit taken briefly hardens Herakles, reducing subsequent damage.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -1048,324 +1687,210 @@ public sealed class SkillSeeder : ISeeder
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+            Effect(EffectType.Buff, 0f, 2f, 0f, TargetType.Self, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.DamageReduction, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Nemean Grip",
         type: SkillType.Control,
-        description: "Hurls his grip in a straight line: the first enemy struck is pulled behind him.",
-        visualExplanation: "Single-target line skillshot.",
+        description: "Throws his grip in a straight line: the first enemy struck is pulled to him.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 10.0f,
-            ManaCost: 70f,
-            Damage: 180f,
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 220f,
             Healing: null,
             Shield: null,
-            CastTime: 0.3f,
+            CastTime: 0.4f,
             ChannelDuration: null,
-            CrowdControlDuration: 1.2f,
-            Range: 3.0f),
+            CrowdControlDuration: 1f,
+            Range: 8f),
         effects: new[]
         {
-            Effect(EffectType.Pull, 0f, 1.2f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: 0.05f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 180f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.5f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Pull, 0f, 1f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: 0.05f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 220f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.5f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Lion's Charge",
         type: SkillType.Mobility,
         description: "Charges forward, bowling over and stunning the first enemy struck.",
-        visualExplanation: "Movement, straight line.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 12.0f,
-            ManaCost: 80f,
-            Damage: 150f,
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: 130f,
             Healing: null,
             Shield: null,
             CastTime: 0.2f,
             ChannelDuration: null,
-            CrowdControlDuration: 0.8f,
-            Range: 7.0f),
+            CrowdControlDuration: 1f,
+            Range: 5f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Stun, 0f, 0.8f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: 0.04f, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 150f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.4f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Stun, 0f, 1f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: 0.04f, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 130f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.4f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Lion's Skin",
-        type: SkillType.Shield,
-        description: "Wraps himself in the Nemean lion's hide, absorbing incoming damage.",
-        visualExplanation: "Self-cast, no target.",
+        name: "Club Blows",
+        type: SkillType.Damage,
+        description: "Crushing, slow strikes.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 14.0f,
-            ManaCost: 75f,
-            Damage: null,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
             Healing: null,
-            Shield: 350f,
-            CastTime: 0.2f,
+            Shield: null,
+            CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 0.0f),
+            Range: 1.8f),
         effects: new[]
         {
-            Effect(EffectType.Shield, 350f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: 0.12f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.55f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Twelve Labors",
         type: SkillType.Ultimate,
-        description: "Surpasses himself: massive health gain, reduced damage taken, and his strikes knock enemies back.",
-        visualExplanation: "Self-cast, no target.",
+        description: "Anchors himself: for a few seconds, deals heavy area damage and resists enormously.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
-            Cooldown: 80.0f,
-            ManaCost: 150f,
-            Damage: null,
-            Healing: null,
-            Shield: 500f,
-            CastTime: 0.5f,
-            ChannelDuration: 8.0f,
-            CrowdControlDuration: null,
-            Range: 0.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Shield, 500f, 8.0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: 0.2f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 0f, 8.0f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.DamageReduction, debuffType: null),
-            Effect(EffectType.Knockback, 0f, 8.0f, 1.8f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    // =====================================================
-    // ANUBIS (TANK)
-    // =====================================================
-
-    await CreateAsync(ct, system,
-        name: "Guardian of the Threshold",
-        type: SkillType.Shield,
-        description: "Slow scepter strikes, tinged with funerary energy.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
-        baseStats: new BaseStatsParams(
-            Cooldown: null,
-            ManaCost: null,
-            Damage: null,
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: 400f,
             Healing: null,
             Shield: null,
-            CastTime: null,
-            ChannelDuration: null,
+            CastTime: 0.6f,
+            ChannelDuration: 4f,
             CrowdControlDuration: null,
-            Range: null),
-        effects: new[]
-        {
-            Effect(EffectType.Shield, 25f, 2.0f, 0f, TargetType.Self, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: 0.08f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Judgment's Veil",
-        type: SkillType.Shield,
-        description: "Casts a shield of energy on the nearest ally and reinforces himself too.",
-        visualExplanation: "Single-target, nearest ally.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 11.0f,
-            ManaCost: 80f,
-            Damage: null,
-            Healing: null,
-            Shield: 400f,
-            CastTime: 0.3f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 5.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Shield, 400f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: 0.4f, hpRatio: 0.1f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 0f, 4.0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.MaxHealth, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Passage of Shadows",
-        type: SkillType.Mobility,
-        description: "Instantly moves to the side of a targeted ally, surrounding them with a protective halo.",
-        visualExplanation: "Single-target, ally-targeted.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 15.0f,
-            ManaCost: 85f,
-            Damage: null,
-            Healing: null,
-            Shield: 200f,
-            CastTime: 0.2f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 6.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Shield, 200f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: 0.2f, hpRatio: 0.05f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Funerary Scepter",
-        type: SkillType.Control,
-        description: "A slow, heavy scepter blow charged with funerary energy that saps the target's strength.",
-        visualExplanation: "Single-target, short range.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 10.0f,
-            ManaCost: 70f,
-            Damage: 140f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.35f,
-            ChannelDuration: null,
-            CrowdControlDuration: 1.0f,
             Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.Slow, 25f, 1.0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.3f, mdRatio: 0.3f, hpRatio: 0.03f, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 140f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.3f, mdRatio: 0.3f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Weighing of Souls",
-        type: SkillType.Ultimate,
-        description: "Raises a barrier around himself: enemies who cross it are slowed and weakened.",
-        visualExplanation: "Self-cast, radius around Anubis.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 85.0f,
-            ManaCost: 170f,
-            Damage: null,
-            Healing: null,
-            Shield: 300f,
-            CastTime: 0.6f,
-            ChannelDuration: 7.0f,
-            CrowdControlDuration: 1.5f,
-            Range: 6.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Shield, 300f, 7.0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: 0.15f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Slow, 30f, 1.5f, 6.0f, TargetType.AreaEnemies, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 20f, 7.0f, 6.0f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.DamageAmplification),
+            Effect(EffectType.Buff, 0f, 4f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: true, buffType: BuffType.DamageReduction, debuffType: null),
+            Effect(EffectType.Damage, 400f, 4f, 3.5f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
         });
 
     // =====================================================
-    // HEL (TANK)
+    // YMIR (TANK)
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Chill of the Dead",
-        type: SkillType.Debuff,
-        description: "Icy claws that briefly slow whatever they touch.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        name: "Flesh of Ice",
+        type: SkillType.Shield,
+        description: "While standing still, Ymir regenerates a shield of frost.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
             Damage: null,
             Healing: null,
-            Shield: null,
+            Shield: 60f,
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.Debuff, 12f, 1.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.MovementSpeedReduction),
+            Effect(EffectType.Shield, 60f, 3f, 0f, TargetType.Self, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: 0.02f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Grasp of the Fallen",
-        type: SkillType.Control,
-        description: "Hands burst from the ground and bind enemies within the zone.",
-        visualExplanation: "Ground-targeted area effect.",
+        name: "Glacial Shard",
+        type: SkillType.Damage,
+        description: "Throws an ice spike in a line that slows the target.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 12.0f,
-            ManaCost: 85f,
-            Damage: 160f,
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 220f,
             Healing: null,
             Shield: null,
             CastTime: 0.4f,
             ChannelDuration: null,
-            CrowdControlDuration: 1.5f,
-            Range: 5.0f),
+            CrowdControlDuration: 1f,
+            Range: 8f),
         effects: new[]
         {
-            Effect(EffectType.Root, 0f, 1.5f, 5.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 160f, 0f, 5.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.3f, mdRatio: 0.3f, hpRatio: 0.06f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 220f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.5f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Slow, 30f, 1f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Walk of the Dead",
-        type: SkillType.Mobility,
-        description: "Slips through the ground for a short distance, untargetable while crossing.",
-        visualExplanation: "Movement, direction-targeted.",
+        name: "Wall of Frost",
+        type: SkillType.Control,
+        description: "Raises a wall of ice on the ground to block passage.",
+        visualExplanation: "Zone.",
         baseStats: new BaseStatsParams(
-            Cooldown: 16.0f,
-            ManaCost: 80f,
+            Cooldown: 12f,
+            ManaCost: 60f,
             Damage: null,
             Healing: null,
             Shield: null,
-            CastTime: 0.15f,
-            ChannelDuration: null,
+            CastTime: 0.2f,
+            ChannelDuration: 6f,
             CrowdControlDuration: null,
-            Range: 5.5f),
+            Range: 6f),
         effects: new[]
         {
-            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 0f, 1.0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.MovementSpeed, debuffType: null),
+            Effect(EffectType.ZoneControl, 0f, 6f, 3f, TargetType.Ground, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: true, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Icy Breath",
-        type: SkillType.Debuff,
-        description: "A breath of glacial cold that damages over time and weakens the target.",
-        visualExplanation: "Single-target, short range.",
+        name: "Frost Fists",
+        type: SkillType.Damage,
+        description: "Heavy blows that numb with cold.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 9.0f,
-            ManaCost: 70f,
-            Damage: 120f,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
             Healing: null,
             Shield: null,
-            CastTime: 0.3f,
+            CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 4.5f),
+            Range: 1.8f),
         effects: new[]
         {
-            Effect(EffectType.DamageOverTime, 120f, 3.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: 0.2f, mdRatio: 0.4f, hpRatio: 0.04f, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 15f, 3.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.AttackSpeedReduction),
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.55f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Domain of Helheim",
+        name: "Grip of Frost",
         type: SkillType.Ultimate,
-        description: "A zone of her own realm: movement speed drops sharply and damage increases the longer enemies remain inside.",
-        visualExplanation: "Ground-targeted area effect.",
+        description: "Freezes enemies in a nearby area in place for a short time.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
-            Cooldown: 90.0f,
-            ManaCost: 180f,
-            Damage: 150f,
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: null,
             Healing: null,
             Shield: null,
-            CastTime: 0.7f,
-            ChannelDuration: 8.0f,
-            CrowdControlDuration: null,
-            Range: 7.0f),
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.ZoneControl, 0f, 8.0f, 7.0f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: 0.1f, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
-            Effect(EffectType.Slow, 40f, 8.0f, 7.0f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: true, buffType: null, debuffType: null),
-            Effect(EffectType.DamageOverTime, 150f, 8.0f, 7.0f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.Freeze, 0f, 1.5f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
     // =====================================================
-    // ISIS (SUPPORT)
+    // GEB (TANK)
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Ancient Magic",
-        type: SkillType.Heal,
-        description: "Soft bolts of magic at short range.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        name: "Stone Skin",
+        type: SkillType.Buff,
+        description: "Geb's telluric mass reduces the crowd control effects he suffers.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -1375,95 +1900,304 @@ public sealed class SkillSeeder : ISeeder
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.HealOverTime, 5f, 3.0f, 0f, TargetType.Self, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.Tenacity, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Healing Wing",
-        type: SkillType.Heal,
-        description: "Spreads her wings: heals nearby allies immediately and grants them regeneration afterward.",
-        visualExplanation: "Self-cast, radius around Isis.",
+        name: "Telluric Shard",
+        type: SkillType.Damage,
+        description: "Throws a rock in a line that stuns the first target.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 9.0f,
-            ManaCost: 90f,
-            Damage: null,
-            Healing: 280f,
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 220f,
+            Healing: null,
             Shield: null,
-            CastTime: 0.35f,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1f,
+            Range: 8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 220f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.5f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Stun, 0f, 1f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Earthen Aegis",
+        type: SkillType.Shield,
+        description: "Wraps a targeted ally in a protective casing of stone.",
+        visualExplanation: "Ally.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: 150f,
+            CastTime: 0.2f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 5.5f),
+            Range: 5f),
         effects: new[]
         {
-            Effect(EffectType.Heal, 280f, 0f, 5.5f, TargetType.AreaAllies, StackType.None, 1, adRatio: null, mdRatio: 0.8f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.HealOverTime, 15f, 3.0f, 5.5f, TargetType.AreaAllies, StackType.RefreshDuration, 1, adRatio: null, mdRatio: 0.2f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Shield, 150f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: 0.06f, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Isis's Flight",
-        type: SkillType.Mobility,
-        description: "Takes to the air for a short distance, carrying the nearest ally along and healing them.",
-        visualExplanation: "Movement, direction-targeted.",
+        name: "Stone Fists",
+        type: SkillType.Damage,
+        description: "Massive blows of rock.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 14.0f,
-            ManaCost: 85f,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 1.8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.55f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Cataclysm",
+        type: SkillType.Ultimate,
+        description: "Shakes a wide area, launching enemies into the air.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 87f,
+            ManaCost: 120f,
+            Damage: 400f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 400f, 0f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.KnockUp, 0f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // KUMBHAKARNA (TANK)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Giant's Slumber",
+        type: SkillType.Buff,
+        description: "Standing still, Kumbhakarna builds power; his next strike is amplified.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
             Damage: null,
-            Healing: 120f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Great Sweep",
+        type: SkillType.Damage,
+        description: "Sweeps a cone in front of him, knocking enemies back.",
+        visualExplanation: "Cone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 220f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1f,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 220f, 0f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Knockback, 0f, 1f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Ponderous Stride",
+        type: SkillType.Mobility,
+        description: "Advances heavily, unaffected by restraints while moving.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
             Shield: null,
             CastTime: 0.2f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 6.0f),
+            Range: 5f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Heal, 120f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: 0.3f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Ray of Light",
+        name: "Massive Backhand",
         type: SkillType.Damage,
-        description: "A beam of pure light that damages and weakens the target.",
-        visualExplanation: "Single-target, medium range.",
+        description: "Slow but devastating blows.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 7.0f,
-            ManaCost: 70f,
-            Damage: 160f,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 1.8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.55f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Terrible Awakening",
+        type: SkillType.Ultimate,
+        description: "Wakes with a crash: stuns and puts to sleep the enemies of a wide area.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 90f,
+            ManaCost: 120f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Stun, 0f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Sleep, 0f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // GILGAMESH (TANK)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Two-Thirds Divine",
+        type: SkillType.Buff,
+        description: "Gilgamesh regenerates health when surrounded by several enemies.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: 40f,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.Lifesteal, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Celestial Slash",
+        type: SkillType.Damage,
+        description: "Brings his axe down in a line, wounding enemies aligned.",
+        visualExplanation: "Line.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 220f,
             Healing: null,
             Shield: null,
             CastTime: 0.4f,
             ChannelDuration: null,
-            CrowdControlDuration: 0.5f,
-            Range: 5.5f),
+            CrowdControlDuration: null,
+            Range: 8f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 160f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Blind, 0f, 0.5f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 220f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Osiris's Reprieve",
-        type: SkillType.Ultimate,
-        description: "Grants a dying ally a reprieve: highly resilient and regenerating heavily for a few seconds (not a resurrection - they can still die).",
-        visualExplanation: "Single-target, ally-targeted.",
+        name: "Charge of Uruk",
+        type: SkillType.Mobility,
+        description: "Rushes to a point and taunts nearby enemies on arrival.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 100.0f,
-            ManaCost: 200f,
+            Cooldown: 12f,
+            ManaCost: 60f,
             Damage: null,
-            Healing: 400f,
-            Shield: 300f,
-            CastTime: 0.6f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
             ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 7.0f),
+            CrowdControlDuration: 1f,
+            Range: 5f),
         effects: new[]
         {
-            Effect(EffectType.HealOverTime, 400f, 4.0f, 0f, TargetType.Ally, StackType.Refresh, 1, adRatio: null, mdRatio: 1.0f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Shield, 300f, 4.0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 0f, 4.0f, 0f, TargetType.Ally, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.DamageReduction, debuffType: null),
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Taunt, 0f, 1f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Royal Blows",
+        type: SkillType.Damage,
+        description: "Authoritative axe strikes.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 1.8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.55f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "King's Judgment",
+        type: SkillType.Ultimate,
+        description: "Challenges an area: enemies are forced to attack him and see their damage reduced.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Taunt, 0f, 1.5f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Debuff, 25f, 4f, 3.5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.AttackDamageReduction),
         });
 
     // =====================================================
@@ -1471,118 +2205,115 @@ public sealed class SkillSeeder : ISeeder
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Valkyries' Favor",
+        name: "Vanir's Favor",
         type: SkillType.Shield,
-        description: "Bursts of golden light at medium range.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "Freyja's heals also grant a light shield to the target.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
             Damage: null,
             Healing: null,
-            Shield: null,
+            Shield: 60f,
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.Shield, 20f, 2.0f, 0f, TargetType.Self, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Shield, 60f, 3f, 0f, TargetType.Ally, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Valkyries' Blessing",
-        type: SkillType.Shield,
-        description: "Calls down a blessing on nearby allies: grants a shield and boosts their power.",
-        visualExplanation: "Self-cast, radius around Freyja.",
+        type: SkillType.Buff,
+        description: "Strengthens a targeted ally, increasing their damage briefly.",
+        visualExplanation: "Ally.",
         baseStats: new BaseStatsParams(
-            Cooldown: 10.0f,
-            ManaCost: 85f,
+            Cooldown: 7f,
+            ManaCost: 55f,
             Damage: null,
             Healing: null,
-            Shield: 320f,
-            CastTime: 0.3f,
-            ChannelDuration: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: 3f,
             CrowdControlDuration: null,
-            Range: 5.5f),
+            Range: 5f),
         effects: new[]
         {
-            Effect(EffectType.Shield, 320f, 0f, 5.5f, TargetType.AreaAllies, StackType.None, 1, adRatio: null, mdRatio: 0.7f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 15f, 4.0f, 5.5f, TargetType.AreaAllies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+            Effect(EffectType.Buff, 15f, 3f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Falcon Flight",
         type: SkillType.Mobility,
-        description: "Dons her feathered cloak and streaks toward a chosen point, gaining a small shield.",
-        visualExplanation: "Movement, direction-targeted.",
+        description: "Dons her feathered cloak and streaks toward a direction.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 13.0f,
-            ManaCost: 80f,
+            Cooldown: 12f,
+            ManaCost: 60f,
             Damage: null,
             Healing: null,
-            Shield: 150f,
-            CastTime: 0.15f,
+            Shield: null,
+            CastTime: 0.2f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 6.5f),
+            Range: 5f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Shield, 150f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: 0.3f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Golden Blade",
+        name: "Golden Shards",
         type: SkillType.Damage,
-        description: "A radiant blade strike that briefly staggers the target.",
-        visualExplanation: "Single-target, medium range.",
+        description: "Throws shards of warm light.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 8.0f,
-            ManaCost: 65f,
-            Damage: 150f,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
             Healing: null,
             Shield: null,
-            CastTime: 0.35f,
+            CastTime: null,
             ChannelDuration: null,
-            CrowdControlDuration: 0.6f,
-            Range: 4.5f),
-        effects: new[]
-        {
-            Effect(EffectType.Damage, 150f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.3f, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Slow, 25f, 0.6f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Field of Folkvangr",
-        type: SkillType.Ultimate,
-        description: "Consecrates a field: allies within receive a continuously regenerating shield for as long as they remain.",
-        visualExplanation: "Ground-targeted area effect.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 95.0f,
-            ManaCost: 190f,
-            Damage: null,
-            Healing: 150f,
-            Shield: 350f,
-            CastTime: 0.5f,
-            ChannelDuration: 7.0f,
             CrowdControlDuration: null,
-            Range: 6.5f),
+            Range: 5.0f),
         effects: new[]
         {
-            Effect(EffectType.Shield, 350f, 7.0f, 6.5f, TargetType.AreaAllies, StackType.Refresh, 1, adRatio: null, mdRatio: 0.8f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
-            Effect(EffectType.HealOverTime, 150f, 7.0f, 6.5f, TargetType.AreaAllies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Dawn of Folkvangr",
+        type: SkillType.Ultimate,
+        description: "Heals allies in an area and slows enemies present.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: null,
+            Healing: 320f,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Heal, 320f, 0f, 6f, TargetType.AreaAllies, StackType.None, 1, adRatio: null, mdRatio: 1.4f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Slow, 30f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
         });
 
     // =====================================================
-    // ENKI (SUPPORT)
+    // ISIS (SUPPORT)
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Water's Wisdom",
+        name: "Ancestral Magic",
         type: SkillType.Buff,
-        description: "Jets of flowing water at medium range.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "Isis's spells slightly reduce their own cooldown when they hit an ally.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -1592,95 +2323,409 @@ public sealed class SkillSeeder : ISeeder
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
         effects: new[]
         {
             Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.CooldownReduction, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Stream of Wisdom",
-        type: SkillType.Buff,
-        description: "A current flows through his allies: heals them and increases their damage output.",
-        visualExplanation: "Single-target line skillshot, hits allies.",
+        name: "Healing Wing",
+        type: SkillType.Heal,
+        description: "Spreads a wing that heals a targeted ally.",
+        visualExplanation: "Ally.",
         baseStats: new BaseStatsParams(
-            Cooldown: 9.0f,
-            ManaCost: 85f,
+            Cooldown: 7f,
+            ManaCost: 55f,
             Damage: null,
-            Healing: 200f,
+            Healing: 180f,
             Shield: null,
-            CastTime: 0.35f,
+            CastTime: 0.4f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 6.0f),
+            Range: 5f),
         effects: new[]
         {
-            Effect(EffectType.Heal, 200f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: 0.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 15f, 4.0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+            Effect(EffectType.Heal, 180f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: 0.8f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Undercurrent",
+        name: "Veil of Isis",
         type: SkillType.Mobility,
-        description: "Dives into the water and resurfaces further away, dragging nearby enemies in the undertow.",
-        visualExplanation: "Movement, direction-targeted.",
+        description: "Wraps herself in a veil and moves, protected by a shield.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 14.0f,
-            ManaCost: 90f,
-            Damage: 120f,
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: 150f,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Shield, 150f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: 0.6f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Breath of Life",
+        type: SkillType.Damage,
+        description: "Sends an offensive curative breeze.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5.0f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Osiris's Resurrection",
+        type: SkillType.Ultimate,
+        description: "Marks an ally: if they fall within the next few seconds, they are reborn with part of their health.",
+        visualExplanation: "Ally.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 115f,
+            ManaCost: 130f,
+            Damage: null,
+            Healing: 320f,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.HealOverTime, 320f, 4f, 0f, TargetType.Ally, StackType.Refresh, 1, adRatio: null, mdRatio: 1.3f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Buff, 0f, 8f, 0f, TargetType.Ally, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.MaxHealth, debuffType: null),
+        });
+
+    // =====================================================
+    // APHRODITE (SUPPORT)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Grace",
+        type: SkillType.Heal,
+        description: "Aphrodite and the ally she is bonded to slowly regenerate health.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: 40f,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.HealOverTime, 40f, 3f, 0f, TargetType.Self, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Embrace",
+        type: SkillType.Heal,
+        description: "Bonds to a targeted ally: while the bond holds, she heals them from a distance.",
+        visualExplanation: "Ally.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: null,
+            Healing: 180f,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Heal, 180f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: 0.8f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Buff, 0f, 4f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Flight of Doves",
+        type: SkillType.Mobility,
+        description: "Rises on a flight of doves toward a direction.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
             Healing: null,
             Shield: null,
             CastTime: 0.2f,
             ChannelDuration: null,
-            CrowdControlDuration: 0.5f,
-            Range: 6.0f),
+            CrowdControlDuration: null,
+            Range: 5f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Pull, 0f, 0.5f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 0.4f, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 120f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: 0.4f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Invigorating Wave",
-        type: SkillType.Shield,
-        description: "A wave of vital energy that shields an ally.",
-        visualExplanation: "Single-target, ally-targeted.",
+        name: "Ardent Kisses",
+        type: SkillType.Damage,
+        description: "Sends darts of passion.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 10.0f,
-            ManaCost: 75f,
-            Damage: null,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
             Healing: null,
-            Shield: 180f,
-            CastTime: 0.3f,
+            Shield: null,
+            CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 5.5f),
+            Range: 5.0f),
         effects: new[]
         {
-            Effect(EffectType.Shield, 180f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Abzu",
+        name: "Intoxicating Charm",
         type: SkillType.Ultimate,
-        description: "Calls forth the primordial spring: allies within recover resources and see cooldowns accelerate.",
-        visualExplanation: "Ground-targeted area effect.",
+        description: "Enthralls enemies in a cone, charming them toward her briefly.",
+        visualExplanation: "Cone.",
         baseStats: new BaseStatsParams(
-            Cooldown: 100.0f,
-            ManaCost: 200f,
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Charm, 0f, 1.5f, 5f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // GUANYIN (SUPPORT)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Compassion",
+        type: SkillType.Buff,
+        description: "Healing an ally below a health threshold amplifies the heal.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.HealingPower, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Willow Water",
+        type: SkillType.Heal,
+        description: "Pours a curative stream on a targeted ally, cleansing a weakening effect.",
+        visualExplanation: "Ally.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
             Damage: null,
             Healing: 180f,
             Shield: null,
-            CastTime: 0.6f,
-            ChannelDuration: 6.0f,
+            CastTime: 0.4f,
+            ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 7.0f),
+            Range: 5f),
         effects: new[]
         {
-            Effect(EffectType.Heal, 180f, 0f, 7.0f, TargetType.AreaAllies, StackType.None, 1, adRatio: null, mdRatio: 0.9f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 0f, 6.0f, 7.0f, TargetType.AreaAllies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.CooldownReduction, debuffType: null),
-            Effect(EffectType.Buff, 0f, 6.0f, 7.0f, TargetType.AreaAllies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.ManaRegeneration, debuffType: null),
+            Effect(EffectType.Heal, 180f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: 0.8f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Utility, 0f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Lotus Step",
+        type: SkillType.Mobility,
+        description: "Glides on a lotus toward a direction.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Jade Droplets",
+        type: SkillType.Damage,
+        description: "Throws drops of blessed water.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5.0f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Ocean of Mercy",
+        type: SkillType.Ultimate,
+        description: "Rains soothing water on an area, healing allies and slowing enemies.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: null,
+            Healing: 320f,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Heal, 320f, 0f, 6f, TargetType.AreaAllies, StackType.None, 1, adRatio: null, mdRatio: 1.4f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Slow, 30f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // BRIGID (SUPPORT)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Eternal Flame",
+        type: SkillType.Shield,
+        description: "Brigid's shields burn enemies who strike the protected ally.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 50f,
+            Healing: null,
+            Shield: 60f,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Shield, 60f, 3f, 0f, TargetType.Ally, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 50f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.4f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Forge Shield",
+        type: SkillType.Shield,
+        description: "Places a burning shield on a targeted ally.",
+        visualExplanation: "Ally.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: null,
+            Healing: null,
+            Shield: 200f,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Shield, 200f, 0f, 0f, TargetType.Ally, StackType.None, 1, adRatio: null, mdRatio: 0.8f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Ember Breath",
+        type: SkillType.Mobility,
+        description: "Moves in a burst of sparks.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Sacred Embers",
+        type: SkillType.Damage,
+        description: "Throws sparks from the forge.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 60f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5.0f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 60f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: 0.5f, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Inspiring Blaze",
+        type: SkillType.Ultimate,
+        description: "Sets an area ablaze: strengthens allies present and burns enemies over time.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: 6f,
+            CrowdControlDuration: null,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 20f, 6f, 6f, TargetType.AreaAllies, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: BuffType.AttackDamage, debuffType: null),
+            Effect(EffectType.DamageOverTime, 180f, 6f, 6f, TargetType.AreaEnemies, StackType.Refresh, 1, adRatio: null, mdRatio: 0.9f, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
         });
 
     // =====================================================
@@ -1689,9 +2734,9 @@ public sealed class SkillSeeder : ISeeder
 
     await CreateAsync(ct, system,
         name: "Huntress's Eye",
-        type: SkillType.Buff,
-        description: "Precise, rapid bow shots at long range.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        type: SkillType.Debuff,
+        description: "Repeated shots on the same target mark it, revealing its position.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -1701,202 +2746,91 @@ public sealed class SkillSeeder : ISeeder
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.CriticalChance, debuffType: null),
+            Effect(EffectType.Debuff, 0f, 3f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.VisionReduction),
+            Effect(EffectType.Vision, 0f, 3f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Lunar Arrow",
+        name: "Piercing Arrow",
         type: SkillType.Damage,
-        description: "Looses a shaft that pierces enemies in a line and marks the first one struck.",
-        visualExplanation: "Single-target line skillshot, pierces.",
+        description: "Looses a shaft that pierces enemies in a line.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 8.0f,
+            Cooldown: 7f,
             ManaCost: 55f,
-            Damage: 240f,
+            Damage: 253f,
             Healing: null,
             Shield: null,
-            CastTime: 0.3f,
+            CastTime: 0.4f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 8.0f),
+            Range: 8f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 240f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.2f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 20f, 3.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.ArmorReduction),
+            Effect(EffectType.Damage, 253f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.2f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
         name: "Doe's Leap",
         type: SkillType.Mobility,
-        description: "A nimble leap backward or sideways, briefly gaining speed.",
-        visualExplanation: "Movement, direction-targeted.",
+        description: "A light leap to reposition.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 11.0f,
-            ManaCost: 50f,
+            Cooldown: 12f,
+            ManaCost: 60f,
             Damage: null,
             Healing: null,
             Shield: null,
-            CastTime: 0.1f,
+            CastTime: 0.2f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 4.5f),
+            Range: 5f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 0f, 2.0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.MovementSpeed, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Rain of Arrows",
+        name: "Lunar Shots",
         type: SkillType.Damage,
-        description: "A volley of arrows blankets an area in front of her.",
-        visualExplanation: "Ground-targeted area effect.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 10.0f,
-            ManaCost: 60f,
-            Damage: 180f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.4f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 7.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Damage, 180f, 0f, 7.0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.9f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.ZoneControl, 0f, 0f, 7.0f, TargetType.Ground, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Sacred Hunt",
-        type: SkillType.Ultimate,
-        description: "Marks a chosen target: her shots against them are amplified, tracking them wherever they go while isolated.",
-        visualExplanation: "Single-target, locked selection.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 75.0f,
-            ManaCost: 130f,
-            Damage: 300f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.4f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 9.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Execute, 300f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Vision, 0f, 8.0f, 0f, TargetType.Enemy, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    // =====================================================
-    // VIDAR (RANGER)
-    // =====================================================
-
-    await CreateAsync(ct, system,
-        name: "Avenging Silence",
-        type: SkillType.Buff,
-        description: "Heavy bow shots, slow but piercing.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "Fast, precise shots at long range.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
-            Damage: null,
+            Damage: 69f,
             Healing: null,
             Shield: null,
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 6.0f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+            Effect(EffectType.Damage, 69f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.65f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Silencing Shaft",
-        type: SkillType.Damage,
-        description: "A massive arrow that punches through armor and reduces the armor of the first enemy struck.",
-        visualExplanation: "Single-target line skillshot.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 9.0f,
-            ManaCost: 60f,
-            Damage: 260f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.4f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 8.5f),
-        effects: new[]
-        {
-            Effect(EffectType.Damage, 260f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.3f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 15f, 3.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.ArmorReduction),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Iron Stride",
-        type: SkillType.Mobility,
-        description: "Steps back and plants himself firmly, briefly gaining precision and range.",
-        visualExplanation: "Movement, backward step.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 12.0f,
-            ManaCost: 55f,
-            Damage: null,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.15f,
-            ChannelDuration: null,
-            CrowdControlDuration: null,
-            Range: 4.0f),
-        effects: new[]
-        {
-            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Buff, 15f, 3.0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackRange, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Crushing Boot",
-        type: SkillType.Control,
-        description: "A crushing stomp that damages and briefly stuns the target.",
-        visualExplanation: "Single-target, short range.",
-        baseStats: new BaseStatsParams(
-            Cooldown: 11.0f,
-            ManaCost: 65f,
-            Damage: 200f,
-            Healing: null,
-            Shield: null,
-            CastTime: 0.3f,
-            ChannelDuration: null,
-            CrowdControlDuration: 0.9f,
-            Range: 2.5f),
-        effects: new[]
-        {
-            Effect(EffectType.Stun, 0f, 0.9f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 200f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.0f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-        });
-
-    await CreateAsync(ct, system,
-        name: "Fenrir's Vengeance",
+        name: "Arrow of the Moon",
         type: SkillType.Ultimate,
-        description: "Plants his feet and unleashes a continuous volley: his rate of fire and range climb the longer he stays still.",
-        visualExplanation: "Self-cast, no target.",
+        description: "Aims at a designated target and fells it with a shot that executes if weakened.",
+        visualExplanation: "Locked.",
         baseStats: new BaseStatsParams(
-            Cooldown: 80.0f,
-            ManaCost: 140f,
-            Damage: 120f,
+            Cooldown: 72f,
+            ManaCost: 110f,
+            Damage: 460f,
             Healing: null,
             Shield: null,
-            CastTime: 0.5f,
-            ChannelDuration: 6.0f,
+            CastTime: 0.6f,
+            ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 9.5f),
+            Range: 6f),
         effects: new[]
         {
-            Effect(EffectType.Buff, 0f, 6.0f, 0f, TargetType.Self, StackType.Refresh, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: BuffType.AttackSpeed, debuffType: null),
-            Effect(EffectType.Damage, 120f, 6.0f, 0f, TargetType.Enemy, StackType.Refresh, 1, adRatio: 1.0f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: true, buffType: null, debuffType: null),
+            Effect(EffectType.Execute, 460f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 2.0f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     // =====================================================
@@ -1904,10 +2838,10 @@ public sealed class SkillSeeder : ISeeder
     // =====================================================
 
     await CreateAsync(ct, system,
-        name: "Discipline",
+        name: "Prince's Precision",
         type: SkillType.Buff,
-        description: "A very regular chain of shots, fired at a high rate.",
-        visualExplanation: "Passive - triggers on basic attack, no cast.",
+        description: "Rama's shots on a distant target deal bonus damage.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
             Cooldown: null,
             ManaCost: null,
@@ -1917,92 +2851,407 @@ public sealed class SkillSeeder : ISeeder
             CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: null),
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackDamage, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Blazing Shaft",
+        type: SkillType.Damage,
+        description: "Looses a fire arrow that crosses a line and burns over time.",
+        visualExplanation: "Line.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 253f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 253f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.2f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.DamageOverTime, 60f, 3f, 0f, TargetType.AreaEnemies, StackType.RefreshDuration, 1, adRatio: 0.3f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Prince's Step",
+        type: SkillType.Mobility,
+        description: "Hops back lightly while still firing.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: 150f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 150f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.7f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Arrows of Kodanda",
+        type: SkillType.Damage,
+        description: "Powerful shots at very long range.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 69f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 6.0f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 69f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.65f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Brahmastra",
+        type: SkillType.Ultimate,
+        description: "Draws his bow and releases the divine arrow, crossing the whole map in a line and executing the weak.",
+        visualExplanation: "Line.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 72f,
+            ManaCost: 110f,
+            Damage: 460f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 460f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 2.0f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Execute, 150f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // HOUYI (RANGER)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Nine Suns",
+        type: SkillType.Damage,
+        description: "Every arrow builds heat which, at a threshold, ignites the target.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.DamageOverTime, 40f, 3f, 0f, TargetType.Enemy, StackType.Additive, 3, adRatio: 0.2f, mdRatio: null, hpRatio: null, isPeriodic: true, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Solar Arrow",
+        type: SkillType.Damage,
+        description: "Looses a piercing shaft of fire in a line.",
+        visualExplanation: "Line.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 253f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 253f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.2f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Hunter's Roll",
+        type: SkillType.Mobility,
+        description: "A quick roll to dodge.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Burning Arrows",
+        type: SkillType.Damage,
+        description: "Scorching shots at long range.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 69f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 6.0f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 69f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.65f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Volley of Ten Suns",
+        type: SkillType.Ultimate,
+        description: "Fires a rain of blazing arrows onto a targeted area.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 80f,
+            ManaCost: 120f,
+            Damage: 460f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 460f, 0f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 2.0f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // ULLR (RANGER)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Winter's Favor",
+        type: SkillType.Buff,
+        description: "Alternating bow and blades strengthens Ullr's next form.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
         effects: new[]
         {
             Effect(EffectType.Buff, 0f, 0f, 0f, TargetType.Self, StackType.Additive, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: BuffType.AttackSpeed, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Arrow of Dharma",
+        name: "Piercing Shaft",
         type: SkillType.Damage,
-        description: "A blessed shaft that deals heavy damage and weakens the target.",
-        visualExplanation: "Single-target line skillshot.",
+        description: "Looses a shaft that pierces a line of enemies.",
+        visualExplanation: "Line.",
         baseStats: new BaseStatsParams(
-            Cooldown: 7.0f,
+            Cooldown: 7f,
             ManaCost: 55f,
-            Damage: 230f,
+            Damage: 253f,
             Healing: null,
             Shield: null,
-            CastTime: 0.3f,
+            CastTime: 0.4f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 8.0f),
+            Range: 8f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 230f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.15f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Debuff, 15f, 3.0f, 0f, TargetType.Enemy, StackType.RefreshDuration, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: DebuffType.AttackDamageReduction),
+            Effect(EffectType.Damage, 253f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.2f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Prince's Stride",
+        name: "Icy Glide",
         type: SkillType.Mobility,
-        description: "Slides elegantly to the side while continuing to fire.",
-        visualExplanation: "Movement, direction-targeted.",
+        description: "Glides on his skis toward a direction.",
+        visualExplanation: "Movement.",
         baseStats: new BaseStatsParams(
-            Cooldown: 10.0f,
-            ManaCost: 50f,
-            Damage: 140f,
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
             Healing: null,
             Shield: null,
-            CastTime: 0.1f,
+            CastTime: 0.2f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 5.0f),
+            Range: 5f),
         effects: new[]
         {
             Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
-            Effect(EffectType.Damage, 140f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.6f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Chained Shot",
+        name: "Yew Arrows",
         type: SkillType.Damage,
-        description: "A steady, chained shot dealing reliable damage.",
-        visualExplanation: "Single-target line skillshot.",
+        description: "Precise shots at long range.",
+        visualExplanation: "Auto-target.",
         baseStats: new BaseStatsParams(
-            Cooldown: 9.0f,
-            ManaCost: 60f,
-            Damage: 170f,
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 69f,
             Healing: null,
             Shield: null,
-            CastTime: 0.25f,
+            CastTime: null,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 7.5f),
+            Range: 6.0f),
         effects: new[]
         {
-            Effect(EffectType.Damage, 170f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.95f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 69f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.65f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await CreateAsync(ct, system,
-        name: "Brahmastra",
+        name: "Duelist's Challenge",
         type: SkillType.Ultimate,
-        description: "Draws his divine bow and looses a colossal arrow that pierces the entire line, dealing massive damage.",
-        visualExplanation: "Single-target line skillshot, pierces.",
+        description: "Draws his bow for a charged shot at very long range: high damage that ignores part of the target's resistances. A one-sided duel, not an execute on a weakened target.",
+        visualExplanation: "No aim.",
         baseStats: new BaseStatsParams(
-            Cooldown: 85.0f,
-            ManaCost: 150f,
-            Damage: 420f,
+            Cooldown: 75f,
+            ManaCost: 110f,
+            Damage: 380f,
             Healing: null,
             Shield: null,
-            CastTime: 0.9f,
+            CastTime: 0.8f,
             ChannelDuration: null,
             CrowdControlDuration: null,
-            Range: 12.0f),
+            Range: 10f),
         effects: new[]
         {
-            Effect(EffectType.Execute, 420f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.7f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Damage, 380f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 1.7f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    // =====================================================
+    // NEITH (RANGER)
+    // =====================================================
+
+    await CreateAsync(ct, system,
+        name: "Thread of Fate",
+        type: SkillType.Debuff,
+        description: "Neith's shots leave a thread on the target; striking an already-tethered target restrains it further.",
+        visualExplanation: "No aim.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 3.5f),
+        effects: new[]
+        {
+            Effect(EffectType.Debuff, 0f, 3f, 0f, TargetType.Enemy, StackType.Additive, 2, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: DebuffType.MovementSpeedReduction),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Hunting Shaft",
+        type: SkillType.Damage,
+        description: "Looses a piercing arrow in a line.",
+        visualExplanation: "Line.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 7f,
+            ManaCost: 55f,
+            Damage: 253f,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.4f,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 8f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 253f, 0f, 0f, TargetType.AreaEnemies, StackType.None, 1, adRatio: 1.2f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Weaver's Step",
+        type: SkillType.Mobility,
+        description: "Retreats while weaving a thread that slows pursuers.",
+        visualExplanation: "Movement.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 12f,
+            ManaCost: 60f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.2f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1f,
+            Range: 5f),
+        effects: new[]
+        {
+            Effect(EffectType.Mobility, 0f, 0f, 0f, TargetType.Self, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.Slow, 30f, 1f, 4f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Woven Arrows",
+        type: SkillType.Damage,
+        description: "Long-range shots fletched with thread.",
+        visualExplanation: "Auto-target.",
+        baseStats: new BaseStatsParams(
+            Cooldown: null,
+            ManaCost: null,
+            Damage: 69f,
+            Healing: null,
+            Shield: null,
+            CastTime: null,
+            ChannelDuration: null,
+            CrowdControlDuration: null,
+            Range: 6.0f),
+        effects: new[]
+        {
+            Effect(EffectType.Damage, 69f, 0f, 0f, TargetType.Enemy, StackType.None, 1, adRatio: 0.65f, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
+        });
+
+    await CreateAsync(ct, system,
+        name: "Web of the World",
+        type: SkillType.Ultimate,
+        description: "Weaves a web on the ground over an area: enemies caught are rooted.",
+        visualExplanation: "Zone.",
+        baseStats: new BaseStatsParams(
+            Cooldown: 62f,
+            ManaCost: 85f,
+            Damage: null,
+            Healing: null,
+            Shield: null,
+            CastTime: 0.6f,
+            ChannelDuration: null,
+            CrowdControlDuration: 1.5f,
+            Range: 6f),
+        effects: new[]
+        {
+            Effect(EffectType.Root, 0f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: false, isChannelled: false, buffType: null, debuffType: null),
+            Effect(EffectType.ZoneControl, 0f, 1.5f, 6f, TargetType.AreaEnemies, StackType.None, 1, adRatio: null, mdRatio: null, hpRatio: null, isPeriodic: false, isInstant: true, isChannelled: false, buffType: null, debuffType: null),
         });
 
     await _unitOfWork.CommitAsync(ct);
@@ -2042,6 +3291,8 @@ public sealed class SkillSeeder : ISeeder
 
     skill.SetBaseStats(stats);
 
+    await _skills.AddAsync(skill, ct);
+
     foreach (var p in effects)
     {
       var effect = _effectFactory.Create();
@@ -2066,10 +3317,8 @@ public sealed class SkillSeeder : ISeeder
           system);
 
       skill.AddEffect(effect);
+      await _effects.AddAsync(effect, ct);
     }
-
-    // Relying on aggregate tracking behaviors. Child navigations map cleanly.
-    await _skills.AddAsync(skill, ct);
 
     var lore = _loreFactory.Create();
     lore.Define(skill.Id, description, visualExplanation, system);

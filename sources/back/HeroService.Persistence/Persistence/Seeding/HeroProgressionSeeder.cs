@@ -8,10 +8,9 @@ using HeroService.Persistence.Persistence.Seeding;
 namespace HeroService.Persistence.Seeding;
 
 /// <summary>
-/// Per-level stat growth for all 18 heroes, taken verbatim from the codex's
-/// "HeroProgressionModifiers -- par niveau" table. Not version-scoped --
-/// growth curves are part of a hero's identity, not a balance-patch axis
-/// (see HeroModifierSeeder for the version-scoped multipliers).
+/// Per-level stat growth for all 30 heroes, taken verbatim from the v17
+/// codex's HeroProgressionModifiers table. Not version-scoped -- growth
+/// curves are identity, not a balance-patch axis.
 /// </summary>
 public sealed class HeroProgressionSeeder : ISeeder
 {
@@ -50,13 +49,13 @@ public sealed class HeroProgressionSeeder : ISeeder
     var thorProg = _factory.Create();
     thorProg.Define(
         heroId: thor.Id,
-        healthPerLevel: 155f,
-        manaPerLevel: 42f,
-        attackDamagePerLevel: 7.5f,
+        healthPerLevel: 148f,
+        manaPerLevel: 40f,
+        attackDamagePerLevel: 8.2f,
         magicDamagePerLevel: 0f,
-        armorPerLevel: 3.6f,
-        magicResistancePerLevel: 2.8f,
-        attackSpeedPerLevel: 0.018f,
+        armorPerLevel: 3.4f,
+        magicResistancePerLevel: 2.6f,
+        attackSpeedPerLevel: 0.02f,
         castSpeedPerLevel: 0.01f,
         resourceRegenerationPerLevel: 0.4f,
         createdBy: system);
@@ -71,17 +70,59 @@ public sealed class HeroProgressionSeeder : ISeeder
     var aresProg = _factory.Create();
     aresProg.Define(
         heroId: ares.Id,
-        healthPerLevel: 148f,
-        manaPerLevel: 40f,
-        attackDamagePerLevel: 8.2f,
+        healthPerLevel: 150f,
+        manaPerLevel: 38f,
+        attackDamagePerLevel: 8.5f,
         magicDamagePerLevel: 0f,
-        armorPerLevel: 3.4f,
-        magicResistancePerLevel: 2.6f,
+        armorPerLevel: 3.3f,
+        magicResistancePerLevel: 2.5f,
         attackSpeedPerLevel: 0.02f,
         castSpeedPerLevel: 0.01f,
         resourceRegenerationPerLevel: 0.4f,
         createdBy: system);
     await _repo.AddAsync(aresProg, ct);
+
+    // =========================================================
+    // GUAN YU
+    // =========================================================
+    var guanYu = await _heroes.GetByNameAsync("Guan Yu", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Guan Yu");
+
+    var guanYuProg = _factory.Create();
+    guanYuProg.Define(
+        heroId: guanYu.Id,
+        healthPerLevel: 158f,
+        manaPerLevel: 38f,
+        attackDamagePerLevel: 7.6f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 3.6f,
+        magicResistancePerLevel: 2.8f,
+        attackSpeedPerLevel: 0.018f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.42f,
+        createdBy: system);
+    await _repo.AddAsync(guanYuProg, ct);
+
+    // =========================================================
+    // OGUN
+    // =========================================================
+    var ogun = await _heroes.GetByNameAsync("Ogun", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Ogun");
+
+    var ogunProg = _factory.Create();
+    ogunProg.Define(
+        heroId: ogun.Id,
+        healthPerLevel: 152f,
+        manaPerLevel: 39f,
+        attackDamagePerLevel: 8.4f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 3.5f,
+        magicResistancePerLevel: 2.7f,
+        attackSpeedPerLevel: 0.019f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.41f,
+        createdBy: system);
+    await _repo.AddAsync(ogunProg, ct);
 
     // =========================================================
     // SUSANOO
@@ -92,15 +133,15 @@ public sealed class HeroProgressionSeeder : ISeeder
     var susanooProg = _factory.Create();
     susanooProg.Define(
         heroId: susanoo.Id,
-        healthPerLevel: 140f,
-        manaPerLevel: 45f,
-        attackDamagePerLevel: 7.8f,
+        healthPerLevel: 142f,
+        manaPerLevel: 44f,
+        attackDamagePerLevel: 7.9f,
         magicDamagePerLevel: 0f,
-        armorPerLevel: 3.1f,
+        armorPerLevel: 3.2f,
         magicResistancePerLevel: 2.5f,
-        attackSpeedPerLevel: 0.024f,
+        attackSpeedPerLevel: 0.023f,
         castSpeedPerLevel: 0.012f,
-        resourceRegenerationPerLevel: 0.45f,
+        resourceRegenerationPerLevel: 0.44f,
         createdBy: system);
     await _repo.AddAsync(susanooProg, ct);
 
@@ -113,38 +154,17 @@ public sealed class HeroProgressionSeeder : ISeeder
     var lokiProg = _factory.Create();
     lokiProg.Define(
         heroId: loki.Id,
-        healthPerLevel: 118f,
-        manaPerLevel: 38f,
-        attackDamagePerLevel: 9.5f,
+        healthPerLevel: 120f,
+        manaPerLevel: 37f,
+        attackDamagePerLevel: 9.6f,
         magicDamagePerLevel: 0f,
         armorPerLevel: 2.6f,
         magicResistancePerLevel: 2.2f,
         attackSpeedPerLevel: 0.026f,
         castSpeedPerLevel: 0.01f,
-        resourceRegenerationPerLevel: 0.35f,
+        resourceRegenerationPerLevel: 0.34f,
         createdBy: system);
     await _repo.AddAsync(lokiProg, ct);
-
-    // =========================================================
-    // NYX
-    // =========================================================
-    var nyx = await _heroes.GetByNameAsync("Nyx", ct)
-        ?? throw new InvalidOperationException("Missing Hero: Nyx");
-
-    var nyxProg = _factory.Create();
-    nyxProg.Define(
-        heroId: nyx.Id,
-        healthPerLevel: 120f,
-        manaPerLevel: 40f,
-        attackDamagePerLevel: 8.8f,
-        magicDamagePerLevel: 0f,
-        armorPerLevel: 2.7f,
-        magicResistancePerLevel: 2.3f,
-        attackSpeedPerLevel: 0.024f,
-        castSpeedPerLevel: 0.012f,
-        resourceRegenerationPerLevel: 0.4f,
-        createdBy: system);
-    await _repo.AddAsync(nyxProg, ct);
 
     // =========================================================
     // SET
@@ -155,17 +175,80 @@ public sealed class HeroProgressionSeeder : ISeeder
     var setProg = _factory.Create();
     setProg.Define(
         heroId: set.Id,
-        healthPerLevel: 128f,
-        manaPerLevel: 42f,
-        attackDamagePerLevel: 9.0f,
-        magicDamagePerLevel: 1.5f,
-        armorPerLevel: 2.9f,
-        magicResistancePerLevel: 2.4f,
-        attackSpeedPerLevel: 0.022f,
+        healthPerLevel: 124f,
+        manaPerLevel: 39f,
+        attackDamagePerLevel: 9.2f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 2.7f,
+        magicResistancePerLevel: 2.3f,
+        attackSpeedPerLevel: 0.024f,
         castSpeedPerLevel: 0.01f,
-        resourceRegenerationPerLevel: 0.4f,
+        resourceRegenerationPerLevel: 0.36f,
         createdBy: system);
     await _repo.AddAsync(setProg, ct);
+
+    // =========================================================
+    // KALI
+    // =========================================================
+    var kali = await _heroes.GetByNameAsync("Kali", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Kali");
+
+    var kaliProg = _factory.Create();
+    kaliProg.Define(
+        heroId: kali.Id,
+        healthPerLevel: 122f,
+        manaPerLevel: 38f,
+        attackDamagePerLevel: 9.4f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 2.65f,
+        magicResistancePerLevel: 2.25f,
+        attackSpeedPerLevel: 0.025f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.35f,
+        createdBy: system);
+    await _repo.AddAsync(kaliProg, ct);
+
+    // =========================================================
+    // CAMAZOTZ
+    // =========================================================
+    var camazotz = await _heroes.GetByNameAsync("Camazotz", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Camazotz");
+
+    var camazotzProg = _factory.Create();
+    camazotzProg.Define(
+        heroId: camazotz.Id,
+        healthPerLevel: 123f,
+        manaPerLevel: 37f,
+        attackDamagePerLevel: 9.0f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 2.7f,
+        magicResistancePerLevel: 2.25f,
+        attackSpeedPerLevel: 0.024f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.35f,
+        createdBy: system);
+    await _repo.AddAsync(camazotzProg, ct);
+
+    // =========================================================
+    // NYX
+    // =========================================================
+    var nyx = await _heroes.GetByNameAsync("Nyx", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Nyx");
+
+    var nyxProg = _factory.Create();
+    nyxProg.Define(
+        heroId: nyx.Id,
+        healthPerLevel: 121f,
+        manaPerLevel: 38f,
+        attackDamagePerLevel: 9.1f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 2.65f,
+        magicResistancePerLevel: 2.25f,
+        attackSpeedPerLevel: 0.024f,
+        castSpeedPerLevel: 0.012f,
+        resourceRegenerationPerLevel: 0.35f,
+        createdBy: system);
+    await _repo.AddAsync(nyxProg, ct);
 
     // =========================================================
     // ZEUS
@@ -176,59 +259,101 @@ public sealed class HeroProgressionSeeder : ISeeder
     var zeusProg = _factory.Create();
     zeusProg.Define(
         heroId: zeus.Id,
-        healthPerLevel: 110f,
-        manaPerLevel: 68f,
+        healthPerLevel: 100f,
+        manaPerLevel: 55f,
         attackDamagePerLevel: 4.2f,
-        magicDamagePerLevel: 14.5f,
+        magicDamagePerLevel: 10.3f,
         armorPerLevel: 2.2f,
         magicResistancePerLevel: 2.6f,
         attackSpeedPerLevel: 0.012f,
         castSpeedPerLevel: 0.02f,
-        resourceRegenerationPerLevel: 0.7f,
+        resourceRegenerationPerLevel: 0.5f,
         createdBy: system);
     await _repo.AddAsync(zeusProg, ct);
 
     // =========================================================
-    // AMUN-RA
+    // RA
     // =========================================================
-    var amunRa = await _heroes.GetByNameAsync("Amun-Ra", ct)
-        ?? throw new InvalidOperationException("Missing Hero: Amun-Ra");
+    var ra = await _heroes.GetByNameAsync("Ra", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Ra");
 
-    var amunRaProg = _factory.Create();
-    amunRaProg.Define(
-        heroId: amunRa.Id,
-        healthPerLevel: 122f,
-        manaPerLevel: 74f,
-        attackDamagePerLevel: 4.5f,
-        magicDamagePerLevel: 13.5f,
-        armorPerLevel: 2.4f,
-        magicResistancePerLevel: 2.8f,
+    var raProg = _factory.Create();
+    raProg.Define(
+        heroId: ra.Id,
+        healthPerLevel: 113f,
+        manaPerLevel: 55f,
+        attackDamagePerLevel: 4.2f,
+        magicDamagePerLevel: 8.9f,
+        armorPerLevel: 2.2f,
+        magicResistancePerLevel: 2.6f,
         attackSpeedPerLevel: 0.012f,
-        castSpeedPerLevel: 0.018f,
-        resourceRegenerationPerLevel: 0.8f,
+        castSpeedPerLevel: 0.02f,
+        resourceRegenerationPerLevel: 0.5f,
         createdBy: system);
-    await _repo.AddAsync(amunRaProg, ct);
+    await _repo.AddAsync(raProg, ct);
 
     // =========================================================
-    // CHRONOS
+    // AGNI
     // =========================================================
-    var chronos = await _heroes.GetByNameAsync("Chronos", ct)
-        ?? throw new InvalidOperationException("Missing Hero: Chronos");
+    var agni = await _heroes.GetByNameAsync("Agni", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Agni");
 
-    var chronosProg = _factory.Create();
-    chronosProg.Define(
-        heroId: chronos.Id,
-        healthPerLevel: 112f,
-        manaPerLevel: 70f,
-        attackDamagePerLevel: 4.0f,
-        magicDamagePerLevel: 13.0f,
-        armorPerLevel: 2.3f,
-        magicResistancePerLevel: 2.7f,
-        attackSpeedPerLevel: 0.01f,
-        castSpeedPerLevel: 0.026f,
-        resourceRegenerationPerLevel: 0.75f,
+    var agniProg = _factory.Create();
+    agniProg.Define(
+        heroId: agni.Id,
+        healthPerLevel: 105f,
+        manaPerLevel: 55f,
+        attackDamagePerLevel: 4.2f,
+        magicDamagePerLevel: 9.5f,
+        armorPerLevel: 2.2f,
+        magicResistancePerLevel: 2.6f,
+        attackSpeedPerLevel: 0.012f,
+        castSpeedPerLevel: 0.02f,
+        resourceRegenerationPerLevel: 0.5f,
         createdBy: system);
-    await _repo.AddAsync(chronosProg, ct);
+    await _repo.AddAsync(agniProg, ct);
+
+    // =========================================================
+    // RAIJIN
+    // =========================================================
+    var raijin = await _heroes.GetByNameAsync("Raijin", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Raijin");
+
+    var raijinProg = _factory.Create();
+    raijinProg.Define(
+        heroId: raijin.Id,
+        healthPerLevel: 105f,
+        manaPerLevel: 52f,
+        attackDamagePerLevel: 4.2f,
+        magicDamagePerLevel: 10.1f,
+        armorPerLevel: 2.2f,
+        magicResistancePerLevel: 2.6f,
+        attackSpeedPerLevel: 0.012f,
+        castSpeedPerLevel: 0.02f,
+        resourceRegenerationPerLevel: 0.5f,
+        createdBy: system);
+    await _repo.AddAsync(raijinProg, ct);
+
+    // =========================================================
+    // MARDUK
+    // =========================================================
+    var marduk = await _heroes.GetByNameAsync("Marduk", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Marduk");
+
+    var mardukProg = _factory.Create();
+    mardukProg.Define(
+        heroId: marduk.Id,
+        healthPerLevel: 105f,
+        manaPerLevel: 59f,
+        attackDamagePerLevel: 4.2f,
+        magicDamagePerLevel: 9.5f,
+        armorPerLevel: 2.2f,
+        magicResistancePerLevel: 2.6f,
+        attackSpeedPerLevel: 0.012f,
+        castSpeedPerLevel: 0.02f,
+        resourceRegenerationPerLevel: 0.5f,
+        createdBy: system);
+    await _repo.AddAsync(mardukProg, ct);
 
     // =========================================================
     // HERAKLES
@@ -239,80 +364,101 @@ public sealed class HeroProgressionSeeder : ISeeder
     var heraklesProg = _factory.Create();
     heraklesProg.Define(
         heroId: herakles.Id,
-        healthPerLevel: 185f,
-        manaPerLevel: 45f,
-        attackDamagePerLevel: 5.5f,
+        healthPerLevel: 178f,
+        manaPerLevel: 38f,
+        attackDamagePerLevel: 6.4f,
         magicDamagePerLevel: 0f,
-        armorPerLevel: 4.6f,
-        magicResistancePerLevel: 3.6f,
-        attackSpeedPerLevel: 0.014f,
+        armorPerLevel: 4.4f,
+        magicResistancePerLevel: 4.0f,
+        attackSpeedPerLevel: 0.015f,
         castSpeedPerLevel: 0.01f,
-        resourceRegenerationPerLevel: 0.5f,
+        resourceRegenerationPerLevel: 0.42f,
         createdBy: system);
     await _repo.AddAsync(heraklesProg, ct);
 
     // =========================================================
-    // ANUBIS
+    // YMIR
     // =========================================================
-    var anubis = await _heroes.GetByNameAsync("Anubis", ct)
-        ?? throw new InvalidOperationException("Missing Hero: Anubis");
+    var ymir = await _heroes.GetByNameAsync("Ymir", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Ymir");
 
-    var anubisProg = _factory.Create();
-    anubisProg.Define(
-        heroId: anubis.Id,
-        healthPerLevel: 178f,
-        manaPerLevel: 52f,
-        attackDamagePerLevel: 4.8f,
-        magicDamagePerLevel: 2.5f,
-        armorPerLevel: 4.4f,
+    var ymirProg = _factory.Create();
+    ymirProg.Define(
+        heroId: ymir.Id,
+        healthPerLevel: 196f,
+        manaPerLevel: 38f,
+        attackDamagePerLevel: 6.0f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 5.0f,
         magicResistancePerLevel: 4.0f,
-        attackSpeedPerLevel: 0.012f,
-        castSpeedPerLevel: 0.012f,
-        resourceRegenerationPerLevel: 0.6f,
-        createdBy: system);
-    await _repo.AddAsync(anubisProg, ct);
-
-    // =========================================================
-    // HEL
-    // =========================================================
-    var hel = await _heroes.GetByNameAsync("Hel", ct)
-        ?? throw new InvalidOperationException("Missing Hero: Hel");
-
-    var helProg = _factory.Create();
-    helProg.Define(
-        heroId: hel.Id,
-        healthPerLevel: 195f,
-        manaPerLevel: 48f,
-        attackDamagePerLevel: 5.0f,
-        magicDamagePerLevel: 2.0f,
-        armorPerLevel: 4.5f,
-        magicResistancePerLevel: 3.9f,
-        attackSpeedPerLevel: 0.01f,
+        attackSpeedPerLevel: 0.015f,
         castSpeedPerLevel: 0.01f,
-        resourceRegenerationPerLevel: 0.55f,
+        resourceRegenerationPerLevel: 0.42f,
         createdBy: system);
-    await _repo.AddAsync(helProg, ct);
+    await _repo.AddAsync(ymirProg, ct);
 
     // =========================================================
-    // ISIS
+    // GEB
     // =========================================================
-    var isis = await _heroes.GetByNameAsync("Isis", ct)
-        ?? throw new InvalidOperationException("Missing Hero: Isis");
+    var geb = await _heroes.GetByNameAsync("Geb", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Geb");
 
-    var isisProg = _factory.Create();
-    isisProg.Define(
-        heroId: isis.Id,
-        healthPerLevel: 130f,
-        manaPerLevel: 78f,
-        attackDamagePerLevel: 3.8f,
-        magicDamagePerLevel: 10.5f,
-        armorPerLevel: 2.9f,
-        magicResistancePerLevel: 3.2f,
-        attackSpeedPerLevel: 0.01f,
-        castSpeedPerLevel: 0.016f,
-        resourceRegenerationPerLevel: 1.0f,
+    var gebProg = _factory.Create();
+    gebProg.Define(
+        heroId: geb.Id,
+        healthPerLevel: 178f,
+        manaPerLevel: 38f,
+        attackDamagePerLevel: 6.0f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 5.1f,
+        magicResistancePerLevel: 4.0f,
+        attackSpeedPerLevel: 0.015f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.42f,
         createdBy: system);
-    await _repo.AddAsync(isisProg, ct);
+    await _repo.AddAsync(gebProg, ct);
+
+    // =========================================================
+    // KUMBHAKARNA
+    // =========================================================
+    var kumbhakarna = await _heroes.GetByNameAsync("Kumbhakarna", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Kumbhakarna");
+
+    var kumbhakarnaProg = _factory.Create();
+    kumbhakarnaProg.Define(
+        heroId: kumbhakarna.Id,
+        healthPerLevel: 199f,
+        manaPerLevel: 38f,
+        attackDamagePerLevel: 6.0f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 4.6f,
+        magicResistancePerLevel: 4.0f,
+        attackSpeedPerLevel: 0.014f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.42f,
+        createdBy: system);
+    await _repo.AddAsync(kumbhakarnaProg, ct);
+
+    // =========================================================
+    // GILGAMESH
+    // =========================================================
+    var gilgamesh = await _heroes.GetByNameAsync("Gilgamesh", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Gilgamesh");
+
+    var gilgameshProg = _factory.Create();
+    gilgameshProg.Define(
+        heroId: gilgamesh.Id,
+        healthPerLevel: 178f,
+        manaPerLevel: 38f,
+        attackDamagePerLevel: 6.3f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 4.6f,
+        magicResistancePerLevel: 4.2f,
+        attackSpeedPerLevel: 0.015f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.42f,
+        createdBy: system);
+    await _repo.AddAsync(gilgameshProg, ct);
 
     // =========================================================
     // FREYJA
@@ -323,38 +469,101 @@ public sealed class HeroProgressionSeeder : ISeeder
     var freyjaProg = _factory.Create();
     freyjaProg.Define(
         heroId: freyja.Id,
-        healthPerLevel: 140f,
-        manaPerLevel: 72f,
-        attackDamagePerLevel: 4.0f,
-        magicDamagePerLevel: 9.5f,
-        armorPerLevel: 3.2f,
-        magicResistancePerLevel: 3.4f,
+        healthPerLevel: 120f,
+        manaPerLevel: 48f,
+        attackDamagePerLevel: 4.8f,
+        magicDamagePerLevel: 6.0f,
+        armorPerLevel: 2.8f,
+        magicResistancePerLevel: 3.2f,
         attackSpeedPerLevel: 0.012f,
-        castSpeedPerLevel: 0.014f,
-        resourceRegenerationPerLevel: 0.9f,
+        castSpeedPerLevel: 0.015f,
+        resourceRegenerationPerLevel: 0.55f,
         createdBy: system);
     await _repo.AddAsync(freyjaProg, ct);
 
     // =========================================================
-    // ENKI
+    // ISIS
     // =========================================================
-    var enki = await _heroes.GetByNameAsync("Enki", ct)
-        ?? throw new InvalidOperationException("Missing Hero: Enki");
+    var isis = await _heroes.GetByNameAsync("Isis", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Isis");
 
-    var enkiProg = _factory.Create();
-    enkiProg.Define(
-        heroId: enki.Id,
-        healthPerLevel: 126f,
-        manaPerLevel: 80f,
-        attackDamagePerLevel: 3.5f,
-        magicDamagePerLevel: 10.0f,
+    var isisProg = _factory.Create();
+    isisProg.Define(
+        heroId: isis.Id,
+        healthPerLevel: 120f,
+        manaPerLevel: 48f,
+        attackDamagePerLevel: 4.8f,
+        magicDamagePerLevel: 6.0f,
         armorPerLevel: 2.8f,
-        magicResistancePerLevel: 3.1f,
-        attackSpeedPerLevel: 0.01f,
-        castSpeedPerLevel: 0.016f,
-        resourceRegenerationPerLevel: 1.0f,
+        magicResistancePerLevel: 3.2f,
+        attackSpeedPerLevel: 0.012f,
+        castSpeedPerLevel: 0.015f,
+        resourceRegenerationPerLevel: 0.6f,
         createdBy: system);
-    await _repo.AddAsync(enkiProg, ct);
+    await _repo.AddAsync(isisProg, ct);
+
+    // =========================================================
+    // APHRODITE
+    // =========================================================
+    var aphrodite = await _heroes.GetByNameAsync("Aphrodite", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Aphrodite");
+
+    var aphroditeProg = _factory.Create();
+    aphroditeProg.Define(
+        heroId: aphrodite.Id,
+        healthPerLevel: 114f,
+        manaPerLevel: 48f,
+        attackDamagePerLevel: 4.8f,
+        magicDamagePerLevel: 6.0f,
+        armorPerLevel: 2.8f,
+        magicResistancePerLevel: 3.2f,
+        attackSpeedPerLevel: 0.012f,
+        castSpeedPerLevel: 0.015f,
+        resourceRegenerationPerLevel: 0.55f,
+        createdBy: system);
+    await _repo.AddAsync(aphroditeProg, ct);
+
+    // =========================================================
+    // GUANYIN
+    // =========================================================
+    var guanyin = await _heroes.GetByNameAsync("Guanyin", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Guanyin");
+
+    var guanyinProg = _factory.Create();
+    guanyinProg.Define(
+        heroId: guanyin.Id,
+        healthPerLevel: 120f,
+        manaPerLevel: 48f,
+        attackDamagePerLevel: 4.8f,
+        magicDamagePerLevel: 6.0f,
+        armorPerLevel: 2.8f,
+        magicResistancePerLevel: 3.2f,
+        attackSpeedPerLevel: 0.012f,
+        castSpeedPerLevel: 0.015f,
+        resourceRegenerationPerLevel: 0.55f,
+        createdBy: system);
+    await _repo.AddAsync(guanyinProg, ct);
+
+    // =========================================================
+    // BRIGID
+    // =========================================================
+    var brigid = await _heroes.GetByNameAsync("Brigid", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Brigid");
+
+    var brigidProg = _factory.Create();
+    brigidProg.Define(
+        heroId: brigid.Id,
+        healthPerLevel: 114f,
+        manaPerLevel: 48f,
+        attackDamagePerLevel: 4.8f,
+        magicDamagePerLevel: 6.4f,
+        armorPerLevel: 2.8f,
+        magicResistancePerLevel: 3.2f,
+        attackSpeedPerLevel: 0.012f,
+        castSpeedPerLevel: 0.015f,
+        resourceRegenerationPerLevel: 0.55f,
+        createdBy: system);
+    await _repo.AddAsync(brigidProg, ct);
 
     // =========================================================
     // ARTEMIS
@@ -365,38 +574,17 @@ public sealed class HeroProgressionSeeder : ISeeder
     var artemisProg = _factory.Create();
     artemisProg.Define(
         heroId: artemis.Id,
-        healthPerLevel: 115f,
-        manaPerLevel: 42f,
-        attackDamagePerLevel: 9.8f,
+        healthPerLevel: 103f,
+        manaPerLevel: 36f,
+        attackDamagePerLevel: 8.8f,
         magicDamagePerLevel: 0f,
-        armorPerLevel: 2.5f,
+        armorPerLevel: 2.4f,
         magicResistancePerLevel: 2.2f,
         attackSpeedPerLevel: 0.03f,
         castSpeedPerLevel: 0.01f,
-        resourceRegenerationPerLevel: 0.4f,
-        createdBy: system);
-    await _repo.AddAsync(artemisProg, ct);
-
-    // =========================================================
-    // VIDAR
-    // =========================================================
-    var vidar = await _heroes.GetByNameAsync("Vidar", ct)
-        ?? throw new InvalidOperationException("Missing Hero: Vidar");
-
-    var vidarProg = _factory.Create();
-    vidarProg.Define(
-        heroId: vidar.Id,
-        healthPerLevel: 125f,
-        manaPerLevel: 40f,
-        attackDamagePerLevel: 10.5f,
-        magicDamagePerLevel: 0f,
-        armorPerLevel: 2.8f,
-        magicResistancePerLevel: 2.4f,
-        attackSpeedPerLevel: 0.026f,
-        castSpeedPerLevel: 0.01f,
         resourceRegenerationPerLevel: 0.35f,
         createdBy: system);
-    await _repo.AddAsync(vidarProg, ct);
+    await _repo.AddAsync(artemisProg, ct);
 
     // =========================================================
     // RAMA
@@ -407,17 +595,80 @@ public sealed class HeroProgressionSeeder : ISeeder
     var ramaProg = _factory.Create();
     ramaProg.Define(
         heroId: rama.Id,
-        healthPerLevel: 118f,
-        manaPerLevel: 44f,
-        attackDamagePerLevel: 9.2f,
+        healthPerLevel: 108f,
+        manaPerLevel: 36f,
+        attackDamagePerLevel: 9.3f,
         magicDamagePerLevel: 0f,
-        armorPerLevel: 2.6f,
-        magicResistancePerLevel: 2.3f,
-        attackSpeedPerLevel: 0.032f,
+        armorPerLevel: 2.4f,
+        magicResistancePerLevel: 2.2f,
+        attackSpeedPerLevel: 0.03f,
         castSpeedPerLevel: 0.01f,
-        resourceRegenerationPerLevel: 0.45f,
+        resourceRegenerationPerLevel: 0.35f,
         createdBy: system);
     await _repo.AddAsync(ramaProg, ct);
+
+    // =========================================================
+    // HOUYI
+    // =========================================================
+    var houyi = await _heroes.GetByNameAsync("Houyi", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Houyi");
+
+    var houyiProg = _factory.Create();
+    houyiProg.Define(
+        heroId: houyi.Id,
+        healthPerLevel: 108f,
+        manaPerLevel: 36f,
+        attackDamagePerLevel: 8.8f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 2.4f,
+        magicResistancePerLevel: 2.2f,
+        attackSpeedPerLevel: 0.028f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.35f,
+        createdBy: system);
+    await _repo.AddAsync(houyiProg, ct);
+
+    // =========================================================
+    // ULLR
+    // =========================================================
+    var ullr = await _heroes.GetByNameAsync("Ullr", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Ullr");
+
+    var ullrProg = _factory.Create();
+    ullrProg.Define(
+        heroId: ullr.Id,
+        healthPerLevel: 103f,
+        manaPerLevel: 36f,
+        attackDamagePerLevel: 8.8f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 2.4f,
+        magicResistancePerLevel: 2.2f,
+        attackSpeedPerLevel: 0.03f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.35f,
+        createdBy: system);
+    await _repo.AddAsync(ullrProg, ct);
+
+    // =========================================================
+    // NEITH
+    // =========================================================
+    var neith = await _heroes.GetByNameAsync("Neith", ct)
+        ?? throw new InvalidOperationException("Missing Hero: Neith");
+
+    var neithProg = _factory.Create();
+    neithProg.Define(
+        heroId: neith.Id,
+        healthPerLevel: 108f,
+        manaPerLevel: 36f,
+        attackDamagePerLevel: 8.8f,
+        magicDamagePerLevel: 0f,
+        armorPerLevel: 2.4f,
+        magicResistancePerLevel: 2.2f,
+        attackSpeedPerLevel: 0.03f,
+        castSpeedPerLevel: 0.01f,
+        resourceRegenerationPerLevel: 0.35f,
+        createdBy: system);
+    await _repo.AddAsync(neithProg, ct);
 
     await _uow.CommitAsync(ct);
   }

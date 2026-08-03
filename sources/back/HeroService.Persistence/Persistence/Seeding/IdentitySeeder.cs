@@ -9,6 +9,11 @@ using HeroService.Persistence.Persistence.Seeding;
 
 namespace HeroService.Persistence.Seeding;
 
+/// <summary>
+/// Adds Chinese, Yoruba, and Maya mythologies for the v17 roster (Guan Yu/
+/// Guanyin/Houyi, Ogun, Camazotz). Americas culture gets its first real use
+/// via Camazotz.
+/// </summary>
 public sealed class IdentitySeeder : ISeeder
 {
   public int Order => 2;
@@ -75,8 +80,6 @@ public sealed class IdentitySeeder : ISeeder
 
     // =========================================================
     // MYTHOLOGIES
-    // Mesopotamian and Hindu are new additions required by the 18-hero roster
-    // (Enki and Rama). Celtic is retained even though unused by this roster.
     // =========================================================
     await SeedMythology("Greek", system, ct);
     await SeedMythology("Norse", system, ct);
@@ -85,6 +88,9 @@ public sealed class IdentitySeeder : ISeeder
     await SeedMythology("Celtic", system, ct);
     await SeedMythology("Mesopotamian", system, ct);
     await SeedMythology("Hindu", system, ct);
+    await SeedMythology("Chinese", system, ct);
+    await SeedMythology("Yoruba", system, ct);
+    await SeedMythology("Maya", system, ct);
 
     // =========================================================
     // CULTURES

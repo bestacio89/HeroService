@@ -11,12 +11,11 @@ using HeroService.Persistence.Persistence.Seeding;
 namespace HeroService.Persistence.Seeding;
 
 /// <summary>
-/// Version-scoped balance multipliers for all 18 heroes, seeded against the
-/// active GameVersion. All multipliers are neutral (1.0f = no change from
-/// HeroBaseStats; 0.0f additive for IgnoreEnemyDefense) since the codex only
-/// supplies base stats, not a balance-patch delta -- this is the "1.0.0 as
-/// shipped, unpatched" baseline. A future rebalance seeder for a new
-/// GameVersion is where real per-hero multipliers would live.
+/// Version-scoped balance multipliers for all 30 heroes, seeded against the
+/// active GameVersion. Neutral (1.0f; 0.0f additive for IgnoreEnemyDefense) --
+/// the codex supplies base stats, not a balance-patch delta. This is the
+/// "as shipped, unpatched" baseline; a future rebalance seeder for a new
+/// GameVersion is where real per-hero multipliers belong.
 /// </summary>
 public sealed class HeroModifierSeeder : ISeeder
 {
@@ -118,6 +117,64 @@ public sealed class HeroModifierSeeder : ISeeder
     await _modifiers.AddAsync(aresMod, ct);
 
     // =========================================================
+    // GUAN YU
+    // =========================================================
+    var guanYu = heroes.First(h => h.Name == "Guan Yu");
+
+    var guanYuMod = _heroModifierFactory.Create();
+    guanYuMod.Define(
+        version.Id,
+        guanYu.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(guanYuMod, ct);
+
+    // =========================================================
+    // OGUN
+    // =========================================================
+    var ogun = heroes.First(h => h.Name == "Ogun");
+
+    var ogunMod = _heroModifierFactory.Create();
+    ogunMod.Define(
+        version.Id,
+        ogun.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(ogunMod, ct);
+
+    // =========================================================
     // SUSANOO
     // =========================================================
     var susanoo = heroes.First(h => h.Name == "Susanoo");
@@ -176,35 +233,6 @@ public sealed class HeroModifierSeeder : ISeeder
     await _modifiers.AddAsync(lokiMod, ct);
 
     // =========================================================
-    // NYX
-    // =========================================================
-    var nyx = heroes.First(h => h.Name == "Nyx");
-
-    var nyxMod = _heroModifierFactory.Create();
-    nyxMod.Define(
-        version.Id,
-        nyx.Id,
-        1.00f, // health
-        1.00f, // mana
-        1.00f, // attack damage
-        1.00f, // magic damage
-        0.00f, // ignore enemy defense (additive, not multiplicative)
-        1.00f, // attack speed
-        1.00f, // cast speed
-        1.00f, // crit chance
-        1.00f, // crit damage multiplier
-        1.00f, // armor
-        1.00f, // magic resistance
-        1.00f, // damage reduction
-        1.00f, // shield strength multiplier
-        1.00f, // movement speed
-        1.00f, // attack range
-        1.00f, // cooldown reduction
-        1.00f, // resource regeneration
-        system);
-    await _modifiers.AddAsync(nyxMod, ct);
-
-    // =========================================================
     // SET
     // =========================================================
     var set = heroes.First(h => h.Name == "Set");
@@ -232,6 +260,93 @@ public sealed class HeroModifierSeeder : ISeeder
         1.00f, // resource regeneration
         system);
     await _modifiers.AddAsync(setMod, ct);
+
+    // =========================================================
+    // KALI
+    // =========================================================
+    var kali = heroes.First(h => h.Name == "Kali");
+
+    var kaliMod = _heroModifierFactory.Create();
+    kaliMod.Define(
+        version.Id,
+        kali.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(kaliMod, ct);
+
+    // =========================================================
+    // CAMAZOTZ
+    // =========================================================
+    var camazotz = heroes.First(h => h.Name == "Camazotz");
+
+    var camazotzMod = _heroModifierFactory.Create();
+    camazotzMod.Define(
+        version.Id,
+        camazotz.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(camazotzMod, ct);
+
+    // =========================================================
+    // NYX
+    // =========================================================
+    var nyx = heroes.First(h => h.Name == "Nyx");
+
+    var nyxMod = _heroModifierFactory.Create();
+    nyxMod.Define(
+        version.Id,
+        nyx.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(nyxMod, ct);
 
     // =========================================================
     // ZEUS
@@ -263,14 +378,14 @@ public sealed class HeroModifierSeeder : ISeeder
     await _modifiers.AddAsync(zeusMod, ct);
 
     // =========================================================
-    // AMUN-RA
+    // RA
     // =========================================================
-    var amunRa = heroes.First(h => h.Name == "Amun-Ra");
+    var ra = heroes.First(h => h.Name == "Ra");
 
-    var amunRaMod = _heroModifierFactory.Create();
-    amunRaMod.Define(
+    var raMod = _heroModifierFactory.Create();
+    raMod.Define(
         version.Id,
-        amunRa.Id,
+        ra.Id,
         1.00f, // health
         1.00f, // mana
         1.00f, // attack damage
@@ -289,17 +404,17 @@ public sealed class HeroModifierSeeder : ISeeder
         1.00f, // cooldown reduction
         1.00f, // resource regeneration
         system);
-    await _modifiers.AddAsync(amunRaMod, ct);
+    await _modifiers.AddAsync(raMod, ct);
 
     // =========================================================
-    // CHRONOS
+    // AGNI
     // =========================================================
-    var chronos = heroes.First(h => h.Name == "Chronos");
+    var agni = heroes.First(h => h.Name == "Agni");
 
-    var chronosMod = _heroModifierFactory.Create();
-    chronosMod.Define(
+    var agniMod = _heroModifierFactory.Create();
+    agniMod.Define(
         version.Id,
-        chronos.Id,
+        agni.Id,
         1.00f, // health
         1.00f, // mana
         1.00f, // attack damage
@@ -318,7 +433,65 @@ public sealed class HeroModifierSeeder : ISeeder
         1.00f, // cooldown reduction
         1.00f, // resource regeneration
         system);
-    await _modifiers.AddAsync(chronosMod, ct);
+    await _modifiers.AddAsync(agniMod, ct);
+
+    // =========================================================
+    // RAIJIN
+    // =========================================================
+    var raijin = heroes.First(h => h.Name == "Raijin");
+
+    var raijinMod = _heroModifierFactory.Create();
+    raijinMod.Define(
+        version.Id,
+        raijin.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(raijinMod, ct);
+
+    // =========================================================
+    // MARDUK
+    // =========================================================
+    var marduk = heroes.First(h => h.Name == "Marduk");
+
+    var mardukMod = _heroModifierFactory.Create();
+    mardukMod.Define(
+        version.Id,
+        marduk.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(mardukMod, ct);
 
     // =========================================================
     // HERAKLES
@@ -350,14 +523,14 @@ public sealed class HeroModifierSeeder : ISeeder
     await _modifiers.AddAsync(heraklesMod, ct);
 
     // =========================================================
-    // ANUBIS
+    // YMIR
     // =========================================================
-    var anubis = heroes.First(h => h.Name == "Anubis");
+    var ymir = heroes.First(h => h.Name == "Ymir");
 
-    var anubisMod = _heroModifierFactory.Create();
-    anubisMod.Define(
+    var ymirMod = _heroModifierFactory.Create();
+    ymirMod.Define(
         version.Id,
-        anubis.Id,
+        ymir.Id,
         1.00f, // health
         1.00f, // mana
         1.00f, // attack damage
@@ -376,17 +549,17 @@ public sealed class HeroModifierSeeder : ISeeder
         1.00f, // cooldown reduction
         1.00f, // resource regeneration
         system);
-    await _modifiers.AddAsync(anubisMod, ct);
+    await _modifiers.AddAsync(ymirMod, ct);
 
     // =========================================================
-    // HEL
+    // GEB
     // =========================================================
-    var hel = heroes.First(h => h.Name == "Hel");
+    var geb = heroes.First(h => h.Name == "Geb");
 
-    var helMod = _heroModifierFactory.Create();
-    helMod.Define(
+    var gebMod = _heroModifierFactory.Create();
+    gebMod.Define(
         version.Id,
-        hel.Id,
+        geb.Id,
         1.00f, // health
         1.00f, // mana
         1.00f, // attack damage
@@ -405,17 +578,17 @@ public sealed class HeroModifierSeeder : ISeeder
         1.00f, // cooldown reduction
         1.00f, // resource regeneration
         system);
-    await _modifiers.AddAsync(helMod, ct);
+    await _modifiers.AddAsync(gebMod, ct);
 
     // =========================================================
-    // ISIS
+    // KUMBHAKARNA
     // =========================================================
-    var isis = heroes.First(h => h.Name == "Isis");
+    var kumbhakarna = heroes.First(h => h.Name == "Kumbhakarna");
 
-    var isisMod = _heroModifierFactory.Create();
-    isisMod.Define(
+    var kumbhakarnaMod = _heroModifierFactory.Create();
+    kumbhakarnaMod.Define(
         version.Id,
-        isis.Id,
+        kumbhakarna.Id,
         1.00f, // health
         1.00f, // mana
         1.00f, // attack damage
@@ -434,7 +607,36 @@ public sealed class HeroModifierSeeder : ISeeder
         1.00f, // cooldown reduction
         1.00f, // resource regeneration
         system);
-    await _modifiers.AddAsync(isisMod, ct);
+    await _modifiers.AddAsync(kumbhakarnaMod, ct);
+
+    // =========================================================
+    // GILGAMESH
+    // =========================================================
+    var gilgamesh = heroes.First(h => h.Name == "Gilgamesh");
+
+    var gilgameshMod = _heroModifierFactory.Create();
+    gilgameshMod.Define(
+        version.Id,
+        gilgamesh.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(gilgameshMod, ct);
 
     // =========================================================
     // FREYJA
@@ -466,14 +668,14 @@ public sealed class HeroModifierSeeder : ISeeder
     await _modifiers.AddAsync(freyjaMod, ct);
 
     // =========================================================
-    // ENKI
+    // ISIS
     // =========================================================
-    var enki = heroes.First(h => h.Name == "Enki");
+    var isis = heroes.First(h => h.Name == "Isis");
 
-    var enkiMod = _heroModifierFactory.Create();
-    enkiMod.Define(
+    var isisMod = _heroModifierFactory.Create();
+    isisMod.Define(
         version.Id,
-        enki.Id,
+        isis.Id,
         1.00f, // health
         1.00f, // mana
         1.00f, // attack damage
@@ -492,7 +694,94 @@ public sealed class HeroModifierSeeder : ISeeder
         1.00f, // cooldown reduction
         1.00f, // resource regeneration
         system);
-    await _modifiers.AddAsync(enkiMod, ct);
+    await _modifiers.AddAsync(isisMod, ct);
+
+    // =========================================================
+    // APHRODITE
+    // =========================================================
+    var aphrodite = heroes.First(h => h.Name == "Aphrodite");
+
+    var aphroditeMod = _heroModifierFactory.Create();
+    aphroditeMod.Define(
+        version.Id,
+        aphrodite.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(aphroditeMod, ct);
+
+    // =========================================================
+    // GUANYIN
+    // =========================================================
+    var guanyin = heroes.First(h => h.Name == "Guanyin");
+
+    var guanyinMod = _heroModifierFactory.Create();
+    guanyinMod.Define(
+        version.Id,
+        guanyin.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(guanyinMod, ct);
+
+    // =========================================================
+    // BRIGID
+    // =========================================================
+    var brigid = heroes.First(h => h.Name == "Brigid");
+
+    var brigidMod = _heroModifierFactory.Create();
+    brigidMod.Define(
+        version.Id,
+        brigid.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(brigidMod, ct);
 
     // =========================================================
     // ARTEMIS
@@ -524,35 +813,6 @@ public sealed class HeroModifierSeeder : ISeeder
     await _modifiers.AddAsync(artemisMod, ct);
 
     // =========================================================
-    // VIDAR
-    // =========================================================
-    var vidar = heroes.First(h => h.Name == "Vidar");
-
-    var vidarMod = _heroModifierFactory.Create();
-    vidarMod.Define(
-        version.Id,
-        vidar.Id,
-        1.00f, // health
-        1.00f, // mana
-        1.00f, // attack damage
-        1.00f, // magic damage
-        0.00f, // ignore enemy defense (additive, not multiplicative)
-        1.00f, // attack speed
-        1.00f, // cast speed
-        1.00f, // crit chance
-        1.00f, // crit damage multiplier
-        1.00f, // armor
-        1.00f, // magic resistance
-        1.00f, // damage reduction
-        1.00f, // shield strength multiplier
-        1.00f, // movement speed
-        1.00f, // attack range
-        1.00f, // cooldown reduction
-        1.00f, // resource regeneration
-        system);
-    await _modifiers.AddAsync(vidarMod, ct);
-
-    // =========================================================
     // RAMA
     // =========================================================
     var rama = heroes.First(h => h.Name == "Rama");
@@ -580,6 +840,93 @@ public sealed class HeroModifierSeeder : ISeeder
         1.00f, // resource regeneration
         system);
     await _modifiers.AddAsync(ramaMod, ct);
+
+    // =========================================================
+    // HOUYI
+    // =========================================================
+    var houyi = heroes.First(h => h.Name == "Houyi");
+
+    var houyiMod = _heroModifierFactory.Create();
+    houyiMod.Define(
+        version.Id,
+        houyi.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(houyiMod, ct);
+
+    // =========================================================
+    // ULLR
+    // =========================================================
+    var ullr = heroes.First(h => h.Name == "Ullr");
+
+    var ullrMod = _heroModifierFactory.Create();
+    ullrMod.Define(
+        version.Id,
+        ullr.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(ullrMod, ct);
+
+    // =========================================================
+    // NEITH
+    // =========================================================
+    var neith = heroes.First(h => h.Name == "Neith");
+
+    var neithMod = _heroModifierFactory.Create();
+    neithMod.Define(
+        version.Id,
+        neith.Id,
+        1.00f, // health
+        1.00f, // mana
+        1.00f, // attack damage
+        1.00f, // magic damage
+        0.00f, // ignore enemy defense (additive, not multiplicative)
+        1.00f, // attack speed
+        1.00f, // cast speed
+        1.00f, // crit chance
+        1.00f, // crit damage multiplier
+        1.00f, // armor
+        1.00f, // magic resistance
+        1.00f, // damage reduction
+        1.00f, // shield strength multiplier
+        1.00f, // movement speed
+        1.00f, // attack range
+        1.00f, // cooldown reduction
+        1.00f, // resource regeneration
+        system);
+    await _modifiers.AddAsync(neithMod, ct);
 
     await _uow.CommitAsync(ct);
   }
