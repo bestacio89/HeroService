@@ -1,15 +1,19 @@
-﻿@page "/admin/skills/create"
-@inject ISkillClient Client
-@inject NavigationManager Nav
+﻿@namespace HeroService.Admin.Components.Pages.Admin.Skills
+
+@page "/admin/skills/create"
 
 <MudPaper Class="pa-4">
 
-    <MudText Typo="Typo.h6">Create Skill</MudText>
+    <MudText Typo="Typo.h6">
+        Create Skill
+    </MudText>
 
     <MudDivider Class="my-3" />
 
+
     <MudTextField Label="Name"
                   @bind-Value="Model.Name" />
+
 
     <MudSelect T="SkillType"
                Label="Skill Type"
@@ -17,22 +21,31 @@
 
         @foreach (var type in Enum.GetValues<SkillType>())
         {
-            <MudSelectItem Value="@type">@type</MudSelectItem>
+            <MudSelectItem Value="@type">
+                @type
+            </MudSelectItem>
         }
 
     </MudSelect>
 
+
     <MudDivider Class="my-3" />
+
 
     <SkillBaseStatsEditor Model="Model" />
 
+
     <MudDivider Class="my-3" />
+
 
     <SkillLoreEditor Model="Model.Lore" />
 
+
     <MudDivider Class="my-3" />
 
-    <SkillEffectsEditor Model="Model.Effects " />
+
+    <SkillEffectsEditor Model="Model.Effects" />
+
 
     <MudButton Class="mt-4"
                Color="Color.Primary"
@@ -41,16 +54,3 @@
     </MudButton>
 
 </MudPaper>
-
-@code {
-    private CreateSkillModel Model = new();
-
-    private async Task Save()
-    {
-        var command = Model.ToCommand();
-
-        await Client.CreateSkillAsync(command);
-
-        Nav.NavigateTo("/admin/skills");
-    }
-}

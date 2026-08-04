@@ -1,57 +1,34 @@
-﻿@page "/admin/origin-archetypes"
-
-@using HeroService.Client.Http.Abstractions
-@using HeroService.Contracts.DTOs.Heroes
-@using MudBlazor
-
-@inject IOriginArchetypeClient Client
-@inject IDialogService DialogService
-
-<LifecycleAdminPage TDto="OriginArchetypeDto"
-                    TCreate="CreateOriginArchetypeCommand"
-                    TRename="RenameOriginArchetypeCommand"
+﻿<LifecycleAdminPage TDto="OriginArchetypeDto"
                     Title="Origin Archetypes"
                     Items="Items"
                     IsLoading="IsLoading"
-                    OnRefresh="Load"
                     OnCreate="Create"
                     OnRename="Rename"
                     OnRetire="Retire">
 
-    <!-- HEADER EXTENSION (semantic enrichment) -->
     <HeaderContent>
 
         <MudTh>Name</MudTh>
 
-        <MudTh Style="width:140px;">
+        <MudTh>
             Status
         </MudTh>
 
     </HeaderContent>
 
-    <!-- ROW -->
+
     <RowTemplate Context="item">
 
         <MudTd>
-            <MudStack Spacing="0">
-
-                <MudText Typo="Typo.subtitle2">
-                    @item.Name
-                </MudText>
-
-                <MudText Typo="Typo.caption" Color="Color.Secondary">
-                    Archetype classification node
-                </MudText>
-
-            </MudStack>
+            @item.Name
         </MudTd>
+
 
         <MudTd>
 
             <MudChip T="string"
-                     Size="Size.Small"
                      Color="Color.Success"
-                     Variant="Variant.Outlined">
+                     Size="Size.Small">
                 Active
             </MudChip>
 
@@ -60,46 +37,3 @@
     </RowTemplate>
 
 </LifecycleAdminPage>
-
-@code {
-    private IReadOnlyList<OriginArchetypeDto> Items = [];
-    private bool IsLoading = true;
-
-    protected override async Task OnInitializedAsync()
-        => await Load();
-
-    private async Task Load()
-    {
-        IsLoading = true;
-        Items = await Client.GetAllAsync();
-        IsLoading = false;
-    }
-
-    private async Task Create()
-    {
-        var dialog = await DialogService.ShowAsync<OriginArchetypeDialog>("Create Archetype");
-        await dialog.Result;
-        await Load();
-    }
-
-    private async Task Rename(OriginArchetypeDto item)
-    {
-        var parameters = new DialogParameters
-        {
-            ["Item"] = item
-        };
-
-        var dialog = await DialogService.ShowAsync<OriginArchetypeDialog>(
-            "Rename Archetype",
-            parameters);
-
-        await dialog.Result;
-        await Load();
-    }
-
-    private async Task Retire(OriginArchetypeDto item)
-    {
-        await Client.RetireAsync(item.Id);
-        await Load();
-    }
-}

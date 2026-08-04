@@ -1,4 +1,5 @@
-﻿
+﻿@namespace HeroService.Admin.Components.Pages.Admin.Heroes
+
 <MudExpansionPanel Text="Lore">
 
     <MudTextField Label="Title"
@@ -16,7 +17,3 @@
                   Immediate="true" />
 
 </MudExpansionPanel>
-
-@code {
-    [Parameter] public HeroCreateRequestDto Model { get; set; } = default!;
-}

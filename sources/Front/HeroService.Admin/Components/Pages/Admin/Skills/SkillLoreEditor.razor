@@ -1,27 +1,28 @@
-﻿<MudExpansionPanel Text="Lore">
+﻿@namespace HeroService.Admin.Components.Pages.Admin.Skills
+
+<MudExpansionPanel Text="Lore">
 
     <MudGrid Spacing="2">
 
         <MudItem xs="12">
+
             <MudTextField Label="Description"
                           Lines="3"
                           AutoGrow="true"
                           @bind-Value="Model.Description" />
+
         </MudItem>
 
+
         <MudItem xs="12">
+
             <MudTextField Label="Visual Explanation"
                           Lines="5"
                           AutoGrow="true"
                           @bind-Value="Model.VisualExplanation" />
+
         </MudItem>
 
     </MudGrid>
 
 </MudExpansionPanel>
-
-@code {
-    [Parameter]
-    [EditorRequired]
-    public SkillLoreDto Model { get; set; } = default!;
-}

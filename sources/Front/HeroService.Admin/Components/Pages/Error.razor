@@ -1,36 +1,75 @@
-﻿@page "/Error"
-@using System.Diagnostics
+﻿@namespace HeroService.Admin.Components.Pages
+
+@page "/Error"
 
 <PageTitle>Error</PageTitle>
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<MudContainer MaxWidth="MaxWidth.Small"
+              Class="mt-12">
 
-@if (ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@RequestId</code>
-    </p>
-}
+    <MudPaper Class="pa-6"
+              Elevation="4">
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+        <MudStack Spacing="3"
+                  AlignItems="AlignItems.Center">
 
-@code{
-    [CascadingParameter]
-    private HttpContext? HttpContext { get; set; }
+            <MudIcon Icon="@Icons.Material.Filled.ErrorOutline"
+                     Size="Size.Large"
+                     Color="Color.Error" />
 
-    private string? RequestId { get; set; }
-    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-    protected override void OnInitialized() =>
-        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
-}
+            <MudText Typo="Typo.h4"
+                     Align="Align.Center">
+                System Error
+            </MudText>
+
+
+            <MudText Typo="Typo.body1"
+                     Color="Color.Secondary"
+                     Align="Align.Center">
+                An unexpected error occurred while processing your request.
+            </MudText>
+
+
+            @if (ShowRequestId)
+            {
+                <MudPaper Class="pa-3 mt-3"
+                          Outlined="true">
+
+                    <MudText Typo="Typo.caption">
+                        Correlation Identifier
+                    </MudText>
+
+
+                    <MudText Typo="Typo.body2">
+                        @RequestId
+                    </MudText>
+
+                </MudPaper>
+            }
+
+
+            <MudDivider Class="my-3" />
+
+
+            <MudAlert Severity="Severity.Warning">
+
+                Detailed error information is only available
+                in the Development environment.
+
+            </MudAlert>
+
+
+            <MudText Typo="Typo.body2"
+                     Align="Align.Center">
+
+                Please contact support if the problem persists
+                and provide the correlation identifier above.
+
+            </MudText>
+
+        </MudStack>
+
+    </MudPaper>
+
+</MudContainer>

@@ -1,10 +1,12 @@
-﻿@page "/admin/heroes/create"
-@inject IHeroClient HeroClient
-@inject IDialogService DialogService
+﻿@namespace HeroService.Admin.Components.Pages.Admin.Heroes
+
+@page "/admin/heroes/create"
 
 <MudPaper Class="pa-4">
 
-    <MudText Typo="Typo.h5">Create Hero</MudText>
+    <MudText Typo="Typo.h5">
+        Create Hero
+    </MudText>
 
     <MudDivider Class="my-2" />
 
@@ -30,13 +32,3 @@
     </MudStack>
 
 </MudPaper>
-@code {
-    private HeroCreateRequestDto Model = new();
-
-    private async Task CreateHero()
-    {
-        var id = await HeroClient.CreateAsync(Model);
-
-        // optional navigation later
-    }
-}

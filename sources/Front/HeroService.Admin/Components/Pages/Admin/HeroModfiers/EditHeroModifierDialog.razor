@@ -1,33 +1,71 @@
 ﻿@namespace HeroService.Admin.Components.Pages.Admin.HeroModifiers
 
-<MudDialog>
+@using HeroService.Contracts.Commands.Modifiers
 
-    <DialogContent>
+<MudExpansionPanel Text="Combat Modifier Overrides">
 
-        <MudStack Spacing="3">
+    <MudGrid Spacing="2">
 
-            <HeroModifierStatsEditor Model="Model" />
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Health Multiplier"
+                             @bind-Value="Model.HealthMultiplier" />
+        </MudItem>
 
-        </MudStack>
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Mana Multiplier"
+                             @bind-Value="Model.ManaMultiplier" />
+        </MudItem>
 
-    </DialogContent>
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Attack Damage Multiplier"
+                             @bind-Value="Model.AttackDamageMultiplier" />
+        </MudItem>
 
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Magic Damage Multiplier"
+                             @bind-Value="Model.MagicDamageMultiplier" />
+        </MudItem>
 
-    <DialogActions>
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Attack Speed Multiplier"
+                             @bind-Value="Model.AttackSpeedMultiplier" />
+        </MudItem>
 
-        <MudButton Variant="Variant.Text"
-                   OnClick="Cancel">
-            Cancel
-        </MudButton>
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Cooldown Reduction Multiplier"
+                             @bind-Value="Model.CooldownReductionMultiplier" />
+        </MudItem>
 
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Armor Multiplier"
+                             @bind-Value="Model.ArmorMultiplier" />
+        </MudItem>
 
-        <MudButton Color="Color.Primary"
-                   Variant="Variant.Filled"
-                   Disabled="Saving"
-                   OnClick="Save">
-            Save
-        </MudButton>
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Magic Resistance Multiplier"
+                             @bind-Value="Model.MagicResistanceMultiplier" />
+        </MudItem>
 
-    </DialogActions>
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Shield Strength Multiplier"
+                             @bind-Value="Model.ShieldStrengthMultiplier" />
+        </MudItem>
 
-</MudDialog>
+        <MudItem xs="6">
+            <MudNumericField T="float?"
+                             Label="Movement Speed Multiplier"
+                             @bind-Value="Model.MovementSpeedMultiplier" />
+        </MudItem>
+
+    </MudGrid>
+
+</MudExpansionPanel>

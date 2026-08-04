@@ -1,7 +1,6 @@
-﻿@page "/admin/hero-classes"
+﻿@namespace HeroService.Admin.Components.Pages.Admin.HeroClasses
 
-@inject IHeroClassClient Client
-@inject IDialogService DialogService
+@page "/admin/hero-classes"
 
 <MudPaper Class="pa-4">
 
@@ -68,53 +67,3 @@
     }
 
 </MudPaper>
-
-@code {
-
-    private IReadOnlyCollection<HeroClassDto> Items = [];
-    private bool IsLoading = true;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await Load();
-    }
-
-    private async Task Load()
-    {
-        IsLoading = true;
-
-        try
-        {
-            Items = await Client.GetAllAsync();
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    private async Task OpenCreateDialog()
-    {
-        var parameters = new DialogParameters
-        {
-            { "OnSaved", EventCallback.Factory.Create(this, Load) }
-        };
-
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            FullWidth = true,
-            MaxWidth = MaxWidth.Small
-        };
-
-        await DialogService.ShowAsync<HeroClassDialog>(
-            "Create Hero Class",
-            parameters,
-            options);
-    }
-
-    private void OpenDetails(HeroClassDto item)
-    {
-        // placeholder for now
-    }
-}

@@ -1,6 +1,7 @@
-﻿@inject IMythologyTypeClient Client
+﻿@namespace HeroService.Admin.Components.Pages.Admin.MythologyTypes
 
 <MudDialog>
+
     <DialogContent>
 
         <MudText Typo="Typo.h6">
@@ -26,39 +27,5 @@
         </MudButton>
 
     </DialogActions>
+
 </MudDialog>
-
-@code {
-    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
-    [Parameter] public MythologyTypeDto? Item { get; set; }
-
-    private string Name = string.Empty;
-    private bool IsEdit => Item is not null;
-
-    protected override void OnInitialized()
-    {
-        if (Item is not null)
-            Name = Item.Name;
-    }
-
-    private async Task Save()
-    {
-        if (IsEdit)
-        {
-            var command = new RenameMythologyTypeCommand(Item!.Id, Name);
-            await Client.RenameAsync(Item.Id, command);
-        }
-        else
-        {
-            var command = new CreateMythologyTypeCommand(Name);
-            await Client.CreateAsync(command);
-        }
-
-        MudDialog.Close();
-    }
-
-    private void Cancel()
-    {
-        MudDialog.Cancel();
-    }
-}

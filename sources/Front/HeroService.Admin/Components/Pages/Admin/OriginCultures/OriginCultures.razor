@@ -1,0 +1,60 @@
+﻿@namespace HeroService.Admin.Components.Pages.Admin.OriginCultures
+
+@page "/admin/origin-cultures"
+
+<LifecycleAdminPage TDto="OriginCultureDto"
+                    TCreate="CreateOriginCultureCommand"
+                    TRename="RenameOriginCultureCommand"
+                    Title="Origin Cultures"
+                    Items="Items"
+                    IsLoading="IsLoading"
+                    OnRefresh="Load"
+                    OnCreate="Create"
+                    OnRename="Rename"
+                    OnRetire="Retire">
+
+    <HeaderContent>
+
+        <MudTh>Name</MudTh>
+
+        <MudTh Style="width:140px;">
+            Classification
+        </MudTh>
+
+    </HeaderContent>
+
+
+    <RowTemplate Context="item">
+
+        <MudTd>
+
+            <MudStack Spacing="0">
+
+                <MudText Typo="Typo.subtitle2">
+                    @item.Name
+                </MudText>
+
+                <MudText Typo="Typo.caption"
+                         Color="Color.Secondary">
+                    Cultural origin system node
+                </MudText>
+
+            </MudStack>
+
+        </MudTd>
+
+
+        <MudTd>
+
+            <MudChip T="string"
+                     Size="Size.Small"
+                     Color="Color.Info"
+                     Variant="Variant.Outlined">
+                Culture
+            </MudChip>
+
+        </MudTd>
+
+    </RowTemplate>
+
+</LifecycleAdminPage>

@@ -6,7 +6,7 @@ using MudBlazor;
 
 namespace HeroService.Admin.Components.Pages.Admin.HeroModifiers;
 
-public partial class EditHeroModifierDialog
+public partial class EditHeroModifierDialog : ComponentBase
 {
   [CascadingParameter]
   private IMudDialogInstance Dialog { get; set; } = default!;
@@ -20,7 +20,7 @@ public partial class EditHeroModifierDialog
   private IHeroModifierClient Client { get; set; } = default!;
 
 
-  private UpdateHeroModifierCommand Model { get; set; } = new();
+  public UpdateHeroModifierCommand Model { get; set; } = new();
 
 
   private bool Saving { get; set; }

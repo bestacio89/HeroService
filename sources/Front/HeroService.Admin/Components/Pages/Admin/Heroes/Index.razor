@@ -1,18 +1,19 @@
-﻿@page "/admin/heroes"
+﻿@namespace HeroService.Admin.Components.Pages.Admin.Heroes
 
-@inject IHeroClient HeroClient
-@inject NavigationManager Nav
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
+@page "/admin/heroes"
 
 <MudPaper Class="pa-4">
 
     <!-- Header / Actions -->
-    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudStack Row="true"
+              Justify="Justify.SpaceBetween"
+              AlignItems="AlignItems.Center"
+              Class="mb-4">
 
         <MudStack Spacing="1">
             <MudText Typo="Typo.h5">Heroes</MudText>
-            <MudText Typo="Typo.body2" Color="Color.Secondary">
+            <MudText Typo="Typo.body2"
+                     Color="Color.Secondary">
                 Manage hero registry and affiliations
             </MudText>
         </MudStack>
@@ -33,17 +34,25 @@
     </MudStack>
 
     <!-- Quick stats -->
-    <MudStack Row="true" Spacing="2" Class="mb-4">
+    <MudStack Row="true"
+              Spacing="2"
+              Class="mb-4">
 
-        <MudChip T="string" Color="Color.Primary" Variant="Variant.Filled">
+        <MudChip T="string"
+                 Color="Color.Primary"
+                 Variant="Variant.Filled">
             Total: @_heroes.Count
         </MudChip>
 
-        <MudChip T="string" Color="Color.Secondary" Variant="Variant.Outlined">
+        <MudChip T="string"
+                 Color="Color.Secondary"
+                 Variant="Variant.Outlined">
             Classes: @_heroes.Select(h => h.Class?.Name).Distinct().Count()
         </MudChip>
 
-        <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined">
+        <MudChip T="string"
+                 Color="Color.Info"
+                 Variant="Variant.Outlined">
             Mythologies: @_heroes.Select(h => h.Affiliation?.Mythology?.Name).Distinct().Count()
         </MudChip>
 
@@ -51,13 +60,13 @@
 
     <!-- Table -->
     <MudTable Items="FilteredHeroes"
+              T="HeroDto"
               Hover="true"
               Bordered="false"
               Striped="true"
               Dense="true"
-              T="HeroDto"
-              OnRowClick="@(args => OpenDetailsAsync(args.Item))"
-              RowStyle="cursor: pointer;">
+              RowStyle="cursor: pointer;"
+              OnRowClick="@(args => OpenDetailsAsync(args.Item))">
 
         <HeaderContent>
             <MudTh>Name</MudTh>
@@ -68,54 +77,20 @@
         </HeaderContent>
 
         <RowTemplate Context="hero">
+
             <MudTd>
-                <MudText Typo="Typo.subtitle2">@hero.Name</MudText>
+                <MudText Typo="Typo.subtitle2">
+                    @hero.Name
+                </MudText>
             </MudTd>
 
             <MudTd>@hero.Class?.Name</MudTd>
             <MudTd>@hero.Affiliation?.Culture?.Name</MudTd>
             <MudTd>@hero.Affiliation?.Mythology?.Name</MudTd>
             <MudTd>@hero.Affiliation?.Archetype?.Name</MudTd>
+
         </RowTemplate>
 
     </MudTable>
 
 </MudPaper>
-
-@code {
-    private List<HeroDto> _heroes = new();
-    private string? _search;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var result = await HeroClient.BrowseAsync();
-        _heroes = result?.ToList() ?? new();
-    }
-
-    private IEnumerable<HeroDto> FilteredHeroes =>
-        string.IsNullOrWhiteSpace(_search)
-            ? _heroes
-            : _heroes.Where(h =>
-                h.Name.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-                (h.Class?.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (h.Affiliation?.Mythology?.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false)
-            );
-
-    private async Task OpenDetailsAsync(HeroDto hero)
-    {
-        var details = await HeroClient.GetByIdAsync(hero.Id);
-
-        if (details is null)
-        {
-            Snackbar.Add("Hero details not found", Severity.Error);
-            return;
-        }
-
-        var parameters = new DialogParameters<HeroDetailsDialog>
-        {
-            { x => x.Hero, details }
-        };
-
-        await DialogService.ShowAsync<HeroDetailsDialog>(details.Name, parameters);
-    }
-}

@@ -1,51 +1,62 @@
-﻿<MudExpansionPanel Text="Base Stats">
+﻿@namespace HeroService.Admin.Components.Pages.Admin.Skills
+
+<MudExpansionPanel Text="Base Stats">
 
     <MudGrid Spacing="2">
 
         <MudItem xs="6">
+
             <MudNumericField T="float?"
                              Label="Cooldown"
                              @bind-Value="Model.BaseStats.Cooldown" />
+
         </MudItem>
 
+
         <MudItem xs="6">
+
             <MudNumericField T="float?"
                              Label="Mana Cost"
                              @bind-Value="Model.BaseStats.ManaCost" />
+
         </MudItem>
 
+
         <MudItem xs="6">
+
             <MudNumericField T="float?"
                              Label="Damage"
                              @bind-Value="Model.BaseStats.Damage" />
+
         </MudItem>
 
+
         <MudItem xs="6">
+
             <MudNumericField T="float?"
                              Label="Healing"
                              @bind-Value="Model.BaseStats.Healing" />
+
         </MudItem>
 
+
         <MudItem xs="6">
+
             <MudNumericField T="float?"
                              Label="Shield Value"
                              @bind-Value="Model.BaseStats.ShieldValue" />
+
         </MudItem>
 
+
         <MudItem xs="6">
+
             <MudNumericField T="float?"
                              Label="Range"
                              @bind-Value="Model.BaseStats.Range" />
+
         </MudItem>
 
     </MudGrid>
 
 </MudExpansionPanel>
-
-@code {
-    [Parameter] [EditorRequired] public CreateSkillModel Model { get; set; } = default!;
-}<h3>SkillBaseStatsEditor</h3>
-
-@code {
-
-}

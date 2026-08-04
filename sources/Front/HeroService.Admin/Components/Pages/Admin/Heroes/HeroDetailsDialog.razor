@@ -1,4 +1,4 @@
-﻿@inject ISkillClient SkillClient
+﻿@namespace HeroService.Admin.Components.Pages.Admin.Heroes
 
 <MudDialog>
 
@@ -26,142 +26,89 @@
             }
         </MudStack>
 
-
         <MudDivider Class="mb-3" />
-
 
         <MudText Typo="Typo.subtitle2" Class="mb-2">
             Base Stats
         </MudText>
 
+        <MudGrid Spacing="2">
 
-        <MudGrid Spacing="2" Class="mb-3">
-
-            <!-- CORE -->
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Health: @Hero.BaseStats.BaseHealth
-                </MudText>
+                <MudText Typo="Typo.body2">Health: @Hero.BaseStats.BaseHealth</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Mana: @Hero.BaseStats.BaseMana
-                </MudText>
-            </MudItem>
-
-
-            <!-- DAMAGE -->
-            <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Attack Damage: @Hero.BaseStats.BaseAttackDamage
-                </MudText>
+                <MudText Typo="Typo.body2">Mana: @Hero.BaseStats.BaseMana</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Ability Power: @Hero.BaseStats.BaseMagicDamage
-                </MudText>
+                <MudText Typo="Typo.body2">Attack Damage: @Hero.BaseStats.BaseAttackDamage</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Ignore Enemy Defense: @Hero.BaseStats.BaseIgnoreEnemyDefense
-                </MudText>
-            </MudItem>
-
-
-            <!-- TEMPO -->
-            <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Attack Speed: @Hero.BaseStats.BaseAttackSpeed
-                </MudText>
+                <MudText Typo="Typo.body2">Ability Power: @Hero.BaseStats.BaseMagicDamage</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Cast Speed: @Hero.BaseStats.BaseCastSpeed
-                </MudText>
-            </MudItem>
-
-
-            <!-- CRITICAL -->
-            <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Crit Chance: @Hero.BaseStats.BaseCritChance
-                </MudText>
+                <MudText Typo="Typo.body2">Ignore Enemy Defense: @Hero.BaseStats.BaseIgnoreEnemyDefense</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Crit Multiplier: @Hero.BaseStats.BaseCritDamageMultiplier
-                </MudText>
-            </MudItem>
-
-
-            <!-- DEFENSE -->
-            <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Armor: @Hero.BaseStats.BaseArmor
-                </MudText>
+                <MudText Typo="Typo.body2">Attack Speed: @Hero.BaseStats.BaseAttackSpeed</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Magic Resistance: @Hero.BaseStats.BaseMagicResistance
-                </MudText>
+                <MudText Typo="Typo.body2">Cast Speed: @Hero.BaseStats.BaseCastSpeed</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Damage Reduction: @Hero.BaseStats.BaseDamageReduction
-                </MudText>
+                <MudText Typo="Typo.body2">Crit Chance: @Hero.BaseStats.BaseCritChance</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Shield Multiplier: @Hero.BaseStats.BaseShieldStrengthMultiplier
-                </MudText>
-            </MudItem>
-
-
-            <!-- POSITIONING -->
-            <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Movement Speed: @Hero.BaseStats.BaseMovementSpeed
-                </MudText>
+                <MudText Typo="Typo.body2">Crit Multiplier: @Hero.BaseStats.BaseCritDamageMultiplier</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Attack Range: @Hero.BaseStats.BaseAttackRange
-                </MudText>
-            </MudItem>
-
-
-            <!-- RESOURCE -->
-            <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Cooldown Reduction: @Hero.BaseStats.BaseCooldownReduction
-                </MudText>
+                <MudText Typo="Typo.body2">Armor: @Hero.BaseStats.BaseArmor</MudText>
             </MudItem>
 
             <MudItem xs="6" sm="4">
-                <MudText Typo="Typo.body2">
-                    Resource Regen: @Hero.BaseStats.BaseResourceRegeneration
-                </MudText>
+                <MudText Typo="Typo.body2">Magic Resistance: @Hero.BaseStats.BaseMagicResistance</MudText>
+            </MudItem>
+
+            <MudItem xs="6" sm="4">
+                <MudText Typo="Typo.body2">Damage Reduction: @Hero.BaseStats.BaseDamageReduction</MudText>
+            </MudItem>
+
+            <MudItem xs="6" sm="4">
+                <MudText Typo="Typo.body2">Shield Multiplier: @Hero.BaseStats.BaseShieldStrengthMultiplier</MudText>
+            </MudItem>
+
+            <MudItem xs="6" sm="4">
+                <MudText Typo="Typo.body2">Movement Speed: @Hero.BaseStats.BaseMovementSpeed</MudText>
+            </MudItem>
+
+            <MudItem xs="6" sm="4">
+                <MudText Typo="Typo.body2">Attack Range: @Hero.BaseStats.BaseAttackRange</MudText>
+            </MudItem>
+
+            <MudItem xs="6" sm="4">
+                <MudText Typo="Typo.body2">Cooldown Reduction: @Hero.BaseStats.BaseCooldownReduction</MudText>
+            </MudItem>
+
+            <MudItem xs="6" sm="4">
+                <MudText Typo="Typo.body2">Resource Regen: @Hero.BaseStats.BaseResourceRegeneration</MudText>
             </MudItem>
 
         </MudGrid>
 
-
-        <MudDivider Class="mb-3" />
-
+        <MudDivider Class="my-3" />
 
         <MudText Typo="Typo.subtitle2" Class="mb-2">
             Skill Kit
         </MudText>
-
 
         @if (IsLoadingSkills)
         {
@@ -172,40 +119,29 @@
             <MudGrid Spacing="2">
 
                 <MudItem xs="12" sm="6">
-                    <MudText Typo="Typo.body2">
-                        Passive: @_passiveSkillName
-                    </MudText>
+                    <MudText Typo="Typo.body2">Passive: @PassiveSkillName</MudText>
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
-                    <MudText Typo="Typo.body2">
-                        Primary: @_primarySkillName
-                    </MudText>
+                    <MudText Typo="Typo.body2">Primary: @PrimarySkillName</MudText>
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
-                    <MudText Typo="Typo.body2">
-                        Secondary: @_secondarySkillName
-                    </MudText>
+                    <MudText Typo="Typo.body2">Secondary: @SecondarySkillName</MudText>
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
-                    <MudText Typo="Typo.body2">
-                        Tertiary: @_tertiarySkillName
-                    </MudText>
+                    <MudText Typo="Typo.body2">Tertiary: @TertiarySkillName</MudText>
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
-                    <MudText Typo="Typo.body2">
-                        Ultimate: @_ultimateSkillName
-                    </MudText>
+                    <MudText Typo="Typo.body2">Ultimate: @UltimateSkillName</MudText>
                 </MudItem>
 
             </MudGrid>
         }
 
     </DialogContent>
-
 
     <DialogActions>
         <MudButton OnClick="Close">
@@ -214,56 +150,3 @@
     </DialogActions>
 
 </MudDialog>
-
-
-@code {
-
-    [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; } = default!;
-
-
-    [Parameter, EditorRequired]
-    public HeroDto Hero { get; set; } = default!;
-
-
-    private bool IsLoadingSkills = true;
-
-
-    private string _passiveSkillName = "(unknown)";
-    private string _primarySkillName = "(unknown)";
-    private string _secondarySkillName = "(unknown)";
-    private string _tertiarySkillName = "(unknown)";
-    private string _ultimateSkillName = "(unknown)";
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        var passiveTask = SkillClient.GetDetailsAsync(Hero.SkillKit.PassiveSkillId);
-        var primaryTask = SkillClient.GetDetailsAsync(Hero.SkillKit.PrimarySkillId);
-        var secondaryTask = SkillClient.GetDetailsAsync(Hero.SkillKit.SecondarySkillId);
-        var tertiaryTask = SkillClient.GetDetailsAsync(Hero.SkillKit.TertiarySkillId);
-        var ultimateTask = SkillClient.GetDetailsAsync(Hero.SkillKit.UltimateSkillId);
-
-
-        await Task.WhenAll(
-            passiveTask,
-            primaryTask,
-            secondaryTask,
-            tertiaryTask,
-            ultimateTask);
-
-
-        _passiveSkillName = passiveTask.Result?.Name ?? "(unknown)";
-        _primarySkillName = primaryTask.Result?.Name ?? "(unknown)";
-        _secondarySkillName = secondaryTask.Result?.Name ?? "(unknown)";
-        _tertiarySkillName = tertiaryTask.Result?.Name ?? "(unknown)";
-        _ultimateSkillName = ultimateTask.Result?.Name ?? "(unknown)";
-
-
-        IsLoadingSkills = false;
-    }
-
-
-    private void Close()
-        => MudDialog.Close();
-}

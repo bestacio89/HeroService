@@ -1,53 +1,35 @@
-﻿@using HeroService.Contracts.Commands.Modifiers
+﻿@namespace HeroService.Admin.Components.Pages.Admin.Heroes
+
+@using HeroService.Contracts.Commands.Modifiers
+
 <MudExpansionPanel Text="Combat Modifier Overrides">
 
     <MudGrid Spacing="2">
 
-
         <MudItem xs="6">
-
             <MudNumericField T="float?"
                              Label="Health Multiplier"
                              @bind-Value="Model.HealthMultiplier" />
-
         </MudItem>
 
-
         <MudItem xs="6">
-
             <MudNumericField T="float?"
                              Label="Mana Multiplier"
                              @bind-Value="Model.ManaMultiplier" />
-
         </MudItem>
 
-
         <MudItem xs="6">
-
             <MudNumericField T="float?"
                              Label="Attack Damage Multiplier"
                              @bind-Value="Model.AttackDamageMultiplier" />
-
         </MudItem>
 
-
         <MudItem xs="6">
-
             <MudNumericField T="float?"
                              Label="Ability Power Multiplier"
                              @bind-Value="Model.AbilityPowerMultiplier" />
-
         </MudItem>
-
 
     </MudGrid>
 
 </MudExpansionPanel>
-
-
-@code {
-
-    [Parameter, EditorRequired]
-    public CreateHeroModifierCommand Model { get; set; } = default!;
-
-}

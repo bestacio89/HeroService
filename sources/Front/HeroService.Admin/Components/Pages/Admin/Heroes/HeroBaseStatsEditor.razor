@@ -1,5 +1,6 @@
-﻿@using HeroService.Contracts.DTOs.Requests
+﻿@namespace HeroService.Admin.Components.Pages.Admin.Heroes
 
+@using HeroService.Contracts.DTOs.Requests
 
 <MudExpansionPanel Text="Base Stats">
 
@@ -24,7 +25,6 @@
 
     </MudExpansionPanel>
 
-
     <!-- DAMAGE -->
     <MudExpansionPanel Text="Damage Profile" Dense="true">
 
@@ -42,7 +42,6 @@
                                  @bind-Value="Model.BaseStats.BaseMagicDamage" />
             </MudItem>
 
-
             <MudItem xs="6">
                 <MudNumericField T="float"
                                  Label="Ignore Enemy Defense"
@@ -53,7 +52,6 @@
         </MudGrid>
 
     </MudExpansionPanel>
-
 
     <!-- TEMPO -->
     <MudExpansionPanel Text="Combat Tempo" Dense="true">
@@ -76,7 +74,6 @@
 
     </MudExpansionPanel>
 
-
     <!-- CRITICAL -->
     <MudExpansionPanel Text="Critical Profile" Dense="true">
 
@@ -97,7 +94,6 @@
         </MudGrid>
 
     </MudExpansionPanel>
-
 
     <!-- DEFENSE -->
     <MudExpansionPanel Text="Defensive Profile" Dense="true">
@@ -132,7 +128,6 @@
 
     </MudExpansionPanel>
 
-
     <!-- POSITION -->
     <MudExpansionPanel Text="Positioning" Dense="true">
 
@@ -153,7 +148,6 @@
         </MudGrid>
 
     </MudExpansionPanel>
-
 
     <!-- RESOURCE -->
     <MudExpansionPanel Text="Resource & Sustain" Dense="true">
@@ -176,11 +170,4 @@
 
     </MudExpansionPanel>
 
-
 </MudExpansionPanel>
-
-
-@code {
-    [Parameter, EditorRequired]
-    public HeroCreateRequestDto Model { get; set; } = default!;
-}
