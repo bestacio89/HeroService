@@ -13,7 +13,8 @@
                 Browse the roster and explore each hero's classification.
             </MudText>
         </div>
-        <MudTextField @bind-Value="_search"
+        <MudTextField Value="@_search"
+                      ValueChanged="@OnSearchChanged"
                       Placeholder="Search heroes or mythology"
                       AriaLabel="Search heroes"
                       Variant="Variant.Outlined"
@@ -75,7 +76,7 @@
         <div class="section-heading">
             <MudText Typo="Typo.h6">Roster</MudText>
             <MudText Typo="Typo.body2" Color="Color.Secondary">
-                @FilteredHeroes.Count() result@(FilteredHeroes.Count() == 1 ? "" : "s")
+                @FilteredHeroes.Count result@(FilteredHeroes.Count == 1 ? "" : "s")
             </MudText>
         </div>
 
@@ -87,7 +88,7 @@
                 <MudText Typo="Typo.body2" Color="Color.Secondary">The catalogue is empty. Once heroes are available, they will appear here.</MudText>
             </MudPaper>
         }
-        else if (!FilteredHeroes.Any())
+        else if (FilteredHeroes.Count == 0)
         {
             <MudPaper Class="empty-state" Elevation="0">
                 <MudIcon Icon="@Icons.Material.Outlined.SearchOff" Size="Size.Large" Color="Color.Secondary" />
