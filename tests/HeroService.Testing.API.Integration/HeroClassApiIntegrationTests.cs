@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
+using Testcontainers.Redis;
 
 namespace HeroService.Testing.API.Integration;
 
@@ -19,14 +20,16 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
     .WithPassword("postgres")
     .Build();
 
+  private readonly RedisContainer _redis = new RedisBuilder("redis:7.4.2-alpine").Build();
   private HeroServiceApiFactory? _factory;
   private HttpClient? _client;
 
   public async Task InitializeAsync()
   {
     await _postgres.StartAsync();
+    await _redis.StartAsync();
 
-    _factory = new HeroServiceApiFactory(_postgres);
+    _factory = new HeroServiceApiFactory(_postgres, _redis);
     _client = _factory.CreateClient();
 
     await using var scope = _factory.Services.CreateAsyncScope();
@@ -41,6 +44,7 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
     if (_factory is not null)
       await _factory.DisposeAsync();
 
+    await _redis.DisposeAsync();
     await _postgres.DisposeAsync();
   }
 
@@ -68,10 +72,12 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
   private sealed class HeroServiceApiFactory : WebApplicationFactory<Program>
   {
     private readonly PostgreSqlContainer _database;
+    private readonly RedisContainer _cache;
 
-    public HeroServiceApiFactory(PostgreSqlContainer database)
+    public HeroServiceApiFactory(PostgreSqlContainer database, RedisContainer cache)
     {
       _database = database;
+      _cache = cache;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -87,7 +93,9 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
           ["Database:UserName"] = "postgres",
           ["Database:Password"] = "postgres",
           ["Database:Port"] = _database.GetMappedPublicPort(5432).ToString(),
-          ["Database:Ssl"] = "Disable"
+          ["Database:Ssl"] = "Disable",
+          ["Caching:ConnectionString"] = _cache.GetConnectionString(),
+          ["Caching:KeyPrefix"] = "HeroServiceTests"
         };
 
         configuration.AddInMemoryCollection(values);
