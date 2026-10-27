@@ -30,7 +30,7 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Run as a non-root user.
-USER $APP_UID
+RUN useradd -m appuser
+USER appuser
 
 ENTRYPOINT ["dotnet", "HeroService.Consumer.dll"]
