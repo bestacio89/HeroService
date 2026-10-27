@@ -46,7 +46,7 @@ Existing test projects in the solution:
 - `tests/HeroService.Testing.Persistence.Integration`: PostgreSQL Testcontainers schema/persistence smoke test.
 - `tests/HeroService.Testing.API.Integration`: real API host tests with PostgreSQL and Redis Testcontainers.
 
-The obsolete `HeroService.Consumer.Tests` scaffold has been removed and replaced with `tests/HeroService.Testing.Consumer`, which is included in `HeroService.slnx` and references the current Consumer project. Initial tests cover malformed JSON propagation and JSON-null handling only. Broker integration remains intentionally pending because the production processor currently has no persistence or business side effect, and its acknowledgement/retry contract has not been established.
+The obsolete `HeroService.Consumer.Tests` scaffold has been removed and replaced with `tests/HeroService.Testing.Consumer`, which is included in `HeroService.slnx` and references the current Consumer project. Initial processor tests cover malformed JSON propagation, JSON-null handling, and the explicit warning emitted when a payload is deserialized but not applied. A PostgreSQL + Redis Testcontainers test verifies Consumer persistence registration, provider selection, migrations, and connectivity. Broker integration remains intentionally pending because the production processor currently has no persistence or business side effect, and its acknowledgement/retry contract has not been established.
 
 ## Execution plan
 
@@ -78,7 +78,7 @@ The obsolete `HeroService.Consumer.Tests` scaffold has been removed and replaced
 - [x] Add initial typed HTTP client route, filter and URI-escaping tests with deterministic fake handlers.
 - [ ] Extend client tests to failure, malformed-response, timeout and cancellation paths.
 - [x] Replace the stale consumer test scaffold with a current .NET 10 test project and include it in `HeroService.slnx`; initial processor edge-case tests are added.
-- [ ] Verify the Consumer host's provider/DI registrations in CI and add tests for its configuration contract.
+- [x] Verify Consumer persistence provider/DI registration against PostgreSQL and Redis Testcontainers in CI; broader host/broker configuration contracts remain to be covered.
 - Add a pinned Kafka Testcontainers fixture only after production message-processing and acknowledgement/retry semantics are defined; assert only behavior the implementation guarantees.
 - Add database/broker integration tests for cross-resource workflows only where such workflows actually exist.
 
@@ -100,9 +100,9 @@ The obsolete `HeroService.Consumer.Tests` scaffold has been removed and replaced
 ## Known findings to resolve, not conceal
 
 - Resolved during this implementation: the active GitHub Actions workflow now targets .NET 10 and `HeroService.slnx`, restores from NuGet.org only, separates unit and integration suites, and publishes TRX results.
-- In this branch, Consumer startup now uses the same `AddRelationalDatabase<ApplicationDbContext>` provider-selection path as the API, and its configuration declares PostgreSQL. This is awaiting CI validation; it is not yet proof that end-to-end consumer/database integration is correct.
-- `GenericMessageProcessor<T>` currently deserializes and logs but its entity-processing method contains no persistence or business action. Tests must expose this current behavior; they must not imply that a message has been durably processed.
-- The existing consumer test project is not included in the solution and contains stale references and a skipped integration test.
+- Verified in CI: Consumer startup uses the same `AddRelationalDatabase<ApplicationDbContext>` provider-selection path as the API; the PostgreSQL/Redis-backed registration test resolves `ApplicationDbContext`, applies migrations, and connects successfully. This does not prove end-to-end message processing.
+- `GenericMessageProcessor<T>` currently deserializes and logs but has no persistence or business action. Tests explicitly assert that it reports the payload was not applied; they must not imply that a message has been durably processed.
+- Resolved in this branch: the stale consumer test scaffold was removed, and `tests/HeroService.Testing.Consumer` is included in `HeroService.slnx` with focused processor tests and a container-backed persistence registration test.
 - Resolved during this implementation: two modifier controllers violated the established namespace rule; the Domain audit expected `HeroService.Common` rather than `Franz.Common`; `HeroAffiliation` and `GameVersion` had no namespace; and the API cache key prefix `heroservice:` violated its own alphanumeric validation. Production code/configuration and the current EF model snapshot were corrected without relaxing architecture rules.
 - CI restore still reports high-severity advisories for transitive `System.Security.Cryptography.Pkcs` and `System.Security.Cryptography.Xml` packages. The patched 10.0.13 release is documented in [GHSA-846f-f764-76mx](https://github.com/advisories/GHSA-846f-f764-76mx) and [GHSA-7hqp-7c5m-4vq6](https://github.com/advisories/GHSA-7hqp-7c5m-4vq6); package remediation remains open and must be completed before release.
 - The UI is an Interactive Server Blazor app. Browser tests and performance measurements must account for its server connection and request latency.
