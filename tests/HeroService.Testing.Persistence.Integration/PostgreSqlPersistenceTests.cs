@@ -3,7 +3,7 @@ using DotNet.Testcontainers.Containers;
 using Franz.Common.Mediator.Dispatchers;
 using HeroService.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Moq;
+using System.Reflection;
 
 namespace HeroService.Testing.Persistence.Integration;
 
@@ -35,11 +35,32 @@ public sealed class PostgreSqlPersistenceTests
 
     await using var dbContext = new ApplicationDbContext(
       options,
-      new Mock<IDispatcher>().Object);
+      DispatchProxy.Create<IDispatcher, NoOpDispatcherProxy>());
 
     await dbContext.Database.EnsureCreatedAsync();
 
     Assert.True(await dbContext.Database.CanConnectAsync());
     Assert.Equal(0, await dbContext.Heroes.CountAsync());
+  }
+  
+  public class NoOpDispatcherProxy : DispatchProxy
+  {
+    protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
+    {
+      var returnType = targetMethod?.ReturnType;
+      if (returnType is null || returnType == typeof(void))
+        return null;
+
+      if (returnType == typeof(Task))
+        return Task.CompletedTask;
+
+      if (returnType == typeof(ValueTask))
+        return ValueTask.CompletedTask;
+
+      if (returnType.IsValueType)
+        return Activator.CreateInstance(returnType);
+
+      return null;
+    }
   }
 }
