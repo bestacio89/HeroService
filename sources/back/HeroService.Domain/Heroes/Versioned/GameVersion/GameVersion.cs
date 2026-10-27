@@ -1,4 +1,6 @@
-﻿public class GameVersion : Entity<Guid>
+namespace HeroService.Domain.Heroes.Versioned.GameVersion;
+
+public class GameVersion : Entity<Guid>
 {
   public string VersionNumber { get; private set; }
   public string VersionName { get; private set; }
