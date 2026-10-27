@@ -12,6 +12,9 @@
     <Content Include="appsettings.development.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="appsettings.docker.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -21,11 +24,12 @@
     <PackageReference Include="Franz.Common.Hosting" />
     <PackageReference Include="Franz.Common.Http.EntityFramework" />
     <PackageReference Include="Franz.Common.Mediator.Polly" />
+    <PackageReference Include="Franz.Common.Messaging.Bootstrap" />
+    <PackageReference Include="Franz.Common.Messaging.EntityFramework" />
+    <PackageReference Include="Franz.Common.Messaging.Hosting.Kafka" />
+    <PackageReference Include="Franz.Common.Messaging.KafKa" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting" />
-	  <PackageReference Include="Franz.Common.Messaging.Bootstrap" />
-	  <PackageReference Include="Franz.Common.Messaging.EntityFramework" />
-	  <PackageReference Include="Franz.Common.Messaging.KafKa" />
   </ItemGroup>
 
   <ItemGroup>
