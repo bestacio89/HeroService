@@ -41,6 +41,26 @@ public sealed class KafkaDeploymentConfigurationTests
   }
 
   [Fact]
+  public void Production_RejectsLocalDatabase()
+  {
+    var values = BuildProductionConfiguration();
+    values["Database:ServerName"] = "localhost";
+
+    Assert.Throws<InvalidOperationException>(
+        () => KafkaDeploymentConfigurationValidator.Validate(BuildConfiguration(values), "Production"));
+  }
+
+  [Fact]
+  public void Production_RejectsLocalRedis()
+  {
+    var values = BuildProductionConfiguration();
+    values["Caching:ConnectionString"] = "localhost:6379";
+
+    Assert.Throws<InvalidOperationException>(
+        () => KafkaDeploymentConfigurationValidator.Validate(BuildConfiguration(values), "Production"));
+  }
+
+  [Fact]
   public void Production_RejectsAutomaticOffsetCommit()
   {
     var values = BuildProductionConfiguration();
