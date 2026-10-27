@@ -6,7 +6,7 @@ This document describes the operational configuration required to run the HeroSe
 
 The Consumer host registers Franz.Common Kafka infrastructure and a hosted listener. The listener subscribes only to the explicit input-topic list in `Messaging:Kafka:Consumer:Topics`. The producer's `Messaging:Kafka:TopicName` is the outbound topic; input and output topics must remain distinct to prevent accidental self-consumption loops.
 
-Kafka is an opt-in deployment concern: `appsettings.json` deliberately leaves the bootstrap server, outbound topic and input-topic list empty. Startup fails until deployment configuration supplies them. The Development profile overrides these values for a local plaintext broker.
+Kafka is an opt-in deployment concern: `appsettings.json` deliberately leaves the bootstrap server, outbound topic and input-topic list empty. Startup fails until deployment configuration supplies them. The Development profile overrides these values for a local plaintext broker. The outbox remains disabled until a concrete HeroService-owned outbound event and transactional persistence path are implemented.
 
 ## Production environment variables
 
