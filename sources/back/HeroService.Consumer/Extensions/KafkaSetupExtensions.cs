@@ -1,17 +1,18 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Franz.Common.Messaging.Kafka;
 using Franz.Common.Messaging.Kafka.Extensions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace HeroService.Consumer.Extensions
+namespace HeroService.Consumer.Extensions;
+
+public static class KafkaSetupExtensions
 {
-  public static class KafkaSetupExtensions
+  public static IServiceCollection AddKafkaMessagingServices(
+      this IServiceCollection services,
+      IConfiguration configuration,
+      string environmentName)
   {
-    public static IServiceCollection AddKafkaMessagingServices(this IServiceCollection services, IConfiguration configuration)
-    {
-      // Register Kafka-related services
-      services.AddKafkaMessaging(configuration);
-      return services;
-    }
+    KafkaDeploymentConfigurationValidator.Validate(configuration, environmentName);
+    services.AddKafkaMessaging(configuration);
+    return services;
   }
 }
