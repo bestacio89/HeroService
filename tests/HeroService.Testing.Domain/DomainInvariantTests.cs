@@ -17,8 +17,8 @@ public sealed class DomainInvariantTests
   }
 
   [Theory]
-  [InlineData("", "First release")]
-  [InlineData("   ", "First release")]
+  [InlineData("1.0", "")]
+  [InlineData("1.0", "   ")]
   public void GameVersion_Define_RejectsBlankVersionName(string versionNumber, string versionName)
   {
     var sut = new TestGameVersion(Guid.NewGuid());
@@ -174,9 +174,18 @@ public sealed class DomainInvariantTests
       createdBy: "unit-test");
   }
 
-  private sealed class TestGameVersion(Guid id) : GameVersion(id);
+  private sealed class TestGameVersion : GameVersion
+  {
+    public TestGameVersion(Guid id) : base(id) { }
+  }
 
-  private sealed class TestHeroBaseStats(Guid id) : HeroBaseStats(id);
+  private sealed class TestHeroBaseStats : HeroBaseStats
+  {
+    public TestHeroBaseStats(Guid id) : base(id) { }
+  }
 
-  private sealed class TestHeroModifier(Guid id) : HeroModifier(id);
+  private sealed class TestHeroModifier : HeroModifier
+  {
+    public TestHeroModifier(Guid id) : base(id) { }
+  }
 }
