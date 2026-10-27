@@ -14,7 +14,7 @@ namespace HeroService.Testing.ArchitecturalReports
     private record ReportEntry(string Tribunal, TimeSpan Duration, bool Passed, string Message);
 
     [Trait("Category", "ArchitecturalReport")]
-    [Fact(DisplayName = "Architecture Compliance Report — Unified Compliance Summary")]
+    [Fact(DisplayName = "Architecture Compliance Report â€” Unified Compliance Summary")]
     public void Generate_Compliance_Summary()
     {
       Console.OutputEncoding = Encoding.UTF8;
@@ -64,7 +64,7 @@ namespace HeroService.Testing.ArchitecturalReports
 
       Console.WriteLine(report.ToString());
 
-      Assert.True(failed == 0, $"The Tribunal has found {failed} layer(s) guilty of architectural treason.");
+      Assert.True(failed == 0, $"The Tribunal has found {failed} layer(s) with architectural violations.{Environment.NewLine}{report}");
     }
 
     private static (string Verdict, string Sass) GetSassLevel(double failureRate)
