@@ -20,31 +20,15 @@ public sealed partial class Index : ComponentBase
   private ILogger<Index> Logger { get; set; } = default!;
 
   private List<HeroDto> _heroes = [];
+  private IReadOnlyList<HeroDto> _filteredHeroes = [];
   private readonly HashSet<Guid> _openingHeroIds = [];
   private string? _search;
   private bool _isLoading = true;
   private string? _errorMessage;
+  private int _classCount;
+  private int _mythologyCount;
 
-  private int _classCount => _heroes
-      .Select(hero => hero.Class?.Name)
-      .Where(name => !string.IsNullOrWhiteSpace(name))
-      .Distinct(StringComparer.OrdinalIgnoreCase)
-      .Count();
-
-  private int _mythologyCount => _heroes
-      .Select(hero => hero.Affiliation?.Mythology?.Name)
-      .Where(name => !string.IsNullOrWhiteSpace(name))
-      .Distinct(StringComparer.OrdinalIgnoreCase)
-      .Count();
-
-  private IEnumerable<HeroDto> FilteredHeroes =>
-      string.IsNullOrWhiteSpace(_search)
-          ? _heroes
-          : _heroes.Where(hero =>
-              (hero.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false) ||
-              (hero.Class?.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false) ||
-              (hero.Affiliation?.Mythology?.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false) ||
-              (hero.Affiliation?.Archetype?.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false));
+  private IReadOnlyList<HeroDto> FilteredHeroes => _filteredHeroes;
 
   protected override Task OnInitializedAsync() => LoadHeroesAsync();
 
@@ -57,6 +41,17 @@ public sealed partial class Index : ComponentBase
     {
       var result = await HeroClient.BrowseAsync();
       _heroes = result?.ToList() ?? [];
+      _classCount = _heroes
+          .Select(hero => hero.Class?.Name)
+          .Where(name => !string.IsNullOrWhiteSpace(name))
+          .Distinct(StringComparer.OrdinalIgnoreCase)
+          .Count();
+      _mythologyCount = _heroes
+          .Select(hero => hero.Affiliation?.Mythology?.Name)
+          .Where(name => !string.IsNullOrWhiteSpace(name))
+          .Distinct(StringComparer.OrdinalIgnoreCase)
+          .Count();
+      ApplyFilter();
     }
     catch (OperationCanceledException)
     {
@@ -78,7 +73,34 @@ public sealed partial class Index : ComponentBase
     }
   }
 
-  private void ClearSearch() => _search = null;
+  private void OnSearchChanged(string? value)
+  {
+    _search = value;
+    ApplyFilter();
+  }
+
+  private void ApplyFilter()
+  {
+    if (string.IsNullOrWhiteSpace(_search))
+    {
+      _filteredHeroes = _heroes;
+      return;
+    }
+
+    _filteredHeroes = _heroes
+        .Where(hero =>
+            (hero.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (hero.Class?.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (hero.Affiliation?.Mythology?.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (hero.Affiliation?.Archetype?.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false))
+        .ToArray();
+  }
+
+  private void ClearSearch()
+  {
+    _search = null;
+    ApplyFilter();
+  }
 
   private async Task OpenDetailsAsync(HeroDto hero)
   {
