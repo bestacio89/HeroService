@@ -10,7 +10,16 @@ Kafka is an opt-in deployment concern: `appsettings.json` deliberately leaves th
 
 ## Production environment variables
 
-Supply the following through the deployment environment or a secret manager. Do not commit broker credentials.
+Supply the following through the deployment environment or a secret manager. Do not commit broker, database or cache credentials. Production startup rejects local database/cache defaults and requires a non-local database with TLS enabled.
+
+| Environment variable | Purpose |
+|---|---|
+| `Database__ServerName` | Production PostgreSQL host |
+| `Database__DatabaseName` | Database name |
+| `Database__UserName` | Database login supplied by deployment configuration |
+| `Database__Password` | Database password supplied through a secret manager |
+| `Database__Ssl` | TLS mode; must not be `Disable` outside Development |
+| `Caching__ConnectionString` | Non-local Redis connection string, with credentials/TLS as required by the provider |
 
 | Environment variable | Purpose |
 |---|---|
