@@ -1,6 +1,8 @@
 using Franz.Common.Messaging.Hosting;
 using Franz.Common.Messaging.Hosting.Executing;
 using Franz.Common.Messaging.Hosting.Kafka;
+using Franz.Common.Messaging.Hosting.Kafka.HostedServices;
+using Franz.Common.Messaging.Hosting.Listeners;
 using Franz.Common.Messaging.Kafka.Configuration;
 using Franz.Common.Messaging.Kafka.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +29,10 @@ public static class KafkaSetupExtensions
 
     services.AddKafkaHostedListener(options =>
         configuration.GetSection(KafkaMessagingOptions.SectionName).Bind(options));
+
+    // The currently pinned 2.3.0 hosting package does not register IListener itself.
+    services.AddSingleton<IListener>(serviceProvider =>
+        serviceProvider.GetRequiredService<KafkaMessageListener>());
 
     return services;
   }
