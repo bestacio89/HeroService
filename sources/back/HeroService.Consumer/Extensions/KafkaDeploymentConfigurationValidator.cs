@@ -11,12 +11,17 @@ public static class KafkaDeploymentConfigurationValidator
     var bootstrapServers = configuration["Messaging:Kafka:BootstrapServers"];
     if (string.IsNullOrWhiteSpace(bootstrapServers))
       throw new InvalidOperationException(
-          "Messaging:Kafka:BootstrapServers must be configured through environment-specific configuration or deployment secrets.");
+          "Messaging:Kafka:BootstrapServers must be supplied by environment-specific configuration or deployment secrets.");
 
     var groupId = configuration["Messaging:Kafka:GroupId"];
     if (string.IsNullOrWhiteSpace(groupId))
       throw new InvalidOperationException(
-          "Messaging:Kafka:GroupId must be configured at Messaging:Kafka:GroupId.");
+          "Messaging:Kafka:GroupId must be configured at the Kafka options root.");
+
+    var topicName = configuration["Messaging:Kafka:TopicName"];
+    if (string.IsNullOrWhiteSpace(topicName))
+      throw new InvalidOperationException(
+          "Messaging:Kafka:TopicName must identify the explicitly configured HeroService topic.");
 
     var isDevelopment = string.Equals(
         environmentName, "Development", StringComparison.OrdinalIgnoreCase);
@@ -42,15 +47,13 @@ public static class KafkaDeploymentConfigurationValidator
           "Kafka must use Ssl or SaslSsl outside the Development environment.");
     }
 
-    if (string.Equals(securityProtocol, "SaslSsl", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(securityProtocol, "SaslSsl", StringComparison.OrdinalIgnoreCase) &&
+        (string.IsNullOrWhiteSpace(configuration["Messaging:Kafka:Security:SaslMechanism"]) ||
+         string.IsNullOrWhiteSpace(configuration["Messaging:Kafka:Security:SaslUsername"]) ||
+         string.IsNullOrWhiteSpace(configuration["Messaging:Kafka:Security:SaslPassword"])))
     {
-      if (string.IsNullOrWhiteSpace(configuration["Messaging:Kafka:Security:SaslMechanism"]) ||
-          string.IsNullOrWhiteSpace(configuration["Messaging:Kafka:Security:SaslUsername"]) ||
-          string.IsNullOrWhiteSpace(configuration["Messaging:Kafka:Security:SaslPassword"]))
-      {
-        throw new InvalidOperationException(
-            "SaslSsl requires Kafka SASL mechanism, username and password to be supplied through secure configuration.");
-      }
+      throw new InvalidOperationException(
+          "SaslSsl requires a SASL mechanism, username and password supplied through secure configuration.");
     }
 
     if (bool.TryParse(configuration["Messaging:Kafka:Consumer:EnableAutoCommit"], out var autoCommit) && autoCommit)
