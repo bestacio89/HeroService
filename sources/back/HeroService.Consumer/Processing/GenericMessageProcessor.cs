@@ -30,7 +30,6 @@ namespace HeroService.Consumer.Processing
         ValidateEntity(entity);
         ProcessEntity(entity);
 
-        _logger.LogInformation("Successfully processed message for entity type {EntityType}.", typeof(T).Name);
       }
       catch (Exception ex)
       {
@@ -46,8 +45,9 @@ namespace HeroService.Consumer.Processing
 
     private void ProcessEntity(T entity)
     {
-      _logger.LogInformation("Processing entity: {@Entity}", entity);
-      // Business persistence/dispatch is intentionally not implemented yet.
+      _logger.LogWarning(
+        "No persistence or business handler is configured for entity type {EntityType}; the payload was not applied.",
+        typeof(T).Name);
     }
   }
 }
