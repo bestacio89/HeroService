@@ -63,6 +63,7 @@ public static class KafkaDeploymentConfigurationValidator
         string.IsNullOrWhiteSpace(databaseUser) ||
         string.IsNullOrWhiteSpace(databasePassword) ||
         string.Equals(databasePassword, "postgres", StringComparison.Ordinal) ||
+        string.IsNullOrWhiteSpace(databaseSsl) ||
         string.Equals(databaseSsl, "Disable", StringComparison.OrdinalIgnoreCase))
     {
       throw new InvalidOperationException(
