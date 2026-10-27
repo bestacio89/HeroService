@@ -52,7 +52,7 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
   [Trait("Category", "Integration")]
   public async Task GetHeroClasses_ReturnsOkWithJsonArray()
   {
-    using var response = await _client!.GetAsync("/hero-classes");
+    using var response = await _client!.GetAsync("/api/v1/hero-classes");
 
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -64,7 +64,7 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
   [Trait("Category", "Integration")]
   public async Task GetHeroClassById_ReturnsNotFoundWhenMissing()
   {
-    using var response = await _client!.GetAsync($"/hero-classes/{Guid.NewGuid()}");
+    using var response = await _client!.GetAsync($"/api/v1/hero-classes/{Guid.NewGuid()}");
 
     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
