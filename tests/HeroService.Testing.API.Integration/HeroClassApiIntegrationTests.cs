@@ -2,11 +2,16 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using HeroService.Persistence;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Testcontainers.PostgreSql;
 using Testcontainers.Redis;
 
@@ -83,6 +88,16 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
       builder.UseEnvironment("Production");
+      builder.ConfigureTestServices(services =>
+      {
+        services.AddAuthentication(options =>
+        {
+          options.DefaultAuthenticateScheme = "IntegrationTest";
+          options.DefaultChallengeScheme = "IntegrationTest";
+          options.DefaultScheme = "IntegrationTest";
+        }).AddScheme<AuthenticationSchemeOptions, IntegrationTestAuthenticationHandler>(
+          "IntegrationTest", _ => { });
+      });
       builder.ConfigureAppConfiguration((_, configuration) =>
       {
         var values = new Dictionary<string, string?>
@@ -100,6 +115,31 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
 
         configuration.AddInMemoryCollection(values);
       });
+    }
+  }
+
+  private sealed class IntegrationTestAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+  {
+    public IntegrationTestAuthenticationHandler(
+      IOptionsMonitor<AuthenticationSchemeOptions> options,
+      ILoggerFactory logger,
+      UrlEncoder encoder)
+      : base(options, logger, encoder)
+    {
+    }
+
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+      var claims = new[]
+      {
+        new Claim(ClaimTypes.NameIdentifier, "integration-test"),
+        new Claim(ClaimTypes.Name, "integration-test")
+      };
+      var identity = new ClaimsIdentity(claims, Scheme.Name);
+      var principal = new ClaimsPrincipal(identity);
+      var ticket = new AuthenticationTicket(principal, Scheme.Name);
+
+      return Task.FromResult(AuthenticateResult.Success(ticket));
     }
   }
 }
