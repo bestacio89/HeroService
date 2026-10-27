@@ -69,6 +69,12 @@ public sealed class KafkaDeploymentConfigurationTests
 
   private static Dictionary<string, string?> BuildProductionConfiguration() => new()
   {
+    ["Database:ServerName"] = "postgres.example.net",
+    ["Database:DatabaseName"] = "GameProject",
+    ["Database:UserName"] = "hero-service",
+    ["Database:Password"] = "injected-db-secret",
+    ["Database:Ssl"] = "Require",
+    ["Caching:ConnectionString"] = "redis.example.net:6380,ssl=true",
     ["Messaging:Kafka:BootstrapServers"] = "broker.example.net:9093",
     ["Messaging:Kafka:GroupId"] = "hero-service-consumer-production",
     ["Messaging:Kafka:TopicName"] = "hero-service-out",
