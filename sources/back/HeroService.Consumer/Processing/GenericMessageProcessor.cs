@@ -28,7 +28,7 @@ namespace HeroService.Consumer.Processing
         }
 
         ValidateEntity(entity);
-        ProcessEntity(entity);
+        ReportUnappliedEntity();
 
       }
       catch (Exception ex)
@@ -43,7 +43,7 @@ namespace HeroService.Consumer.Processing
       _logger.LogDebug("Validating entity: {@Entity}", entity);
     }
 
-    private void ProcessEntity(T entity)
+    private void ReportUnappliedEntity()
     {
       _logger.LogWarning(
         "No persistence or business handler is configured for entity type {EntityType}; the payload was not applied.",
