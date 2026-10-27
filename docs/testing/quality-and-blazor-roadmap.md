@@ -75,7 +75,8 @@ A repository-level `HeroService.Consumer.Tests` project exists outside the solut
 
 ### Phase 4 — Client and messaging
 
-- Test typed HTTP clients with deterministic fake handlers, including failure and cancellation paths.
+- [x] Add initial typed HTTP client route, filter and URI-escaping tests with deterministic fake handlers.
+- [ ] Extend client tests to failure, malformed-response, timeout and cancellation paths.
 - Migrate the stale consumer test project to current contracts and Franz.Common registrations.
 - Add a pinned Kafka Testcontainers fixture only after the broker configuration and acknowledgement/retry semantics are understood; assert only behavior the implementation guarantees.
 - Add database/broker integration tests for cross-resource workflows only where such workflows actually exist.
@@ -102,5 +103,5 @@ A repository-level `HeroService.Consumer.Tests` project exists outside the solut
 - `GenericMessageProcessor<T>` currently deserializes and logs but its entity-processing method contains no persistence or business action. Tests must expose this current behavior; they must not imply that a message has been durably processed.
 - The existing consumer test project is not included in the solution and contains stale references and a skipped integration test.
 - Resolved during this implementation: two modifier controllers violated the established namespace rule; the Domain audit expected `HeroService.Common` rather than `Franz.Common`; `HeroAffiliation` and `GameVersion` had no namespace; and the API cache key prefix `heroservice:` violated its own alphanumeric validation. Production code/configuration and the current EF model snapshot were corrected without relaxing architecture rules.
-- CI restore still reports high-severity advisories for transitive `System.Security.Cryptography.Pkcs` and `System.Security.Cryptography.Xml` packages. The patched 10.0.13 release is documented in [GHSA-846f-f764-76mx](https://github.com/advisories/GHSA-846f-f764-76mx) and [GHSA-7hqp-7c5m-4vq6); package remediation remains open and must be completed before release.
+- CI restore still reports high-severity advisories for transitive `System.Security.Cryptography.Pkcs` and `System.Security.Cryptography.Xml` packages. The patched 10.0.13 release is documented in [GHSA-846f-f764-76mx](https://github.com/advisories/GHSA-846f-f764-76mx) and [GHSA-7hqp-7c5m-4vq6](https://github.com/advisories/GHSA-7hqp-7c5m-4vq6); package remediation remains open and must be completed before release.
 - The UI is an Interactive Server Blazor app. Browser tests and performance measurements must account for its server connection and request latency.
