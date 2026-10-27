@@ -2,6 +2,7 @@ using Franz.Common.Messaging.Bootstrap.Extenstions;
 using HeroService.Consumer.Extensions;
 using HeroService.Consumer.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
