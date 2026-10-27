@@ -50,7 +50,7 @@ public sealed class ApiLayerComplianceAudit : ArchitecturalAuditBase
           .Should()
           .BeAssignableTo(typeof(ControllerBase))
           .AndShould()
-          .ResideInNamespace(@"(?i)^HeroService\\.API\\.Controllers(\\..+)?$", true)
+          .ResideInNamespace(@"(?i)^HeroService\.API\.Controllers(\..+)?$", true)
           .WithoutRequiringPositiveResults();
 
       ExecuteRule(
