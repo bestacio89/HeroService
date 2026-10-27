@@ -51,6 +51,33 @@ public static class KafkaDeploymentConfigurationValidator
           "Production Kafka bootstrap servers must not point to a loopback or wildcard address.");
     }
 
+    var databaseHost = configuration["Database:ServerName"];
+    var databaseName = configuration["Database:DatabaseName"];
+    var databaseUser = configuration["Database:UserName"];
+    var databasePassword = configuration["Database:Password"];
+    var databaseSsl = configuration["Database:Ssl"];
+    if (string.IsNullOrWhiteSpace(databaseHost) ||
+        databaseHost.Contains("localhost", StringComparison.OrdinalIgnoreCase) ||
+        databaseHost.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
+        string.IsNullOrWhiteSpace(databaseName) ||
+        string.IsNullOrWhiteSpace(databaseUser) ||
+        string.IsNullOrWhiteSpace(databasePassword) ||
+        string.Equals(databasePassword, "postgres", StringComparison.Ordinal) ||
+        string.Equals(databaseSsl, "Disable", StringComparison.OrdinalIgnoreCase))
+    {
+      throw new InvalidOperationException(
+          "Production database host, database, credentials and TLS mode must be supplied by deployment configuration.");
+    }
+
+    var cacheConnection = configuration["Caching:ConnectionString"];
+    if (string.IsNullOrWhiteSpace(cacheConnection) ||
+        cacheConnection.Contains("localhost", StringComparison.OrdinalIgnoreCase) ||
+        cacheConnection.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase))
+    {
+      throw new InvalidOperationException(
+          "Production Redis connection configuration must be supplied by deployment configuration.");
+    }
+
     var securityProtocol = configuration["Messaging:Kafka:Security:SecurityProtocol"];
     if (!string.Equals(securityProtocol, "Ssl", StringComparison.OrdinalIgnoreCase) &&
         !string.Equals(securityProtocol, "SaslSsl", StringComparison.OrdinalIgnoreCase))
