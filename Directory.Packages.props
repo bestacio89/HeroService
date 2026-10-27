@@ -23,6 +23,7 @@
     <PackageVersion Include="Franz.Common.Mapping" Version="2.3.0" />
     <PackageVersion Include="Franz.Common.Messaging.Bootstrap" Version="2.3.0" />
     <PackageVersion Include="Franz.Common.Messaging.EntityFramework" Version="2.3.0" />
+    <PackageVersion Include="Franz.Common.Messaging.Hosting.Kafka" Version="2.3.0" />
     <PackageVersion Include="Franz.Common.Messaging.KafKa" Version="2.3.0" />
     <!-- Microsoft packages -->
     <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.11" />
