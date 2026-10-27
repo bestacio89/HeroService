@@ -12,6 +12,7 @@ public sealed class KafkaDeploymentConfigurationTests
     {
       ["Messaging:Kafka:BootstrapServers"] = "localhost:9092",
       ["Messaging:Kafka:GroupId"] = "hero-service-consumer-development",
+      ["Messaging:Kafka:TopicName"] = "hero-service-in-development",
       ["Messaging:Kafka:Security:SecurityProtocol"] = "Plaintext"
     });
 
@@ -59,6 +60,7 @@ public sealed class KafkaDeploymentConfigurationTests
   {
     ["Messaging:Kafka:BootstrapServers"] = "broker.example.net:9093",
     ["Messaging:Kafka:GroupId"] = "hero-service-consumer-production",
+    ["Messaging:Kafka:TopicName"] = "hero-service-in",
     ["Messaging:Kafka:Security:SecurityProtocol"] = "SaslSsl",
     ["Messaging:Kafka:Security:SaslMechanism"] = "ScramSha512",
     ["Messaging:Kafka:Security:SaslUsername"] = "injected-user",
