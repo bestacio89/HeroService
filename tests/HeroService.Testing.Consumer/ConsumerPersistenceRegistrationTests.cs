@@ -77,7 +77,7 @@ public sealed class ConsumerPersistenceRegistrationTests : IAsyncLifetime
   private sealed class TestHostEnvironment : IHostEnvironment
   {
     public string EnvironmentName { get; set; } = "Testing";
-    public string ApplicationName { get; set; } = typeof(Program).Assembly.GetName().Name!;
+    public string ApplicationName { get; set; } = "HeroService.Consumer";
     public string ContentRootPath { get; set; } = AppContext.BaseDirectory;
     public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
   }
