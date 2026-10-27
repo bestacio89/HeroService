@@ -50,12 +50,12 @@ public sealed class ApiLayerComplianceAudit : ArchitecturalAuditBase
           .Should()
           .BeAssignableTo(typeof(ControllerBase))
           .AndShould()
-          .ResideInNamespace("HeroService.API.Controllers")
+          .ResideInNamespace(@"(?i)^HeroService\\.API\\.Controllers(\\..+)?$", true)
           .WithoutRequiringPositiveResults();
 
       ExecuteRule(
           "Controller Conventions",
-          "Controllers must derive from ControllerBase and reside in HeroService.API.Controllers.",
+          "Controllers must derive from ControllerBase and reside in HeroService.API.Controllers or one of its sub-namespaces.",
           controllerRule,
           sb,
           markViolation);
