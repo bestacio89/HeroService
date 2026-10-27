@@ -14,7 +14,7 @@ public sealed class GenericMessageProcessorTests
     var processor = new GenericMessageProcessor<TestPayload>(logger);
     var message = new Message("{");
 
-    Assert.Throws<JsonReaderException>(() => processor.Process(message));
+    Assert.Throws<JsonSerializationException>(() => processor.Process(message));
     Assert.Contains(logger.Messages, entry => entry.StartsWith("Error:", StringComparison.Ordinal));
   }
 
