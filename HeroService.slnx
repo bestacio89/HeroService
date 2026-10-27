@@ -19,6 +19,7 @@
     <Project Path="tests/HeroService.Testing.ClientHttp/HeroService.Testing.ClientHttp.csproj" />
     <Project Path="tests/HeroService.Testing.Domain/HeroService.Testing.Domain.csproj" />
     <Project Path="tests/HeroService.Testing.Application/HeroService.Testing.Application.csproj" />
+    <Project Path="tests/HeroService.Testing.API.Integration/HeroService.Testing.API.Integration.csproj" />
     <Project Path="tests/HeroService.Testing.Persistence.Integration/HeroService.Testing.Persistence.Integration.csproj" />
   </Folder>
   <Folder Name="/Infrastructure/">
