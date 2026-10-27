@@ -24,7 +24,7 @@ public static class Program
 
         services.AddHeroServiceConsumerPersistence(configuration, environment);
         services.AddMessagingArchitecture(environment, configuration);
-        services.AddKafkaMessagingServices(configuration);
+        services.AddKafkaMessagingServices(configuration, environment.EnvironmentName);
       })
       .Build();
 
