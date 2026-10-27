@@ -18,7 +18,7 @@ Supply the following through the deployment environment or a secret manager. Do 
 | `Database__DatabaseName` | Database name |
 | `Database__UserName` | Database login supplied by deployment configuration |
 | `Database__Password` | Database password supplied through a secret manager |
-| `Database__Ssl` | TLS mode; must not be `Disable` outside Development |
+| `Database__SslMode` | TLS mode; must not be `Disable` outside Development |
 | `Caching__ConnectionString` | Non-local Redis connection string, with credentials/TLS as required by the provider |
 
 | Environment variable | Purpose |
