@@ -34,13 +34,15 @@ public sealed class KafkaBrokerHealthCheck : IHealthCheck
       var outputTopic = _configuration["Messaging:Kafka:TopicName"];
       var configuredDeadLetterTopic = _configuration["Messaging:Kafka:Failure:DeadLetterTopic"];
 
+      IEnumerable<string> deadLetterTopics = string.IsNullOrWhiteSpace(configuredDeadLetterTopic)
+          ? inputTopics.Select(topic => $"{topic}-dlt")
+          : new[] { configuredDeadLetterTopic };
+
       var requiredTopics = inputTopics
           .Append(outputTopic)
           .Where(topic => !string.IsNullOrWhiteSpace(topic))
           .Select(topic => topic!)
-          .Concat(string.IsNullOrWhiteSpace(configuredDeadLetterTopic)
-              ? inputTopics.Select(topic => $"{topic}-dlt")
-              : [configuredDeadLetterTopic])
+          .Concat(deadLetterTopics.Select(topic => topic!))
           .Distinct(StringComparer.Ordinal)
           .ToArray();
 
