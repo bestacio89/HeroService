@@ -38,7 +38,7 @@
     }
     else if (!string.IsNullOrWhiteSpace(_errorMessage))
     {
-        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" ShowCloseIcon="false">
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
             <MudText Typo="Typo.subtitle1">Heroes could not be loaded</MudText>
             <MudText Typo="Typo.body2">@_errorMessage</MudText>
             <MudButton Class="mt-3" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadHeroesAsync">
