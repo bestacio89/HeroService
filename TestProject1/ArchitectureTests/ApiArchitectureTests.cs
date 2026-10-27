@@ -33,7 +33,7 @@ public class ApiArchitectureTests : BaseArchitectureTest
         .Should()
         .BeAssignableTo(typeof(ControllerBase))
         .AndShould()
-        .ResideInNamespace(@"(?i)^HeroService\.API\.Controllers(\..+)?$", true);
+        .ResideInNamespace("HeroService.API.Controllers");
 
     // 3. Execute the check
     controllerRule.Check(BaseArchitecture);
