@@ -38,6 +38,17 @@ Supply the following through the deployment environment or a secret manager. Do 
 
 The Docker launch profile uses the `Docker` environment and loads `appsettings.docker.json`. Supply broker credentials and environment-specific endpoint overrides through the container environment.
 
+## Broker-side prerequisites
+
+- Pre-create the configured input, output and dead-letter topics through the platform provisioning process. Set replication factor, retention, partition count and minimum in-sync replicas to match the deployment SLA; do not rely on broker auto-topic creation.
+- Grant the service principal only the required ACLs: read/describe on configured input topics and the consumer group, write/describe on the outbound topic, and write/describe on the dead-letter topic.
+- Use the same consumer group ID across replicas of one deployment and a different group ID for each environment.
+- Provision dead-letter topic retention and alerting before enabling production traffic. A successful DLT publish prevents the source record from blocking the partition, so DLT messages must be reviewed and replayed through a controlled process.
+
+## Operational signals
+
+Monitor consumer lag, repeated processing retries, DLT publish counts, consumer restarts, broker connection failures and database/cache failures. Alert on any DLT growth and define an operational owner for replay and remediation. The service does not currently expose an HTTP health endpoint; deployment probes must not equate process liveness with successful broker consumption.
+
 ## Delivery behavior
 
 - Consumer auto-commit and auto-offset-store remain disabled.
