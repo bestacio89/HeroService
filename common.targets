@@ -12,4 +12,9 @@
   <PropertyGroup>
     <RunSettingsFilePath>$(MSBuildProjectDirectory)\..\..\test.runsettings</RunSettingsFilePath>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Snappier" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
+  </ItemGroup>
 </Project>
