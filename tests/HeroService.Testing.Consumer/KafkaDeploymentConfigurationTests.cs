@@ -12,7 +12,8 @@ public sealed class KafkaDeploymentConfigurationTests
     {
       ["Messaging:Kafka:BootstrapServers"] = "localhost:9092",
       ["Messaging:Kafka:GroupId"] = "hero-service-consumer-development",
-      ["Messaging:Kafka:TopicName"] = "hero-service-in-development",
+      ["Messaging:Kafka:TopicName"] = "hero-service-out-development",
+      ["Messaging:Kafka:Consumer:Topics:0"] = "hero-service-in-development",
       ["Messaging:Kafka:Security:SecurityProtocol"] = "Plaintext"
     });
 
@@ -50,6 +51,16 @@ public sealed class KafkaDeploymentConfigurationTests
   }
 
   [Fact]
+  public void Production_RejectsInputOutputTopicCollision()
+  {
+    var values = BuildProductionConfiguration();
+    values["Messaging:Kafka:Consumer:Topics:0"] = values["Messaging:Kafka:TopicName"];
+
+    Assert.Throws<InvalidOperationException>(
+        () => KafkaDeploymentConfigurationValidator.Validate(BuildConfiguration(values), "Production"));
+  }
+
+  [Fact]
   public void Production_AcceptsTlsSaslAndExplicitDeliveryGuarantees()
   {
     KafkaDeploymentConfigurationValidator.Validate(
@@ -60,7 +71,8 @@ public sealed class KafkaDeploymentConfigurationTests
   {
     ["Messaging:Kafka:BootstrapServers"] = "broker.example.net:9093",
     ["Messaging:Kafka:GroupId"] = "hero-service-consumer-production",
-    ["Messaging:Kafka:TopicName"] = "hero-service-in",
+    ["Messaging:Kafka:TopicName"] = "hero-service-out",
+    ["Messaging:Kafka:Consumer:Topics:0"] = "hero-service-in",
     ["Messaging:Kafka:Security:SecurityProtocol"] = "SaslSsl",
     ["Messaging:Kafka:Security:SaslMechanism"] = "ScramSha512",
     ["Messaging:Kafka:Security:SaslUsername"] = "injected-user",
