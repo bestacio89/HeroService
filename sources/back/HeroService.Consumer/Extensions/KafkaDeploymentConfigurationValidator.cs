@@ -55,7 +55,7 @@ public static class KafkaDeploymentConfigurationValidator
     var databaseName = configuration["Database:DatabaseName"];
     var databaseUser = configuration["Database:UserName"];
     var databasePassword = configuration["Database:Password"];
-    var databaseSsl = configuration["Database:Ssl"];
+    var databaseSsl = configuration["Database:SslMode"];
     if (string.IsNullOrWhiteSpace(databaseHost) ||
         databaseHost.Contains("localhost", StringComparison.OrdinalIgnoreCase) ||
         databaseHost.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
