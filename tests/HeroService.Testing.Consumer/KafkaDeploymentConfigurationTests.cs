@@ -21,39 +21,38 @@ public sealed class KafkaDeploymentConfigurationTests
   [Fact]
   public void Production_RejectsPlaintextSecurity()
   {
-    var configuration = BuildProductionConfiguration();
-    configuration["Messaging:Kafka:Security:SecurityProtocol"] = "Plaintext";
+    var values = BuildProductionConfiguration();
+    values["Messaging:Kafka:Security:SecurityProtocol"] = "Plaintext";
 
     Assert.Throws<InvalidOperationException>(
-        () => KafkaDeploymentConfigurationValidator.Validate(configuration, "Production"));
+        () => KafkaDeploymentConfigurationValidator.Validate(BuildConfiguration(values), "Production"));
   }
 
   [Fact]
   public void Production_RejectsLocalBootstrapAddress()
   {
-    var configuration = BuildProductionConfiguration();
-    configuration["Messaging:Kafka:BootstrapServers"] = "localhost:9092";
+    var values = BuildProductionConfiguration();
+    values["Messaging:Kafka:BootstrapServers"] = "localhost:9092";
 
     Assert.Throws<InvalidOperationException>(
-        () => KafkaDeploymentConfigurationValidator.Validate(configuration, "Production"));
+        () => KafkaDeploymentConfigurationValidator.Validate(BuildConfiguration(values), "Production"));
   }
 
   [Fact]
   public void Production_RejectsAutomaticOffsetCommit()
   {
-    var configuration = BuildProductionConfiguration();
-    configuration["Messaging:Kafka:Consumer:EnableAutoCommit"] = "true";
+    var values = BuildProductionConfiguration();
+    values["Messaging:Kafka:Consumer:EnableAutoCommit"] = "true";
 
     Assert.Throws<InvalidOperationException>(
-        () => KafkaDeploymentConfigurationValidator.Validate(configuration, "Production"));
+        () => KafkaDeploymentConfigurationValidator.Validate(BuildConfiguration(values), "Production"));
   }
 
   [Fact]
   public void Production_AcceptsTlsSaslAndExplicitDeliveryGuarantees()
   {
-    var configuration = BuildProductionConfiguration();
-
-    KafkaDeploymentConfigurationValidator.Validate(configuration, "Production");
+    KafkaDeploymentConfigurationValidator.Validate(
+        BuildConfiguration(BuildProductionConfiguration()), "Production");
   }
 
   private static Dictionary<string, string?> BuildProductionConfiguration() => new()
