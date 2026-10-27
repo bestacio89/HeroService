@@ -73,7 +73,7 @@ public sealed class KafkaDeploymentConfigurationTests
     ["Database:DatabaseName"] = "GameProject",
     ["Database:UserName"] = "hero-service",
     ["Database:Password"] = "injected-db-secret",
-    ["Database:Ssl"] = "Require",
+    ["Database:SslMode"] = "Require",
     ["Caching:ConnectionString"] = "redis.example.net:6380,ssl=true",
     ["Messaging:Kafka:BootstrapServers"] = "broker.example.net:9093",
     ["Messaging:Kafka:GroupId"] = "hero-service-consumer-production",
