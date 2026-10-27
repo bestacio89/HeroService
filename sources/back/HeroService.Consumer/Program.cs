@@ -2,6 +2,7 @@ using Franz.Common.Business.Extensions;
 using Franz.Common.EntityFramework.Auditing;
 using Franz.Common.Http.EntityFramework.Extensions;
 using Franz.Common.Mediator.Bootstrap;
+using Franz.Common.Mediator.Extensions;
 using Franz.Common.Messaging.Bootstrap.Extenstions;
 using HeroService.Application;
 using HeroService.Consumer.Extensions;
