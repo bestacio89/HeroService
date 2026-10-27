@@ -18,10 +18,22 @@ public static class KafkaDeploymentConfigurationValidator
       throw new InvalidOperationException(
           "Messaging:Kafka:GroupId must be configured at the Kafka options root.");
 
-    var topicName = configuration["Messaging:Kafka:TopicName"];
-    if (string.IsNullOrWhiteSpace(topicName))
+    var outputTopic = configuration["Messaging:Kafka:TopicName"];
+    if (string.IsNullOrWhiteSpace(outputTopic))
       throw new InvalidOperationException(
-          "Messaging:Kafka:TopicName must identify the explicitly configured HeroService topic.");
+          "Messaging:Kafka:TopicName must explicitly identify the HeroService outbound topic.");
+
+    var inputTopics = configuration.GetSection("Messaging:Kafka:Consumer:Topics").Get<string[]>() ?? [];
+    if (inputTopics.Length == 0 || inputTopics.Any(string.IsNullOrWhiteSpace))
+      throw new InvalidOperationException(
+          "At least one non-empty input topic must be configured under Messaging:Kafka:Consumer:Topics.");
+
+    if (inputTopics.Distinct(StringComparer.Ordinal).Count() != inputTopics.Length)
+      throw new InvalidOperationException("Kafka input topic names must be unique.");
+
+    if (inputTopics.Contains(outputTopic, StringComparer.Ordinal))
+      throw new InvalidOperationException(
+          "Kafka input topics must not include the outbound topic; this prevents accidental self-consumption loops.");
 
     var isDevelopment = string.Equals(
         environmentName, "Development", StringComparison.OrdinalIgnoreCase);
