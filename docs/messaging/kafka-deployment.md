@@ -47,7 +47,11 @@ The Docker launch profile uses the `Docker` environment and loads `appsettings.d
 
 ## Operational signals
 
-Monitor consumer lag, repeated processing retries, DLT publish counts, consumer restarts, broker connection failures and database/cache failures. Alert on any DLT growth and define an operational owner for replay and remediation. The service does not currently expose an HTTP health endpoint; deployment probes must not equate process liveness with successful broker consumption.
+Monitor consumer lag, repeated processing retries, DLT publish counts, consumer restarts, broker connection failures and database/cache failures. Alert on any DLT growth and define an operational owner for replay and remediation.
+
+- `GET /health/live` reports process liveness without depending on external services, preventing broker outages from causing restart storms.
+- `GET /health/ready` checks broker metadata and the configured input, output and dead-letter topics. It returns unhealthy until all required topics are visible to the service principal.
+- The container listens on port `8080` by default. Override `ASPNETCORE_URLS` if the deployment platform requires a different binding.
 
 ## Delivery behavior
 
