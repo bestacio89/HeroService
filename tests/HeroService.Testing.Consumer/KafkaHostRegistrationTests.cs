@@ -24,6 +24,7 @@ public sealed class KafkaHostRegistrationTests
 
     var services = new ServiceCollection();
     services.AddLogging();
+    services.AddSingleton<IConfiguration>(configuration);
     services.AddKafkaMessagingServices(configuration, "Development");
 
     using var provider = services.BuildServiceProvider();
