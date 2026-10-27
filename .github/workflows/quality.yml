@@ -53,7 +53,7 @@ jobs:
           --configuration ${{ env.BUILD_CONFIGURATION }}
           --no-build
           --filter "Category!=Integration"
-          --logger "trx;LogFileName=unit-tests.trx"
+          --logger "trx"
           --results-directory TestResults/Unit
 
       - name: Run container-backed integration tests
@@ -63,7 +63,7 @@ jobs:
           --configuration ${{ env.BUILD_CONFIGURATION }}
           --no-build
           --filter "Category=Integration"
-          --logger "trx;LogFileName=integration-tests.trx"
+          --logger "trx"
           --results-directory TestResults/Integration
 
       - name: Upload test results
