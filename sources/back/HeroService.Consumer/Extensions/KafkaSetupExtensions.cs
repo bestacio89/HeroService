@@ -1,3 +1,5 @@
+using Franz.Common.Messaging.Hosting;
+using Franz.Common.Messaging.Hosting.Executing;
 using Franz.Common.Messaging.Hosting.Kafka;
 using Franz.Common.Messaging.Kafka.Configuration;
 using Franz.Common.Messaging.Kafka.Extensions;
@@ -20,6 +22,7 @@ public static class KafkaSetupExtensions
         .Get<string[]>() ?? [];
 
     services.AddKafkaMessaging(configuration);
+    services.AddScoped<IMessagingStrategyExecuter, MessagingStrategyExecuter>();
     services.AddSingleton<IEnumerable<string>>(_ => inputTopics);
 
     services.AddKafkaHostedListener(options =>
