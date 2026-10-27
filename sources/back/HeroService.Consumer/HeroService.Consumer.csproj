@@ -27,6 +27,7 @@
     <PackageReference Include="Franz.Common.Messaging.Bootstrap" />
     <PackageReference Include="Franz.Common.Messaging.EntityFramework" />
     <PackageReference Include="Franz.Common.Messaging.Hosting.Kafka" />
+    <PackageReference Include="Franz.Common.Messaging.Hosting.Mediator" />
     <PackageReference Include="Franz.Common.Messaging.KafKa" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
