@@ -4,7 +4,6 @@ using Franz.Common.EntityFramework.Extensions;
 using Franz.Common.Mediator.Bootstrap;
 using Franz.Common.Messaging.Bootstrap.Extenstions;
 using HeroService.Application;
-using HeroService.Application.Commands.Heroes;
 using HeroService.Consumer.Extensions;
 using HeroService.Domain.Heroes.Skills;
 using HeroService.Persistence;
@@ -37,7 +36,7 @@ public static class Program
         services.AddFranzAuditing();
         services.RegisterPersistenceServices<ApplicationDbContext>(configuration);
 
-        services.AddFranzMediatorV2Default(null, typeof(CreateHeroCommandHandler).Assembly);
+        services.AddFranzMediatorV2Default(null, typeof(SkillEffect).Assembly);
 
         services.AddMessagingArchitecture(environment, configuration);
         services.AddKafkaMessagingServices(configuration);
