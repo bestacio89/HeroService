@@ -3,7 +3,6 @@ using Franz.Common.Messaging.Kafka.Configuration;
 using Franz.Common.Messaging.Kafka.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace HeroService.Consumer.Extensions;
 
@@ -16,16 +15,12 @@ public static class KafkaSetupExtensions
   {
     KafkaDeploymentConfigurationValidator.Validate(configuration, environmentName);
 
+    var inputTopics = configuration
+        .GetSection("Messaging:Kafka:Consumer:Topics")
+        .Get<string[]>() ?? [];
+
     services.AddKafkaMessaging(configuration);
-
-    services.AddSingleton<IEnumerable<string>>(serviceProvider =>
-    {
-      var options = serviceProvider.GetRequiredService<IOptions<KafkaMessagingOptions>>().Value;
-      if (string.IsNullOrWhiteSpace(options.TopicName))
-        throw new InvalidOperationException("Messaging:Kafka:TopicName must be configured before the Kafka listener starts.");
-
-      return new[] { options.TopicName };
-    });
+    services.AddSingleton<IEnumerable<string>>(_ => inputTopics);
 
     services.AddKafkaHostedListener(options =>
         configuration.GetSection(KafkaMessagingOptions.SectionName).Bind(options));
