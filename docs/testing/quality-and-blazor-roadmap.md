@@ -40,6 +40,9 @@ Existing test projects in the solution:
 
 - `TestProject1/HeroService.Testing.csproj`: currently references API, Application, Contracts, Domain and Persistence; it already contains architecture tests.
 - `tests/HeroService.Testing.ArchitecturalReports/HeroService.Testing.ArchitecturalReports.csproj`: references the main testing project and produces reports. Shared architectural invariants should have one authoritative rule definition.
+- `tests/HeroService.Testing.ClientHttp`: newly added focused tests for typed HTTP client request contracts.
+- `tests/HeroService.Testing.Domain`: newly added tests for GameVersion lifecycle and stat/modifier boundary invariants.
+- `tests/HeroService.Testing.Persistence.Integration`: newly added PostgreSQL Testcontainers schema/persistence smoke test.
 
 A repository-level `HeroService.Consumer.Tests` project exists outside the solution. Its current source references legacy `HeroService.Common.*` namespaces/package names, uses a floating Kafka image, hardcodes the broker address despite random port binding, and skips its only integration test. It must be migrated to the current Franz.Common-based consumer and made executable before it is considered part of the coverage baseline.
 
@@ -49,11 +52,12 @@ A repository-level `HeroService.Consumer.Tests` project exists outside the solut
 
 - [x] Record production/test project inventory and existing test gaps.
 - [x] Replace the stale .NET 6 / traditional-solution GitHub workflow with .NET 10, `HeroService.slnx`, NuGet.org-only restore and test artifact publication.
-- [ ] Capture a clean baseline build and test result in CI; resolve failures without weakening existing architecture rules.
+- [x] Capture a clean baseline build and test result in CI; resolve failures without weakening existing architecture rules.
 
 ### Phase 2 — Domain, contracts and application
 
-- Add tests against actual domain invariants and value-object behavior.
+- [x] Add initial tests against GameVersion lifecycle and HeroBaseStats/HeroModifier boundary invariants.
+- [ ] Expand domain coverage to the remaining entities, value objects and business rules.
 - Cover application handlers with focused fakes at boundaries, not mocks of every internal call.
 - Verify request/response DTO serialization and validation contracts.
 - Preserve deterministic behavior and cancellation/error propagation.
@@ -92,4 +96,5 @@ A repository-level `HeroService.Consumer.Tests` project exists outside the solut
 - The consumer's current startup calls a SQL Server database extension while the API uses the relational database registration path; configuration parity must be investigated before claiming consumer/database integration is correct.
 - `GenericMessageProcessor<T>` currently deserializes and logs but its entity-processing method contains no persistence or business action. Tests must expose this current behavior; they must not imply that a message has been durably processed.
 - The existing consumer test project is not included in the solution and contains stale references and a skipped integration test.
+- Resolved during this implementation: the API controller namespace rule was violated by two modifier controllers; the domain audit incorrectly expected `HeroService.Common` instead of `Franz.Common`; `HeroAffiliation` and `GameVersion` had no namespace. The production namespaces and current EF model snapshot were aligned without relaxing the architecture rules.
 - The UI is an Interactive Server Blazor app. Browser tests and performance measurements must account for its server connection and request latency.
