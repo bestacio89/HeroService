@@ -30,7 +30,7 @@ namespace HeroService.Testing.ArchitecturalReports
 
       Console.WriteLine();
       Console.WriteLine("===============================================================");
-      Console.WriteLine($" ARCHITECTURE COMPLIANCE AUDIT — {tribunalName.ToUpper()}");
+      Console.WriteLine($" ARCHITECTURE COMPLIANCE AUDIT â€” {tribunalName.ToUpper()}");
       Console.WriteLine("===============================================================");
 
       try
@@ -49,18 +49,18 @@ namespace HeroService.Testing.ArchitecturalReports
       {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine("---------------------------------------------------------------");
-        Console.WriteLine($" RESULT: NON-COMPLIANT — {violationCount} rule violation(s) detected.");
+        Console.WriteLine($" RESULT: NON-COMPLIANT â€” {violationCount} rule violation(s) detected.");
         Console.WriteLine(" ACTION: Review the 'VIOLATION DETAILS' and align code with HeroService standards.");
         Console.WriteLine("---------------------------------------------------------------");
         Console.ResetColor();
 
-        Assert.Fail($"{tribunalName} detected {violationCount} architectural violation(s).");
+        Assert.Fail($"{tribunalName} detected {violationCount} architectural violation(s).{Environment.NewLine}{sb}");
       }
       else
       {
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("---------------------------------------------------------------");
-        Console.WriteLine(" RESULT: COMPLIANT — No architectural violations detected.");
+        Console.WriteLine(" RESULT: COMPLIANT â€” No architectural violations detected.");
         Console.WriteLine(" STATUS: System conforms to defined architecture guidelines.");
         Console.WriteLine("---------------------------------------------------------------");
         Console.ResetColor();
@@ -83,12 +83,12 @@ namespace HeroService.Testing.ArchitecturalReports
       try
       {
         rule.Check(BaseArchitecture);
-        sb.AppendLine($"[PASS] {context} — {summary}");
+        sb.AppendLine($"[PASS] {context} â€” {summary}");
       }
       catch (FailedArchRuleException ex)
       {
         markViolation();
-        sb.AppendLine($"[FAIL] {context} — {summary}");
+        sb.AppendLine($"[FAIL] {context} â€” {summary}");
 
         sb.AppendLine("      ? VIOLATION DETAILS:");
 
@@ -109,7 +109,7 @@ namespace HeroService.Testing.ArchitecturalReports
       catch (Exception ex)
       {
         markViolation();
-        sb.AppendLine($"[ERROR] {context} — Unexpected error: {ex.Message}");
+        sb.AppendLine($"[ERROR] {context} â€” Unexpected error: {ex.Message}");
       }
     }
     /// <summary>
@@ -126,17 +126,17 @@ namespace HeroService.Testing.ArchitecturalReports
       try
       {
         manualAssertion();
-        sb.AppendLine($"[PASS] {context} — {summary}");
+        sb.AppendLine($"[PASS] {context} â€” {summary}");
       }
       catch (XunitException ex)
       {
         markViolation();
-        sb.AppendLine($"[FAIL] {context} — {summary} (Assertion failure: {ex.Message})");
+        sb.AppendLine($"[FAIL] {context} â€” {summary} (Assertion failure: {ex.Message})");
       }
       catch (Exception ex)
       {
         markViolation();
-        sb.AppendLine($"[ERROR] {context} — Unexpected error: {ex.Message}");
+        sb.AppendLine($"[ERROR] {context} â€” Unexpected error: {ex.Message}");
       }
     }
   }

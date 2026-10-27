@@ -22,7 +22,7 @@ namespace HeroService.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("GameVersion", b =>
+            modelBuilder.Entity("HeroService.Domain.Heroes.Versioned.GameVersion.GameVersion", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -947,7 +947,7 @@ namespace HeroService.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("HeroAffiliation", "Affiliation", b1 =>
+                    b.OwnsOne("HeroService.Domain.Heroes.Affiliations.HeroAffiliation", "Affiliation", b1 =>
                         {
                             b1.Property<Guid>("HeroId")
                                 .HasColumnType("uuid");

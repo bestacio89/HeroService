@@ -5,7 +5,7 @@ using HeroService.Contracts.DTOs.Modifiers;
 using HeroService.Contracts.Queries.Modifiers;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HeroService.Api.Controllers.Modifiers;
+namespace HeroService.Api.Controllers;
 
 [ApiController]
 [Route("skill-modifiers")]

@@ -14,7 +14,7 @@ using ArchUnitNET.Domain.Extensions;
 namespace HeroService.Testing.ArchitecturalReports.Layers
 {
   /// <summary>
-  /// ?? HeroService Tribunal — Domain Layer Governance
+  /// ?? HeroService Tribunal â€” Domain Layer Governance
   /// Validates entity inheritance, aggregate consistency, event purity,
   /// and dependency boundaries within the Domain layer (prefix-agnostic).
   /// </summary>
@@ -31,7 +31,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
 
         var prefix = SolutionPrefix;
 
-        // RULE 1 — Entity inheritance
+        // RULE 1 â€” Entity inheritance
         ExecuteRule("Entities", "All Domain Entities must inherit Entity or Entity<T>.", () =>
         {
           var domainEntities = DomainLayer
@@ -56,7 +56,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
 
           if (!domainEntities.Any())
           {
-            sb.AppendLine("?? No domain entities found — skipping Entity<> enforcement.");
+            sb.AppendLine("?? No domain entities found â€” skipping Entity<> enforcement.");
             return;
           }
 
@@ -74,7 +74,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
           sb.AppendLine($"? Verified {domainEntities.Count} domain entity type(s) inherit Entity or Entity<TId>.");
         }, sb, markViolation);
 
-        // RULE 2 — Aggregate roots
+        // RULE 2 â€” Aggregate roots
         ExecuteRule("Aggregates", "Aggregate roots must inherit AggregateRoot<> and implement IAggregateRoot<T>.", () =>
         {
           var aggregateRootInterface = BaseArchitecture.Interfaces
@@ -83,7 +83,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
 
           if (aggregateRootInterface == null)
           {
-            sb.AppendLine("?? IAggregateRoot<T> interface not found — skipping aggregate validation.");
+            sb.AppendLine("?? IAggregateRoot<T> interface not found â€” skipping aggregate validation.");
             return;
           }
 
@@ -97,7 +97,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
 
           if (!aggregateRoots.Any())
           {
-            sb.AppendLine("?? No aggregate roots implementing IAggregateRoot<T> found — skipping rule.");
+            sb.AppendLine("?? No aggregate roots implementing IAggregateRoot<T> found â€” skipping rule.");
             return;
           }
 
@@ -130,12 +130,12 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
           }
         }, sb, markViolation);
 
-        // RULE 3 — Domain events
+        // RULE 3 â€” Domain events
         ExecuteRule("Events", "Domain events must implement IDomainEvent or IIntegrationEvent and end with 'Event'.", () =>
         {
           if (!HasDomainEvents)
           {
-            sb.AppendLine("?? No domain events found — skipping rule.");
+            sb.AppendLine("?? No domain events found â€” skipping rule.");
             return;
           }
 
@@ -173,7 +173,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
           sb.AppendLine($"? Validated {validEvents.Count} domain event(s) successfully.");
         }, sb, markViolation);
 
-        // RULE 4 — Domain dependency isolation
+        // RULE 4 â€” Domain dependency isolation
         ExecuteRule("Dependencies", "Domain layer may depend only on Common abstractions and System libraries.", () =>
         {
           ArchRuleDefinition
@@ -182,24 +182,24 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
               .ResideInAssembly(DomainAssembly)
               .Should()
               .OnlyDependOnTypesThat()
-              .ResideInNamespaceMatching($"^{prefix}\\.Common\\.Business\\.Domain(\\..*)?$")
-              .OrShould().ResideInNamespaceMatching($"^{prefix}\\.Common\\.Mediator(\\..*)?$")
-              .OrShould().ResideInNamespaceMatching($"^{prefix}\\.Common(\\..*)?$")
+              .ResideInNamespaceMatching(@"^Franz\.Common\.Business\.Domain(\..*)?$")
+              .OrShould().ResideInNamespaceMatching(@"^Franz\.Common\.Mediator(\..*)?$")
+              .OrShould().ResideInNamespaceMatching(@"^Franz\.Common(\..*)?$")
               .OrShould().ResideInNamespaceMatching($"^{prefix}\\.Domain(\\..*)?$")
               .OrShould().ResideInNamespaceMatching(@"^System(\..*)?$")
-              .Because("The Domain layer must remain pure — it may depend only on its own layer, Common abstractions, and System libraries.")
+              .Because("The Domain layer must remain pure â€” it may depend only on its own layer, Common abstractions, and System libraries.")
               .WithoutRequiringPositiveResults()
               .Check(BaseArchitecture);
 
           sb.AppendLine("? Verified domain layer dependency purity (Common + System only).");
         }, sb, markViolation);
 
-        // RULE 5 — Domain events purity
+        // RULE 5 â€” Domain events purity
         ExecuteRule("Purity", "Domain events must not depend on infrastructure namespaces.", () =>
         {
           if (!HasDomainEvents)
           {
-            sb.AppendLine("?? No domain events found — skipping purity check.");
+            sb.AppendLine("?? No domain events found â€” skipping purity check.");
             return;
           }
 

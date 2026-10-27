@@ -1,5 +1,6 @@
 using Franz.Common.Mapping.Profiles;
 using HeroService.Contracts.DTOs.Heroes;
+using HeroService.Domain.Heroes.Affiliations;
 using HeroService.Domain.Heroes.Affiliations.Classifications;
 using HeroService.Domain.Heroes.Core;
 using HeroService.Domain.Heroes.Core.Skills;
