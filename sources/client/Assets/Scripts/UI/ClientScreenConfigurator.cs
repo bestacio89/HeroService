@@ -10,22 +10,13 @@ using UnityEngine.UI;
 /// </summary>
 public static class ClientScreenConfigurator
 {
-    private static readonly string[] LayoutSafeAreaRoots =
-    {
-        "HeroListContainer"
-    };
-
     private static readonly string[] EdgePaddedRoots =
     {
         "Joystick",
         "CombatUI",
         "MatchTimerText",
         "MatchStateText",
-        "MinimapPanel",
-        "Button_Classic",
-        "Button_Ranked",
-        "Button_Arcade",
-        "HeroSelectionTitle"
+        "MinimapPanel"
     };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -49,11 +40,6 @@ public static class ClientScreenConfigurator
             {
                 ConfigureCanvas(canvas);
             }
-        }
-
-        foreach (string rootName in LayoutSafeAreaRoots)
-        {
-            ConfigureNamedRoot<SafeAreaLayoutPadding>(scene, rootName);
         }
 
         foreach (string rootName in EdgePaddedRoots)
@@ -84,6 +70,11 @@ public static class ClientScreenConfigurator
         if (canvas.GetComponent<ResponsiveCanvasScaler>() == null)
         {
             canvas.gameObject.AddComponent<ResponsiveCanvasScaler>();
+        }
+
+        if (canvas.GetComponent<PreMatchScreenLayout>() == null)
+        {
+            canvas.gameObject.AddComponent<PreMatchScreenLayout>();
         }
     }
 
