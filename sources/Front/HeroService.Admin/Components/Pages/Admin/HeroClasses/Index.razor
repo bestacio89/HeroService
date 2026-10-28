@@ -1,69 +1,65 @@
-﻿@namespace HeroService.Admin.Components.Pages.Admin.HeroClasses
-
+@namespace HeroService.Admin.Components.Pages.Admin.HeroClasses
 @page "/admin/hero-classes"
 
-<MudPaper Class="pa-4">
+<PageTitle>Hero Classes | HeroService</PageTitle>
 
-    <MudStack Row="true"
-              Justify="Justify.SpaceBetween"
-              AlignItems="AlignItems.Center"
-              Class="mb-2">
-
-        <MudStack Spacing="0">
-            <MudText Typo="Typo.h5">Hero Classes</MudText>
-            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                Combat roles and archetype definitions
-            </MudText>
-        </MudStack>
-
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   OnClick="OpenCreateDialog">
-            Create Class
-        </MudButton>
-
-    </MudStack>
-
-    <MudDivider Class="mb-3" />
+<MudStack Spacing="4" Class="page-stack">
+    <div class="page-heading">
+        <div>
+            <MudText Typo="Typo.overline" Class="eyebrow">WORLD & CLASSIFICATION</MudText>
+            <MudText Typo="Typo.h4" Class="page-title">Hero Classes</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">Manage combat roles and archetype definitions.</MudText>
+        </div>
+        <div class="admin-page-actions">
+            <MudTextField T="string" Value="@_search" ValueChanged="OnSearchChanged" Placeholder="Search classes" AriaLabel="Search hero classes" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" DebounceInterval="200" Clearable="true" Class="hero-search" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">Create class</MudButton>
+        </div>
+    </div>
 
     @if (IsLoading)
     {
-        <MudProgressLinear Indeterminate="true" />
+        <div class="admin-loading-state" role="status" aria-live="polite">
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
+        </div>
     }
-    else if (!Items.Any())
+    else if (!string.IsNullOrWhiteSpace(ErrorMessage))
     {
-        <MudAlert Severity="Severity.Info" Class="mb-2">
-            No hero classes defined.
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+            <MudText Typo="Typo.subtitle1">Hero classes could not be loaded</MudText>
+            <MudText Typo="Typo.body2">@ErrorMessage</MudText>
+            <MudButton Class="mt-3" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="Load">Try again</MudButton>
         </MudAlert>
+    }
+    else if (Items.Count == 0)
+    {
+        <MudPaper Class="empty-state" Elevation="0">
+            <MudIcon Icon="@Icons.Material.Outlined.Category" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.h6">No hero classes yet</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Create a class to define a combat role or archetype.</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">Create class</MudButton>
+        </MudPaper>
+    }
+    else if (FilteredItems.Count == 0)
+    {
+        <MudPaper Class="empty-state" Elevation="0">
+            <MudIcon Icon="@Icons.Material.Outlined.SearchOff" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.h6">No matching classes</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Try a different search term.</MudText>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearSearch">Clear search</MudButton>
+        </MudPaper>
     }
     else
     {
-        <MudTable Items="Items"
-                  Hover="true"
-                  Dense="true">
-
-            <HeaderContent>
-                <MudTh>Name</MudTh>
-                <MudTh Style="width:140px;">Actions</MudTh>
-            </HeaderContent>
-
-            <RowTemplate Context="item">
-
-                <MudTd>
-                    <MudText Typo="Typo.subtitle2">
-                        @item.Name
-                    </MudText>
-                </MudTd>
-
-                <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Visibility"
-                                   Size="Size.Small"
-                                   OnClick="@(() => OpenDetails(item))" />
-                </MudTd>
-
-            </RowTemplate>
-
+        <div class="section-heading">
+            <MudText Typo="Typo.h6">Class catalogue</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@FilteredItems.Count result@(FilteredItems.Count == 1 ? "" : "s")</MudText>
+        </div>
+        <MudTable Items="FilteredItems" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Class="admin-data-table">
+            <HeaderContent><MudTh>Name</MudTh></HeaderContent>
+            <RowTemplate Context="item"><MudTd DataLabel="Name"><MudText Typo="Typo.subtitle2">@item.Name</MudText></MudTd></RowTemplate>
         </MudTable>
     }
-
-</MudPaper>
+</MudStack>
