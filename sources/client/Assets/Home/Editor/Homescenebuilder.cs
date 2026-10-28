@@ -14,9 +14,10 @@ using TMPro;
 /// (HeroCollectionItem, PantheonFilterChip).
 ///
 /// Utilisation :
-/// 1. Créer/ouvrir une scène VIDE à Assets/Home/Scenes/Home.unity.
-/// 2. Menu MOBA > Home > Build Home Scene And Prefabs.
-/// 3. Sauvegarder la scène (Ctrl+S).
+/// 1. Menu MOBA > Home > Build Home Scene And Prefabs.
+/// 2. Le builder crée/ouvre Assets/Home/Scenes/Home.unity, construit la hiérarchie,
+///    sauvegarde la scène et l'enregistre en première position dans Build Settings.
+/// 3. Vérifier les références backend et lancer la scène Home dans Unity.
 ///
 /// Idempotent : recherche chaque objet par nom avant de le créer, donc
 /// relancer l'outil ne duplique rien. En revanche, les valeurs par défaut
