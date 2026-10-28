@@ -8,7 +8,7 @@ using TMPro;
 
 /// <summary>
 /// Outil d'édition qui construit automatiquement la hiérarchie complète de la
-/// scène Home (Services, Canvas, navigation, 4 panneaux, barre de navigation)
+/// scène Home (Services, Canvas responsive, navigation, settings, 4 panneaux, barre de navigation)
 /// ainsi que les deux prefabs nécessaires à l'écran Hero Collection
 /// (HeroCollectionItem, PantheonFilterChip).
 ///
@@ -46,32 +46,39 @@ public static class HomeSceneBuilder
         GameObject portraitLibGo = FindOrCreateChild(servicesRoot.transform, "HeroPortraitLibrary");
         HeroPortraitLibrary portraitLibrary = GetOrAddComponent<HeroPortraitLibrary>(portraitLibGo);
 
+        GameObject settingsServiceGo = FindOrCreateChild(servicesRoot.transform, "ClientSettingsService");
+        ClientSettingsService settingsService = GetOrAddComponent<ClientSettingsService>(settingsServiceGo);
+
         // 2. Canvas + EventSystem
         GameObject canvasGo = FindOrCreateRoot("Canvas");
-        Canvas canvas = canvasGo.GetComponent<Canvas>();
-        if (canvas == null)
-        {
-            canvas = canvasGo.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        Canvas canvas = GetOrAddComponent<Canvas>(canvasGo);
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
-            CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080, 1920); // portrait mobile
-            scaler.matchWidthOrHeight = 0.5f;
-
-            canvasGo.AddComponent<GraphicRaycaster>();
-        }
+        CanvasScaler scaler = GetOrAddComponent<CanvasScaler>(canvasGo);
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1080, 1920);
+        scaler.matchWidthOrHeight = 0.5f;
+        GetOrAddComponent<ResponsiveCanvasScaler>(canvasGo);
+        GetOrAddComponent<GraphicRaycaster>(canvasGo);
 
         if (Object.FindObjectOfType<EventSystem>() == null)
         {
             GameObject esGo = new GameObject("EventSystem");
             esGo.AddComponent<EventSystem>();
-            esGo.AddComponent<StandaloneInputModule>();
+            if (UnityEngine.InputSystem.UI.InputSystemUIInputModule != null)
+            {
+                esGo.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+            }
+            else
+            {
+                esGo.AddComponent<StandaloneInputModule>();
+            }
         }
 
         // 3. MainMenuSceneLoader + overlay de chargement
         GameObject loaderGo = FindOrCreateUIChild(canvasGo.transform, "MainMenuSceneLoader");
         SetAnchors(loaderGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
+        GetOrAddComponent<SafeAreaController>(loaderGo);
         MainMenuSceneLoader sceneLoader = GetOrAddComponent<MainMenuSceneLoader>(loaderGo);
 
         GameObject overlayGo = FindOrCreateUIChild(loaderGo.transform, "LoadingOverlay");
@@ -88,6 +95,7 @@ public static class HomeSceneBuilder
         // 4. Racine de navigation
         GameObject navRootGo = FindOrCreateUIChild(canvasGo.transform, "HomeNavigationController_Root");
         SetAnchors(navRootGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
+        GetOrAddComponent<SafeAreaController>(navRootGo);
         HomeNavigationController navController = GetOrAddComponent<HomeNavigationController>(navRootGo);
 
         // 5. Panneaux
@@ -95,6 +103,8 @@ public static class HomeSceneBuilder
         GameObject panelHeroes = BuildHeroesPanel(navRootGo.transform, heroCatalogService, portraitLibrary);
         GameObject panelShop = BuildShopPanel(navRootGo.transform);
         GameObject panelProfile = BuildProfilePanel(navRootGo.transform, playerProfileService);
+
+        Button settingsButton = BuildSettingsButton(panelHome.transform);
 
         // 6. Barre de navigation inférieure
         GameObject navBar = BuildBottomNavBar(
@@ -112,6 +122,10 @@ public static class HomeSceneBuilder
             (HomeTabType.Shop, panelShop, btnShop),
             (HomeTabType.Profile, panelProfile, btnProfile),
         });
+
+        ClientSettingsPanel settingsPanel = GetOrAddComponent<ClientSettingsPanel>(canvasGo);
+        SetPrivateField(settingsPanel, "openButton", settingsButton);
+        SetPrivateField(settingsPanel, "settingsService", settingsService);
 
         panelHome.SetActive(true);
         panelHeroes.SetActive(false);
@@ -196,6 +210,30 @@ public static class HomeSceneBuilder
         SetPrivateField(carousel, "nextButton", nextButton);
 
         return panel;
+    }
+
+    private static Button BuildSettingsButton(Transform homePanel)
+    {
+        Transform statusBar = homePanel.Find("StatusBar");
+        if (statusBar == null)
+        {
+            Debug.LogError("[HomeSceneBuilder] StatusBar was not found; settings entry could not be created.");
+            return null;
+        }
+
+        Button button = AddButtonChild(
+            statusBar,
+            "SettingsButton",
+            "SET",
+            Vector2.zero,
+            Vector2.one);
+
+        LayoutElement layout = GetOrAddComponent<LayoutElement>(button.gameObject);
+        layout.preferredWidth = 76f;
+        layout.minWidth = 64f;
+        layout.preferredHeight = 52f;
+
+        return button;
     }
 
     private static GameObject BuildHeroesPanel(
@@ -291,7 +329,17 @@ public static class HomeSceneBuilder
         out NavTabButtonView btnShop,
         out NavTabButtonView btnProfile)
     {
-        GameObject navBar = FindOrCreateUIChild(canvasTransform, "BottomNavBar");
+        GameObject safeRoot = FindOrCreateUIChild(canvasTransform, "BottomNavSafeRoot");
+        SetAnchors(safeRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
+        GetOrAddComponent<SafeAreaController>(safeRoot);
+
+        Transform previouslyGeneratedBar = canvasTransform.Find("BottomNavBar");
+        if (previouslyGeneratedBar != null)
+        {
+            previouslyGeneratedBar.SetParent(safeRoot.transform, false);
+        }
+
+        GameObject navBar = FindOrCreateUIChild(safeRoot.transform, "BottomNavBar");
         SetAnchors(navBar.GetComponent<RectTransform>(), Vector2.zero, new Vector2(1f, NavBarHeightRatio));
 
         Image navBarBg = GetOrAddComponent<Image>(navBar);
