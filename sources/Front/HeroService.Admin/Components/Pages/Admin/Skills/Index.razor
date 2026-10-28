@@ -57,7 +57,7 @@
                 <RowTemplate Context="skill">
                     <MudTd DataLabel="Name"><MudText Typo="Typo.subtitle2">@skill.Name</MudText></MudTd>
                     <MudTd DataLabel="Type"><MudChip T="string" Color="@SkillTheme.GetColor(skill.SkillType)" Variant="Variant.Outlined">@skill.SkillType</MudChip></MudTd>
-                    <MudTd DataLabel="Action"><MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Color="Color.Primary" Size="Size.Small" Title="View skill details" AriaLabel="View @skill.Name details" OnClick="@(() => OpenDetailsAsync(skill))" /></MudTd>
+                    <MudTd DataLabel="Action"><MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Color="Color.Primary" Size="Size.Small" Title="View skill details" AriaLabel="View skill details" OnClick="@(() => OpenDetailsAsync(skill))" /></MudTd>
                 </RowTemplate>
             </MudTable>
         }

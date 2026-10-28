@@ -14,7 +14,7 @@
         <div class="admin-page-actions">
             @if (OnRefresh is not null)
             {
-                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" Title="Refresh" AriaLabel="Refresh @Title" Disabled="@IsLoading" OnClick="Refresh" />
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" Title="Refresh" AriaLabel="Refresh list" Disabled="@IsLoading" OnClick="Refresh" />
             }
             <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Disabled="@(OnCreate is null)" OnClick="OpenCreate">Create</MudButton>
         </div>
