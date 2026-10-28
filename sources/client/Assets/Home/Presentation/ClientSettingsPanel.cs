@@ -371,7 +371,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         UnityEngine.Events.UnityAction toggle)
     {
         GameObject row = CreateRect(title + "Row", parent);
-        row.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 64f);
+        row.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 84f);
         HorizontalLayoutGroup layout = row.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = 12;
         layout.childAlignment = TextAnchor.MiddleLeft;
