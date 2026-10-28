@@ -44,7 +44,7 @@ public sealed class KafkaMessageListenerBrokerTests
       return Task.CompletedTask;
     };
 
-    var listening = listener.Listen(cancellation.Token);
+    var listening = Task.Run(() => listener.Listen(cancellation.Token));
     await handled.Task.WaitAsync(TimeSpan.FromSeconds(20));
     cancellation.Cancel();
     await listening.WaitAsync(TimeSpan.FromSeconds(20));
@@ -76,7 +76,7 @@ public sealed class KafkaMessageListenerBrokerTests
     }, deadLetterProducer);
     listener.OnMessageReceivedAsync = _ => Task.FromException(new InvalidOperationException("Expected test failure."));
 
-    var failure = await Record.ExceptionAsync(() => listener.Listen().WaitAsync(TimeSpan.FromSeconds(20)));
+    var failure = await Record.ExceptionAsync(() => Task.Run(() => listener.Listen()).WaitAsync(TimeSpan.FromSeconds(20)));
     Assert.IsType<InvalidOperationException>(failure);
     Assert.Contains("offset was not committed", failure!.Message, StringComparison.OrdinalIgnoreCase);
 
@@ -123,7 +123,7 @@ public sealed class KafkaMessageListenerBrokerTests
     };
 
     using var cancellation = new CancellationTokenSource();
-    var listening = listener.Listen(cancellation.Token);
+    var listening = Task.Run(() => listener.Listen(cancellation.Token));
 
     using var deadLetterConsumer = BuildConsumer(kafka, $"dlt-reader-{Guid.NewGuid():N}");
     deadLetterConsumer.Subscribe(deadLetterTopic);
