@@ -118,15 +118,14 @@ public static class HomeSceneBuilder
         GameObject panelShop = BuildShopPanel(navRootGo.transform);
         GameObject panelProfile = BuildProfilePanel(navRootGo.transform, playerProfileService);
 
-        Button settingsButton = BuildSettingsButton(panelHome.transform);
-
         // 6. Barre de navigation inférieure
         GameObject navBar = BuildBottomNavBar(
             canvasGo.transform,
             out NavTabButtonView btnHome,
             out NavTabButtonView btnHeroes,
             out NavTabButtonView btnShop,
-            out NavTabButtonView btnProfile);
+            out NavTabButtonView btnProfile,
+            out Button settingsButton);
 
         // 7. Câblage du HomeNavigationController
         ConfigureNavigationTabs(navController, new[]
@@ -243,30 +242,6 @@ public static class HomeSceneBuilder
         return panel;
     }
 
-    private static Button BuildSettingsButton(Transform homePanel)
-    {
-        Transform statusBar = homePanel.Find("StatusBar");
-        if (statusBar == null)
-        {
-            Debug.LogError("[HomeSceneBuilder] StatusBar was not found; settings entry could not be created.");
-            return null;
-        }
-
-        Button button = AddButtonChild(
-            statusBar,
-            "SettingsButton",
-            "SET",
-            Vector2.zero,
-            Vector2.one);
-
-        LayoutElement layout = GetOrAddComponent<LayoutElement>(button.gameObject);
-        layout.preferredWidth = 76f;
-        layout.minWidth = 64f;
-        layout.preferredHeight = 52f;
-
-        return button;
-    }
-
     private static GameObject BuildHeroesPanel(
         Transform navRoot,
         HeroCatalogService heroCatalogService,
@@ -362,7 +337,8 @@ public static class HomeSceneBuilder
         out NavTabButtonView btnHome,
         out NavTabButtonView btnHeroes,
         out NavTabButtonView btnShop,
-        out NavTabButtonView btnProfile)
+        out NavTabButtonView btnProfile,
+        out Button settingsButton)
     {
         GameObject safeRoot = FindOrCreateUIChild(canvasTransform, "BottomNavSafeRoot");
         SetAnchors(safeRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
@@ -389,6 +365,19 @@ public static class HomeSceneBuilder
         btnHeroes = CreateNavButton(navBar.transform, "NavButton_Heroes", "Heroes", HomeTabType.Heroes);
         btnShop = CreateNavButton(navBar.transform, "NavButton_Shop", "Shop", HomeTabType.Shop);
         btnProfile = CreateNavButton(navBar.transform, "NavButton_Profile", "Profile", HomeTabType.Profile);
+
+        GameObject settingsGo = FindOrCreateUIChild(navBar.transform, "NavButton_Settings");
+        Image settingsBackground = GetOrAddComponent<Image>(settingsGo);
+        settingsBackground.color = new Color(0f, 0f, 0f, 0f);
+        settingsButton = GetOrAddComponent<Button>(settingsGo);
+        AddTMPTextChild(
+            settingsGo.transform,
+            "Label",
+            "SETTINGS",
+            16,
+            TextAlignmentOptions.Center,
+            Vector2.zero,
+            Vector2.one);
 
         return navBar;
     }
