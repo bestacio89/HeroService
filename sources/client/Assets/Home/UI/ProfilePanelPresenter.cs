@@ -49,11 +49,14 @@ public class ProfilePanelPresenter : MonoBehaviour
     {
         if (profile == null)
         {
-            if (playerNameText != null) playerNameText.text = "Profile unavailable";
-            if (playerIdText != null) playerIdText.text = "Connection required";
+            bool isPending = playerProfileService != null &&
+                !playerProfileService.HasLoaded &&
+                string.IsNullOrWhiteSpace(playerProfileService.LastLoadError);
+            if (playerNameText != null) playerNameText.text = isPending ? "Loading profile…" : "Profile unavailable";
+            if (playerIdText != null) playerIdText.text = isPending ? "Please wait" : "Connection required";
             if (playerLevelText != null) playerLevelText.text = "—";
             if (xpBar != null) xpBar.value = 0f;
-            if (xpLabelText != null) xpLabelText.text = "Progress unavailable";
+            if (xpLabelText != null) xpLabelText.text = isPending ? "Loading progress…" : "Progress unavailable";
             if (softCurrencyText != null) softCurrencyText.text = "—";
             if (hardCurrencyText != null) hardCurrencyText.text = "—";
             return;
