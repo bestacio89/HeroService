@@ -129,7 +129,7 @@ public sealed class KafkaMessageListenerBrokerTests
     var deadLetter = deadLetterConsumer.Consume(TimeSpan.FromSeconds(20));
 
     Assert.NotNull(deadLetter);
-    Assert.Equal("poison", new JsonMessageSerializer().Deserialize<Message>(System.Text.Encoding.UTF8.GetString(deadLetter.Message.Value))!.Body);
+    Assert.Equal("poison", new JsonMessageSerializer().Deserialize<Message>(deadLetter.Message.Value)!.Body);
     Assert.Equal(2, attempts);
     Assert.Equal(topic, HeaderValue(deadLetter.Message.Headers, "x-franz-original-topic"));
     Assert.Equal("0", HeaderValue(deadLetter.Message.Headers, "x-franz-original-offset"));
