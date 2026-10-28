@@ -374,7 +374,7 @@ public static class HomeSceneBuilder
             settingsGo.transform,
             "Label",
             "SETTINGS",
-            16,
+            24,
             TextAlignmentOptions.Center,
             Vector2.zero,
             Vector2.one);
