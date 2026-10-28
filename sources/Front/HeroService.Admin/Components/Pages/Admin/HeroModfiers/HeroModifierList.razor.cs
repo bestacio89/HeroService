@@ -1,6 +1,7 @@
 ﻿using HeroService.Client.Http.Abstractions;
 using HeroService.Contracts.DTOs.Modifiers;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 
 namespace HeroService.Admin.Components.Pages.Admin.HeroModifiers;
@@ -22,6 +23,9 @@ public partial class HeroModifierList
   [Inject]
   public IDialogService DialogService { get; set; } = default!;
 
+  [Inject]
+  public ILogger<HeroModifierList> Logger { get; set; } = default!;
+
 
   private IReadOnlyList<HeroModifierDto> Modifiers { get; set; }
       = [];
@@ -35,6 +39,8 @@ public partial class HeroModifierList
 
   private bool Loading { get; set; }
 
+  private string? ErrorMessage { get; set; }
+
 
   protected override async Task OnInitializedAsync()
   {
@@ -45,6 +51,7 @@ public partial class HeroModifierList
   private async Task LoadAsync()
   {
     Loading = true;
+    ErrorMessage = null;
 
     try
     {
@@ -58,6 +65,26 @@ public partial class HeroModifierList
       HeroNames = (await heroesTask).ToDictionary(hero => hero.Id, hero => hero.Name);
       var version = await versionTask;
       ActiveGameVersion = version?.VersionName ?? "-";
+    }
+    catch (OperationCanceledException)
+    {
+      Modifiers = [];
+      HeroNames = [];
+      ErrorMessage = "The request was cancelled or timed out. Retry when the service is available.";
+    }
+    catch (HttpRequestException exception)
+    {
+      Logger.LogWarning(exception, "The HeroService API could not be reached while loading hero modifiers.");
+      Modifiers = [];
+      HeroNames = [];
+      ErrorMessage = "The HeroService API could not be reached. Check the service connection and try again.";
+    }
+    catch (Exception exception)
+    {
+      Logger.LogError(exception, "Unexpected failure while loading hero modifiers.");
+      Modifiers = [];
+      HeroNames = [];
+      ErrorMessage = "An unexpected error occurred while loading hero modifiers.";
     }
     finally
     {

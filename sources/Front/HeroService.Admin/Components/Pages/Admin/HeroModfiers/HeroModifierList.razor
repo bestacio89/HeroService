@@ -25,17 +25,24 @@
             </MudStack>
 
 
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       OnClick="OpenCreateDialog">
-                Create Modifier
-            </MudButton>
+            <div class="admin-page-actions">
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" Title="Refresh modifiers" AriaLabel="Refresh modifiers" Disabled="@Loading" OnClick="LoadAsync" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">Create Modifier</MudButton>
+            </div>
 
         </MudStack>
 
 
         <MudDivider />
 
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+                <MudText Typo="Typo.subtitle1">Hero modifiers could not be loaded</MudText>
+                <MudText Typo="Typo.body2">@ErrorMessage</MudText>
+                <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync">Try again</MudButton>
+            </MudAlert>
+        }
 
         <MudTable Items="Modifiers"
                   Hover="true"
@@ -165,7 +172,7 @@
 
                 <MudText Typo="Typo.body2"
                          Color="Color.Secondary">
-                    No active hero modifiers found.
+                    @(string.IsNullOrWhiteSpace(ErrorMessage) ? "No active hero modifiers found." : "The modifier list is unavailable. Retry the request above.")
                 </MudText>
 
             </NoRecordsContent>
