@@ -1,5 +1,6 @@
 using MobaPrototype.Managers;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -34,6 +35,11 @@ public class MatchBootstrapper : MonoBehaviour
     public event Action OnRuntimeContextApplyFailed;
 
     public MatchLaunchContext PreparedContext => preparedContext;
+
+    public IReadOnlyList<HeroSelectionMapping> AvailableHeroMappings =>
+        heroSpawner != null
+            ? heroSpawner.AvailableHeroMappings
+            : Array.Empty<HeroSelectionMapping>();
 
     public bool HasPreparedContext =>
         preparedContext != null &&
