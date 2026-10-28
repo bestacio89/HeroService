@@ -168,11 +168,11 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
 
         titleTransform.SetParent(safeArea, false);
         RectTransform titleRect = titleTransform.GetComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0.5f, 1f);
-        titleRect.anchorMax = new Vector2(0.5f, 1f);
+        titleRect.anchorMin = new Vector2(0.04f, 1f);
+        titleRect.anchorMax = new Vector2(0.96f, 1f);
         titleRect.pivot = new Vector2(0.5f, 1f);
         titleRect.anchoredPosition = new Vector2(0f, -24f);
-        titleRect.sizeDelta = new Vector2(1000f, 100f);
+        titleRect.sizeDelta = new Vector2(0f, 100f);
 
         TMP_Text title = titleTransform.GetComponent<TMP_Text>();
         if (title != null)
