@@ -152,6 +152,12 @@ public static class HomeSceneBuilder
 
         // 5. Panneaux
         GameObject panelHome = BuildHomePanel(navRootGo.transform, playerProfileService, heroCatalogService, portraitLibrary, sceneLoader);
+        Transform obsoleteHomeSettingsButton = panelHome.transform.Find("StatusBar/SettingsButton");
+        if (obsoleteHomeSettingsButton != null)
+        {
+            Object.DestroyImmediate(obsoleteHomeSettingsButton.gameObject);
+        }
+
         GameObject panelHeroes = BuildHeroesPanel(navRootGo.transform, heroCatalogService, portraitLibrary);
         GameObject panelShop = BuildShopPanel(navRootGo.transform);
         GameObject panelProfile = BuildProfilePanel(navRootGo.transform, playerProfileService);
