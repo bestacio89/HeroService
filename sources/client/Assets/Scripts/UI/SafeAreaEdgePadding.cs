@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Offsets edge-anchored HUD elements away from device cutouts and gesture
