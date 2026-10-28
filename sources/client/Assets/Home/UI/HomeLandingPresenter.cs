@@ -76,6 +76,11 @@ public class HomeLandingPresenter : MonoBehaviour
     {
         if (profile == null)
         {
+            if (playerNameText != null) playerNameText.text = "Profile unavailable";
+            if (playerLevelText != null) playerLevelText.text = "—";
+            if (xpBar != null) xpBar.value = 0f;
+            if (softCurrencyText != null) softCurrencyText.text = "—";
+            if (hardCurrencyText != null) hardCurrencyText.text = "—";
             return;
         }
 
