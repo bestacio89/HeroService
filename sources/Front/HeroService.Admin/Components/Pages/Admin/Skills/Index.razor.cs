@@ -10,6 +10,7 @@ namespace HeroService.Admin.Components.Pages.Admin.Skills;
 public sealed partial class Index : ComponentBase
 {
   [Inject] private ISkillClient Client { get; set; } = default!;
+  [Inject] private IHeroClient HeroClient { get; set; } = default!;
   [Inject] private NavigationManager Nav { get; set; } = default!;
   [Inject] private IDialogService DialogService { get; set; } = default!;
   [Inject] private ISnackbar Snackbar { get; set; } = default!;
@@ -18,9 +19,13 @@ public sealed partial class Index : ComponentBase
   private IReadOnlyList<SkillDto> Items { get; set; } = [];
   private IReadOnlyList<SkillDto> FilteredItems { get; set; } = [];
   private IReadOnlyList<SkillType> SkillTypes { get; } = Enum.GetValues<SkillType>();
+  private IReadOnlyList<HeroDto> Heroes { get; set; } = [];
+  private IReadOnlyList<HeroDto> HeroesWithSkills { get; set; } = [];
+  private readonly Dictionary<Guid, IReadOnlyList<HeroDto>> _heroesBySkillId = [];
   private readonly HashSet<Guid> _openingSkillIds = [];
   private string? _search;
   private SkillType? _selectedType;
+  private Guid? _selectedHeroId;
   private bool Loading { get; set; } = true;
   private string? ErrorMessage { get; set; }
   private int _skillTypeCount;
