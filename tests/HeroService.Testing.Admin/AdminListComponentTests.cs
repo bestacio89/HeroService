@@ -27,6 +27,17 @@ public sealed class AdminListComponentTests
       ]);
     context.Services.AddSingleton(skills.Object);
 
+    var heroes = new Mock<IHeroClient>();
+    heroes
+      .Setup(client => client.BrowseAsync(
+        null,
+        null,
+        null,
+        null,
+        It.IsAny<CancellationToken>()))
+      .ReturnsAsync((IReadOnlyCollection<HeroDto>)Array.Empty<HeroDto>());
+    context.Services.AddSingleton(heroes.Object);
+
     var cut = context.RenderComponent<SkillsIndex>();
 
     Assert.Contains("Fireball", cut.Markup);

@@ -6,60 +6,258 @@
 <MudStack Spacing="4" Class="page-stack">
     <div class="page-heading">
         <div>
-            <MudText Typo="Typo.overline" Class="eyebrow">CORE AUTHORING</MudText>
-            <MudText Typo="Typo.h4" Class="page-title">Skills</MudText>
-            <MudText Typo="Typo.body1" Color="Color.Secondary">Define abilities, effects, scaling and execution rules.</MudText>
+            <MudText Typo="Typo.overline" Class="eyebrow">ABILITY DESIGN</MudText>
+            <MudText Typo="Typo.h4" Class="page-title">Skill library</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">
+                Explore abilities by role, inspect their gameplay parameters, and open a skill to review its full definition.
+            </MudText>
         </div>
-        <div class="admin-page-actions">
-            <MudTextField T="string" Value="@_search" ValueChanged="OnSearchChanged" Placeholder="Search skills or type" AriaLabel="Search skills" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" DebounceInterval="200" Clearable="true" Class="hero-search" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@NavigateToCreate">Create skill</MudButton>
-        </div>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="@NavigateToCreate">
+            Create skill
+        </MudButton>
     </div>
+
     @if (Loading)
     {
-        <div class="admin-loading-state" role="status" aria-live="polite">
-            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
-        </div>
+        <MudGrid Spacing="3">
+            @for (var i = 0; i < 6; i++)
+            {
+                <MudItem xs="12" sm="6" lg="4" xl="3" @key="i">
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="210px" Animation="Animation.Pulse" />
+                </MudItem>
+            }
+        </MudGrid>
     }
     else if (!string.IsNullOrWhiteSpace(ErrorMessage))
     {
         <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
             <MudText Typo="Typo.subtitle1">Skills could not be loaded</MudText>
             <MudText Typo="Typo.body2">@ErrorMessage</MudText>
-            <MudButton Class="mt-3" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync">Try again</MudButton>
+            <MudButton Class="mt-3"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Refresh"
+                       OnClick="LoadAsync">
+                Try again
+            </MudButton>
         </MudAlert>
     }
     else
     {
         <MudGrid Spacing="3">
-            <MudItem xs="12" sm="6"><MudPaper Class="metric-card" Elevation="0"><MudText Typo="Typo.caption" Color="Color.Secondary">TOTAL SKILLS</MudText><MudText Typo="Typo.h4" Class="metric-value">@Items.Count</MudText><MudText Typo="Typo.caption" Color="Color.Secondary">Available in the library</MudText></MudPaper></MudItem>
-            <MudItem xs="12" sm="6"><MudPaper Class="metric-card" Elevation="0"><MudText Typo="Typo.caption" Color="Color.Secondary">SKILL TYPES</MudText><MudText Typo="Typo.h4" Class="metric-value">@_skillTypeCount</MudText><MudText Typo="Typo.caption" Color="Color.Secondary">Distinct ability categories</MudText></MudPaper></MudItem>
+            <MudItem xs="12" sm="4">
+                <MudPaper Class="metric-card" Elevation="0">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">TOTAL ABILITIES</MudText>
+                    <MudText Typo="Typo.h4" Class="metric-value">@Items.Count</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Definitions in the library</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudPaper Class="metric-card" Elevation="0">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">ACTIVE CATEGORIES</MudText>
+                    <MudText Typo="Typo.h4" Class="metric-value">@_skillTypeCount</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Of @SkillTypes.Count defined types</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudPaper Class="metric-card" Elevation="0">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">SHOWING</MudText>
+                    <MudText Typo="Typo.h4" Class="metric-value">@FilteredItems.Count</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Matching current filters</MudText>
+                </MudPaper>
+            </MudItem>
         </MudGrid>
+
+        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+            <MudStack Spacing="3">
+                <MudText Typo="Typo.subtitle1">Find an ability</MudText>
+                <MudTextField T="string"
+                              Value="@_search"
+                              ValueChanged="OnSearchChanged"
+                              Placeholder="Search by skill, hero, class, effect or gameplay purpose"
+                              AriaLabel="Search skill library"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              Immediate="true"
+                              DebounceInterval="200"
+                              Clearable="true" />
+                <MudSelect T="Guid?" Label="Filter by hero" Value="@_selectedHeroId" ValueChanged="OnHeroFilterChanged" Clearable="true" Dense="true" Variant="Variant.Outlined">
+                    @foreach (var hero in HeroesWithSkills)
+                    {
+                        <MudSelectItem @key="hero.Id" T="Guid?" Value="@((Guid?)hero.Id)">@GetHeroLabel(hero)</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mr-1">TYPE</MudText>
+                    <MudButton Size="Size.Small"
+                               Variant="@(_selectedType is null ? Variant.Filled : Variant.Outlined)"
+                               Color="Color.Default"
+                               OnClick="@(() => SelectType(null))">
+                        All types (@Items.Count)
+                    </MudButton>
+                    @foreach (var type in SkillTypes)
+                    {
+                        var count = Items.Count(skill => skill.SkillType == type);
+                        <MudButton @key="type"
+                                   Size="Size.Small"
+                                   Variant="@(_selectedType == type ? Variant.Filled : Variant.Outlined)"
+                                   Style="@SkillTheme.GetBadgeStyle(type)"
+                                   OnClick="@(() => SelectType(type))">
+                            @type (@count)
+                        </MudButton>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(_search) || _selectedType.HasValue || _selectedHeroId.HasValue)
+                    {
+                        <MudButton Size="Size.Small"
+                                   Variant="Variant.Text"
+                                   Color="Color.Secondary"
+                                   StartIcon="@Icons.Material.Filled.Clear"
+                                   OnClick="ClearFilters">
+                            Clear filters
+                        </MudButton>
+                    }
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+
         <div class="section-heading">
-            <MudText Typo="Typo.h6">Skill library</MudText>
-            <MudText Typo="Typo.body2" Color="Color.Secondary">@FilteredItems.Count result@(FilteredItems.Count == 1 ? "" : "s")</MudText>
+            <MudText Typo="Typo.h6">Browse abilities</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                @FilteredItems.Count result@(FilteredItems.Count == 1 ? "" : "s")
+            </MudText>
         </div>
+
         @if (Items.Count == 0)
         {
-            <MudPaper Class="empty-state" Elevation="0"><MudIcon Icon="@Icons.Material.Outlined.Bolt" Size="Size.Large" Color="Color.Secondary" /><MudText Typo="Typo.h6">No skills yet</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Create a skill to start building the ability library.</MudText><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@NavigateToCreate">Create skill</MudButton></MudPaper>
+            <MudPaper Class="empty-state" Elevation="0">
+                <MudIcon Icon="@Icons.Material.Outlined.Bolt" Size="Size.Large" Color="Color.Secondary" />
+                <MudText Typo="Typo.h6">The skill library is empty</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Create the first ability definition to start building the catalogue.
+                </MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@NavigateToCreate">Create skill</MudButton>
+            </MudPaper>
         }
         else if (FilteredItems.Count == 0)
         {
-            <MudPaper Class="empty-state" Elevation="0"><MudIcon Icon="@Icons.Material.Outlined.SearchOff" Size="Size.Large" Color="Color.Secondary" /><MudText Typo="Typo.h6">No matching skills</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Try another name or skill type.</MudText><MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearSearch">Clear search</MudButton></MudPaper>
+            <MudPaper Class="empty-state" Elevation="0">
+                <MudIcon Icon="@Icons.Material.Outlined.SearchOff" Size="Size.Large" Color="Color.Secondary" />
+                <MudText Typo="Typo.h6">No matching abilities</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Try another search term, hero, or skill type.
+                </MudText>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearFilters">Clear filters</MudButton>
+            </MudPaper>
         }
         else
         {
-            <MudTable Items="FilteredItems" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Class="admin-data-table">
-                <HeaderContent><MudTh>Name</MudTh><MudTh>Type</MudTh><MudTh Style="width:120px;">Action</MudTh></HeaderContent>
-                <RowTemplate Context="skill">
-                    <MudTd DataLabel="Name"><MudText Typo="Typo.subtitle2">@skill.Name</MudText></MudTd>
-                    <MudTd DataLabel="Type"><MudChip T="string" Color="@SkillTheme.GetColor(skill.SkillType)" Variant="Variant.Outlined">@skill.SkillType</MudChip></MudTd>
-                    <MudTd DataLabel="Action"><MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Color="Color.Primary" Size="Size.Small" Title="View skill details" AriaLabel="View skill details" OnClick="@(() => OpenDetailsAsync(skill))" /></MudTd>
-                </RowTemplate>
-            </MudTable>
+            <MudGrid Spacing="3">
+                @foreach (var skill in FilteredItems)
+                {
+                    <MudItem xs="12" sm="6" lg="4" xl="3" @key="skill.Id">
+                        <MudCard Class="skill-library-card" Style="@SkillTheme.GetCardStyle(skill.SkillType)" Elevation="0">
+                            <MudCardContent Class="skill-library-card-content" Style="flex: 1; padding: 1.25rem;">
+                                <MudStack Spacing="2">
+                                    <MudStack Row="true" AlignItems="AlignItems.Start" Justify="Justify.SpaceBetween" Spacing="2">
+                                        <MudPaper Class="skill-type-mark" Elevation="0" Style="@SkillTheme.GetMarkStyle(skill.SkillType)">
+                                            <MudIcon Icon="@Icons.Material.Filled.Bolt" Size="Size.Large" />
+                                        </MudPaper>
+                                        <MudChip T="string"
+                                                 Size="Size.Small"
+                                                 Variant="Variant.Outlined"
+                                                 Style="@SkillTheme.GetBadgeStyle(skill.SkillType)">
+                                            @skill.SkillType
+                                        </MudChip>
+                                    </MudStack>
+
+                                    <div>
+                                        <MudText Typo="Typo.h6" Class="skill-library-title">@skill.Name</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                            @SkillTheme.GetDescription(skill.SkillType)
+                                        </MudText>
+                                    </div>
+
+                                    <div class="skill-hero-associations">
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">USED BY</MudText>
+                                        @if (GetHeroesForSkill(skill.Id) is { Count: > 0 } owners)
+                                        {
+                                            <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap">
+                                                @foreach (var hero in owners)
+                                                {
+                                                    <MudChip @key="hero.Id" T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Default">
+                                                        <MudIcon Icon="@Icons.Material.Filled.Shield" Size="Size.Small" Class="mr-1" />
+                                                        @GetHeroLabel(hero)
+                                                    </MudChip>
+                                                }
+                                            </MudStack>
+                                        }
+                                        else
+                                        {
+                                            <MudText Typo="Typo.body2" Color="Color.Secondary">Unassigned to a hero</MudText>
+                                        }
+                                    </div>
+
+                                    <MudDivider />
+
+                                    <MudGrid Spacing="1" Class="skill-library-stats">
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">COOLDOWN</MudText>
+                                            <MudText Typo="Typo.subtitle2">@FormatStat(skill.BaseStats?.Cooldown, " s")</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">RANGE</MudText>
+                                            <MudText Typo="Typo.subtitle2">@FormatStat(skill.BaseStats?.Range)</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">DAMAGE</MudText>
+                                            <MudText Typo="Typo.subtitle2">@FormatStat(skill.BaseStats?.Damage)</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">EFFECTS</MudText>
+                                            <MudText Typo="Typo.subtitle2">@(skill.Effects?.Count ?? 0)</MudText>
+                                        </MudItem>
+                                    </MudGrid>
+
+                                    @if (skill.Effects is { Count: > 0 })
+                                    {
+                                        <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap">
+                                            @foreach (var effect in skill.Effects.Take(2))
+                                            {
+                                                <MudChip @key="effect.EffectType"
+                                                         T="string"
+                                                         Size="Size.Small"
+                                                         Variant="Variant.Outlined">
+                                                    @effect.EffectType
+                                                </MudChip>
+                                            }
+                                            @if (skill.Effects.Count > 2)
+                                            {
+                                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">
+                                                    +@(skill.Effects.Count - 2)
+                                                </MudChip>
+                                            }
+                                        </MudStack>
+                                    }
+                                </MudStack>
+                            </MudCardContent>
+                            <MudCardActions Class="skill-library-card-actions" Style="padding: 0 1.25rem 1.25rem;">
+                                <MudButton FullWidth="true"
+                                           Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           EndIcon="@Icons.Material.Filled.ArrowForward"
+                                           Disabled="@_openingSkillIds.Contains(skill.Id)"
+                                           OnClick="@(() => OpenDetailsAsync(skill))">
+                                    @(_openingSkillIds.Contains(skill.Id) ? "Loading details…" : "Inspect ability")
+                                </MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                }
+            </MudGrid>
         }
     }
 </MudStack>

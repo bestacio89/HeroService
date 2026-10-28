@@ -1,22 +1,229 @@
 ﻿@namespace HeroService.Admin.Components.Pages.Admin.Skills
 
-<MudDialog FullWidth="true"
-           MaxWidth="MaxWidth.Large">
-
+<MudDialog FullWidth="true" MaxWidth="MaxWidth.Large">
     <DialogContent>
+        <MudStack Spacing="4" Class="pa-2">
+            <div>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudText Typo="Typo.h5">@Skill.Name</MudText>
+                    <MudChip T="string"
+                             Style="@SkillTheme.GetBadgeStyle(Skill.SkillType)"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small">
+                        @Skill.SkillType
+                    </MudChip>
+                </MudStack>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Skill definition and authored gameplay parameters
+                </MudText>
+            </div>
 
-        <!-- existing presentation markup stays unchanged -->
+            <MudDivider />
 
+            <section>
+                <MudText Typo="Typo.h6" Class="mb-3">Base statistics</MudText>
+                @if (CurrentStats is null)
+                {
+                    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+                        Base statistics are not available for this skill.
+                    </MudAlert>
+                }
+                else
+                {
+                    <MudGrid Spacing="2">
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Damage</MudText>
+                                <MudText Typo="Typo.h6">@FormatStat(CurrentStats.Damage)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Healing</MudText>
+                                <MudText Typo="Typo.h6">@FormatStat(CurrentStats.Healing)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Shield</MudText>
+                                <MudText Typo="Typo.h6">@FormatStat(CurrentStats.ShieldValue)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Cooldown</MudText>
+                                <MudText Typo="Typo.h6">@FormatStat(CurrentStats.Cooldown, " s")</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Mana cost</MudText>
+                                <MudText Typo="Typo.h6">@FormatStat(CurrentStats.ManaCost)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Cast time</MudText>
+                                <MudText Typo="Typo.h6">@FormatStat(CurrentStats.CastTime, " s")</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Channel duration</MudText>
+                                <MudText Typo="Typo.h6">@FormatStat(CurrentStats.ChannelDuration, " s")</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Range</MudText>
+                                <MudText Typo="Typo.h6">@FormatStat(CurrentStats.Range)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3">
+                            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Crowd control</MudText>
+                                <MudText Typo="Typo.h6">@FormatStat(CurrentStats.CrowdControlDuration, " s")</MudText>
+                            </MudPaper>
+                        </MudItem>
+                    </MudGrid>
+                }
+            </section>
+
+            <MudDivider />
+
+            <section>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <MudText Typo="Typo.h6">Effects</MudText>
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">
+                        @(Skill.Effects?.Count ?? 0) effect(s)
+                    </MudChip>
+                </MudStack>
+
+                @if (Skill.Effects is not { Count: > 0 })
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        No effects are configured for this skill.
+                    </MudText>
+                }
+                else
+                {
+                    <MudStack Spacing="2">
+                        @foreach (var effect in Skill.Effects)
+                        {
+                            <MudPaper @key="effect" Class="pa-3" Elevation="0" Outlined="true">
+                                <MudStack Spacing="2">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudText Typo="Typo.subtitle1">@effect.EffectType</MudText>
+                                        @if (effect.BuffType.HasValue)
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined">@effect.BuffType</MudChip>
+                                        }
+                                        @if (effect.DebuffType.HasValue)
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">@effect.DebuffType</MudChip>
+                                        }
+                                    </MudStack>
+
+                                    <MudGrid Spacing="2">
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Magnitude</MudText>
+                                            <MudText Typo="Typo.body1">@effect.Magnitude.ToString("0.##")</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Duration</MudText>
+                                            <MudText Typo="Typo.body1">@FormatStat(effect.Duration, " s")</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Radius</MudText>
+                                            <MudText Typo="Typo.body1">@FormatStat(effect.Radius)</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Target</MudText>
+                                            <MudText Typo="Typo.body1">@effect.TargetType</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Stacking</MudText>
+                                            <MudText Typo="Typo.body1">@effect.StackType</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Maximum stacks</MudText>
+                                            <MudText Typo="Typo.body1">@effect.MaxStacks</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Attack scaling</MudText>
+                                            <MudText Typo="Typo.body1">@FormatStat(effect.AttackDamageRatio)</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Magic scaling</MudText>
+                                            <MudText Typo="Typo.body1">@FormatStat(effect.MagicDamageRatio)</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Max-health scaling</MudText>
+                                            <MudText Typo="Typo.body1">@FormatStat(effect.MaxHealthRatio)</MudText>
+                                        </MudItem>
+                                    </MudGrid>
+
+                                    <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap">
+                                        @if (effect.IsInstant)
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">Instant</MudChip>
+                                        }
+                                        @if (effect.IsPeriodic)
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">Periodic</MudChip>
+                                        }
+                                        @if (effect.IsChannelled)
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">Channelled</MudChip>
+                                        }
+                                    </MudStack>
+                                </MudStack>
+                            </MudPaper>
+                        }
+                    </MudStack>
+                }
+            </section>
+
+            <MudDivider />
+
+            <section>
+                <MudText Typo="Typo.h6" Class="mb-2">Lore and presentation</MudText>
+                @if (IsLoadingLore)
+                {
+                    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+                }
+                else if (Lore is null ||
+                         (string.IsNullOrWhiteSpace(Lore.Description) &&
+                          string.IsNullOrWhiteSpace(Lore.VisualExplanation)))
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        No lore or visual explanation has been authored for this skill.
+                    </MudText>
+                }
+                else
+                {
+                    @if (!string.IsNullOrWhiteSpace(Lore.Description))
+                    {
+                        <MudText Typo="Typo.subtitle2">Description</MudText>
+                        <MudText Typo="Typo.body2">@Lore.Description</MudText>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Lore.VisualExplanation))
+                    {
+                        <MudText Typo="Typo.subtitle2" Class="mt-3">Visual explanation</MudText>
+                        <MudText Typo="Typo.body2">@Lore.VisualExplanation</MudText>
+                    }
+                }
+                @if (DetailsWarning)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Warning" Class="mt-2">
+                        Some supplemental details could not be loaded. The available skill data is still shown.
+                    </MudText>
+                }
+            </section>
+        </MudStack>
     </DialogContent>
 
-
     <DialogActions>
-
-        <MudButton Variant="Variant.Text"
-                   OnClick="Close">
-            Close
-        </MudButton>
-
+        <MudButton Variant="Variant.Text" OnClick="Close">Close</MudButton>
     </DialogActions>
-
 </MudDialog>
