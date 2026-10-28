@@ -40,11 +40,12 @@ public static class UnityHttpClient
 
         if (!Uri.TryCreate(baseUrl.TrimEnd('/') + "/", UriKind.Absolute, out Uri baseUri) ||
             (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps) ||
+            !string.IsNullOrEmpty(baseUri.UserInfo) ||
             !string.IsNullOrEmpty(baseUri.Query) ||
             !string.IsNullOrEmpty(baseUri.Fragment))
         {
             throw new ArgumentException(
-                "The service base URL must be an absolute HTTP or HTTPS URL without a query or fragment.",
+                "The service base URL must be an absolute HTTP or HTTPS URL without credentials, a query, or a fragment.",
                 nameof(baseUrl));
         }
 
@@ -60,7 +61,10 @@ public static class UnityHttpClient
         foreach (string segment in pathWithoutQuery.Split('/'))
         {
             string decodedSegment = Uri.UnescapeDataString(segment);
-            if (decodedSegment == "." || decodedSegment == ".." || decodedSegment.Contains('\\'))
+            if (decodedSegment == "." ||
+                decodedSegment == ".." ||
+                decodedSegment.Contains('/') ||
+                decodedSegment.Contains('\\'))
             {
                 throw new ArgumentException("The request path must not contain traversal segments.", nameof(relativePath));
             }
