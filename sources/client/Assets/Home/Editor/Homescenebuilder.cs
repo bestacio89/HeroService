@@ -475,6 +475,16 @@ public static class HomeSceneBuilder
         filterLayout.padding = new RectOffset(16, 16, 8, 8);
         filterLayout.childAlignment = TextAnchor.MiddleLeft;
 
+        TextMeshProUGUI catalogStatusText = AddTMPTextChild(
+            panel.transform,
+            "CatalogStatusText",
+            "Loading heroes…",
+            30,
+            TextAlignmentOptions.Center,
+            new Vector2(0.1f, 0.38f),
+            new Vector2(0.9f, 0.56f));
+        catalogStatusText.gameObject.SetActive(true);
+
         Transform gridContent = CreateVerticalScrollView(panel.transform, "HeroGridScroll", new Vector2(0f, 0f), new Vector2(1f, 0.88f), out _);
         GridLayoutGroup grid = GetOrAddComponent<GridLayoutGroup>(gridContent.gameObject);
         grid.cellSize = new Vector2(320, 400);
@@ -494,6 +504,7 @@ public static class HomeSceneBuilder
         SetPrivateField(presenter, "heroItemPrefab", itemPrefab);
         SetPrivateField(presenter, "filterChipContainer", filterRow.transform);
         SetPrivateField(presenter, "filterChipPrefab", chipPrefab);
+        SetPrivateField(presenter, "catalogStatusText", catalogStatusText);
 
         return panel;
     }
