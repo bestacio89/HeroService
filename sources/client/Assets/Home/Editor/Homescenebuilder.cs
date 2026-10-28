@@ -15,7 +15,7 @@ using TMPro;
 ///
 /// Utilisation :
 /// 1. Menu MOBA > Home > Build Home Scene And Prefabs.
-/// 2. Le builder crée/ouvre Assets/Home/Scenes/Home.unity, construit la hiérarchie,
+/// 2. Le builder crée/ouvre Assets/Home/Scenes/home.unity, construit la hiérarchie,
 ///    sauvegarde la scène et l'enregistre en première position dans Build Settings.
 /// 3. Vérifier les références backend et lancer la scène Home dans Unity.
 ///
@@ -36,7 +36,7 @@ public static class HomeSceneBuilder
     private static readonly Color SurfaceColor = new(0.07f, 0.085f, 0.12f, 0.96f);
     private static readonly Color AccentColor = new(0.84f, 0.68f, 0.36f, 1f);
 
-    private const string HomeScenePath = "Assets/Home/Scenes/Home.unity";
+    private const string HomeScenePath = "Assets/Home/Scenes/home.unity";
 
     [MenuItem("MOBA/Home/Build Home Scene And Prefabs")]
     public static void BuildHomeScene()
@@ -644,7 +644,7 @@ public static class HomeSceneBuilder
 
     private static HeroCollectionItemView GetOrCreateHeroCollectionItemPrefab()
     {
-        const string path = "Assets/Home/Prefabs/HeroCollectionItem.prefab";
+        const string path = "Assets/Home/Prefabs/HerocollectionItem.prefab";
         HeroCollectionItemView existing = AssetDatabase.LoadAssetAtPath<HeroCollectionItemView>(path);
         if (existing != null)
         {
@@ -708,7 +708,7 @@ public static class HomeSceneBuilder
 
     private static PantheonFilterChipView GetOrCreatePantheonFilterChipPrefab()
     {
-        const string path = "Assets/Home/Prefabs/PantheonFilterChip.prefab";
+        const string path = "Assets/Home/Prefabs/PantheonFilterchip.prefab";
         PantheonFilterChipView existing = AssetDatabase.LoadAssetAtPath<PantheonFilterChipView>(path);
         if (existing != null)
         {
