@@ -65,14 +65,7 @@ public static class HomeSceneBuilder
         {
             GameObject esGo = new GameObject("EventSystem");
             esGo.AddComponent<EventSystem>();
-            if (UnityEngine.InputSystem.UI.InputSystemUIInputModule != null)
-            {
-                esGo.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
-            }
-            else
-            {
-                esGo.AddComponent<StandaloneInputModule>();
-            }
+            esGo.AddComponent<StandaloneInputModule>();
         }
 
         // 3. MainMenuSceneLoader + overlay de chargement
