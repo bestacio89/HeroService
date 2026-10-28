@@ -31,6 +31,8 @@ public class HeroShowcaseCarousel : MonoBehaviour
     private HeroListItemDto[] heroes = System.Array.Empty<HeroListItemDto>();
     private int currentIndex;
     private float autoRotateTimer;
+    private bool catalogLoading = true;
+    private bool catalogFailed;
 
     private void Awake()
     {
@@ -49,15 +51,25 @@ public class HeroShowcaseCarousel : MonoBehaviour
     {
         if (heroCatalogService == null)
         {
+            catalogLoading = false;
+            catalogFailed = true;
+            RefreshDisplay();
             Debug.LogWarning("[HeroShowcaseCarousel] HeroCatalogService is missing.");
             return;
         }
 
+        heroCatalogService.OnCatalogLoadStarted += HandleCatalogLoadStarted;
         heroCatalogService.OnCatalogLoaded += HandleCatalogLoaded;
+        heroCatalogService.OnCatalogLoadFailed += HandleCatalogLoadFailed;
 
         if (heroCatalogService.HasLoaded)
         {
             HandleCatalogLoaded((HeroListItemDto[])System.Linq.Enumerable.ToArray(heroCatalogService.CachedHeroes));
+        }
+        else
+        {
+            catalogLoading = true;
+            RefreshDisplay();
         }
 
         autoRotateTimer = autoRotateIntervalSeconds;
@@ -67,7 +79,9 @@ public class HeroShowcaseCarousel : MonoBehaviour
     {
         if (heroCatalogService != null)
         {
+            heroCatalogService.OnCatalogLoadStarted -= HandleCatalogLoadStarted;
             heroCatalogService.OnCatalogLoaded -= HandleCatalogLoaded;
+            heroCatalogService.OnCatalogLoadFailed -= HandleCatalogLoadFailed;
         }
     }
 
@@ -100,11 +114,30 @@ public class HeroShowcaseCarousel : MonoBehaviour
         }
     }
 
+    private void HandleCatalogLoadStarted()
+    {
+        catalogLoading = true;
+        catalogFailed = false;
+        RefreshDisplay();
+    }
+
     private void HandleCatalogLoaded(HeroListItemDto[] loadedHeroes)
     {
         heroes = loadedHeroes ?? System.Array.Empty<HeroListItemDto>();
         currentIndex = 0;
+        catalogLoading = false;
+        catalogFailed = false;
         RefreshDisplay();
+    }
+
+    private void HandleCatalogLoadFailed(string error)
+    {
+        heroes = System.Array.Empty<HeroListItemDto>();
+        currentIndex = 0;
+        catalogLoading = false;
+        catalogFailed = true;
+        RefreshDisplay();
+        Debug.LogWarning($"[HeroShowcaseCarousel] Hero catalogue load failed: {error}");
     }
 
     private void ShowPrevious()
@@ -147,9 +180,29 @@ public class HeroShowcaseCarousel : MonoBehaviour
 
         if (!hasHero)
         {
-            if (heroNameText != null) heroNameText.text = string.Empty;
-            if (pantheonTagText != null) pantheonTagText.text = string.Empty;
-            if (portraitImage != null) portraitImage.sprite = null;
+            if (heroNameText != null)
+            {
+                heroNameText.text = catalogFailed
+                    ? "Heroes unavailable"
+                    : catalogLoading
+                        ? "Loading heroes…"
+                        : "No heroes available";
+            }
+
+            if (pantheonTagText != null)
+            {
+                pantheonTagText.text = catalogFailed
+                    ? "Check your connection"
+                    : catalogLoading
+                        ? "Please wait"
+                        : string.Empty;
+            }
+
+            if (portraitImage != null)
+            {
+                portraitImage.sprite = null;
+            }
+
             return;
         }
 
