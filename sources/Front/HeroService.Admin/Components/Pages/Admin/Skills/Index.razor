@@ -77,7 +77,7 @@
                 <MudTextField T="string"
                               Value="@_search"
                               ValueChanged="OnSearchChanged"
-                              Placeholder="Search by name, category, effect or gameplay purpose"
+                              Placeholder="Search by skill, hero, class, effect or gameplay purpose"
                               AriaLabel="Search skill library"
                               Variant="Variant.Outlined"
                               Adornment="Adornment.Start"
@@ -104,7 +104,7 @@
                             @type (@count)
                         </MudButton>
                     }
-                    @if (!string.IsNullOrWhiteSpace(_search) || _selectedType.HasValue)
+                    @if (!string.IsNullOrWhiteSpace(_search) || _selectedType.HasValue || _selectedHeroId.HasValue)
                     {
                         <MudButton Size="Size.Small"
                                    Variant="Variant.Text"
@@ -142,7 +142,7 @@
                 <MudIcon Icon="@Icons.Material.Outlined.SearchOff" Size="Size.Large" Color="Color.Secondary" />
                 <MudText Typo="Typo.h6">No matching abilities</MudText>
                 <MudText Typo="Typo.body2" Color="Color.Secondary">
-                    Try another search term or select a different type.
+                    Try another search term, hero, or skill type.
                 </MudText>
                 <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearFilters">Clear filters</MudButton>
             </MudPaper>
