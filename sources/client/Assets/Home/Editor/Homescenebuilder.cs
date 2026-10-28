@@ -587,7 +587,7 @@ public static class HomeSceneBuilder
             settingsGo.transform,
             "Label",
             "SETTINGS",
-            24,
+            28,
             TextAlignmentOptions.Center,
             Vector2.zero,
             Vector2.one);
@@ -613,12 +613,12 @@ public static class HomeSceneBuilder
             go.transform,
             "IconGlyph",
             GetTabGlyph(tab),
-            42,
+            48,
             TextAlignmentOptions.Center,
             new Vector2(0.25f, 0.42f),
             new Vector2(0.75f, 0.9f));
 
-        TextMeshProUGUI labelText = AddTMPTextChild(go.transform, "Label", label, 28, TextAlignmentOptions.Center, new Vector2(0f, 0.04f), new Vector2(1f, 0.34f));
+        TextMeshProUGUI labelText = AddTMPTextChild(go.transform, "Label", label, 32, TextAlignmentOptions.Center, new Vector2(0f, 0.04f), new Vector2(1f, 0.34f));
         labelText.fontStyle = FontStyles.Bold;
 
         GameObject indicatorGo = FindOrCreateUIChild(go.transform, "SelectedIndicator");
@@ -658,9 +658,9 @@ public static class HomeSceneBuilder
                     background.color = SurfaceColor;
                 }
 
-                SetPrefabTextSize(prefabContents.transform, "HeroName", 30);
-                SetPrefabTextSize(prefabContents.transform, "HeroClass", 24);
-                SetPrefabTextSize(prefabContents.transform, "PantheonTag", 20);
+                SetPrefabTextSize(prefabContents.transform, "HeroName", 36);
+                SetPrefabTextSize(prefabContents.transform, "HeroClass", 28);
+                SetPrefabTextSize(prefabContents.transform, "PantheonTag", 24);
                 SetPrefabTextColor(prefabContents.transform, "HeroClass", MutedTextColor);
                 SetPrefabTextColor(prefabContents.transform, "PantheonTag", AccentColor);
                 PrefabUtility.SaveAsPrefabAsset(prefabContents, path);
@@ -687,10 +687,10 @@ public static class HomeSceneBuilder
         Image portraitImage = portraitGo.AddComponent<Image>();
         portraitImage.color = Color.white;
 
-        TextMeshProUGUI nameText = CreateTMPRaw(root.transform, "HeroName", "Hero Name", 30, TextAlignmentOptions.Center, new Vector2(0f, 0.22f), new Vector2(1f, 0.34f));
-        TextMeshProUGUI classText = CreateTMPRaw(root.transform, "HeroClass", "Class", 24, TextAlignmentOptions.Center, new Vector2(0f, 0.12f), new Vector2(1f, 0.22f));
+        TextMeshProUGUI nameText = CreateTMPRaw(root.transform, "HeroName", "Hero Name", 36, TextAlignmentOptions.Center, new Vector2(0f, 0.22f), new Vector2(1f, 0.34f));
+        TextMeshProUGUI classText = CreateTMPRaw(root.transform, "HeroClass", "Class", 28, TextAlignmentOptions.Center, new Vector2(0f, 0.12f), new Vector2(1f, 0.22f));
         classText.color = MutedTextColor;
-        TextMeshProUGUI pantheonText = CreateTMPRaw(root.transform, "PantheonTag", "Pantheon", 20, TextAlignmentOptions.Center, new Vector2(0f, 0.02f), new Vector2(1f, 0.12f));
+        TextMeshProUGUI pantheonText = CreateTMPRaw(root.transform, "PantheonTag", "Pantheon", 24, TextAlignmentOptions.Center, new Vector2(0f, 0.02f), new Vector2(1f, 0.12f));
         pantheonText.color = AccentColor;
 
         HeroCollectionItemView view = root.AddComponent<HeroCollectionItemView>();
@@ -726,7 +726,7 @@ public static class HomeSceneBuilder
                 layout.preferredWidth = 170;
                 layout.preferredHeight = 88;
 
-                SetPrefabTextSize(prefabContents.transform, "Label", 26);
+                SetPrefabTextSize(prefabContents.transform, "Label", 32);
                 Transform indicator = prefabContents.transform.Find("SelectedIndicator");
                 if (indicator != null)
                 {
@@ -760,7 +760,7 @@ public static class HomeSceneBuilder
         layoutElement.preferredWidth = 170;
         layoutElement.preferredHeight = 88;
 
-        TextMeshProUGUI labelText = CreateTMPRaw(root.transform, "Label", "All", 26, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
+        TextMeshProUGUI labelText = CreateTMPRaw(root.transform, "Label", "All", 32, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
 
         GameObject indicatorGo = CreateUIChildRaw(root.transform, "SelectedIndicator");
         SetAnchors(indicatorGo.GetComponent<RectTransform>(), new Vector2(0.1f, 0f), new Vector2(0.9f, 0.08f));
