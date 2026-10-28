@@ -16,7 +16,11 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
 
     private RectTransform modeColumn;
     private RectTransform modeSafeArea;
+    private RectTransform heroSafeArea;
+    private RectTransform confirmButtonRect;
+    private LayoutElement confirmButtonLayout;
     private float lastModeAreaWidth = -1f;
+    private float lastHeroAreaWidth = -1f;
 
     private void Awake()
     {
@@ -34,11 +38,13 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         }
 
         UpdateModeColumnWidth(force: true);
+        UpdateConfirmButtonWidth(force: true);
     }
 
     private void LateUpdate()
     {
         UpdateModeColumnWidth(force: false);
+        UpdateConfirmButtonWidth(force: false);
     }
 
     private void ConfigureModeSelection(Transform panel)
@@ -156,6 +162,7 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         panelBackground.raycastTarget = false;
 
         Transform safeArea = EnsureSafeAreaRoot(panel, "HeroSelectionSafeArea");
+        heroSafeArea = safeArea.GetComponent<RectTransform>();
         Transform titleTransform = FindDescendant(panel, "HeroSelectionTitle");
         Transform listTransform = FindDescendant(panel, "HeroListContainer");
         Transform confirmTransform = FindDescendant(panel, "ConfirmButton");
@@ -258,9 +265,10 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         confirmRect.anchoredPosition = new Vector2(0f, 24f);
         confirmRect.sizeDelta = new Vector2(460f, 100f);
         SetLayoutHeight(confirmTransform.gameObject, 100f, 96f);
-        LayoutElement confirmLayout = GetOrAddComponent<LayoutElement>(confirmTransform.gameObject);
-        confirmLayout.preferredWidth = 460f;
-        confirmLayout.minWidth = 280f;
+        confirmButtonRect = confirmRect;
+        confirmButtonLayout = GetOrAddComponent<LayoutElement>(confirmTransform.gameObject);
+        confirmButtonLayout.preferredWidth = 460f;
+        confirmButtonLayout.minWidth = 280f;
 
         Image confirmBackground = GetOrAddComponent<Image>(confirmTransform.gameObject);
         confirmBackground.color = AccentColor;
@@ -301,6 +309,25 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         float width = Mathf.Min(900f, availableWidth * 0.9f);
         modeColumn.sizeDelta = new Vector2(width, 0f);
         lastModeAreaWidth = availableWidth;
+    }
+
+    private void UpdateConfirmButtonWidth(bool force)
+    {
+        if (heroSafeArea == null || confirmButtonRect == null || confirmButtonLayout == null)
+        {
+            return;
+        }
+
+        float availableWidth = heroSafeArea.rect.width;
+        if (availableWidth <= 0f || (!force && Mathf.Abs(availableWidth - lastHeroAreaWidth) < 1f))
+        {
+            return;
+        }
+
+        float width = Mathf.Min(460f, availableWidth * 0.82f);
+        confirmButtonRect.sizeDelta = new Vector2(width, confirmButtonRect.sizeDelta.y);
+        confirmButtonLayout.preferredWidth = width;
+        lastHeroAreaWidth = availableWidth;
     }
 
     private static Transform EnsureSafeAreaRoot(Transform panel, string name)
