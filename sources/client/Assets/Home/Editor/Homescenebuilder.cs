@@ -228,10 +228,11 @@ public static class HomeSceneBuilder
     {
         List<string> errors = new();
 
-        if (PlayerSettings.defaultScreenOrientation != UIOrientation.LandscapeLeft &&
+        if (PlayerSettings.defaultScreenOrientation != UIOrientation.AutoRotation &&
+            PlayerSettings.defaultScreenOrientation != UIOrientation.LandscapeLeft &&
             PlayerSettings.defaultScreenOrientation != UIOrientation.LandscapeRight)
         {
-            errors.Add("Player orientation must be landscape for the MOBA menu and gameplay layout.");
+            errors.Add("Player orientation must be landscape or landscape-only auto-rotation for the MOBA layout.");
         }
 
         Scene activeScene = SceneManager.GetActiveScene();
