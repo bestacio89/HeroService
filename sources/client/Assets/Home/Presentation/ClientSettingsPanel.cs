@@ -94,16 +94,16 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         panelBackground.color = new Color(0.055f, 0.065f, 0.09f, 1f);
 
         VerticalLayoutGroup layout = panel.AddComponent<VerticalLayoutGroup>();
-        layout.padding = new RectOffset(24, 24, 20, 20);
-        layout.spacing = 14;
+        layout.padding = new RectOffset(32, 32, 28, 28);
+        layout.spacing = 18;
         layout.childAlignment = TextAnchor.UpperCenter;
         layout.childControlWidth = true;
         layout.childControlHeight = true;
         layout.childForceExpandWidth = true;
         layout.childForceExpandHeight = false;
 
-        TMP_Text heading = AddLabel(panel.transform, "SETTINGS", 30, 64, FontStyles.Bold);
-        heading.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
+        TMP_Text heading = AddLabel(panel.transform, "SETTINGS", 42, 84, FontStyles.Bold);
+        heading.gameObject.AddComponent<LayoutElement>().preferredHeight = 84f;
 
         GameObject body = CreateRect("SettingsBody", panel.transform);
         LayoutElement bodyLayout = body.AddComponent<LayoutElement>();
@@ -128,7 +128,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         contentRect.anchoredPosition = Vector2.zero;
         contentRect.sizeDelta = Vector2.zero;
         VerticalLayoutGroup contentLayout = bodyContent.AddComponent<VerticalLayoutGroup>();
-        contentLayout.spacing = 14f;
+        contentLayout.spacing = 18f;
         contentLayout.childControlWidth = true;
         contentLayout.childControlHeight = false;
         contentLayout.childForceExpandWidth = true;
@@ -175,9 +175,9 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         footerLayout.childForceExpandHeight = true;
         footerLayout.childControlWidth = true;
         footerLayout.childControlHeight = true;
-        footer.AddComponent<LayoutElement>().preferredHeight = 56f;
-        AddButton(footer.transform, "Reset defaults", () => settingsService?.ResetToDefaults(), 52);
-        AddButton(footer.transform, "Close", Close, 52);
+        footer.AddComponent<LayoutElement>().preferredHeight = 88f;
+        AddButton(footer.transform, "Reset defaults", () => settingsService?.ResetToDefaults(), 80);
+        AddButton(footer.transform, "Close", Close, 80);
 
         overlay.SetActive(false);
     }
@@ -186,12 +186,12 @@ public sealed class ClientSettingsPanel : MonoBehaviour
     {
         GameObject section = CreateRect(title + "Section", parent);
         VerticalLayoutGroup layout = section.AddComponent<VerticalLayoutGroup>();
-        layout.spacing = 8;
+        layout.spacing = 12;
         layout.childControlWidth = true;
         layout.childControlHeight = false;
         layout.childForceExpandWidth = true;
         layout.childForceExpandHeight = false;
-        AddLabel(section.transform, title, 18, 30, FontStyles.Bold);
+        AddLabel(section.transform, title, 28, 44, FontStyles.Bold);
         return section;
     }
 
@@ -199,7 +199,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
     {
         GameObject row = CreateRect(title + "Row", parent);
         RectTransform rowRect = row.GetComponent<RectTransform>();
-        rowRect.sizeDelta = new Vector2(0f, 64f);
+        rowRect.sizeDelta = new Vector2(0f, 84f);
         HorizontalLayoutGroup layout = row.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = 12;
         layout.childAlignment = TextAnchor.MiddleLeft;
@@ -208,12 +208,12 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         layout.childForceExpandWidth = false;
         layout.childForceExpandHeight = true;
 
-        AddLabel(row.transform, title, 18, 64, FontStyles.Normal).gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
+        AddLabel(row.transform, title, 26, 84, FontStyles.Normal).gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
         slider = CreateSlider(row.transform, "ValueSlider");
         LayoutElement sliderLayout = slider.gameObject.AddComponent<LayoutElement>();
         sliderLayout.preferredWidth = 260f;
         sliderLayout.flexibleWidth = 1f;
-        valueText = AddLabel(row.transform, "100%", 18, 64, FontStyles.Bold);
+        valueText = AddLabel(row.transform, "100%", 26, 84, FontStyles.Bold);
         valueText.gameObject.AddComponent<LayoutElement>().preferredWidth = 72f;
     }
 
@@ -236,7 +236,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         out Button actionButton)
     {
         GameObject row = CreateRect(title + "Row", parent);
-        row.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 64f);
+        row.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 84f);
         HorizontalLayoutGroup layout = row.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = 12;
         layout.childAlignment = TextAnchor.MiddleLeft;
@@ -245,12 +245,12 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         layout.childForceExpandWidth = false;
         layout.childForceExpandHeight = true;
 
-        AddLabel(row.transform, title, 18, 64, FontStyles.Normal).gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
-        AddButton(row.transform, "‹", previous, 64);
-        valueText = AddLabel(row.transform, string.Empty, 18, 64, FontStyles.Bold);
+        AddLabel(row.transform, title, 26, 84, FontStyles.Normal).gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
+        AddButton(row.transform, "‹", previous, 80);
+        valueText = AddLabel(row.transform, string.Empty, 26, 84, FontStyles.Bold);
         valueText.alignment = TextAlignmentOptions.Center;
         valueText.gameObject.AddComponent<LayoutElement>().preferredWidth = 150f;
-        actionButton = AddButton(row.transform, "›", next, 64);
+        actionButton = AddButton(row.transform, "›", next, 80);
     }
 
     private Slider CreateSlider(Transform parent, string name)
@@ -380,12 +380,12 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         layout.childForceExpandWidth = false;
         layout.childForceExpandHeight = true;
 
-        AddLabel(row.transform, title, 18, 64, FontStyles.Normal)
+        AddLabel(row.transform, title, 26, 84, FontStyles.Normal)
             .gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
-        valueText = AddLabel(row.transform, string.Empty, 18, 64, FontStyles.Bold);
+        valueText = AddLabel(row.transform, string.Empty, 26, 84, FontStyles.Bold);
         valueText.alignment = TextAlignmentOptions.Center;
         valueText.gameObject.AddComponent<LayoutElement>().preferredWidth = 100f;
-        AddButton(row.transform, "Toggle", toggle, 56);
+        AddButton(row.transform, "Toggle", toggle, 80);
     }
 
     private void Open()
