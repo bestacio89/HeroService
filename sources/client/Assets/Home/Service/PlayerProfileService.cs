@@ -133,6 +133,13 @@ public class PlayerProfileService : MonoBehaviour
 
     private static PlayerProfileData MapFromDto(PlayerProfileDto dto)
     {
+        if (dto == null ||
+            string.IsNullOrWhiteSpace(dto.id) ||
+            string.IsNullOrWhiteSpace(dto.displayName))
+        {
+            throw new InvalidOperationException("Player service returned an invalid profile contract.");
+        }
+
         return new PlayerProfileData
         {
             PlayerId = dto.id,
