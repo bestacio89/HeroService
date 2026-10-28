@@ -36,6 +36,30 @@ public sealed class AdminListComponentTests
   }
 
   [Fact]
+  public void Skills_ShowsLoadingStateUntilRequestCompletes()
+  {
+    using var context = CreateContext();
+    var pending = new TaskCompletionSource<IReadOnlyCollection<SkillDto>>(
+      TaskCreationOptions.RunContinuationsAsynchronously);
+    var client = new Mock<ISkillClient>();
+    client
+      .Setup(api => api.GetAllAsync(It.IsAny<CancellationToken>()))
+      .Returns(pending.Task);
+    context.Services.AddSingleton(client.Object);
+
+    var cut = context.RenderComponent<SkillsIndex>();
+
+    Assert.Contains("role=\"status\"", cut.Markup);
+
+    pending.SetResult((IReadOnlyCollection<SkillDto>)
+    [
+      new SkillDto { Id = Guid.NewGuid(), Name = "Arcane Shield" }
+    ]);
+
+    cut.WaitForAssertion(() => Assert.Contains("Arcane Shield", cut.Markup));
+  }
+
+  [Fact]
   public void HeroClasses_SearchFiltersDisplayedRows()
   {
     using var context = CreateContext();
