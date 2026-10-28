@@ -22,7 +22,10 @@ public sealed class HeroApiClient
     }
 
     /// <summary>
-    /// Retrieves a hero snapshot for a specific game version.
+    /// Retrieves the legacy HeroService hero snapshot for a specific game version.
+    /// This endpoint is not the authoritative match bootstrap contract. Match
+    /// execution must consume a match-scoped snapshot from MatchService once available.
+    /// Do not use this method to assemble match rules or runtime state client-side.
     /// </summary>
     public async Task<HeroSnapshotDto> GetHeroSnapshotAsync(string heroId, string gameVersionId)
     {
