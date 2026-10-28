@@ -14,6 +14,7 @@ public class NavTabButtonView : MonoBehaviour
     [Header("References")]
     [SerializeField] private HomeTabType tab;
     [SerializeField] private Image iconImage;
+    [SerializeField] private TMP_Text iconGlyphText;
     [SerializeField] private TMP_Text labelText;
     [SerializeField] private GameObject selectedIndicator;
     [SerializeField] private Button button;
@@ -41,6 +42,11 @@ public class NavTabButtonView : MonoBehaviour
         if (iconImage != null)
         {
             iconImage.color = isSelected ? selectedColor : unselectedColor;
+        }
+
+        if (iconGlyphText != null)
+        {
+            iconGlyphText.color = isSelected ? selectedColor : unselectedColor;
         }
 
         if (labelText != null)
