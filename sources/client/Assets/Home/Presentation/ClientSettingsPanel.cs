@@ -37,6 +37,12 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         RefreshValues();
     }
 
+    private void Start()
+    {
+        // SettingsService.Awake may execute after this component's Awake.
+        RefreshValues();
+    }
+
     private void OnEnable()
     {
         if (settingsService != null)
@@ -88,13 +94,44 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         layout.spacing = 14;
         layout.childAlignment = TextAnchor.UpperCenter;
         layout.childControlWidth = true;
-        layout.childControlHeight = false;
+        layout.childControlHeight = true;
         layout.childForceExpandWidth = true;
         layout.childForceExpandHeight = false;
 
-        AddLabel(panel.transform, "SETTINGS", 30, 64, FontStyles.Bold);
+        TMP_Text heading = AddLabel(panel.transform, "SETTINGS", 30, 64, FontStyles.Bold);
+        heading.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
 
-        GameObject audioSection = CreateSection(panel.transform, "AUDIO");
+        GameObject body = CreateRect("SettingsBody", panel.transform);
+        LayoutElement bodyLayout = body.AddComponent<LayoutElement>();
+        bodyLayout.flexibleHeight = 1f;
+        ScrollRect scrollRect = body.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+        GameObject viewport = CreateRect("Viewport", body.transform);
+        Stretch(viewport.GetComponent<RectTransform>());
+        viewport.AddComponent<RectMask2D>();
+
+        GameObject bodyContent = CreateRect("Content", viewport.transform);
+        RectTransform contentRect = bodyContent.GetComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = Vector2.one;
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.anchoredPosition = Vector2.zero;
+        contentRect.sizeDelta = Vector2.zero;
+        VerticalLayoutGroup contentLayout = bodyContent.AddComponent<VerticalLayoutGroup>();
+        contentLayout.spacing = 14f;
+        contentLayout.childControlWidth = true;
+        contentLayout.childControlHeight = false;
+        contentLayout.childForceExpandWidth = true;
+        contentLayout.childForceExpandHeight = false;
+        ContentSizeFitter contentFitter = bodyContent.AddComponent<ContentSizeFitter>();
+        contentFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+        scrollRect.content = contentRect;
+
+        GameObject audioSection = CreateSection(bodyContent.transform, "AUDIO");
         CreateSliderRow(audioSection.transform, "Master volume", out volumeValue, out Slider volumeSlider);
         volumeSlider.minValue = 0f;
         volumeSlider.maxValue = 1f;
@@ -107,7 +144,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
             }
         });
 
-        GameObject displaySection = CreateSection(panel.transform, "DISPLAY");
+        GameObject displaySection = CreateSection(bodyContent.transform, "DISPLAY");
         CreateActionRow(displaySection.transform, "Graphics quality", out qualityValue,
             () => settingsService?.CycleQuality(-1),
             () => settingsService?.CycleQuality(1));
@@ -130,6 +167,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         footerLayout.childForceExpandHeight = true;
         footerLayout.childControlWidth = true;
         footerLayout.childControlHeight = true;
+        footer.AddComponent<LayoutElement>().preferredHeight = 56f;
         AddButton(footer.transform, "Reset defaults", () => settingsService?.ResetToDefaults(), 52);
         AddButton(footer.transform, "Close", Close, 52);
 
