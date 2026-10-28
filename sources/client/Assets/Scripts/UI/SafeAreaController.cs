@@ -19,6 +19,11 @@ public sealed class SafeAreaController : MonoBehaviour
         ApplySafeArea();
     }
 
+    private void OnEnable()
+    {
+        ApplySafeArea();
+    }
+
     private void Update()
     {
         if (Screen.width != lastScreenWidth ||
