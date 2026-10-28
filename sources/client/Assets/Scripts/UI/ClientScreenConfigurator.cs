@@ -12,8 +12,7 @@ public static class ClientScreenConfigurator
 {
     private static readonly string[] FullScreenSafeAreaRoots =
     {
-        "ModeSelectionPanel",
-        "HeroSelectionPanel"
+        "HeroListContainer"
     };
 
     private static readonly string[] EdgePaddedRoots =
@@ -22,7 +21,11 @@ public static class ClientScreenConfigurator
         "CombatUI",
         "MatchTimerText",
         "MatchStateText",
-        "MinimapPanel"
+        "MinimapPanel",
+        "Button_Classic",
+        "Button_Ranked",
+        "Button_Arcade",
+        "HeroSelectionTitle"
     };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
