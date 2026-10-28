@@ -76,7 +76,10 @@ public class HomeLandingPresenter : MonoBehaviour
     {
         if (profile == null)
         {
-            if (playerNameText != null) playerNameText.text = "Profile unavailable";
+            bool isPending = playerProfileService != null &&
+                !playerProfileService.HasLoaded &&
+                string.IsNullOrWhiteSpace(playerProfileService.LastLoadError);
+            if (playerNameText != null) playerNameText.text = isPending ? "Loading profile…" : "Profile unavailable";
             if (playerLevelText != null) playerLevelText.text = "—";
             if (xpBar != null) xpBar.value = 0f;
             if (softCurrencyText != null) softCurrencyText.text = "—";
