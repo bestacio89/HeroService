@@ -12,6 +12,8 @@ public sealed class ClientSettingsService : MonoBehaviour
     private const string QualityLevelKey = "client.settings.qualityLevel";
     private const string TargetFrameRateKey = "client.settings.targetFrameRate";
     private const string FullscreenKey = "client.settings.fullscreen";
+    private const string ResolutionWidthKey = "client.settings.resolutionWidth";
+    private const string ResolutionHeightKey = "client.settings.resolutionHeight";
 
     private static readonly int[] SupportedFrameRates = { 30, 60, 90, 120 };
 
@@ -21,6 +23,8 @@ public sealed class ClientSettingsService : MonoBehaviour
     public int QualityLevel { get; private set; }
     public int TargetFrameRate { get; private set; }
     public bool Fullscreen { get; private set; }
+
+    public string ResolutionName => Screen.width + " × " + Screen.height;
 
     public string QualityName
     {
@@ -79,6 +83,32 @@ public sealed class ClientSettingsService : MonoBehaviour
         SaveAndNotify();
     }
 
+    public void CycleResolution(int direction)
+    {
+        if (Application.isMobilePlatform)
+        {
+            return;
+        }
+
+        Resolution[] resolutions = Screen.resolutions;
+        if (resolutions == null || resolutions.Length == 0)
+        {
+            return;
+        }
+
+        int currentIndex = FindCurrentResolutionIndex(resolutions);
+        int nextIndex = (currentIndex + Math.Sign(direction) + resolutions.Length) % resolutions.Length;
+        Resolution selected = resolutions[nextIndex];
+
+        PlayerPrefs.SetInt(ResolutionWidthKey, selected.width);
+        PlayerPrefs.SetInt(ResolutionHeightKey, selected.height);
+        Screen.SetResolution(
+            selected.width,
+            selected.height,
+            Fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
+        SaveAndNotify();
+    }
+
     public void ToggleFullscreen()
     {
         if (Application.isMobilePlatform)
@@ -104,6 +134,8 @@ public sealed class ClientSettingsService : MonoBehaviour
         PlayerPrefs.SetInt(QualityLevelKey, QualityLevel);
         PlayerPrefs.SetInt(TargetFrameRateKey, TargetFrameRate);
         PlayerPrefs.SetInt(FullscreenKey, Fullscreen ? 1 : 0);
+        PlayerPrefs.DeleteKey(ResolutionWidthKey);
+        PlayerPrefs.DeleteKey(ResolutionHeightKey);
         SaveAndNotify();
     }
 
@@ -124,6 +156,19 @@ public sealed class ClientSettingsService : MonoBehaviour
 
         Fullscreen = PlayerPrefs.GetInt(FullscreenKey, 1) != 0;
         ApplyAll();
+
+        if (!Application.isMobilePlatform)
+        {
+            int savedWidth = PlayerPrefs.GetInt(ResolutionWidthKey, Screen.width);
+            int savedHeight = PlayerPrefs.GetInt(ResolutionHeightKey, Screen.height);
+            if (savedWidth > 0 && savedHeight > 0)
+            {
+                Screen.SetResolution(
+                    savedWidth,
+                    savedHeight,
+                    Fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
+            }
+        }
     }
 
     private void ApplyAll()
@@ -140,6 +185,15 @@ public sealed class ClientSettingsService : MonoBehaviour
         {
             Screen.fullScreen = Fullscreen;
         }
+    }
+
+    private static int FindCurrentResolutionIndex(Resolution[] resolutions)
+    {
+        int index = Array.FindIndex(
+            resolutions,
+            resolution => resolution.width == Screen.width && resolution.height == Screen.height);
+
+        return index >= 0 ? index : resolutions.Length - 1;
     }
 
     private void SaveAndNotify()
