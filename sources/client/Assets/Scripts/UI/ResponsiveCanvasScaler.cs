@@ -13,6 +13,7 @@ public sealed class ResponsiveCanvasScaler : MonoBehaviour
 {
     private static readonly Vector2 PortraitReference = new(1080f, 1920f);
     private static readonly Vector2 LandscapeReference = new(1920f, 1080f);
+    private const string InterfaceScaleKey = "client.settings.interfaceScale";
 
     [SerializeField, Range(0f, 1f)]
     private float portraitMatchWidthOrHeight = 0.5f;
@@ -22,10 +23,18 @@ public sealed class ResponsiveCanvasScaler : MonoBehaviour
 
     private CanvasScaler scaler;
     private bool lastLandscape;
+    private float scaleMultiplier = 1f;
 
     private void Awake()
     {
         scaler = GetComponent<CanvasScaler>();
+        scaleMultiplier = Mathf.Clamp(PlayerPrefs.GetFloat(InterfaceScaleKey, 1f), 0.9f, 1.2f);
+        ApplyOrientation(force: true);
+    }
+
+    public void SetScaleMultiplier(float multiplier)
+    {
+        scaleMultiplier = Mathf.Clamp(multiplier, 0.9f, 1.2f);
         ApplyOrientation(force: true);
     }
 
@@ -48,7 +57,8 @@ public sealed class ResponsiveCanvasScaler : MonoBehaviour
         }
 
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = isLandscape ? LandscapeReference : PortraitReference;
+        Vector2 referenceResolution = isLandscape ? LandscapeReference : PortraitReference;
+        scaler.referenceResolution = referenceResolution / scaleMultiplier;
         scaler.matchWidthOrHeight = isLandscape
             ? landscapeMatchWidthOrHeight
             : portraitMatchWidthOrHeight;
