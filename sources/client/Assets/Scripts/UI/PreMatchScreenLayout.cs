@@ -354,7 +354,7 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
     private static TMP_Text EnsureText(Transform parent, string name, string value, float fontSize)
     {
         Transform existing = parent.Find(name);
-        GameObject textObject = existing != null ? existing.gameObject : CreateRect(name, parent);
+        GameObject textObject = existing != null ? existing.gameObject : CreateRect(name, parent).gameObject;
         RectTransform rect = textObject.GetComponent<RectTransform>();
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
