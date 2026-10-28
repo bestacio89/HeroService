@@ -80,7 +80,9 @@ public sealed class ClientSettingsService : MonoBehaviour
         MasterVolume = Mathf.Clamp01(value);
         AudioListener.volume = MasterVolume;
         PlayerPrefs.SetFloat(MasterVolumeKey, MasterVolume);
-        SaveAndNotify();
+        // Slider callbacks can fire many times per drag. Persist the value in
+        // memory immediately, but defer disk I/O until pause/quit.
+        SaveAndNotify(saveToDisk: false);
     }
 
     public void CycleQuality(int direction)
@@ -321,9 +323,26 @@ public sealed class ClientSettingsService : MonoBehaviour
         return index >= 0 ? index : resolutions.Length - 1;
     }
 
-    private void SaveAndNotify()
+    private void OnApplicationPause(bool paused)
+    {
+        if (paused)
+        {
+            PlayerPrefs.Save();
+        }
+    }
+
+    private void OnApplicationQuit()
     {
         PlayerPrefs.Save();
+    }
+
+    private void SaveAndNotify(bool saveToDisk = true)
+    {
+        if (saveToDisk)
+        {
+            PlayerPrefs.Save();
+        }
+
         OnSettingsChanged?.Invoke();
     }
 }
