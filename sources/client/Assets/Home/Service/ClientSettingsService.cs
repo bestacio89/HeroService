@@ -140,17 +140,18 @@ public sealed class ClientSettingsService : MonoBehaviour
         ApplyAll();
         if (!Application.isMobilePlatform && defaultScreenWidth > 0 && defaultScreenHeight > 0)
         {
+            PlayerPrefs.SetInt(ResolutionWidthKey, defaultScreenWidth);
+            PlayerPrefs.SetInt(ResolutionHeightKey, defaultScreenHeight);
             Screen.SetResolution(
                 defaultScreenWidth,
                 defaultScreenHeight,
                 FullScreenMode.FullScreenWindow);
         }
+
         PlayerPrefs.SetFloat(MasterVolumeKey, MasterVolume);
         PlayerPrefs.SetInt(QualityLevelKey, QualityLevel);
         PlayerPrefs.SetInt(TargetFrameRateKey, TargetFrameRate);
         PlayerPrefs.SetInt(FullscreenKey, Fullscreen ? 1 : 0);
-        PlayerPrefs.DeleteKey(ResolutionWidthKey);
-        PlayerPrefs.DeleteKey(ResolutionHeightKey);
         SaveAndNotify();
     }
 
