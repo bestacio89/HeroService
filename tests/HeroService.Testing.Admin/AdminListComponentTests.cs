@@ -78,7 +78,7 @@ public sealed class AdminListComponentTests
     Assert.Contains("Mage", cut.Markup);
     Assert.Contains("Warrior", cut.Markup);
 
-    cut.Find("input").Change("mage");
+    cut.Find("input").Input("mage");
 
     cut.WaitForAssertion(() =>
     {
