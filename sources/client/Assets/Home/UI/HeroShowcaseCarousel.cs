@@ -66,9 +66,17 @@ public class HeroShowcaseCarousel : MonoBehaviour
         {
             HandleCatalogLoaded((HeroListItemDto[])System.Linq.Enumerable.ToArray(heroCatalogService.CachedHeroes));
         }
-        else
+        else if (heroCatalogService.IsLoading ||
+                 string.IsNullOrWhiteSpace(heroCatalogService.LastLoadError))
         {
             catalogLoading = true;
+            catalogFailed = false;
+            RefreshDisplay();
+        }
+        else
+        {
+            catalogLoading = false;
+            catalogFailed = true;
             RefreshDisplay();
         }
 
