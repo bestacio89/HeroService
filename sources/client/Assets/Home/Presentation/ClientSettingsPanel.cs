@@ -10,6 +10,9 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class ClientSettingsPanel : MonoBehaviour
 {
+    private static readonly Color AccentColor = new(0.84f, 0.68f, 0.36f, 1f);
+    private static readonly Color ButtonColor = new(0.12f, 0.15f, 0.21f, 1f);
+
     [SerializeField] private Button openButton;
     [SerializeField] private ClientSettingsService settingsService;
 
@@ -260,7 +263,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         fillRect.offsetMin = Vector2.zero;
         fillRect.offsetMax = Vector2.zero;
         Image fillImage = fill.AddComponent<Image>();
-        fillImage.color = new Color(0.3f, 0.75f, 1f, 1f);
+        fillImage.color = AccentColor;
 
         Slider slider = root.AddComponent<Slider>();
         slider.fillRect = fillRect;
@@ -290,11 +293,13 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         GameObject buttonObject = CreateRect(label + "Button", parent);
         buttonObject.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, height);
         Image image = buttonObject.AddComponent<Image>();
-        image.color = new Color(0.12f, 0.28f, 0.42f, 1f);
+        image.color = ButtonColor;
         Button button = buttonObject.AddComponent<Button>();
         button.onClick.AddListener(onClick);
 
         TMP_Text text = AddLabel(buttonObject.transform, label, 18, height, FontStyles.Bold);
+        text.color = AccentColor;
+        text.alignment = TextAlignmentOptions.Center;
         RectTransform labelRect = text.GetComponent<RectTransform>();
         labelRect.anchorMin = Vector2.zero;
         labelRect.anchorMax = Vector2.one;
