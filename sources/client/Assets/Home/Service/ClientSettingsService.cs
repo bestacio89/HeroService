@@ -33,8 +33,8 @@ public sealed class ClientSettingsService : MonoBehaviour
     private int defaultScreenHeight;
 
     public string ResolutionName =>
-        PlayerPrefs.GetInt(ResolutionWidthKey, Screen.width) + " × " +
-        PlayerPrefs.GetInt(ResolutionHeightKey, Screen.height);
+        PlayerPrefs.GetInt(ResolutionWidthKey, defaultScreenWidth > 0 ? defaultScreenWidth : Screen.width) + " × " +
+        PlayerPrefs.GetInt(ResolutionHeightKey, defaultScreenHeight > 0 ? defaultScreenHeight : Screen.height);
 
     public string QualityName
     {
@@ -51,8 +51,12 @@ public sealed class ClientSettingsService : MonoBehaviour
 
     private void Awake()
     {
-        defaultScreenWidth = Screen.width;
-        defaultScreenHeight = Screen.height;
+        defaultScreenWidth = Screen.currentResolution.width > 0
+            ? Screen.currentResolution.width
+            : Screen.width;
+        defaultScreenHeight = Screen.currentResolution.height > 0
+            ? Screen.currentResolution.height
+            : Screen.height;
         LoadAndApply();
     }
 
@@ -202,8 +206,8 @@ public sealed class ClientSettingsService : MonoBehaviour
 
         if (!Application.isMobilePlatform)
         {
-            int savedWidth = PlayerPrefs.GetInt(ResolutionWidthKey, Screen.width);
-            int savedHeight = PlayerPrefs.GetInt(ResolutionHeightKey, Screen.height);
+            int savedWidth = PlayerPrefs.GetInt(ResolutionWidthKey, defaultScreenWidth);
+            int savedHeight = PlayerPrefs.GetInt(ResolutionHeightKey, defaultScreenHeight);
             if (savedWidth > 0 && savedHeight > 0)
             {
                 Screen.SetResolution(
