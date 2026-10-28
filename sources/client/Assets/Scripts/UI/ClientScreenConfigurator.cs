@@ -21,6 +21,17 @@ public static class ClientScreenConfigurator
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneCallbacks()
     {
+        if (Application.isMobilePlatform)
+        {
+            // MOBA controls and menu composition are landscape-first. Permit
+            // both landscape rotations while excluding portrait orientations.
+            Screen.autorotateToPortrait = false;
+            Screen.autorotateToPortraitUpsideDown = false;
+            Screen.autorotateToLandscapeLeft = true;
+            Screen.autorotateToLandscapeRight = true;
+            Screen.orientation = ScreenOrientation.AutoRotation;
+        }
+
         SceneManager.sceneLoaded -= ConfigureLoadedScene;
         SceneManager.sceneLoaded += ConfigureLoadedScene;
     }
