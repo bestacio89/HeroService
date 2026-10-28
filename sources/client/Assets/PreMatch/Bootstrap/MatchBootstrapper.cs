@@ -1,15 +1,20 @@
 using MobaPrototype.Managers;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Prépare puis applique la transition entre le pré-match et le runtime du match.
+/// Transitional local-prototype bootstrap between pre-match selection and runtime.
+/// It validates the confirmed local selection and applies a local HeroSpawner context.
+/// This is not an authoritative match initialization flow: once MatchService exists,
+/// this boundary must request and apply its match-scoped definition/snapshot instead
+/// of assembling match state from HeroService data or client-side rules.
 /// 
-/// Responsabilités :
-/// - valider que la session confirmée est exploitable,
-/// - construire un MatchLaunchContext,
-/// - demander au HeroSpawner d'appliquer ce contexte au runtime local,
-/// - exposer un signal léger de succès / échec.
+/// Current responsibilities:
+/// - validate the confirmed local selection,
+/// - construct a presentation/runtime launch context,
+/// - apply the local prototype context to HeroSpawner,
+/// - expose a lightweight success/failure signal.
 ///
 /// Ne contient pas de logique gameplay :
 /// - ne démarre pas le match,
@@ -30,6 +35,11 @@ public class MatchBootstrapper : MonoBehaviour
     public event Action OnRuntimeContextApplyFailed;
 
     public MatchLaunchContext PreparedContext => preparedContext;
+
+    public IReadOnlyList<HeroSelectionMapping> AvailableHeroMappings =>
+        heroSpawner != null
+            ? heroSpawner.AvailableHeroMappings
+            : Array.Empty<HeroSelectionMapping>();
 
     public bool HasPreparedContext =>
         preparedContext != null &&

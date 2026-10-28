@@ -64,6 +64,8 @@ namespace MobaPrototype.Managers
         private readonly List<GameObject> spawnedHeroes = new();
         private GameObject localHeroInstance;
 
+        public IReadOnlyList<HeroSelectionMapping> AvailableHeroMappings => localHeroMappings;
+
         private void Awake()
         {
             if (teamManager == null)
@@ -284,12 +286,17 @@ namespace MobaPrototype.Managers
             Debug.Log($"[HeroSpawner] Looking for mapping: {selectionHeroId}");
             foreach (HeroSelectionMapping mapping in localHeroMappings)
             {
-                Debug.Log($"[HeroSpawner] Checking mapping: {mapping.selectionHeroId}");
-                if (mapping == null)
+                if (mapping == null ||
+                    mapping.heroDefinition == null ||
+                    string.IsNullOrWhiteSpace(mapping.selectionHeroId))
+                {
                     continue;
+                }
 
                 if (string.Equals(mapping.selectionHeroId, selectionHeroId, StringComparison.OrdinalIgnoreCase))
+                {
                     return mapping.heroDefinition;
+                }
             }
 
             return null;

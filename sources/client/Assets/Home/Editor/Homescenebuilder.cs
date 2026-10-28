@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -8,14 +9,15 @@ using TMPro;
 
 /// <summary>
 /// Outil d'édition qui construit automatiquement la hiérarchie complète de la
-/// scène Home (Services, Canvas, navigation, 4 panneaux, barre de navigation)
+/// scène Home (Services, Canvas responsive, navigation, settings, 4 panneaux, barre de navigation)
 /// ainsi que les deux prefabs nécessaires à l'écran Hero Collection
 /// (HeroCollectionItem, PantheonFilterChip).
 ///
 /// Utilisation :
-/// 1. Créer/ouvrir une scène VIDE à Assets/Home/Scenes/Home.unity.
-/// 2. Menu MOBA > Home > Build Home Scene And Prefabs.
-/// 3. Sauvegarder la scène (Ctrl+S).
+/// 1. Menu MOBA > Home > Build Home Scene And Prefabs.
+/// 2. Le builder crée/ouvre Assets/Home/Scenes/home.unity, construit la hiérarchie,
+///    sauvegarde la scène et l'enregistre en première position dans Build Settings.
+/// 3. Vérifier les références backend et lancer la scène Home dans Unity.
 ///
 /// Idempotent : recherche chaque objet par nom avant de le créer, donc
 /// relancer l'outil ne duplique rien. En revanche, les valeurs par défaut
@@ -30,10 +32,42 @@ using TMPro;
 public static class HomeSceneBuilder
 {
     private const float NavBarHeightRatio = 0.12f;
+    private static readonly Color BackgroundColor = new(0.035f, 0.045f, 0.07f, 1f);
+    private static readonly Color SurfaceColor = new(0.07f, 0.085f, 0.12f, 0.96f);
+    private static readonly Color AccentColor = new(0.84f, 0.68f, 0.36f, 1f);
+
+    private const string HomeScenePath = "Assets/Home/Scenes/home.unity";
 
     [MenuItem("MOBA/Home/Build Home Scene And Prefabs")]
     public static void BuildHomeScene()
     {
+        EnsureFolder("Assets/Home/Scenes");
+
+        Scene activeScene = SceneManager.GetActiveScene();
+        if (activeScene.path != HomeScenePath)
+        {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                return;
+            }
+
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(HomeScenePath) != null)
+            {
+                EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+            }
+            else
+            {
+                Scene newHomeScene = EditorSceneManager.NewScene(
+                    NewSceneSetup.EmptyScene,
+                    NewSceneMode.Single);
+                if (!EditorSceneManager.SaveScene(newHomeScene, HomeScenePath))
+                {
+                    Debug.LogError("[HomeSceneBuilder] Could not create the Home scene asset.");
+                    return;
+                }
+            }
+        }
+
         // 1. Services (hors Canvas — objets logiques persistants)
         GameObject servicesRoot = FindOrCreateRoot("Services");
 
@@ -46,32 +80,57 @@ public static class HomeSceneBuilder
         GameObject portraitLibGo = FindOrCreateChild(servicesRoot.transform, "HeroPortraitLibrary");
         HeroPortraitLibrary portraitLibrary = GetOrAddComponent<HeroPortraitLibrary>(portraitLibGo);
 
+        GameObject settingsServiceGo = FindOrCreateChild(servicesRoot.transform, "ClientSettingsService");
+        ClientSettingsService settingsService = GetOrAddComponent<ClientSettingsService>(settingsServiceGo);
+
         // 2. Canvas + EventSystem
         GameObject canvasGo = FindOrCreateRoot("Canvas");
-        Canvas canvas = canvasGo.GetComponent<Canvas>();
-        if (canvas == null)
+        Canvas canvas = GetOrAddComponent<Canvas>(canvasGo);
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+        CanvasScaler scaler = GetOrAddComponent<CanvasScaler>(canvasGo);
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.matchWidthOrHeight = 0.5f;
+        GetOrAddComponent<ResponsiveCanvasScaler>(canvasGo);
+        GetOrAddComponent<GraphicRaycaster>(canvasGo);
+
+        GameObject screenBackground = FindOrCreateUIChild(canvasGo.transform, "ScreenBackground");
+        SetAnchors(screenBackground.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
+        Image screenBackgroundImage = GetOrAddComponent<Image>(screenBackground);
+        screenBackgroundImage.color = BackgroundColor;
+        screenBackgroundImage.raycastTarget = false;
+        screenBackground.transform.SetAsFirstSibling();
+
+        EventSystem eventSystem = Object.FindObjectOfType<EventSystem>();
+        if (eventSystem == null)
         {
-            canvas = canvasGo.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-
-            CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080, 1920); // portrait mobile
-            scaler.matchWidthOrHeight = 0.5f;
-
-            canvasGo.AddComponent<GraphicRaycaster>();
+            GameObject eventSystemGo = new GameObject("EventSystem");
+            eventSystem = eventSystemGo.AddComponent<EventSystem>();
         }
 
-        if (Object.FindObjectOfType<EventSystem>() == null)
+        UnityEngine.InputSystem.UI.InputSystemUIInputModule inputModule =
+            eventSystem.GetComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+        if (inputModule == null)
         {
-            GameObject esGo = new GameObject("EventSystem");
-            esGo.AddComponent<EventSystem>();
-            esGo.AddComponent<StandaloneInputModule>();
+            inputModule = eventSystem.gameObject.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+        }
+
+        if (inputModule.actionsAsset == null)
+        {
+            inputModule.AssignDefaultActions();
+        }
+
+        StandaloneInputModule legacyInputModule = eventSystem.GetComponent<StandaloneInputModule>();
+        if (legacyInputModule != null)
+        {
+            Object.DestroyImmediate(legacyInputModule);
         }
 
         // 3. MainMenuSceneLoader + overlay de chargement
         GameObject loaderGo = FindOrCreateUIChild(canvasGo.transform, "MainMenuSceneLoader");
         SetAnchors(loaderGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
+        GetOrAddComponent<SafeAreaController>(loaderGo);
         MainMenuSceneLoader sceneLoader = GetOrAddComponent<MainMenuSceneLoader>(loaderGo);
 
         GameObject overlayGo = FindOrCreateUIChild(loaderGo.transform, "LoadingOverlay");
@@ -88,10 +147,17 @@ public static class HomeSceneBuilder
         // 4. Racine de navigation
         GameObject navRootGo = FindOrCreateUIChild(canvasGo.transform, "HomeNavigationController_Root");
         SetAnchors(navRootGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
+        GetOrAddComponent<SafeAreaController>(navRootGo);
         HomeNavigationController navController = GetOrAddComponent<HomeNavigationController>(navRootGo);
 
         // 5. Panneaux
         GameObject panelHome = BuildHomePanel(navRootGo.transform, playerProfileService, heroCatalogService, portraitLibrary, sceneLoader);
+        Transform obsoleteHomeSettingsButton = panelHome.transform.Find("StatusBar/SettingsButton");
+        if (obsoleteHomeSettingsButton != null)
+        {
+            Object.DestroyImmediate(obsoleteHomeSettingsButton.gameObject);
+        }
+
         GameObject panelHeroes = BuildHeroesPanel(navRootGo.transform, heroCatalogService, portraitLibrary);
         GameObject panelShop = BuildShopPanel(navRootGo.transform);
         GameObject panelProfile = BuildProfilePanel(navRootGo.transform, playerProfileService);
@@ -102,7 +168,8 @@ public static class HomeSceneBuilder
             out NavTabButtonView btnHome,
             out NavTabButtonView btnHeroes,
             out NavTabButtonView btnShop,
-            out NavTabButtonView btnProfile);
+            out NavTabButtonView btnProfile,
+            out Button settingsButton);
 
         // 7. Câblage du HomeNavigationController
         ConfigureNavigationTabs(navController, new[]
@@ -113,16 +180,202 @@ public static class HomeSceneBuilder
             (HomeTabType.Profile, panelProfile, btnProfile),
         });
 
+        ClientSettingsPanel settingsPanel = GetOrAddComponent<ClientSettingsPanel>(canvasGo);
+        SetPrivateField(settingsPanel, "openButton", settingsButton);
+        SetPrivateField(settingsPanel, "settingsService", settingsService);
+
         panelHome.SetActive(true);
         panelHeroes.SetActive(false);
         panelShop.SetActive(false);
         panelProfile.SetActive(false);
 
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+        AssetDatabase.SaveAssets();
+        if (!EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), HomeScenePath))
+        {
+            Debug.LogError("[HomeSceneBuilder] Home scene changes could not be saved.");
+            return;
+        }
+
+        EnsureHomeSceneRegistered();
         EditorUtility.DisplayDialog(
             "Home Scene Builder",
-            "Home scene hierarchy built. Save the scene now (Ctrl+S).",
+            "Home scene built, saved, and registered as the startup scene. The Match scene remains available in Build Settings.",
             "OK");
+    }
+
+    private static void EnsureHomeSceneRegistered()
+    {
+        EditorBuildSettingsScene[] configuredScenes = EditorBuildSettings.scenes;
+        List<EditorBuildSettingsScene> scenes = new()
+        {
+            new EditorBuildSettingsScene(HomeScenePath, true)
+        };
+
+        foreach (EditorBuildSettingsScene scene in configuredScenes)
+        {
+            if (scene.path != HomeScenePath)
+            {
+                scenes.Add(scene);
+            }
+        }
+
+        EditorBuildSettings.scenes = scenes.ToArray();
+    }
+
+    [MenuItem("MOBA/Home/Validate Home Scene Setup")]
+    public static void ValidateHomeSceneSetup()
+    {
+        List<string> errors = new();
+
+        if (PlayerSettings.defaultScreenOrientation != UIOrientation.AutoRotation &&
+            PlayerSettings.defaultScreenOrientation != UIOrientation.LandscapeLeft &&
+            PlayerSettings.defaultScreenOrientation != UIOrientation.LandscapeRight)
+        {
+            errors.Add("Player orientation must be landscape or landscape-only auto-rotation for the MOBA layout.");
+        }
+
+        Scene activeScene = SceneManager.GetActiveScene();
+        if (activeScene.path != HomeScenePath)
+        {
+            errors.Add("Open the generated Home scene before validating.");
+        }
+
+        GameObject canvasObject = GameObject.Find("Canvas");
+        if (canvasObject == null)
+        {
+            errors.Add("Canvas root is missing.");
+        }
+        else
+        {
+            CanvasScaler canvasScaler = canvasObject.GetComponent<CanvasScaler>();
+            if (canvasScaler == null)
+            {
+                errors.Add("CanvasScaler is missing.");
+            }
+            else if (canvasScaler.referenceResolution.x <= canvasScaler.referenceResolution.y)
+            {
+                errors.Add("CanvasScaler reference resolution must be landscape (width greater than height).");
+            }
+
+            if (canvasObject.GetComponent<ResponsiveCanvasScaler>() == null)
+            {
+                errors.Add("ResponsiveCanvasScaler is missing.");
+            }
+
+            Transform navigationRoot = canvasObject.transform.Find("HomeNavigationController_Root");
+            if (navigationRoot == null || navigationRoot.GetComponent<SafeAreaController>() == null)
+            {
+                errors.Add("Home navigation safe-area root is missing.");
+            }
+
+            Transform bottomSafeRoot = canvasObject.transform.Find("BottomNavSafeRoot");
+            if (bottomSafeRoot == null || bottomSafeRoot.GetComponent<SafeAreaController>() == null)
+            {
+                errors.Add("Bottom navigation safe-area root is missing.");
+            }
+
+            Transform heroGridContent = navigationRoot != null
+                ? navigationRoot.Find("Panel_Heroes/HeroGridScroll/Viewport/Content")
+                : null;
+            if (heroGridContent == null || heroGridContent.GetComponent<ResponsiveHeroGridLayout>() == null)
+            {
+                errors.Add("Responsive hero grid layout is missing.");
+            }
+
+            ClientSettingsPanel settingsPanel = canvasObject.GetComponent<ClientSettingsPanel>();
+            if (settingsPanel == null)
+            {
+                errors.Add("ClientSettingsPanel is missing.");
+            }
+            else
+            {
+                SerializedObject settingsObject = new(settingsPanel);
+                if (settingsObject.FindProperty("openButton")?.objectReferenceValue == null)
+                {
+                    errors.Add("Settings navigation button is not wired.");
+                }
+
+                if (settingsObject.FindProperty("settingsService")?.objectReferenceValue == null)
+                {
+                    errors.Add("ClientSettingsService reference is not wired.");
+                }
+            }
+        }
+
+        GameObject servicesRoot = GameObject.Find("Services");
+        if (servicesRoot == null || servicesRoot.GetComponentInChildren<ClientSettingsService>(true) == null)
+        {
+            errors.Add("ClientSettingsService is missing from Services.");
+        }
+
+        EventSystem eventSystem = Object.FindObjectOfType<EventSystem>();
+        if (eventSystem == null)
+        {
+            errors.Add("EventSystem is missing.");
+        }
+        else
+        {
+            UnityEngine.InputSystem.UI.InputSystemUIInputModule inputModule =
+                eventSystem.GetComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+            if (inputModule == null)
+            {
+                errors.Add("InputSystemUIInputModule is missing; the project uses the new Input System.");
+            }
+            else if (inputModule.actionsAsset == null)
+            {
+                errors.Add("InputSystemUIInputModule has no input actions assigned.");
+            }
+        }
+
+        HomeNavigationController navigation = Object.FindObjectOfType<HomeNavigationController>();
+        if (navigation == null)
+        {
+            errors.Add("HomeNavigationController is missing.");
+        }
+        else
+        {
+            SerializedObject navigationObject = new(navigation);
+            SerializedProperty tabs = navigationObject.FindProperty("tabs");
+            if (tabs == null || tabs.arraySize != 4)
+            {
+                errors.Add("Home navigation must define exactly four content tabs.");
+            }
+            else
+            {
+                for (int i = 0; i < tabs.arraySize; i++)
+                {
+                    SerializedProperty tab = tabs.GetArrayElementAtIndex(i);
+                    if (tab.FindPropertyRelative("panel")?.objectReferenceValue == null ||
+                        tab.FindPropertyRelative("navButton")?.objectReferenceValue == null)
+                    {
+                        errors.Add($"Navigation tab at index {i} has missing references.");
+                    }
+                }
+            }
+        }
+
+        EditorBuildSettingsScene[] buildScenes = EditorBuildSettings.scenes;
+        if (buildScenes.Length == 0 ||
+            buildScenes[0].path != HomeScenePath ||
+            !buildScenes[0].enabled)
+        {
+            errors.Add("Home must be the first enabled scene in Build Settings.");
+        }
+
+        if (errors.Count == 0)
+        {
+            EditorUtility.DisplayDialog(
+                "Home Scene Validation",
+                "Home scene references, responsive display components, settings, input, and startup scene registration are valid.",
+                "OK");
+            Debug.Log("[HomeSceneBuilder] Home scene validation passed.");
+            return;
+        }
+
+        string message = string.Join("\n• ", errors);
+        Debug.LogError("[HomeSceneBuilder] Home scene validation failed:\n• " + message);
+        EditorUtility.DisplayDialog("Home Scene Validation", message, "OK");
     }
 
     // =================================================================
@@ -138,12 +391,16 @@ public static class HomeSceneBuilder
     {
         GameObject panel = FindOrCreateUIChild(navRoot, "Panel_Home");
         AnchorPanelAboveNavBar(panel.GetComponent<RectTransform>());
+        ApplyPanelBackground(panel);
 
         HomeLandingPresenter presenter = GetOrAddComponent<HomeLandingPresenter>(panel);
 
         // --- Status bar ---
         GameObject statusBar = FindOrCreateUIChild(panel.transform, "StatusBar");
         SetAnchors(statusBar.GetComponent<RectTransform>(), new Vector2(0f, 0.9f), Vector2.one);
+        Image statusBackground = GetOrAddComponent<Image>(statusBar);
+        statusBackground.color = new Color(0.02f, 0.03f, 0.05f, 0.9f);
+        statusBackground.raycastTarget = false;
         HorizontalLayoutGroup statusLayout = GetOrAddComponent<HorizontalLayoutGroup>(statusBar);
         statusLayout.childForceExpandWidth = false;
         statusLayout.childForceExpandHeight = true;
@@ -151,18 +408,21 @@ public static class HomeSceneBuilder
         statusLayout.padding = new RectOffset(16, 16, 8, 8);
         statusLayout.childAlignment = TextAnchor.MiddleLeft;
 
-        TextMeshProUGUI nameText = AddTMPTextChild(statusBar.transform, "PlayerNameText", "Recruit", 26, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
-        TextMeshProUGUI levelText = AddTMPTextChild(statusBar.transform, "PlayerLevelText", "Lv. 1", 22, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
+        TextMeshProUGUI nameText = AddTMPTextChild(statusBar.transform, "PlayerNameText", "Recruit", 36, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
+        TextMeshProUGUI levelText = AddTMPTextChild(statusBar.transform, "PlayerLevelText", "Lv. 1", 30, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
         Slider xpBar = AddSliderChild(statusBar.transform, "XpBar", Vector2.zero, Vector2.one);
         LayoutElement xpLayoutElement = GetOrAddComponent<LayoutElement>(xpBar.gameObject);
         xpLayoutElement.preferredWidth = 160;
         xpLayoutElement.preferredHeight = 16;
-        TextMeshProUGUI softText = AddTMPTextChild(statusBar.transform, "SoftCurrencyText", "0", 20, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
-        TextMeshProUGUI hardText = AddTMPTextChild(statusBar.transform, "HardCurrencyText", "0", 20, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
+        TextMeshProUGUI softText = AddTMPTextChild(statusBar.transform, "SoftCurrencyText", "0", 28, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
+        TextMeshProUGUI hardText = AddTMPTextChild(statusBar.transform, "HardCurrencyText", "0", 28, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
 
         // --- Hero showcase ---
         GameObject showcase = FindOrCreateUIChild(panel.transform, "HeroShowcase");
         SetAnchors(showcase.GetComponent<RectTransform>(), new Vector2(0.1f, 0.28f), new Vector2(0.9f, 0.88f));
+        Image showcaseSurface = GetOrAddComponent<Image>(showcase);
+        showcaseSurface.color = SurfaceColor;
+        showcaseSurface.raycastTarget = false;
         HeroShowcaseCarousel carousel = GetOrAddComponent<HeroShowcaseCarousel>(showcase);
 
         GameObject portraitGo = FindOrCreateUIChild(showcase.transform, "PortraitImage");
@@ -170,13 +430,23 @@ public static class HomeSceneBuilder
         Image portraitImage = GetOrAddComponent<Image>(portraitGo);
         portraitImage.color = new Color(0.15f, 0.15f, 0.18f, 1f);
 
-        TextMeshProUGUI heroNameText = AddTMPTextChild(showcase.transform, "HeroNameText", "Hero", 30, TextAlignmentOptions.Center, new Vector2(0f, 0f), new Vector2(1f, 0.1f));
-        TextMeshProUGUI pantheonTagText = AddTMPTextChild(showcase.transform, "PantheonTagText", "Pantheon", 18, TextAlignmentOptions.Center, new Vector2(0f, 0.1f), new Vector2(1f, 0.16f));
+        TextMeshProUGUI heroNameText = AddTMPTextChild(showcase.transform, "HeroNameText", "Hero", 48, TextAlignmentOptions.Center, new Vector2(0f, 0f), new Vector2(1f, 0.1f));
+        TextMeshProUGUI pantheonTagText = AddTMPTextChild(showcase.transform, "PantheonTagText", "Pantheon", 28, TextAlignmentOptions.Center, new Vector2(0f, 0.1f), new Vector2(1f, 0.16f));
         Button prevButton = AddButtonChild(showcase.transform, "PreviousButton", "<", new Vector2(0f, 0.4f), new Vector2(0.12f, 0.6f));
         Button nextButton = AddButtonChild(showcase.transform, "NextButton", ">", new Vector2(0.88f, 0.4f), new Vector2(1f, 0.6f));
 
         // --- Battle CTA ---
         Button battleButton = AddButtonChild(panel.transform, "BattleButton", "BATTLE", new Vector2(0.25f, 0.02f), new Vector2(0.75f, 0.16f));
+        Image battleBackground = battleButton.GetComponent<Image>();
+        battleBackground.color = AccentColor;
+        TMP_Text battleLabel = battleButton.GetComponentInChildren<TMP_Text>();
+        if (battleLabel != null)
+        {
+            battleLabel.color = BackgroundColor;
+            battleLabel.fontSize = 38;
+            battleLabel.fontStyle = FontStyles.Bold;
+            battleLabel.characterSpacing = 3f;
+        }
 
         SetPrivateField(presenter, "playerProfileService", playerProfileService);
         SetPrivateField(presenter, "sceneLoader", sceneLoader);
@@ -205,6 +475,7 @@ public static class HomeSceneBuilder
     {
         GameObject panel = FindOrCreateUIChild(navRoot, "Panel_Heroes");
         AnchorPanelAboveNavBar(panel.GetComponent<RectTransform>());
+        ApplyPanelBackground(panel);
 
         HeroCollectionPresenter presenter = GetOrAddComponent<HeroCollectionPresenter>(panel);
 
@@ -217,11 +488,24 @@ public static class HomeSceneBuilder
         filterLayout.padding = new RectOffset(16, 16, 8, 8);
         filterLayout.childAlignment = TextAnchor.MiddleLeft;
 
+        TextMeshProUGUI catalogStatusText = AddTMPTextChild(
+            panel.transform,
+            "CatalogStatusText",
+            "Loading heroes…",
+            30,
+            TextAlignmentOptions.Center,
+            new Vector2(0.1f, 0.38f),
+            new Vector2(0.9f, 0.56f));
+        catalogStatusText.raycastTarget = false;
+        catalogStatusText.gameObject.SetActive(true);
+
         Transform gridContent = CreateVerticalScrollView(panel.transform, "HeroGridScroll", new Vector2(0f, 0f), new Vector2(1f, 0.88f), out _);
+        catalogStatusText.transform.SetAsLastSibling();
         GridLayoutGroup grid = GetOrAddComponent<GridLayoutGroup>(gridContent.gameObject);
-        grid.cellSize = new Vector2(220, 280);
+        grid.cellSize = new Vector2(320, 400);
         grid.spacing = new Vector2(12, 12);
         grid.padding = new RectOffset(12, 12, 12, 12);
+        GetOrAddComponent<ResponsiveHeroGridLayout>(gridContent.gameObject);
         ContentSizeFitter fitter = GetOrAddComponent<ContentSizeFitter>(gridContent.gameObject);
         fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
@@ -235,6 +519,7 @@ public static class HomeSceneBuilder
         SetPrivateField(presenter, "heroItemPrefab", itemPrefab);
         SetPrivateField(presenter, "filterChipContainer", filterRow.transform);
         SetPrivateField(presenter, "filterChipPrefab", chipPrefab);
+        SetPrivateField(presenter, "catalogStatusText", catalogStatusText);
 
         return panel;
     }
@@ -243,6 +528,7 @@ public static class HomeSceneBuilder
     {
         GameObject panel = FindOrCreateUIChild(navRoot, "Panel_Shop");
         AnchorPanelAboveNavBar(panel.GetComponent<RectTransform>());
+        ApplyPanelBackground(panel);
 
         ShopPanelPresenter presenter = GetOrAddComponent<ShopPanelPresenter>(panel);
 
@@ -257,16 +543,17 @@ public static class HomeSceneBuilder
     {
         GameObject panel = FindOrCreateUIChild(navRoot, "Panel_Profile");
         AnchorPanelAboveNavBar(panel.GetComponent<RectTransform>());
+        ApplyPanelBackground(panel);
 
         ProfilePanelPresenter presenter = GetOrAddComponent<ProfilePanelPresenter>(panel);
 
-        TextMeshProUGUI nameText = AddTMPTextChild(panel.transform, "PlayerNameText", "Recruit", 32, TextAlignmentOptions.Center, new Vector2(0.1f, 0.85f), new Vector2(0.9f, 0.95f));
-        TextMeshProUGUI idText = AddTMPTextChild(panel.transform, "PlayerIdText", "Offline profile", 16, TextAlignmentOptions.Center, new Vector2(0.1f, 0.8f), new Vector2(0.9f, 0.85f));
-        TextMeshProUGUI levelText = AddTMPTextChild(panel.transform, "PlayerLevelText", "Level 1", 24, TextAlignmentOptions.Center, new Vector2(0.1f, 0.7f), new Vector2(0.9f, 0.78f));
+        TextMeshProUGUI nameText = AddTMPTextChild(panel.transform, "PlayerNameText", "Recruit", 44, TextAlignmentOptions.Center, new Vector2(0.1f, 0.85f), new Vector2(0.9f, 0.95f));
+        TextMeshProUGUI idText = AddTMPTextChild(panel.transform, "PlayerIdText", "Offline profile", 24, TextAlignmentOptions.Center, new Vector2(0.1f, 0.8f), new Vector2(0.9f, 0.85f));
+        TextMeshProUGUI levelText = AddTMPTextChild(panel.transform, "PlayerLevelText", "Level 1", 34, TextAlignmentOptions.Center, new Vector2(0.1f, 0.7f), new Vector2(0.9f, 0.78f));
         Slider xpBar = AddSliderChild(panel.transform, "XpBar", new Vector2(0.15f, 0.63f), new Vector2(0.85f, 0.68f));
-        TextMeshProUGUI xpLabel = AddTMPTextChild(panel.transform, "XpLabelText", "0 / 1000 XP", 16, TextAlignmentOptions.Center, new Vector2(0.1f, 0.56f), new Vector2(0.9f, 0.62f));
-        TextMeshProUGUI softText = AddTMPTextChild(panel.transform, "SoftCurrencyText", "0", 20, TextAlignmentOptions.Center, new Vector2(0.15f, 0.45f), new Vector2(0.45f, 0.53f));
-        TextMeshProUGUI hardText = AddTMPTextChild(panel.transform, "HardCurrencyText", "0", 20, TextAlignmentOptions.Center, new Vector2(0.55f, 0.45f), new Vector2(0.85f, 0.53f));
+        TextMeshProUGUI xpLabel = AddTMPTextChild(panel.transform, "XpLabelText", "0 / 1000 XP", 24, TextAlignmentOptions.Center, new Vector2(0.1f, 0.56f), new Vector2(0.9f, 0.62f));
+        TextMeshProUGUI softText = AddTMPTextChild(panel.transform, "SoftCurrencyText", "0", 30, TextAlignmentOptions.Center, new Vector2(0.15f, 0.45f), new Vector2(0.45f, 0.53f));
+        TextMeshProUGUI hardText = AddTMPTextChild(panel.transform, "HardCurrencyText", "0", 30, TextAlignmentOptions.Center, new Vector2(0.55f, 0.45f), new Vector2(0.85f, 0.53f));
 
         SetPrivateField(presenter, "playerProfileService", playerProfileService);
         SetPrivateField(presenter, "playerNameText", nameText);
@@ -289,13 +576,24 @@ public static class HomeSceneBuilder
         out NavTabButtonView btnHome,
         out NavTabButtonView btnHeroes,
         out NavTabButtonView btnShop,
-        out NavTabButtonView btnProfile)
+        out NavTabButtonView btnProfile,
+        out Button settingsButton)
     {
-        GameObject navBar = FindOrCreateUIChild(canvasTransform, "BottomNavBar");
+        GameObject safeRoot = FindOrCreateUIChild(canvasTransform, "BottomNavSafeRoot");
+        SetAnchors(safeRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
+        GetOrAddComponent<SafeAreaController>(safeRoot);
+
+        Transform previouslyGeneratedBar = canvasTransform.Find("BottomNavBar");
+        if (previouslyGeneratedBar != null)
+        {
+            previouslyGeneratedBar.SetParent(safeRoot.transform, false);
+        }
+
+        GameObject navBar = FindOrCreateUIChild(safeRoot.transform, "BottomNavBar");
         SetAnchors(navBar.GetComponent<RectTransform>(), Vector2.zero, new Vector2(1f, NavBarHeightRatio));
 
         Image navBarBg = GetOrAddComponent<Image>(navBar);
-        navBarBg.color = new Color(0.05f, 0.05f, 0.07f, 1f);
+        navBarBg.color = BackgroundColor;
 
         HorizontalLayoutGroup layout = GetOrAddComponent<HorizontalLayoutGroup>(navBar);
         layout.childForceExpandWidth = true;
@@ -306,6 +604,19 @@ public static class HomeSceneBuilder
         btnHeroes = CreateNavButton(navBar.transform, "NavButton_Heroes", "Heroes", HomeTabType.Heroes);
         btnShop = CreateNavButton(navBar.transform, "NavButton_Shop", "Shop", HomeTabType.Shop);
         btnProfile = CreateNavButton(navBar.transform, "NavButton_Profile", "Profile", HomeTabType.Profile);
+
+        GameObject settingsGo = FindOrCreateUIChild(navBar.transform, "NavButton_Settings");
+        Image settingsBackground = GetOrAddComponent<Image>(settingsGo);
+        settingsBackground.color = new Color(0f, 0f, 0f, 0f);
+        settingsButton = GetOrAddComponent<Button>(settingsGo);
+        AddTMPTextChild(
+            settingsGo.transform,
+            "Label",
+            "SETTINGS",
+            28,
+            TextAlignmentOptions.Center,
+            Vector2.zero,
+            Vector2.one);
 
         return navBar;
     }
@@ -322,19 +633,30 @@ public static class HomeSceneBuilder
         GameObject iconGo = FindOrCreateUIChild(go.transform, "Icon");
         SetAnchors(iconGo.GetComponent<RectTransform>(), new Vector2(0.3f, 0.45f), new Vector2(0.7f, 0.9f));
         Image icon = GetOrAddComponent<Image>(iconGo);
-        icon.color = new Color(1f, 1f, 1f, 0.6f);
+        icon.enabled = false;
 
-        TextMeshProUGUI labelText = AddTMPTextChild(go.transform, "Label", label, 16, TextAlignmentOptions.Center, new Vector2(0f, 0.05f), new Vector2(1f, 0.35f));
+        TextMeshProUGUI iconGlyphText = AddTMPTextChild(
+            go.transform,
+            "IconGlyph",
+            GetTabGlyph(tab),
+            48,
+            TextAlignmentOptions.Center,
+            new Vector2(0.25f, 0.42f),
+            new Vector2(0.75f, 0.9f));
+
+        TextMeshProUGUI labelText = AddTMPTextChild(go.transform, "Label", label, 32, TextAlignmentOptions.Center, new Vector2(0f, 0.04f), new Vector2(1f, 0.34f));
+        labelText.fontStyle = FontStyles.Bold;
 
         GameObject indicatorGo = FindOrCreateUIChild(go.transform, "SelectedIndicator");
         SetAnchors(indicatorGo.GetComponent<RectTransform>(), new Vector2(0.3f, 0f), new Vector2(0.7f, 0.05f));
         Image indicatorImage = GetOrAddComponent<Image>(indicatorGo);
-        indicatorImage.color = new Color(0.3f, 0.75f, 1f, 1f);
+        indicatorImage.color = AccentColor;
         indicatorGo.SetActive(false);
 
         NavTabButtonView view = GetOrAddComponent<NavTabButtonView>(go);
         SetEnumField(view, "tab", (int)tab);
         SetPrivateField(view, "iconImage", icon);
+        SetPrivateField(view, "iconGlyphText", iconGlyphText);
         SetPrivateField(view, "labelText", labelText);
         SetPrivateField(view, "selectedIndicator", indicatorGo);
         SetPrivateField(view, "button", button);
@@ -348,20 +670,42 @@ public static class HomeSceneBuilder
 
     private static HeroCollectionItemView GetOrCreateHeroCollectionItemPrefab()
     {
-        const string path = "Assets/Home/Prefabs/HeroCollectionItem.prefab";
+        const string path = "Assets/Home/Prefabs/HerocollectionItem.prefab";
         HeroCollectionItemView existing = AssetDatabase.LoadAssetAtPath<HeroCollectionItemView>(path);
         if (existing != null)
         {
-            return existing;
+            GameObject prefabContents = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                prefabContents.GetComponent<RectTransform>().sizeDelta = new Vector2(320, 400);
+                Image background = prefabContents.GetComponent<Image>();
+                if (background != null)
+                {
+                    background.color = SurfaceColor;
+                }
+
+                SetPrefabTextSize(prefabContents.transform, "HeroName", 36);
+                SetPrefabTextSize(prefabContents.transform, "HeroClass", 28);
+                SetPrefabTextSize(prefabContents.transform, "PantheonTag", 24);
+                SetPrefabTextColor(prefabContents.transform, "HeroClass", MutedTextColor);
+                SetPrefabTextColor(prefabContents.transform, "PantheonTag", AccentColor);
+                PrefabUtility.SaveAsPrefabAsset(prefabContents, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(prefabContents);
+            }
+
+            return AssetDatabase.LoadAssetAtPath<HeroCollectionItemView>(path);
         }
 
         EnsureFolder("Assets/Home/Prefabs");
 
         GameObject root = new GameObject("HeroCollectionItem", typeof(RectTransform));
-        root.GetComponent<RectTransform>().sizeDelta = new Vector2(220, 280);
+        root.GetComponent<RectTransform>().sizeDelta = new Vector2(320, 400);
 
         Image bg = root.AddComponent<Image>();
-        bg.color = new Color(0.1f, 0.1f, 0.13f, 1f);
+        bg.color = SurfaceColor;
         Button button = root.AddComponent<Button>();
 
         GameObject portraitGo = CreateUIChildRaw(root.transform, "Portrait");
@@ -369,11 +713,11 @@ public static class HomeSceneBuilder
         Image portraitImage = portraitGo.AddComponent<Image>();
         portraitImage.color = Color.white;
 
-        TextMeshProUGUI nameText = CreateTMPRaw(root.transform, "HeroName", "Hero Name", 20, TextAlignmentOptions.Center, new Vector2(0f, 0.22f), new Vector2(1f, 0.34f));
-        TextMeshProUGUI classText = CreateTMPRaw(root.transform, "HeroClass", "Class", 15, TextAlignmentOptions.Center, new Vector2(0f, 0.12f), new Vector2(1f, 0.22f));
-        classText.color = new Color(1f, 1f, 1f, 0.75f);
-        TextMeshProUGUI pantheonText = CreateTMPRaw(root.transform, "PantheonTag", "Pantheon", 13, TextAlignmentOptions.Center, new Vector2(0f, 0.02f), new Vector2(1f, 0.12f));
-        pantheonText.color = new Color(0.6f, 0.8f, 1f, 1f);
+        TextMeshProUGUI nameText = CreateTMPRaw(root.transform, "HeroName", "Hero Name", 36, TextAlignmentOptions.Center, new Vector2(0f, 0.22f), new Vector2(1f, 0.34f));
+        TextMeshProUGUI classText = CreateTMPRaw(root.transform, "HeroClass", "Class", 28, TextAlignmentOptions.Center, new Vector2(0f, 0.12f), new Vector2(1f, 0.22f));
+        classText.color = MutedTextColor;
+        TextMeshProUGUI pantheonText = CreateTMPRaw(root.transform, "PantheonTag", "Pantheon", 24, TextAlignmentOptions.Center, new Vector2(0f, 0.02f), new Vector2(1f, 0.12f));
+        pantheonText.color = AccentColor;
 
         HeroCollectionItemView view = root.AddComponent<HeroCollectionItemView>();
         SetPrivateField(view, "portraitImage", portraitImage);
@@ -390,32 +734,64 @@ public static class HomeSceneBuilder
 
     private static PantheonFilterChipView GetOrCreatePantheonFilterChipPrefab()
     {
-        const string path = "Assets/Home/Prefabs/PantheonFilterChip.prefab";
+        const string path = "Assets/Home/Prefabs/PantheonFilterchip.prefab";
         PantheonFilterChipView existing = AssetDatabase.LoadAssetAtPath<PantheonFilterChipView>(path);
         if (existing != null)
         {
-            return existing;
+            GameObject prefabContents = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                prefabContents.GetComponent<RectTransform>().sizeDelta = new Vector2(170, 88);
+                Image background = prefabContents.GetComponent<Image>();
+                if (background != null)
+                {
+                    background.color = new Color(1f, 1f, 1f, 0.05f);
+                }
+
+                LayoutElement layout = GetOrAddComponent<LayoutElement>(prefabContents);
+                layout.preferredWidth = 170;
+                layout.preferredHeight = 88;
+
+                SetPrefabTextSize(prefabContents.transform, "Label", 32);
+                Transform indicator = prefabContents.transform.Find("SelectedIndicator");
+                if (indicator != null)
+                {
+                    Image indicatorImage = indicator.GetComponent<Image>();
+                    if (indicatorImage != null)
+                    {
+                        indicatorImage.color = AccentColor;
+                    }
+                }
+
+                PrefabUtility.SaveAsPrefabAsset(prefabContents, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(prefabContents);
+            }
+
+            return AssetDatabase.LoadAssetAtPath<PantheonFilterChipView>(path);
         }
 
         EnsureFolder("Assets/Home/Prefabs");
 
         GameObject root = new GameObject("PantheonFilterChip", typeof(RectTransform));
-        root.GetComponent<RectTransform>().sizeDelta = new Vector2(110, 40);
+        root.GetComponent<RectTransform>().sizeDelta = new Vector2(170, 88);
 
         Image bg = root.AddComponent<Image>();
-        bg.color = new Color(1f, 1f, 1f, 0.08f);
+        bg.color = new Color(1f, 1f, 1f, 0.05f);
         Button button = root.AddComponent<Button>();
 
         LayoutElement layoutElement = root.AddComponent<LayoutElement>();
-        layoutElement.preferredWidth = 110;
-        layoutElement.preferredHeight = 32;
+        layoutElement.preferredWidth = 170;
+        layoutElement.preferredHeight = 88;
 
-        TextMeshProUGUI labelText = CreateTMPRaw(root.transform, "Label", "All", 16, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
+        TextMeshProUGUI labelText = CreateTMPRaw(root.transform, "Label", "All", 32, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
 
         GameObject indicatorGo = CreateUIChildRaw(root.transform, "SelectedIndicator");
         SetAnchors(indicatorGo.GetComponent<RectTransform>(), new Vector2(0.1f, 0f), new Vector2(0.9f, 0.08f));
         Image indicatorImage = indicatorGo.AddComponent<Image>();
-        indicatorImage.color = new Color(0.3f, 0.75f, 1f, 1f);
+        indicatorImage.color = AccentColor;
         indicatorGo.SetActive(false);
 
         PantheonFilterChipView view = root.AddComponent<PantheonFilterChipView>();
@@ -456,7 +832,7 @@ public static class HomeSceneBuilder
 
         Button button = GetOrAddComponent<Button>(go);
 
-        AddTMPTextChild(go.transform, "Label", label, 22, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
+        AddTMPTextChild(go.transform, "Label", label, 32, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
 
         return button;
     }
@@ -556,6 +932,45 @@ public static class HomeSceneBuilder
     // =================================================================
     // Generic helpers
     // =================================================================
+
+    private static string GetTabGlyph(HomeTabType tab)
+    {
+        return tab switch
+        {
+            HomeTabType.Home => "H",
+            HomeTabType.Heroes => "✦",
+            HomeTabType.Shop => "$",
+            HomeTabType.Profile => "P",
+            _ => "•"
+        };
+    }
+
+    private static void SetPrefabTextSize(Transform root, string childName, float fontSize)
+    {
+        Transform child = root.Find(childName);
+        TMP_Text text = child != null ? child.GetComponent<TMP_Text>() : null;
+        if (text != null)
+        {
+            text.fontSize = fontSize;
+        }
+    }
+
+    private static void SetPrefabTextColor(Transform root, string childName, Color color)
+    {
+        Transform child = root.Find(childName);
+        TMP_Text text = child != null ? child.GetComponent<TMP_Text>() : null;
+        if (text != null)
+        {
+            text.color = color;
+        }
+    }
+
+    private static void ApplyPanelBackground(GameObject panel)
+    {
+        Image background = GetOrAddComponent<Image>(panel);
+        background.color = BackgroundColor;
+        background.raycastTarget = false;
+    }
 
     private static GameObject FindOrCreateRoot(string name)
     {

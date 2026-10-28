@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 /// <summary>
-/// Sert de source de vérité du profil joueur local pour tout le Home/Lobby.
-/// Centralise le chargement (backend ou fallback MVP local) et notifie
-/// les presenters abonnés (barre de statut, panneau Profile, etc.).
+/// Owns the profile data consumed by Home/Lobby presenters.
+/// Local demo data is used only when no Player service URL is configured;
+/// a configured backend failure is exposed as an unavailable profile.
 ///
 /// Ce service ne contient AUCUNE logique gameplay ni logique d'écran :
 /// il expose uniquement l'état du profil et le moyen de le rafraîchir.
@@ -20,49 +20,98 @@ public class PlayerProfileService : MonoBehaviour
     [SerializeField] private string localPlayerId = "player_local_dev";
 
     private PlayerApiClient apiClient;
-    private PlayerProfileData currentProfile = new();
+    private PlayerProfileData currentProfile;
+    private bool isLoading;
+    private bool hasLoaded;
+    private bool isUsingLocalProfile;
+    private string lastLoadError = string.Empty;
 
     public PlayerProfileData CurrentProfile => currentProfile;
+    public bool IsLoading => isLoading;
+    public bool HasLoaded => hasLoaded;
+    public bool IsUsingLocalProfile => isUsingLocalProfile;
+    public string LastLoadError => lastLoadError;
 
+    public event Action OnProfileLoadStarted;
     public event Action<PlayerProfileData> OnProfileUpdated;
+    public event Action<string> OnProfileLoadFailed;
 
     private void Awake()
     {
-        currentProfile = BuildDefaultProfile();
-
         if (!string.IsNullOrWhiteSpace(playerServiceBaseUrl))
         {
             apiClient = new PlayerApiClient(playerServiceBaseUrl);
         }
+
+        if (apiClient == null)
+        {
+            currentProfile = BuildDefaultProfile();
+            isUsingLocalProfile = true;
+        }
     }
 
-    private async void Start()
+    private void Start()
     {
-        await LoadProfileAsync();
+        _ = LoadProfileAsync();
     }
 
     public async Task LoadProfileAsync()
     {
+        if (isLoading)
+        {
+            return;
+        }
+
+        isLoading = true;
+        lastLoadError = string.Empty;
+        OnProfileLoadStarted?.Invoke();
+
         if (apiClient == null)
         {
-            Debug.Log("[PlayerProfileService] Aucune base URL configurée — profil MVP local utilisé.");
+            currentProfile = BuildDefaultProfile();
+            isUsingLocalProfile = true;
+            hasLoaded = true;
+            isLoading = false;
+            Debug.Log("[PlayerProfileService] Player service URL is not configured; using the explicit local demo profile.");
             OnProfileUpdated?.Invoke(currentProfile);
             return;
         }
 
+        isUsingLocalProfile = false;
+
         try
         {
             PlayerProfileDto dto = await apiClient.GetProfileAsync(localPlayerId);
+            if (dto == null)
+            {
+                throw new InvalidOperationException("Player service returned an empty profile response.");
+            }
+
             currentProfile = MapFromDto(dto);
-            Debug.Log($"[PlayerProfileService] Profil chargé depuis le backend : {currentProfile.DisplayName}");
+            hasLoaded = true;
+            Debug.Log($"[PlayerProfileService] Profile loaded from backend: {currentProfile.DisplayName}");
         }
         catch (Exception ex)
         {
-            Debug.LogWarning($"[PlayerProfileService] Échec du chargement backend, fallback MVP local. {ex.Message}");
-            currentProfile = BuildDefaultProfile();
+            currentProfile = null;
+            hasLoaded = false;
+            lastLoadError = ex.Message;
+            Debug.LogError($"[PlayerProfileService] Could not load the configured Player service profile: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
         }
 
-        OnProfileUpdated?.Invoke(currentProfile);
+        if (currentProfile != null)
+        {
+            OnProfileUpdated?.Invoke(currentProfile);
+        }
+        else
+        {
+            OnProfileUpdated?.Invoke(null);
+            OnProfileLoadFailed?.Invoke(lastLoadError);
+        }
     }
 
     /// <summary>
@@ -71,6 +120,12 @@ public class PlayerProfileService : MonoBehaviour
     /// </summary>
     public void ApplyLocalCurrencyDelta(int softDelta, int hardDelta)
     {
+        if (currentProfile == null || currentProfile.HasBackendData || !isUsingLocalProfile)
+        {
+            Debug.LogWarning("[PlayerProfileService] Local currency deltas are only available for the local demo profile.");
+            return;
+        }
+
         currentProfile.SoftCurrency = Math.Max(0, currentProfile.SoftCurrency + softDelta);
         currentProfile.HardCurrency = Math.Max(0, currentProfile.HardCurrency + hardDelta);
         OnProfileUpdated?.Invoke(currentProfile);
@@ -78,6 +133,13 @@ public class PlayerProfileService : MonoBehaviour
 
     private static PlayerProfileData MapFromDto(PlayerProfileDto dto)
     {
+        if (dto == null ||
+            string.IsNullOrWhiteSpace(dto.id) ||
+            string.IsNullOrWhiteSpace(dto.displayName))
+        {
+            throw new InvalidOperationException("Player service returned an invalid profile contract.");
+        }
+
         return new PlayerProfileData
         {
             PlayerId = dto.id,
@@ -94,8 +156,7 @@ public class PlayerProfileService : MonoBehaviour
 
     private static PlayerProfileData BuildDefaultProfile()
     {
-        // MVP V1 : profil statique, aligné sur la même logique que
-        // la liste de héros statique dans HeroSelectionPanelPresenter.
+        // Local-only demo data. Never use this to hide a configured backend failure.
         return new PlayerProfileData
         {
             PlayerId = "local",

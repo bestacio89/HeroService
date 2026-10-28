@@ -71,11 +71,36 @@ public class MainMenuSceneLoader : MonoBehaviour
             loadingProgressBar.value = 0f;
         }
 
-        AsyncOperation op = SceneManager.LoadSceneAsync(matchSceneName, LoadSceneMode.Single);
+        AsyncOperation op = null;
+        bool loadRequestFailed = false;
 
-        if (op == null)
+        try
         {
-            Debug.LogError($"[MainMenuSceneLoader] Scene '{matchSceneName}' is not registered in Build Settings.");
+            op = SceneManager.LoadSceneAsync(matchSceneName, LoadSceneMode.Single);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[MainMenuSceneLoader] Could not request scene '{matchSceneName}': {ex.Message}");
+            loadRequestFailed = true;
+        }
+
+        if (loadRequestFailed || op == null)
+        {
+            if (!loadRequestFailed)
+            {
+                Debug.LogError($"[MainMenuSceneLoader] Scene '{matchSceneName}' is not registered in Build Settings.");
+            }
+
+            if (loadingOverlayRoot != null)
+            {
+                loadingOverlayRoot.SetActive(false);
+            }
+
+            if (loadingProgressBar != null)
+            {
+                loadingProgressBar.value = 0f;
+            }
+
             isLoading = false;
             OnLoadFailed?.Invoke();
             yield break;

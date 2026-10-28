@@ -8,10 +8,11 @@ using UnityEngine;
 /// Évite de dupliquer l'appel GET /api/v1/heroes entre le carrousel du Home
 /// et l'écran Hero Collection : les deux s'abonnent à ce service.
 ///
-/// Comportement :
-/// - Charge la liste une fois au démarrage (cache en mémoire).
-/// - Fallback MVP statique si le backend n'est pas joignable, pour garder
-///   le Home utilisable pendant le développement front-only.
+/// Behavior:
+/// - Loads the catalogue once at startup and caches it in memory.
+/// - Uses local demo data only when no HeroService URL is configured.
+/// - Preserves an empty/error state when a configured backend fails, rather
+///   than silently presenting demo heroes as authoritative backend data.
 /// </summary>
 public class HeroCatalogService : MonoBehaviour
 {
@@ -22,11 +23,19 @@ public class HeroCatalogService : MonoBehaviour
     private HeroApiClient apiClient;
     private HeroListItemDto[] cachedHeroes = Array.Empty<HeroListItemDto>();
     private bool hasLoaded;
+    private bool isLoading;
+    private bool isUsingFallbackCatalog;
+    private string lastLoadError = string.Empty;
 
     public IReadOnlyList<HeroListItemDto> CachedHeroes => cachedHeroes;
     public bool HasLoaded => hasLoaded;
+    public bool IsLoading => isLoading;
+    public bool IsUsingFallbackCatalog => isUsingFallbackCatalog;
+    public string LastLoadError => lastLoadError;
 
+    public event Action OnCatalogLoadStarted;
     public event Action<HeroListItemDto[]> OnCatalogLoaded;
+    public event Action<string> OnCatalogLoadFailed;
 
     private void Awake()
     {
@@ -36,47 +45,94 @@ public class HeroCatalogService : MonoBehaviour
         }
     }
 
-    private async void Start()
+    private void Start()
     {
-        await LoadCatalogAsync();
+        _ = LoadCatalogAsync();
     }
 
     public async Task LoadCatalogAsync()
     {
+        if (isLoading)
+        {
+            return;
+        }
+
+        isLoading = true;
+        lastLoadError = string.Empty;
+        OnCatalogLoadStarted?.Invoke();
+
         if (apiClient == null)
         {
             cachedHeroes = BuildFallbackCatalog();
             hasLoaded = true;
-            Debug.Log("[HeroCatalogService] Aucune base URL configurée — catalogue MVP local utilisé.");
+            isUsingFallbackCatalog = true;
+            isLoading = false;
+            Debug.Log("[HeroCatalogService] HeroService URL is not configured; using the explicit local demo catalogue.");
             OnCatalogLoaded?.Invoke(cachedHeroes);
             return;
         }
 
+        isUsingFallbackCatalog = false;
+
         try
         {
-            cachedHeroes = await apiClient.GetHeroesAsync();
+            HeroListItemDto[] loadedHeroes = await apiClient.GetHeroesAsync();
+            cachedHeroes = ValidateCatalog(loadedHeroes);
+            hasLoaded = true;
 
-            if (cachedHeroes == null || cachedHeroes.Length == 0)
+            if (cachedHeroes.Length == 0)
             {
-                Debug.LogWarning("[HeroCatalogService] Backend a retourné une liste vide, fallback MVP local.");
-                cachedHeroes = BuildFallbackCatalog();
+                Debug.LogWarning("[HeroCatalogService] HeroService returned an empty catalogue.");
             }
         }
         catch (Exception ex)
         {
-            Debug.LogWarning($"[HeroCatalogService] Échec du chargement backend, fallback MVP local. {ex.Message}");
-            cachedHeroes = BuildFallbackCatalog();
+            cachedHeroes = Array.Empty<HeroListItemDto>();
+            hasLoaded = false;
+            lastLoadError = ex.Message;
+            Debug.LogError($"[HeroCatalogService] Could not load the configured HeroService catalogue: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
         }
 
-        hasLoaded = true;
-        OnCatalogLoaded?.Invoke(cachedHeroes);
+        if (hasLoaded)
+        {
+            OnCatalogLoaded?.Invoke(cachedHeroes);
+        }
+        else
+        {
+            OnCatalogLoadFailed?.Invoke(lastLoadError);
+        }
+    }
+
+    private static HeroListItemDto[] ValidateCatalog(HeroListItemDto[] heroes)
+    {
+        if (heroes == null)
+        {
+            throw new InvalidOperationException("HeroService returned a null catalogue.");
+        }
+
+        for (int i = 0; i < heroes.Length; i++)
+        {
+            HeroListItemDto hero = heroes[i];
+            if (hero == null ||
+                string.IsNullOrWhiteSpace(hero.id) ||
+                string.IsNullOrWhiteSpace(hero.name))
+            {
+                throw new InvalidOperationException(
+                    $"HeroService returned an invalid hero catalogue item at index {i}.");
+            }
+        }
+
+        return heroes;
     }
 
     private static HeroListItemDto[] BuildFallbackCatalog()
     {
-        // MVP V1 : reflète temporairement la même liste statique que
-        // HeroSelectionPanelPresenter, avec affiliation mythologique pour
-        // que le carrousel et les filtres de pantheon aient de la donnée.
+        // Explicit local-only demo data for front-end development. This is
+        // never used to hide a failure from a configured HeroService.
         return new[]
         {
             new HeroListItemDto

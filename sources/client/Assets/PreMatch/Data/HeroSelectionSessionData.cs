@@ -5,17 +5,13 @@ using System;
 /// Cette donnée conserve le mode choisi, le héros actuellement sélectionné,
 /// la lane préférée et l'état de confirmation.
 ///
-/// Évolution V4 — intégration backend :
-/// - SelectedHeroId reste la clé locale Unity (ex: "hero_mage") utilisée
-///   par HeroSpawner pour résoudre le HeroDefinition en scène.
-/// - SelectedHeroGuid est le Guid retourné par l'API backend (GET /api/v1/heroes).
-///   Il est utilisé par MatchBootstrapper pour appeler GET /api/v1/snapshots/heroes/{guid}/{versionId}.
-/// - ActiveGameVersionId est le Guid de la version de jeu active, requis
-///   par l'endpoint snapshot pour un calcul déterministe des stats.
-///
-/// Règle de priorité :
-/// - SelectedHeroGuid vide = pas encore de backend connecté → comportement legacy.
-/// - SelectedHeroGuid renseigné = backend connecté → stats viennent du snapshot.
+/// Backend integration notes:
+/// - SelectedHeroId remains the Unity presentation/runtime hero key used by HeroSpawner.
+/// - SelectedHeroGuid and ActiveGameVersionId are legacy integration fields retained
+///   for compatibility; they must not be used to assemble authoritative match state.
+/// - Match bootstrap must consume the match-scoped definition and runtime snapshot
+///   returned by MatchService when that contract is available. HeroService remains
+///   authoritative for hero definitions, not the complete match execution context.
 /// </summary>
 [Serializable]
 public class HeroSelectionSessionData
@@ -42,16 +38,16 @@ public class HeroSelectionSessionData
   // ---------------------------------------------------------------
 
   /// <summary>
-  /// Guid du héros retourné par l'API backend (GET /api/v1/heroes).
-  /// Utilisé par MatchBootstrapper pour appeler l'endpoint snapshot.
-  /// Vide tant que le backend n'est pas connecté.
+  /// Legacy HeroService identifier. This is not sufficient to initialize a match
+  /// and must not be used as a substitute for a MatchService match snapshot.
+  /// Retained temporarily for compatibility with prototype integrations.
   /// </summary>
   public string SelectedHeroGuid = string.Empty;
 
   /// <summary>
-  /// Guid de la version de jeu active, requis par GET /api/v1/snapshots/heroes/{heroId}/{versionId}.
-  /// Sera fourni par la configuration de l'application ou récupéré depuis l'API.
-  /// Vide tant que le backend n'est pas connecté.
+  /// Legacy game-version identifier retained for compatibility only.
+  /// MatchService will resolve the applicable version and freeze its constraints
+  /// into the match definition; Unity must not independently assemble this state.
   /// </summary>
   public string ActiveGameVersionId = string.Empty;
 
@@ -60,8 +56,8 @@ public class HeroSelectionSessionData
   // ---------------------------------------------------------------
 
   /// <summary>
-  /// Indique si le backend est connecté et les données Guid disponibles.
-  /// Quand false, le système fonctionne en mode legacy (ScriptableObjects statiques).
+  /// Indicates whether legacy backend identifiers are present. This does not mean
+  /// that a server-authoritative match snapshot has been acquired.
   /// </summary>
   public bool HasBackendData =>
       !string.IsNullOrEmpty(SelectedHeroGuid) &&
