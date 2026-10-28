@@ -17,20 +17,15 @@ public sealed class ClientSettingsPanel : MonoBehaviour
     private TMP_Text volumeValue;
     private TMP_Text qualityValue;
     private TMP_Text frameRateValue;
+    private TMP_Text resolutionValue;
     private TMP_Text fullscreenValue;
-    private Button fullscreenButton;
+    private Slider masterVolumeSlider;
 
     private void Awake()
     {
         if (settingsService == null)
         {
             settingsService = FindObjectOfType<ClientSettingsService>();
-        }
-
-        if (openButton != null)
-        {
-            openButton.onClick.RemoveListener(Open);
-            openButton.onClick.AddListener(Open);
         }
 
         BuildOverlay();
@@ -48,6 +43,12 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         if (settingsService != null)
         {
             settingsService.OnSettingsChanged += RefreshValues;
+        }
+
+        if (openButton != null)
+        {
+            openButton.onClick.RemoveListener(Open);
+            openButton.onClick.AddListener(Open);
         }
     }
 
@@ -132,11 +133,11 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         scrollRect.content = contentRect;
 
         GameObject audioSection = CreateSection(bodyContent.transform, "AUDIO");
-        CreateSliderRow(audioSection.transform, "Master volume", out volumeValue, out Slider volumeSlider);
-        volumeSlider.minValue = 0f;
-        volumeSlider.maxValue = 1f;
-        volumeSlider.wholeNumbers = false;
-        volumeSlider.onValueChanged.AddListener(value =>
+        CreateSliderRow(audioSection.transform, "Master volume", out volumeValue, out masterVolumeSlider);
+        masterVolumeSlider.minValue = 0f;
+        masterVolumeSlider.maxValue = 1f;
+        masterVolumeSlider.wholeNumbers = false;
+        masterVolumeSlider.onValueChanged.AddListener(value =>
         {
             if (settingsService != null)
             {
@@ -154,10 +155,11 @@ public sealed class ClientSettingsPanel : MonoBehaviour
 
         if (!Application.isMobilePlatform)
         {
-            CreateActionRow(displaySection.transform, "Fullscreen", out fullscreenValue,
-                () => settingsService?.ToggleFullscreen(),
-                () => settingsService?.ToggleFullscreen(),
-                out fullscreenButton);
+            CreateActionRow(displaySection.transform, "Resolution", out resolutionValue,
+                () => settingsService?.CycleResolution(-1),
+                () => settingsService?.CycleResolution(1));
+            CreateToggleRow(displaySection.transform, "Fullscreen", out fullscreenValue,
+                () => settingsService?.ToggleFullscreen());
         }
 
         GameObject footer = CreateRect("Footer", panel.transform);
@@ -326,11 +328,11 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         if (volumeValue != null)
         {
             volumeValue.text = Mathf.RoundToInt(settingsService.MasterVolume * 100f) + "%";
-            Slider slider = FindSlider("Master volume");
-            if (slider != null)
-            {
-                slider.SetValueWithoutNotify(settingsService.MasterVolume);
-            }
+        }
+
+        if (masterVolumeSlider != null)
+        {
+            masterVolumeSlider.SetValueWithoutNotify(settingsService.MasterVolume);
         }
 
         if (qualityValue != null)
@@ -343,16 +345,39 @@ public sealed class ClientSettingsPanel : MonoBehaviour
             frameRateValue.text = settingsService.TargetFrameRate + " FPS";
         }
 
+        if (resolutionValue != null)
+        {
+            resolutionValue.text = settingsService.ResolutionName;
+        }
+
         if (fullscreenValue != null)
         {
             fullscreenValue.text = settingsService.Fullscreen ? "On" : "Off";
         }
     }
 
-    private Slider FindSlider(string name)
+    private void CreateToggleRow(
+        Transform parent,
+        string title,
+        out TMP_Text valueText,
+        UnityEngine.Events.UnityAction toggle)
     {
-        Transform found = overlay != null ? overlay.transform.Find("SafePanel/Panel/AUDIOSection/Master volumeRow/ValueSlider") : null;
-        return found != null ? found.GetComponent<Slider>() : null;
+        GameObject row = CreateRect(title + "Row", parent);
+        row.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 64f);
+        HorizontalLayoutGroup layout = row.AddComponent<HorizontalLayoutGroup>();
+        layout.spacing = 12;
+        layout.childAlignment = TextAnchor.MiddleLeft;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = false;
+        layout.childForceExpandHeight = true;
+
+        AddLabel(row.transform, title, 18, 64, FontStyles.Normal)
+            .gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
+        valueText = AddLabel(row.transform, string.Empty, 18, 64, FontStyles.Bold);
+        valueText.alignment = TextAlignmentOptions.Center;
+        valueText.gameObject.AddComponent<LayoutElement>().preferredWidth = 100f;
+        AddButton(row.transform, "Toggle", toggle, 56);
     }
 
     private void Open()
