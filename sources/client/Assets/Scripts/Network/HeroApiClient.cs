@@ -27,6 +27,7 @@ public sealed class HeroApiClient
     /// execution must consume a match-scoped snapshot from MatchService once available.
     /// Do not use this method to assemble match rules or runtime state client-side.
     /// </summary>
+    [Obsolete("Match initialization must use MatchService's match-scoped snapshot contract.")]
     public async Task<HeroSnapshotDto> GetHeroSnapshotAsync(string heroId, string gameVersionId)
     {
         ValidateIdentifier(heroId, nameof(heroId));
