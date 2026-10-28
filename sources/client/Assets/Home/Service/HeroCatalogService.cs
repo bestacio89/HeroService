@@ -77,7 +77,7 @@ public class HeroCatalogService : MonoBehaviour
         try
         {
             HeroListItemDto[] loadedHeroes = await apiClient.GetHeroesAsync();
-            cachedHeroes = loadedHeroes ?? Array.Empty<HeroListItemDto>();
+            cachedHeroes = ValidateCatalog(loadedHeroes);
             hasLoaded = true;
 
             if (cachedHeroes.Length == 0)
@@ -105,6 +105,28 @@ public class HeroCatalogService : MonoBehaviour
         {
             OnCatalogLoadFailed?.Invoke(lastLoadError);
         }
+    }
+
+    private static HeroListItemDto[] ValidateCatalog(HeroListItemDto[] heroes)
+    {
+        if (heroes == null)
+        {
+            throw new InvalidOperationException("HeroService returned a null catalogue.");
+        }
+
+        for (int i = 0; i < heroes.Length; i++)
+        {
+            HeroListItemDto hero = heroes[i];
+            if (hero == null ||
+                string.IsNullOrWhiteSpace(hero.id) ||
+                string.IsNullOrWhiteSpace(hero.name))
+            {
+                throw new InvalidOperationException(
+                    $"HeroService returned an invalid hero catalogue item at index {i}.");
+            }
+        }
+
+        return heroes;
     }
 
     private static HeroListItemDto[] BuildFallbackCatalog()
