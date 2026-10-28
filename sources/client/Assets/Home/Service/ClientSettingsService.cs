@@ -73,6 +73,7 @@ public sealed class ClientSettingsService : MonoBehaviour
         currentIndex = (currentIndex + Math.Sign(direction) + SupportedFrameRates.Length)
             % SupportedFrameRates.Length;
         TargetFrameRate = SupportedFrameRates[currentIndex];
+        QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = TargetFrameRate;
         PlayerPrefs.SetInt(TargetFrameRateKey, TargetFrameRate);
         SaveAndNotify();
@@ -133,6 +134,7 @@ public sealed class ClientSettingsService : MonoBehaviour
             QualitySettings.SetQualityLevel(QualityLevel, true);
         }
 
+        QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = TargetFrameRate;
         if (!Application.isMobilePlatform)
         {
