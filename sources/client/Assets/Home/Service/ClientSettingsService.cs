@@ -24,6 +24,9 @@ public sealed class ClientSettingsService : MonoBehaviour
     public int TargetFrameRate { get; private set; }
     public bool Fullscreen { get; private set; }
 
+    private int defaultScreenWidth;
+    private int defaultScreenHeight;
+
     public string ResolutionName => Screen.width + " × " + Screen.height;
 
     public string QualityName
@@ -41,6 +44,8 @@ public sealed class ClientSettingsService : MonoBehaviour
 
     private void Awake()
     {
+        defaultScreenWidth = Screen.width;
+        defaultScreenHeight = Screen.height;
         LoadAndApply();
     }
 
@@ -125,11 +130,18 @@ public sealed class ClientSettingsService : MonoBehaviour
     public void ResetToDefaults()
     {
         MasterVolume = 1f;
-        QualityLevel = Mathf.Max(0, QualitySettings.names.Length - 1);
+        QualityLevel = GetDefaultQualityLevel();
         TargetFrameRate = 60;
         Fullscreen = true;
 
         ApplyAll();
+        if (!Application.isMobilePlatform && defaultScreenWidth > 0 && defaultScreenHeight > 0)
+        {
+            Screen.SetResolution(
+                defaultScreenWidth,
+                defaultScreenHeight,
+                FullScreenMode.FullScreenWindow);
+        }
         PlayerPrefs.SetFloat(MasterVolumeKey, MasterVolume);
         PlayerPrefs.SetInt(QualityLevelKey, QualityLevel);
         PlayerPrefs.SetInt(TargetFrameRateKey, TargetFrameRate);
@@ -142,7 +154,7 @@ public sealed class ClientSettingsService : MonoBehaviour
     private void LoadAndApply()
     {
         int qualityCount = QualitySettings.names.Length;
-        int defaultQuality = Mathf.Max(0, qualityCount - 1);
+        int defaultQuality = GetDefaultQualityLevel();
 
         MasterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MasterVolumeKey, 1f));
         QualityLevel = qualityCount == 0
@@ -185,6 +197,19 @@ public sealed class ClientSettingsService : MonoBehaviour
         {
             Screen.fullScreen = Fullscreen;
         }
+    }
+
+    private static int GetDefaultQualityLevel()
+    {
+        int qualityCount = QualitySettings.names.Length;
+        if (qualityCount == 0)
+        {
+            return 0;
+        }
+
+        return Application.isMobilePlatform
+            ? Mathf.Min(1, qualityCount - 1)
+            : qualityCount - 1;
     }
 
     private static int FindCurrentResolutionIndex(Resolution[] resolutions)
