@@ -1,3 +1,4 @@
+using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Client.Http.Abstractions;
 using HeroService.Contracts.DTOs.Skills;
 using HeroService.Domain.Heroes.Skills;
