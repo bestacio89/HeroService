@@ -1,6 +1,7 @@
 ﻿using HeroService.Client.Http.Abstractions;
 using HeroService.Contracts.DTOs.Modifiers;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 
 namespace HeroService.Admin.Components.Pages.Admin.SkillModifiers;
@@ -22,6 +23,9 @@ public partial class SkillModifierList
   [Inject]
   public IDialogService DialogService { get; set; } = default!;
 
+  [Inject]
+  public ILogger<SkillModifierList> Logger { get; set; } = default!;
+
 
   private IReadOnlyList<SkillModifierDto> Modifiers { get; set; } = [];
 
@@ -34,6 +38,8 @@ public partial class SkillModifierList
 
   private bool Loading { get; set; }
 
+  private string? ErrorMessage { get; set; }
+
 
   protected override async Task OnInitializedAsync()
   {
@@ -44,24 +50,40 @@ public partial class SkillModifierList
   private async Task LoadAsync()
   {
     Loading = true;
+    ErrorMessage = null;
 
     try
     {
-      Modifiers = await Client.GetActiveAsync();
+      var modifiersTask = Client.GetActiveAsync();
+      var skillsTask = SkillClient.GetAllAsync();
+      var versionTask = GameVersionClient.GetActiveAsync();
 
+      await Task.WhenAll(modifiersTask, skillsTask, versionTask);
 
-      var skills = await SkillClient.GetAllAsync();
-
-
-      SkillNames = skills.ToDictionary(
-          skill => skill.Id,
-          skill => skill.Name);
-
-
-      var version = await GameVersionClient.GetActiveAsync();
-
-
+      Modifiers = await modifiersTask;
+      SkillNames = (await skillsTask).ToDictionary(skill => skill.Id, skill => skill.Name);
+      var version = await versionTask;
       ActiveGameVersion = version?.VersionName ?? "-";
+    }
+    catch (OperationCanceledException)
+    {
+      Modifiers = [];
+      SkillNames = [];
+      ErrorMessage = "The request was cancelled or timed out. Retry when the service is available.";
+    }
+    catch (HttpRequestException exception)
+    {
+      Logger.LogWarning(exception, "The HeroService API could not be reached while loading skill modifiers.");
+      Modifiers = [];
+      SkillNames = [];
+      ErrorMessage = "The HeroService API could not be reached. Check the service connection and try again.";
+    }
+    catch (Exception exception)
+    {
+      Logger.LogError(exception, "Unexpected failure while loading skill modifiers.");
+      Modifiers = [];
+      SkillNames = [];
+      ErrorMessage = "An unexpected error occurred while loading skill modifiers.";
     }
     finally
     {

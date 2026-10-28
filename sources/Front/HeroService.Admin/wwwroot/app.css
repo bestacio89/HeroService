@@ -321,3 +321,64 @@ button:focus-visible {
         animation-iteration-count: 1 !important;
     }
 }
+
+/* Shared admin page, data-table, and dialog conventions. */
+.admin-panel { border:1px solid var(--app-border); border-radius:var(--app-radius); background:linear-gradient(155deg,rgba(23,31,45,.96),rgba(18,24,38,.96)); }
+.admin-page-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1.25rem; flex-wrap:wrap; }
+.admin-page-heading-copy { display:grid; gap:.2rem; }
+.admin-page-actions { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:.65rem; }
+.admin-list-summary { display:flex; justify-content:flex-end; padding-block:1rem .6rem; }
+.admin-loading-state { display:grid; gap:.75rem; padding-top:.5rem; }
+.table-actions { display:inline-flex; align-items:center; gap:.15rem; }
+.app-content .mud-paper:not(.mud-alert):not(.mud-dialog-content) { border-radius:var(--app-radius); }
+.app-content .mud-paper:not(.mud-alert):not(.mud-dialog-content):not(.mud-snackbar) { border-color:var(--app-border); }
+.app-content .mud-table-container { overflow-x:auto; border:1px solid var(--app-border); border-radius:12px; background:rgba(11,15,20,.22); }
+.mud-table-root .mud-table-head { background:rgba(212,175,55,.055); }
+.mud-table-root .mud-table-head .mud-table-cell { color:var(--app-muted); font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+.mud-table-root .mud-table-body .mud-table-row { transition:background-color 120ms ease; }
+.mud-table-root .mud-table-body .mud-table-row:hover { background:rgba(212,175,55,.055); }
+.mud-table-root .mud-table-cell { padding:.8rem 1rem; border-bottom-color:rgba(212,175,55,.09); }
+.mud-divider { border-color:var(--app-border)!important; }
+.mud-alert,.mud-dialog { border-radius:12px; }
+.mud-dialog { border:1px solid var(--app-border); }
+.mud-dialog-title { border-bottom:1px solid var(--app-border); }
+.mud-dialog-actions { border-top:1px solid var(--app-border); }
+.mud-icon-button { border-radius:9px; }
+@media(max-width:600px) { .admin-page-heading { align-items:stretch; } .admin-page-actions { justify-content:stretch; } .admin-page-actions>* { max-width:100%; } .app-environment-chip { display:none; } }
+@media(prefers-reduced-motion:reduce) { .workspace-card:hover { transform:none; } }
+
+
+/* Overview card styles are global because MudBlazor renders the paper element. */
+.overview-hero {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid var(--app-border);
+    border-radius: calc(var(--app-radius) + 4px);
+    background: radial-gradient(circle at 88% 8%, rgba(212, 175, 55, 0.14), transparent 28rem), linear-gradient(135deg, #0B0F14 0%, #121826 70%, #1B1710 100%);
+}
+.overview-title { margin-block: .65rem; color: var(--app-text); font-family: Cinzel, Georgia, serif; letter-spacing: .01em; }
+.overview-description { max-width: 58rem; color: var(--app-muted); }
+.admin-section { display: grid; gap: 1rem; }
+.app-content .mud-paper.workspace-card {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: 1.4rem;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius);
+    background: linear-gradient(155deg, var(--app-surface-raised), var(--app-surface));
+    transition: border-color 160ms ease, transform 160ms ease;
+}
+.app-content .mud-paper.workspace-card:hover { border-color: rgba(212, 175, 55, .4); transform: translateY(-2px); }
+.workspace-card-icon {
+    display: grid; width: 2.75rem; height: 2.75rem; place-items: center;
+    border: 1px solid var(--app-border); border-radius: 12px;
+    background: rgba(212, 175, 55, .08); color: var(--app-gold);
+}
+.workspace-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: auto; padding-top: .5rem; }
+.app-content .mud-paper.workspace-card-compact { padding: 1.15rem; }
+.workspace-card-compact .mud-button-root { margin-top: auto; }
+@media (prefers-reduced-motion: reduce) { .app-content .mud-paper.workspace-card:hover { transform: none; } }

@@ -1,52 +1,68 @@
-﻿@namespace HeroService.Admin.Components.Pages.Admin.MythologyTypes
-
+@namespace HeroService.Admin.Components.Pages.Admin.MythologyTypes
 @page "/admin/mythology-types"
 
-<MudPaper Class="pa-4">
+<PageTitle>Mythology Types | HeroService</PageTitle>
 
-    <MudStack Row="true"
-              Justify="Justify.SpaceBetween"
-              AlignItems="AlignItems.Center">
+<MudStack Spacing="4" Class="page-stack">
+    <div class="page-heading">
+        <div>
+            <MudText Typo="Typo.overline" Class="eyebrow">WORLD & CLASSIFICATION</MudText>
+            <MudText Typo="Typo.h4" Class="page-title">Mythology Types</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">Manage narrative traditions and cultural frameworks.</MudText>
+        </div>
+        <div class="admin-page-actions">
+            <MudTextField T="string" Value="@_search" ValueChanged="OnSearchChanged" Placeholder="Search mythology types" AriaLabel="Search mythology types" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" DebounceInterval="200" Clearable="true" Class="hero-search" />
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" OnClick="CreateAsync">Create mythology type</MudButton>
+        </div>
+    </div>
 
-        <MudText Typo="Typo.h5">
-            Mythology Types
-        </MudText>
-
-        <MudButton Color="Color.Primary"
-                   Variant="Variant.Filled"
-                   OnClick="@(() => Nav.NavigateTo("/admin/mythology-types/create"))">
-            Create Mythology Type
-        </MudButton>
-
-    </MudStack>
-
-    <MudDivider Class="my-3" />
-
-    <MudTable Items="_items"
-              Hover="true"
-              Striped="true">
-
-        <HeaderContent>
-            <MudTh>Name</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-
-        <RowTemplate Context="item">
-
-            <MudTd>
-                @item.Name
-            </MudTd>
-
-            <MudTd>
-                <MudButton Icon="@Icons.Material.Filled.Edit"
-                           Size="Size.Small"
-                           OnClick="@(() => Nav.NavigateTo($"/admin/mythology-types/{item.Id}"))">
-                    Manage
-                </MudButton>
-            </MudTd>
-
-        </RowTemplate>
-
-    </MudTable>
-
-</MudPaper>
+    @if (_isLoading)
+    {
+        <div class="admin-loading-state" role="status" aria-live="polite">
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+            <MudText Typo="Typo.subtitle1">Mythology types could not be loaded</MudText>
+            <MudText Typo="Typo.body2">@_errorMessage</MudText>
+            <MudButton Class="mt-3" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync">Try again</MudButton>
+        </MudAlert>
+    }
+    else if (_items.Count == 0)
+    {
+        <MudPaper Class="empty-state" Elevation="0">
+            <MudIcon Icon="@Icons.Material.Outlined.AccountTree" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.h6">No mythology types yet</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Create a mythology type to make it available to hero affiliations.</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="CreateAsync">Create mythology type</MudButton>
+        </MudPaper>
+    }
+    else if (_filteredItems.Count == 0)
+    {
+        <MudPaper Class="empty-state" Elevation="0">
+            <MudIcon Icon="@Icons.Material.Outlined.SearchOff" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.h6">No matching mythology types</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Try a different search term.</MudText>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearSearch">Clear search</MudButton>
+        </MudPaper>
+    }
+    else
+    {
+        <div class="section-heading">
+            <MudText Typo="Typo.h6">Mythology catalogue</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@_filteredItems.Count result@(_filteredItems.Count == 1 ? "" : "s")</MudText>
+        </div>
+        <MudTable Items="_filteredItems" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Class="admin-data-table">
+            <HeaderContent><MudTh>Name</MudTh><MudTh Style="width:120px;">Actions</MudTh></HeaderContent>
+            <RowTemplate Context="item">
+                <MudTd DataLabel="Name"><MudText Typo="Typo.subtitle2">@item.Name</MudText></MudTd>
+                <MudTd DataLabel="Actions"><MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Rename mythology type" AriaLabel="Rename mythology type" OnClick="@(() => EditAsync(item))" /></MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</MudStack>

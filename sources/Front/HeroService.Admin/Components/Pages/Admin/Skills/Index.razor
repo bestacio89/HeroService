@@ -1,105 +1,65 @@
-﻿@namespace HeroService.Admin.Components.Pages.Admin.Skills
-
+@namespace HeroService.Admin.Components.Pages.Admin.Skills
 @page "/admin/skills"
 
-<MudPaper Class="pa-4">
+<PageTitle>Skills | HeroService</PageTitle>
 
-    <MudStack Row="true"
-              Justify="Justify.SpaceBetween"
-              AlignItems="AlignItems.Center"
-              Class="mb-3">
-
-        <MudStack Spacing="1">
-
-            <MudText Typo="Typo.h5">
-                Skills
-            </MudText>
-
-            <MudText Typo="Typo.body2"
-                     Color="Color.Secondary">
-                Define abilities, effects and execution rules
-            </MudText>
-
-        </MudStack>
-
-
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   OnClick="@NavigateToCreate">
-            Create Skill
-        </MudButton>
-
-    </MudStack>
-
-
-    <MudDivider Class="mb-4" />
-
-
-    <MudStack Row="true"
-              Spacing="2"
-              Class="mb-4">
-
-        <MudChip T="string"
-                 Color="Color.Primary"
-                 Variant="Variant.Filled">
-            Total: @Items.Count
-        </MudChip>
-
-
-        <MudChip T="string"
-                 Color="Color.Secondary"
-                 Variant="Variant.Outlined">
-            Types: @Items.Select(x => x.SkillType).Distinct().Count()
-        </MudChip>
-
-    </MudStack>
-
-
-    <MudTable Items="Items"
-              Hover="true"
-              Bordered="false"
-              Striped="true"
-              Dense="true"
-              T="SkillDto"
-              OnRowClick="@(args => OpenDetailsAsync(args.Item))"
-              RowStyle="cursor: pointer;">
-
-        <HeaderContent>
-
-            <MudTh>
-                Name
-            </MudTh>
-
-            <MudTh>
-                Type
-            </MudTh>
-
-        </HeaderContent>
-
-
-        <RowTemplate Context="skill">
-
-            <MudTd>
-
-                <MudText Typo="Typo.subtitle2">
-                    @skill.Name
-                </MudText>
-
-            </MudTd>
-
-
-            <MudTd>
-
-                <MudChip T="string"
-                         Color="@SkillTheme.GetColor(skill.SkillType)"
-                         Variant="Variant.Outlined">
-                    @skill.SkillType
-                </MudChip>
-
-            </MudTd>
-
-        </RowTemplate>
-
-    </MudTable>
-
-</MudPaper>
+<MudStack Spacing="4" Class="page-stack">
+    <div class="page-heading">
+        <div>
+            <MudText Typo="Typo.overline" Class="eyebrow">CORE AUTHORING</MudText>
+            <MudText Typo="Typo.h4" Class="page-title">Skills</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">Define abilities, effects, scaling and execution rules.</MudText>
+        </div>
+        <div class="admin-page-actions">
+            <MudTextField T="string" Value="@_search" ValueChanged="OnSearchChanged" Placeholder="Search skills or type" AriaLabel="Search skills" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" DebounceInterval="200" Clearable="true" Class="hero-search" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@NavigateToCreate">Create skill</MudButton>
+        </div>
+    </div>
+    @if (Loading)
+    {
+        <div class="admin-loading-state" role="status" aria-live="polite">
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="48px" />
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+            <MudText Typo="Typo.subtitle1">Skills could not be loaded</MudText>
+            <MudText Typo="Typo.body2">@ErrorMessage</MudText>
+            <MudButton Class="mt-3" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync">Try again</MudButton>
+        </MudAlert>
+    }
+    else
+    {
+        <MudGrid Spacing="3">
+            <MudItem xs="12" sm="6"><MudPaper Class="metric-card" Elevation="0"><MudText Typo="Typo.caption" Color="Color.Secondary">TOTAL SKILLS</MudText><MudText Typo="Typo.h4" Class="metric-value">@Items.Count</MudText><MudText Typo="Typo.caption" Color="Color.Secondary">Available in the library</MudText></MudPaper></MudItem>
+            <MudItem xs="12" sm="6"><MudPaper Class="metric-card" Elevation="0"><MudText Typo="Typo.caption" Color="Color.Secondary">SKILL TYPES</MudText><MudText Typo="Typo.h4" Class="metric-value">@_skillTypeCount</MudText><MudText Typo="Typo.caption" Color="Color.Secondary">Distinct ability categories</MudText></MudPaper></MudItem>
+        </MudGrid>
+        <div class="section-heading">
+            <MudText Typo="Typo.h6">Skill library</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@FilteredItems.Count result@(FilteredItems.Count == 1 ? "" : "s")</MudText>
+        </div>
+        @if (Items.Count == 0)
+        {
+            <MudPaper Class="empty-state" Elevation="0"><MudIcon Icon="@Icons.Material.Outlined.Bolt" Size="Size.Large" Color="Color.Secondary" /><MudText Typo="Typo.h6">No skills yet</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Create a skill to start building the ability library.</MudText><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@NavigateToCreate">Create skill</MudButton></MudPaper>
+        }
+        else if (FilteredItems.Count == 0)
+        {
+            <MudPaper Class="empty-state" Elevation="0"><MudIcon Icon="@Icons.Material.Outlined.SearchOff" Size="Size.Large" Color="Color.Secondary" /><MudText Typo="Typo.h6">No matching skills</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Try another name or skill type.</MudText><MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearSearch">Clear search</MudButton></MudPaper>
+        }
+        else
+        {
+            <MudTable Items="FilteredItems" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Class="admin-data-table">
+                <HeaderContent><MudTh>Name</MudTh><MudTh>Type</MudTh><MudTh Style="width:120px;">Action</MudTh></HeaderContent>
+                <RowTemplate Context="skill">
+                    <MudTd DataLabel="Name"><MudText Typo="Typo.subtitle2">@skill.Name</MudText></MudTd>
+                    <MudTd DataLabel="Type"><MudChip T="string" Color="@SkillTheme.GetColor(skill.SkillType)" Variant="Variant.Outlined">@skill.SkillType</MudChip></MudTd>
+                    <MudTd DataLabel="Action"><MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Color="Color.Primary" Size="Size.Small" Title="View skill details" AriaLabel="View skill details" OnClick="@(() => OpenDetailsAsync(skill))" /></MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    }
+</MudStack>
