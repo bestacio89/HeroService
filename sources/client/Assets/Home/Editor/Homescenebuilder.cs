@@ -227,6 +227,13 @@ public static class HomeSceneBuilder
     public static void ValidateHomeSceneSetup()
     {
         List<string> errors = new();
+
+        if (PlayerSettings.defaultScreenOrientation != UIOrientation.LandscapeLeft &&
+            PlayerSettings.defaultScreenOrientation != UIOrientation.LandscapeRight)
+        {
+            errors.Add("Player orientation must be landscape for the MOBA menu and gameplay layout.");
+        }
+
         Scene activeScene = SceneManager.GetActiveScene();
         if (activeScene.path != HomeScenePath)
         {
@@ -240,9 +247,14 @@ public static class HomeSceneBuilder
         }
         else
         {
-            if (canvasObject.GetComponent<CanvasScaler>() == null)
+            CanvasScaler canvasScaler = canvasObject.GetComponent<CanvasScaler>();
+            if (canvasScaler == null)
             {
                 errors.Add("CanvasScaler is missing.");
+            }
+            else if (canvasScaler.referenceResolution.x <= canvasScaler.referenceResolution.y)
+            {
+                errors.Add("CanvasScaler reference resolution must be landscape (width greater than height).");
             }
 
             if (canvasObject.GetComponent<ResponsiveCanvasScaler>() == null)
