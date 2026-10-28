@@ -47,20 +47,15 @@ public partial class SkillModifierList
 
     try
     {
-      Modifiers = await Client.GetActiveAsync();
+      var modifiersTask = Client.GetActiveAsync();
+      var skillsTask = SkillClient.GetAllAsync();
+      var versionTask = GameVersionClient.GetActiveAsync();
 
+      await Task.WhenAll(modifiersTask, skillsTask, versionTask);
 
-      var skills = await SkillClient.GetAllAsync();
-
-
-      SkillNames = skills.ToDictionary(
-          skill => skill.Id,
-          skill => skill.Name);
-
-
-      var version = await GameVersionClient.GetActiveAsync();
-
-
+      Modifiers = await modifiersTask;
+      SkillNames = (await skillsTask).ToDictionary(skill => skill.Id, skill => skill.Name);
+      var version = await versionTask;
       ActiveGameVersion = version?.VersionName ?? "-";
     }
     finally

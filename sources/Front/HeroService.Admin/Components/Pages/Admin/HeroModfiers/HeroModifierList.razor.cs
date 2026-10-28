@@ -48,21 +48,16 @@ public partial class HeroModifierList
 
     try
     {
-      Modifiers = await Client.GetActiveAsync();
+      var modifiersTask = Client.GetActiveAsync();
+      var heroesTask = HeroClient.BrowseAsync();
+      var versionTask = GameVersionClient.GetActiveAsync();
 
+      await Task.WhenAll(modifiersTask, heroesTask, versionTask);
 
-      var heroes = await HeroClient.BrowseAsync();
-
-
-      HeroNames = heroes.ToDictionary(
-          hero => hero.Id,
-          hero => hero.Name);
-
-
-      var version = await GameVersionClient.GetActiveAsync();
-
-
-      ActiveGameVersion = version.VersionName ?? "-";
+      Modifiers = await modifiersTask;
+      HeroNames = (await heroesTask).ToDictionary(hero => hero.Id, hero => hero.Name);
+      var version = await versionTask;
+      ActiveGameVersion = version?.VersionName ?? "-";
     }
     finally
     {

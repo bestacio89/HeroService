@@ -1,67 +1,113 @@
-﻿using HeroService.Admin.Components.Pages.Admin.Skills;
 using HeroService.Client.Http.Abstractions;
 using HeroService.Contracts.DTOs.Skills;
-using HeroService.Domain.Heroes.Skills;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using MudBlazor;
 
 namespace HeroService.Admin.Components.Pages.Admin.Skills;
 
 public sealed partial class Index : ComponentBase
 {
-  [Inject]
-  private ISkillClient Client { get; set; } = default!;
+  [Inject] private ISkillClient Client { get; set; } = default!;
+  [Inject] private NavigationManager Nav { get; set; } = default!;
+  [Inject] private IDialogService DialogService { get; set; } = default!;
+  [Inject] private ISnackbar Snackbar { get; set; } = default!;
+  [Inject] private ILogger<Index> Logger { get; set; } = default!;
 
+  private IReadOnlyList<SkillDto> Items { get; set; } = [];
+  private IReadOnlyList<SkillDto> FilteredItems { get; set; } = [];
+  private string? _search;
+  private bool Loading { get; set; } = true;
+  private string? ErrorMessage { get; set; }
+  private int _skillTypeCount;
 
-  [Inject]
-  private NavigationManager Nav { get; set; } = default!;
+  protected override Task OnInitializedAsync() => LoadAsync();
 
-
-  [Inject]
-  private IDialogService DialogService { get; set; } = default!;
-
-
-  [Inject]
-  private ISnackbar Snackbar { get; set; } = default!;
-
-
-  private IReadOnlyCollection<SkillDto> Items = [];
-
-
-  protected override async Task OnInitializedAsync()
+  private async Task LoadAsync()
   {
-    Items = await Client.GetAllAsync();
-  }
-
-
-  private void NavigateToCreate()
-  {
-    Nav.NavigateTo("/admin/skills/create");
-  }
-
-
-  private async Task OpenDetailsAsync(SkillDto skill)
-  {
-    var details = await Client.GetDetailsAsync(skill.Id);
-
-    if (details is null)
+    Loading = true;
+    ErrorMessage = null;
+    try
     {
-      Snackbar.Add(
-          "Skill details not found",
-          Severity.Error);
+      var result = await Client.GetAllAsync();
+      Items = result?.ToArray() ?? [];
+      _skillTypeCount = Items.Select(x => x.SkillType).Distinct().Count();
+      ApplyFilter();
+    }
+    catch (OperationCanceledException)
+    {
+      ErrorMessage = "The request was cancelled or timed out. Retry when the service is available.";
+    }
+    catch (HttpRequestException exception)
+    {
+      Logger.LogWarning(exception, "The HeroService API could not be reached while loading the skill library.");
+      ErrorMessage = "The HeroService API could not be reached. Check the service connection and try again.";
+    }
+    catch (Exception exception)
+    {
+      Logger.LogError(exception, "Unexpected failure while loading the skill library.");
+      ErrorMessage = "An unexpected error occurred while loading skills.";
+    }
+    finally
+    {
+      Loading = false;
+    }
+  }
 
+  private void OnSearchChanged(string? value)
+  {
+    _search = value;
+    ApplyFilter();
+  }
+
+  private void ApplyFilter()
+  {
+    if (string.IsNullOrWhiteSpace(_search))
+    {
+      FilteredItems = Items;
       return;
     }
 
+    FilteredItems = Items.Where(skill =>
+      (skill.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+      skill.SkillType.ToString().Contains(_search, StringComparison.OrdinalIgnoreCase)).ToArray();
+  }
 
-    var parameters = new DialogParameters<SkillDetailsDialog>
-        {
-            { x => x.Skill, details }
-        };
+  private void ClearSearch()
+  {
+    _search = null;
+    ApplyFilter();
+  }
 
+  private void NavigateToCreate() => Nav.NavigateTo("/admin/skills/create");
 
-    await DialogService.ShowAsync<SkillDetailsDialog>(
-        details.Name,
-        parameters);
+  private async Task OpenDetailsAsync(SkillDto skill)
+  {
+    try
+    {
+      var details = await Client.GetDetailsAsync(skill.Id);
+      if (details is null)
+      {
+        Snackbar.Add("Skill details were not found. The library may have changed.", Severity.Warning);
+        return;
+      }
+
+      var parameters = new DialogParameters<SkillDetailsDialog> { { x => x.Skill, details } };
+      await DialogService.ShowAsync<SkillDetailsDialog>(details.Name, parameters);
+    }
+    catch (OperationCanceledException)
+    {
+      Snackbar.Add("The request for skill details was cancelled or timed out. Try again.", Severity.Warning);
+    }
+    catch (HttpRequestException exception)
+    {
+      Logger.LogWarning(exception, "Unable to load details for skill {SkillId}.", skill.Id);
+      Snackbar.Add("Skill details could not be loaded. Check the service connection and try again.", Severity.Error);
+    }
+    catch (Exception exception)
+    {
+      Logger.LogError(exception, "Unexpected failure while loading details for skill {SkillId}.", skill.Id);
+      Snackbar.Add("An unexpected error occurred while loading skill details.", Severity.Error);
+    }
   }
 }

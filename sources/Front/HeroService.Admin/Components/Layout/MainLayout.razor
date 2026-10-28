@@ -8,40 +8,33 @@
 
 <MudLayout Class="app-shell">
     <MudAppBar Elevation="0" Dense="true" Class="app-topbar">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Inherit"
-                       Edge="Edge.Start"
-                       AriaLabel="Toggle navigation"
-                       OnClick="@ToggleDrawer" />
-        <MudText Typo="Typo.h6" Class="app-brand">
-            <span class="app-brand-mark">H</span>
-            HERO SERVICE
-        </MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" AriaLabel="Toggle navigation" OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6" Class="app-brand"><span class="app-brand-mark">H</span> HERO SERVICE</MudText>
         <MudSpacer />
-        <MudChip T="string" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small">
-            ADMIN CONSOLE
-        </MudChip>
+        <MudChip T="string" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" Class="app-environment-chip">ADMIN CONSOLE</MudChip>
     </MudAppBar>
 
-    <MudDrawer @bind-Open="_drawerOpen"
-               Variant="DrawerVariant.Responsive"
-               Breakpoint="Breakpoint.Md"
-               Elevation="0"
-               Class="app-navigation">
+    <MudDrawer @bind-Open="_drawerOpen" Variant="DrawerVariant.Responsive" Breakpoint="Breakpoint.Md" Elevation="0" Class="app-navigation">
         <div class="navigation-heading">
             <MudText Typo="Typo.overline">WORKSPACE</MudText>
             <MudText Typo="Typo.body2" Class="navigation-caption">Game data and balance</MudText>
         </div>
         <MudNavMenu Class="navigation-menu">
-            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
-                Overview
-            </MudNavLink>
-            <MudNavLink Href="/admin/heroes" Icon="@Icons.Material.Filled.Shield">
-                Heroes
-            </MudNavLink>
-            <MudNavLink Href="/admin/skills" Icon="@Icons.Material.Filled.AutoAwesome">
-                Skills
-            </MudNavLink>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Overview</MudNavLink>
+            <MudNavGroup Title="Core authoring" Icon="@Icons.Material.Filled.AutoAwesome" Expanded="true">
+                <MudNavLink Href="/admin/heroes" Icon="@Icons.Material.Filled.Shield">Heroes</MudNavLink>
+                <MudNavLink Href="/admin/skills" Icon="@Icons.Material.Filled.Bolt">Skills</MudNavLink>
+            </MudNavGroup>
+            <MudNavGroup Title="Balance" Icon="@Icons.Material.Filled.Tune">
+                <MudNavLink Href="/admin/hero-modifiers" Icon="@Icons.Material.Filled.Shield">Hero modifiers</MudNavLink>
+                <MudNavLink Href="/admin/skill-modifiers" Icon="@Icons.Material.Filled.Bolt">Skill modifiers</MudNavLink>
+            </MudNavGroup>
+            <MudNavGroup Title="World & classification" Icon="@Icons.Material.Filled.Public">
+                <MudNavLink Href="/admin/hero-classes" Icon="@Icons.Material.Filled.Category">Hero classes</MudNavLink>
+                <MudNavLink Href="/admin/mythology-types" Icon="@Icons.Material.Filled.AccountTree">Mythology types</MudNavLink>
+                <MudNavLink Href="/admin/origin-archetypes" Icon="@Icons.Material.Filled.Psychology">Origin archetypes</MudNavLink>
+                <MudNavLink Href="/admin/origin-cultures" Icon="@Icons.Material.Filled.Language">Origin cultures</MudNavLink>
+            </MudNavGroup>
         </MudNavMenu>
         <div class="navigation-footer">
             <MudDivider Class="mb-3" />
@@ -51,9 +44,7 @@
     </MudDrawer>
 
     <MudMainContent Class="app-main">
-        <MudContainer MaxWidth="MaxWidth.False" Class="app-content">
-            @Body
-        </MudContainer>
+        <MudContainer MaxWidth="MaxWidth.False" Class="app-content">@Body</MudContainer>
     </MudMainContent>
 </MudLayout>
 
@@ -65,6 +56,5 @@
 
 @code {
     private bool _drawerOpen = true;
-
     private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
 }

@@ -1,39 +1,23 @@
-﻿<LifecycleAdminPage TDto="OriginArchetypeDto"
+@page "/admin/origin-archetypes"
+@namespace HeroService.Admin.Components.Pages.Admin.OriginArchetypes
+
+<PageTitle>Origin Archetypes | HeroService</PageTitle>
+
+<LifecycleAdminPage TDto="OriginArchetypeDto"
                     Title="Origin Archetypes"
+                    Description="Manage foundational character patterns and origin classifications."
                     Items="Items"
                     IsLoading="IsLoading"
+                    OnRefresh="Load"
                     OnCreate="Create"
                     OnRename="Rename"
                     OnRetire="Retire">
-
     <HeaderContent>
-
         <MudTh>Name</MudTh>
-
-        <MudTh>
-            Status
-        </MudTh>
-
+        <MudTh>Status</MudTh>
     </HeaderContent>
-
-
     <RowTemplate Context="item">
-
-        <MudTd>
-            @item.Name
-        </MudTd>
-
-
-        <MudTd>
-
-            <MudChip T="string"
-                     Color="Color.Success"
-                     Size="Size.Small">
-                Active
-            </MudChip>
-
-        </MudTd>
-
+        <MudTd DataLabel="Name">@item.Name</MudTd>
+        <MudTd DataLabel="Status"><MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Outlined">Active</MudChip></MudTd>
     </RowTemplate>
-
 </LifecycleAdminPage>

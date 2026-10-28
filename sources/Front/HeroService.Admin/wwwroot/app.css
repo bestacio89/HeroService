@@ -321,3 +321,28 @@ button:focus-visible {
         animation-iteration-count: 1 !important;
     }
 }
+
+/* Shared admin page, data-table, and dialog conventions. */
+.admin-panel { border:1px solid var(--app-border); border-radius:var(--app-radius); background:linear-gradient(155deg,rgba(23,31,45,.96),rgba(18,24,38,.96)); }
+.admin-page-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1.25rem; flex-wrap:wrap; }
+.admin-page-heading-copy { display:grid; gap:.2rem; }
+.admin-page-actions { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:.65rem; }
+.admin-list-summary { display:flex; justify-content:flex-end; padding-block:1rem .6rem; }
+.admin-loading-state { display:grid; gap:.75rem; padding-top:.5rem; }
+.table-actions { display:inline-flex; align-items:center; gap:.15rem; }
+.app-content .mud-paper:not(.mud-alert):not(.mud-dialog-content) { border-radius:var(--app-radius); }
+.app-content .mud-paper:not(.mud-alert):not(.mud-dialog-content):not(.mud-snackbar) { border-color:var(--app-border); }
+.app-content .mud-table-container { overflow-x:auto; border:1px solid var(--app-border); border-radius:12px; background:rgba(11,15,20,.22); }
+.mud-table-root .mud-table-head { background:rgba(212,175,55,.055); }
+.mud-table-root .mud-table-head .mud-table-cell { color:var(--app-muted); font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+.mud-table-root .mud-table-body .mud-table-row { transition:background-color 120ms ease; }
+.mud-table-root .mud-table-body .mud-table-row:hover { background:rgba(212,175,55,.055); }
+.mud-table-root .mud-table-cell { padding:.8rem 1rem; border-bottom-color:rgba(212,175,55,.09); }
+.mud-divider { border-color:var(--app-border)!important; }
+.mud-alert,.mud-dialog { border-radius:12px; }
+.mud-dialog { border:1px solid var(--app-border); }
+.mud-dialog-title { border-bottom:1px solid var(--app-border); }
+.mud-dialog-actions { border-top:1px solid var(--app-border); }
+.mud-icon-button { border-radius:9px; }
+@media(max-width:600px) { .admin-page-heading { align-items:stretch; } .admin-page-actions { justify-content:stretch; } .admin-page-actions>* { max-width:100%; } .app-environment-chip { display:none; } }
+@media(prefers-reduced-motion:reduce) { .workspace-card:hover { transform:none; } }
