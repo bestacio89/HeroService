@@ -103,7 +103,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         layout.childForceExpandWidth = true;
         layout.childForceExpandHeight = false;
 
-        TMP_Text heading = AddLabel(panel.transform, "SETTINGS", 42, 84, FontStyles.Bold);
+        TMP_Text heading = AddLabel(panel.transform, "SETTINGS", 48, 84, FontStyles.Bold);
         heading.gameObject.AddComponent<LayoutElement>().preferredHeight = 84f;
 
         GameObject body = CreateRect("SettingsBody", panel.transform);
@@ -197,7 +197,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         layout.childControlHeight = false;
         layout.childForceExpandWidth = true;
         layout.childForceExpandHeight = false;
-        AddLabel(section.transform, title, 28, 44, FontStyles.Bold);
+        AddLabel(section.transform, title, 32, 48, FontStyles.Bold);
         return section;
     }
 
@@ -205,7 +205,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
     {
         GameObject row = CreateRect(title + "Row", parent);
         RectTransform rowRect = row.GetComponent<RectTransform>();
-        rowRect.sizeDelta = new Vector2(0f, 84f);
+        rowRect.sizeDelta = new Vector2(0f, 96f);
         HorizontalLayoutGroup layout = row.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = 12;
         layout.childAlignment = TextAnchor.MiddleLeft;
@@ -214,12 +214,12 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         layout.childForceExpandWidth = false;
         layout.childForceExpandHeight = true;
 
-        AddLabel(row.transform, title, 26, 84, FontStyles.Normal).gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
+        AddLabel(row.transform, title, 34, 96, FontStyles.Normal).gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
         slider = CreateSlider(row.transform, "ValueSlider");
         LayoutElement sliderLayout = slider.gameObject.AddComponent<LayoutElement>();
         sliderLayout.preferredWidth = 260f;
         sliderLayout.flexibleWidth = 1f;
-        valueText = AddLabel(row.transform, "100%", 26, 84, FontStyles.Bold);
+        valueText = AddLabel(row.transform, "100%", 32, 96, FontStyles.Bold);
         valueText.gameObject.AddComponent<LayoutElement>().preferredWidth = 72f;
     }
 
@@ -242,7 +242,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         out Button actionButton)
     {
         GameObject row = CreateRect(title + "Row", parent);
-        row.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 84f);
+        row.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 96f);
         HorizontalLayoutGroup layout = row.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = 12;
         layout.childAlignment = TextAnchor.MiddleLeft;
@@ -252,11 +252,11 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         layout.childForceExpandHeight = true;
 
         AddLabel(row.transform, title, 26, 84, FontStyles.Normal).gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
-        AddButton(row.transform, "‹", previous, 80);
-        valueText = AddLabel(row.transform, string.Empty, 26, 84, FontStyles.Bold);
+        AddButton(row.transform, "‹", previous, 88);
+        valueText = AddLabel(row.transform, string.Empty, 32, 96, FontStyles.Bold);
         valueText.alignment = TextAlignmentOptions.Center;
         valueText.gameObject.AddComponent<LayoutElement>().preferredWidth = 150f;
-        actionButton = AddButton(row.transform, "›", next, 80);
+        actionButton = AddButton(row.transform, "›", next, 88);
     }
 
     private Slider CreateSlider(Transform parent, string name)
@@ -288,7 +288,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         RectTransform handleRect = handle.GetComponent<RectTransform>();
         handleRect.anchorMin = new Vector2(0f, 0.5f);
         handleRect.anchorMax = new Vector2(0f, 0.5f);
-        handleRect.sizeDelta = new Vector2(44f, 44f);
+        handleRect.sizeDelta = new Vector2(56f, 56f);
         Image handleImage = handle.AddComponent<Image>();
         handleImage.color = Color.white;
 
@@ -415,7 +415,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         valueText = AddLabel(row.transform, string.Empty, 26, 84, FontStyles.Bold);
         valueText.alignment = TextAlignmentOptions.Center;
         valueText.gameObject.AddComponent<LayoutElement>().preferredWidth = 100f;
-        AddButton(row.transform, "Toggle", toggle, 80);
+        AddButton(row.transform, "Toggle", toggle, 88);
     }
 
     private void Open()
