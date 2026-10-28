@@ -28,7 +28,9 @@ public sealed class ClientSettingsService : MonoBehaviour
     private int defaultScreenWidth;
     private int defaultScreenHeight;
 
-    public string ResolutionName => Screen.width + " × " + Screen.height;
+    public string ResolutionName =>
+        PlayerPrefs.GetInt(ResolutionWidthKey, Screen.width) + " × " +
+        PlayerPrefs.GetInt(ResolutionHeightKey, Screen.height);
 
     public string QualityName
     {
