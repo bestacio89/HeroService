@@ -1,4 +1,5 @@
 ﻿using HeroService.Domain.Heroes.Skills;
+using MudBlazor;
 
 namespace HeroService.Admin.Components.Pages.Admin.Skills;
 
@@ -8,6 +9,21 @@ namespace HeroService.Admin.Components.Pages.Admin.Skills;
 /// </summary>
 public static class SkillTheme
 {
+  // Retained for existing MudBlazor call sites; the skill library uses the
+  // high-contrast palette below to distinguish every category.
+  public static Color GetColor(SkillType type) => type switch
+  {
+    SkillType.Damage => Color.Error,
+    SkillType.Heal => Color.Success,
+    SkillType.Shield => Color.Info,
+    SkillType.Mobility => Color.Secondary,
+    SkillType.Control => Color.Warning,
+    SkillType.Buff => Color.Primary,
+    SkillType.Debuff => Color.Tertiary,
+    SkillType.Ultimate => Color.Error,
+    _ => Color.Default
+  };
+
   public static string GetAccent(SkillType type) => type switch
   {
     SkillType.Damage => "#FF6B6B",
