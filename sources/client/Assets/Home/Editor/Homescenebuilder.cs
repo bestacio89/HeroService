@@ -61,11 +61,25 @@ public static class HomeSceneBuilder
         GetOrAddComponent<ResponsiveCanvasScaler>(canvasGo);
         GetOrAddComponent<GraphicRaycaster>(canvasGo);
 
-        if (Object.FindObjectOfType<EventSystem>() == null)
+        EventSystem eventSystem = Object.FindObjectOfType<EventSystem>();
+        if (eventSystem == null)
         {
-            GameObject esGo = new GameObject("EventSystem");
-            esGo.AddComponent<EventSystem>();
-            esGo.AddComponent<StandaloneInputModule>();
+            GameObject eventSystemGo = new GameObject("EventSystem");
+            eventSystem = eventSystemGo.AddComponent<EventSystem>();
+        }
+
+        UnityEngine.InputSystem.UI.InputSystemUIInputModule inputModule =
+            eventSystem.GetComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+        if (inputModule == null)
+        {
+            inputModule = eventSystem.gameObject.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+            inputModule.AssignDefaultActions();
+        }
+
+        StandaloneInputModule legacyInputModule = eventSystem.GetComponent<StandaloneInputModule>();
+        if (legacyInputModule != null)
+        {
+            Object.DestroyImmediate(legacyInputModule);
         }
 
         // 3. MainMenuSceneLoader + overlay de chargement
