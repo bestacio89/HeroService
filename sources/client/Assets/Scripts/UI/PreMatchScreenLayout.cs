@@ -240,7 +240,6 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
 
         scrollRect.viewport = viewportRect;
         scrollRect.content = listRect;
-        scrollView.SetAsLastSibling();
         scrollView.SetSiblingIndex(1);
 
         confirmTransform.SetParent(safeArea, false);
@@ -397,11 +396,4 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         return component != null ? component : target.AddComponent<T>();
     }
 
-    private static void SetStretch(RectTransform rect)
-    {
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
-    }
 }
