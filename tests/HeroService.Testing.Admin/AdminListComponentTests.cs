@@ -119,6 +119,7 @@ public sealed class AdminListComponentTests
   private static TestContext CreateContext()
   {
     var context = new TestContext();
+    context.JSInterop.Mode = JSRuntimeMode.Loose;
     context.Services.AddMudServices();
     context.Services.AddLogging();
     return context;
