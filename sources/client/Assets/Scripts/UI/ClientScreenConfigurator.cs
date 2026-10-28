@@ -4,9 +4,8 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Applies shared mobile display behavior to every loaded client scene.
-/// The named roots are the stable UI roots in Prototype_Map; the hero list
-/// content is inset, while edge HUD elements are offset
-/// without changing their authored size or anchor positions.
+/// PreMatchScreenLayout owns selection-panel composition; this component
+/// handles canvas scaling and safe-area offsets for edge-anchored HUD elements.
 /// </summary>
 public static class ClientScreenConfigurator
 {
