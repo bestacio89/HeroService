@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -30,6 +31,7 @@ public class HeroCollectionPresenter : MonoBehaviour
     [Header("Filters")]
     [SerializeField] private Transform filterChipContainer;
     [SerializeField] private PantheonFilterChipView filterChipPrefab;
+    [SerializeField] private TMP_Text catalogStatusText;
 
     private readonly List<HeroCollectionItemView> spawnedItems = new();
     private readonly List<PantheonFilterChipView> spawnedChips = new();
@@ -45,11 +47,17 @@ public class HeroCollectionPresenter : MonoBehaviour
             return;
         }
 
+        heroCatalogService.OnCatalogLoadStarted += HandleCatalogLoadStarted;
         heroCatalogService.OnCatalogLoaded += HandleCatalogLoaded;
+        heroCatalogService.OnCatalogLoadFailed += HandleCatalogLoadFailed;
 
         if (heroCatalogService.HasLoaded)
         {
             HandleCatalogLoaded(heroCatalogService.CachedHeroes.ToArray());
+        }
+        else
+        {
+            SetCatalogStatus("Loading heroes…", true);
         }
     }
 
@@ -57,8 +65,15 @@ public class HeroCollectionPresenter : MonoBehaviour
     {
         if (heroCatalogService != null)
         {
+            heroCatalogService.OnCatalogLoadStarted -= HandleCatalogLoadStarted;
             heroCatalogService.OnCatalogLoaded -= HandleCatalogLoaded;
+            heroCatalogService.OnCatalogLoadFailed -= HandleCatalogLoadFailed;
         }
+    }
+
+    private void HandleCatalogLoadStarted()
+    {
+        SetCatalogStatus("Loading heroes…", true);
     }
 
     private void HandleCatalogLoaded(HeroListItemDto[] heroes)
@@ -68,6 +83,27 @@ public class HeroCollectionPresenter : MonoBehaviour
 
         BuildFilterChips();
         BuildHeroGrid();
+    }
+
+    private void HandleCatalogLoadFailed(string error)
+    {
+        allHeroes = System.Array.Empty<HeroListItemDto>();
+        activeFilter = AllFilterValue;
+        BuildFilterChips();
+        BuildHeroGrid();
+        SetCatalogStatus("Heroes are unavailable. Check your connection and try again.", true);
+        Debug.LogWarning($"[HeroCollectionPresenter] Hero catalogue load failed: {error}");
+    }
+
+    private void SetCatalogStatus(string message, bool visible)
+    {
+        if (catalogStatusText == null)
+        {
+            return;
+        }
+
+        catalogStatusText.text = message ?? string.Empty;
+        catalogStatusText.gameObject.SetActive(visible);
     }
 
     private void BuildFilterChips()
@@ -119,6 +155,7 @@ public class HeroCollectionPresenter : MonoBehaviour
 
         if (heroItemPrefab == null || heroGridContainer == null)
         {
+            SetCatalogStatus("Hero collection is not configured.", true);
             return;
         }
 
@@ -126,12 +163,26 @@ public class HeroCollectionPresenter : MonoBehaviour
             ? allHeroes
             : allHeroes.Where(h => h.affiliation != null && h.affiliation.mythologyName == activeFilter);
 
+        int renderedCount = 0;
         foreach (HeroListItemDto hero in filtered)
         {
             HeroCollectionItemView item = Instantiate(heroItemPrefab, heroGridContainer);
             Sprite portrait = portraitLibrary != null ? portraitLibrary.GetPortrait(hero.id) : null;
             item.Setup(hero, portrait, OnHeroClicked);
             spawnedItems.Add(item);
+            renderedCount++;
+        }
+
+        if (renderedCount == 0)
+        {
+            string message = allHeroes.Length == 0
+                ? "No heroes are available yet."
+                : "No heroes match this pantheon.";
+            SetCatalogStatus(message, true);
+        }
+        else
+        {
+            SetCatalogStatus(string.Empty, false);
         }
     }
 
