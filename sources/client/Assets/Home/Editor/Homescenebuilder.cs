@@ -394,9 +394,19 @@ public static class HomeSceneBuilder
         GameObject iconGo = FindOrCreateUIChild(go.transform, "Icon");
         SetAnchors(iconGo.GetComponent<RectTransform>(), new Vector2(0.3f, 0.45f), new Vector2(0.7f, 0.9f));
         Image icon = GetOrAddComponent<Image>(iconGo);
-        icon.color = new Color(1f, 1f, 1f, 0.6f);
+        icon.enabled = false;
 
-        TextMeshProUGUI labelText = AddTMPTextChild(go.transform, "Label", label, 16, TextAlignmentOptions.Center, new Vector2(0f, 0.05f), new Vector2(1f, 0.35f));
+        TextMeshProUGUI iconGlyphText = AddTMPTextChild(
+            go.transform,
+            "IconGlyph",
+            GetTabGlyph(tab),
+            26,
+            TextAlignmentOptions.Center,
+            new Vector2(0.25f, 0.42f),
+            new Vector2(0.75f, 0.9f));
+
+        TextMeshProUGUI labelText = AddTMPTextChild(go.transform, "Label", label, 16, TextAlignmentOptions.Center, new Vector2(0f, 0.04f), new Vector2(1f, 0.34f));
+        labelText.fontStyle = FontStyles.Bold;
 
         GameObject indicatorGo = FindOrCreateUIChild(go.transform, "SelectedIndicator");
         SetAnchors(indicatorGo.GetComponent<RectTransform>(), new Vector2(0.3f, 0f), new Vector2(0.7f, 0.05f));
@@ -407,6 +417,7 @@ public static class HomeSceneBuilder
         NavTabButtonView view = GetOrAddComponent<NavTabButtonView>(go);
         SetEnumField(view, "tab", (int)tab);
         SetPrivateField(view, "iconImage", icon);
+        SetPrivateField(view, "iconGlyphText", iconGlyphText);
         SetPrivateField(view, "labelText", labelText);
         SetPrivateField(view, "selectedIndicator", indicatorGo);
         SetPrivateField(view, "button", button);
@@ -628,6 +639,18 @@ public static class HomeSceneBuilder
     // =================================================================
     // Generic helpers
     // =================================================================
+
+    private static string GetTabGlyph(HomeTabType tab)
+    {
+        return tab switch
+        {
+            HomeTabType.Home => "H",
+            HomeTabType.Heroes => "✦",
+            HomeTabType.Shop => "$",
+            HomeTabType.Profile => "P",
+            _ => "•"
+        };
+    }
 
     private static void ApplyPanelBackground(GameObject panel)
     {
