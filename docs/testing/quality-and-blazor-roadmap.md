@@ -17,6 +17,7 @@ This plan is an implementation checklist, not a claim that the work is already c
 - [ ] Consumer tests exercise actual message-processing semantics. Acknowledgement, retry, idempotency and dead-letter behavior are asserted only where the configured implementation provides them.
 - [ ] Architecture tests enforce dependency direction, project boundaries, and Franz.Common lifetime/registration conventions without duplicating rule definitions across test and report projects.
 - [ ] Blazor pages have explicit loading, error, empty, success and in-progress states; interactions are keyboard-accessible and responsive.
+- [x] Add focused bUnit coverage for Admin list rendering, search filtering, recoverable API failures and retry behavior.
 - [ ] Critical browser journeys have end-to-end coverage, and UI performance claims are backed by measurements rather than assumptions.
 - [x] CI runs unit/architecture and container-backed suites separately and publishes TRX results. Container-backed tests are not silently skipped when Docker or required services are unavailable.
 - [ ] The pull request contains a clear summary, implementation details, test evidence, known limitations and release notes. It is squash-merged only after required checks pass.
@@ -44,6 +45,7 @@ Existing test projects in the solution:
 - `tests/HeroService.Testing.Domain`: tests for GameVersion lifecycle and stat/modifier boundary invariants.
 - `tests/HeroService.Testing.Application`: tests for SnapshotResolver active-version and modifier-version preconditions.
 - `tests/HeroService.Testing.Persistence.Integration`: PostgreSQL Testcontainers schema/persistence smoke test.
+- `tests/HeroService.Testing.Admin`: bUnit regression tests for Skills rendering, Hero Classes search filtering, and Mythology Types failure/retry behavior.
 - `tests/HeroService.Testing.API.Integration`: real API host tests with PostgreSQL and Redis Testcontainers.
 
 The obsolete `HeroService.Consumer.Tests` scaffold has been removed and replaced with `tests/HeroService.Testing.Consumer`, which is included in `HeroService.slnx` and references the current Consumer project. Initial processor tests cover malformed JSON propagation, JSON-null handling, and the explicit warning emitted when a payload is deserialized but not applied. A PostgreSQL + Redis Testcontainers test verifies Consumer persistence registration, provider selection, migrations, and connectivity. Broker integration remains intentionally pending because the production processor currently has no persistence or business side effect, and its acknowledgement/retry contract has not been established.
@@ -85,7 +87,8 @@ The obsolete `HeroService.Consumer.Tests` scaffold has been removed and replaced
 ### Phase 5 — Architecture and Blazor quality
 
 - Consolidate architecture invariants and remove report/test rule duplication.
-- Add bUnit tests for loading, empty, error, form validation, dialog and notification behavior.
+- [x] Add initial bUnit tests for list rendering, search filtering, recoverable API errors and retry behavior.
+- [ ] Expand bUnit coverage to loading states, form validation, dialog workflows, notifications, modifier lists and shared lifecycle components.
 - Add Playwright coverage for core admin journeys.
 - Measure rendering and request behavior before introducing virtualization, caching or state-management abstractions.
 
