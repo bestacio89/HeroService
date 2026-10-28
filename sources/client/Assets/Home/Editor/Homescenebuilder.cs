@@ -495,9 +495,11 @@ public static class HomeSceneBuilder
             TextAlignmentOptions.Center,
             new Vector2(0.1f, 0.38f),
             new Vector2(0.9f, 0.56f));
+        catalogStatusText.raycastTarget = false;
         catalogStatusText.gameObject.SetActive(true);
 
         Transform gridContent = CreateVerticalScrollView(panel.transform, "HeroGridScroll", new Vector2(0f, 0f), new Vector2(1f, 0.88f), out _);
+        catalogStatusText.transform.SetAsLastSibling();
         GridLayoutGroup grid = GetOrAddComponent<GridLayoutGroup>(gridContent.gameObject);
         grid.cellSize = new Vector2(320, 400);
         grid.spacing = new Vector2(12, 12);
