@@ -66,11 +66,13 @@ public sealed class KafkaMessageListenerBrokerTests
     var payload = new Message("must-be-redelivered");
     await ProduceMessageAsync(kafka, topic, payload);
 
+    using var deadLetterProducer = BuildDeadLetterProducer(kafka);
     var listener = CreateListener(kafka, topic, groupId, new KafkaFailureOptions
     {
       EnableDeadLetter = false,
-      MaxRetryAttempts = 0
-    });
+      MaxRetryAttempts = 0,
+      RetryBackoffMs = 0
+    }, deadLetterProducer);
     listener.OnMessageReceivedAsync = _ => Task.FromException(new InvalidOperationException("Expected test failure."));
 
     var failure = await Record.ExceptionAsync(() => listener.Listen().WaitAsync(TimeSpan.FromSeconds(20)));
@@ -97,13 +99,7 @@ public sealed class KafkaMessageListenerBrokerTests
     var groupId = $"hero-dlt-{Guid.NewGuid():N}";
     await ProduceMessageAsync(kafka, topic, new Message("poison"));
 
-    using var producer = new ProducerBuilder<string, byte[]>(new ProducerConfig
-    {
-      BootstrapServers = kafka.GetBootstrapAddress(),
-      Acks = Acks.All,
-      EnableIdempotence = true
-    }).Build();
-
+    using var producer = BuildDeadLetterProducer(kafka);
     var listener = CreateListener(
         kafka,
         topic,
@@ -188,6 +184,14 @@ public sealed class KafkaMessageListenerBrokerTests
       Value = new JsonMessageSerializer().Serialize(message)
     });
   }
+
+  private static IProducer<string, byte[]> BuildDeadLetterProducer(KafkaContainer kafka)
+    => new ProducerBuilder<string, byte[]>(new ProducerConfig
+    {
+      BootstrapServers = kafka.GetBootstrapAddress(),
+      Acks = Acks.All,
+      EnableIdempotence = true
+    }).Build();
 
   private static KafkaMessageListener CreateListener(
       KafkaContainer kafka,
