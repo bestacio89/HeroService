@@ -22,6 +22,7 @@ public sealed class ClientSettingsPanel : MonoBehaviour
     private TMP_Text frameRateValue;
     private TMP_Text resolutionValue;
     private TMP_Text fullscreenValue;
+    private TMP_Text interfaceScaleValue;
     private Slider masterVolumeSlider;
 
     private void Awake()
@@ -167,6 +168,11 @@ public sealed class ClientSettingsPanel : MonoBehaviour
             CreateToggleRow(displaySection.transform, "Fullscreen", out fullscreenValue,
                 () => settingsService?.ToggleFullscreen());
         }
+
+        GameObject accessibilitySection = CreateSection(bodyContent.transform, "ACCESSIBILITY");
+        CreateActionRow(accessibilitySection.transform, "Interface scale", out interfaceScaleValue,
+            () => settingsService?.CycleInterfaceScale(-1),
+            () => settingsService?.CycleInterfaceScale(1));
 
         GameObject footer = CreateRect("Footer", panel.transform);
         HorizontalLayoutGroup footerLayout = footer.AddComponent<HorizontalLayoutGroup>();
@@ -380,6 +386,11 @@ public sealed class ClientSettingsPanel : MonoBehaviour
         if (fullscreenValue != null)
         {
             fullscreenValue.text = settingsService.Fullscreen ? "On" : "Off";
+        }
+
+        if (interfaceScaleValue != null)
+        {
+            interfaceScaleValue.text = settingsService.InterfaceScaleName;
         }
     }
 
