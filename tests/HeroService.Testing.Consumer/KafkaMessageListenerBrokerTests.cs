@@ -16,6 +16,7 @@ namespace HeroService.Testing.Consumer;
 /// These tests intentionally use unique topics and consumer groups so broker state
 /// cannot leak between test cases.
 /// </summary>
+[Trait("Category", "Integration")]
 public sealed class KafkaMessageListenerBrokerTests
 {
   [Fact]
