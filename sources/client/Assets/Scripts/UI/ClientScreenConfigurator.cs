@@ -4,8 +4,8 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Applies shared mobile display behavior to every loaded client scene.
-/// The named roots are the stable UI roots in Prototype_Map; full-screen
-/// selection panels use safe-area anchors, while edge HUD elements are offset
+/// The named roots are the stable UI roots in Prototype_Map; the hero list
+/// content is inset, while edge HUD elements are offset
 /// without changing their authored size or anchor positions.
 /// </summary>
 public static class ClientScreenConfigurator
