@@ -70,6 +70,8 @@ public sealed class ClientSettingsService : MonoBehaviour
 
         QualityLevel = (QualityLevel + Math.Sign(direction) + count) % count;
         QualitySettings.SetQualityLevel(QualityLevel, true);
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = TargetFrameRate;
         PlayerPrefs.SetInt(QualityLevelKey, QualityLevel);
         SaveAndNotify();
     }
