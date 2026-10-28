@@ -49,6 +49,13 @@ public class ProfilePanelPresenter : MonoBehaviour
     {
         if (profile == null)
         {
+            if (playerNameText != null) playerNameText.text = "Profile unavailable";
+            if (playerIdText != null) playerIdText.text = "Connection required";
+            if (playerLevelText != null) playerLevelText.text = "—";
+            if (xpBar != null) xpBar.value = 0f;
+            if (xpLabelText != null) xpLabelText.text = "Progress unavailable";
+            if (softCurrencyText != null) softCurrencyText.text = "—";
+            if (hardCurrencyText != null) hardCurrencyText.text = "—";
             return;
         }
 
@@ -59,7 +66,7 @@ public class ProfilePanelPresenter : MonoBehaviour
 
         if (playerIdText != null)
         {
-            playerIdText.text = profile.HasBackendData ? profile.PlayerId : "Offline profile";
+            playerIdText.text = profile.HasBackendData ? profile.PlayerId : "Offline demo profile";
         }
 
         if (playerLevelText != null)
