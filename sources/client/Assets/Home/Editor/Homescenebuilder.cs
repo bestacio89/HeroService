@@ -661,6 +661,8 @@ public static class HomeSceneBuilder
                 SetPrefabTextSize(prefabContents.transform, "HeroName", 30);
                 SetPrefabTextSize(prefabContents.transform, "HeroClass", 24);
                 SetPrefabTextSize(prefabContents.transform, "PantheonTag", 20);
+                SetPrefabTextColor(prefabContents.transform, "HeroClass", MutedTextColor);
+                SetPrefabTextColor(prefabContents.transform, "PantheonTag", AccentColor);
                 PrefabUtility.SaveAsPrefabAsset(prefabContents, path);
             }
             finally
@@ -674,7 +676,7 @@ public static class HomeSceneBuilder
         EnsureFolder("Assets/Home/Prefabs");
 
         GameObject root = new GameObject("HeroCollectionItem", typeof(RectTransform));
-        root.GetComponent<RectTransform>().sizeDelta = new Vector2(220, 280);
+        root.GetComponent<RectTransform>().sizeDelta = new Vector2(320, 400);
 
         Image bg = root.AddComponent<Image>();
         bg.color = SurfaceColor;
@@ -687,9 +689,9 @@ public static class HomeSceneBuilder
 
         TextMeshProUGUI nameText = CreateTMPRaw(root.transform, "HeroName", "Hero Name", 30, TextAlignmentOptions.Center, new Vector2(0f, 0.22f), new Vector2(1f, 0.34f));
         TextMeshProUGUI classText = CreateTMPRaw(root.transform, "HeroClass", "Class", 24, TextAlignmentOptions.Center, new Vector2(0f, 0.12f), new Vector2(1f, 0.22f));
-        classText.color = new Color(1f, 1f, 1f, 0.75f);
+        classText.color = MutedTextColor;
         TextMeshProUGUI pantheonText = CreateTMPRaw(root.transform, "PantheonTag", "Pantheon", 20, TextAlignmentOptions.Center, new Vector2(0f, 0.02f), new Vector2(1f, 0.12f));
-        pantheonText.color = new Color(0.6f, 0.8f, 1f, 1f);
+        pantheonText.color = AccentColor;
 
         HeroCollectionItemView view = root.AddComponent<HeroCollectionItemView>();
         SetPrivateField(view, "portraitImage", portraitImage);
@@ -748,7 +750,7 @@ public static class HomeSceneBuilder
         EnsureFolder("Assets/Home/Prefabs");
 
         GameObject root = new GameObject("PantheonFilterChip", typeof(RectTransform));
-        root.GetComponent<RectTransform>().sizeDelta = new Vector2(110, 40);
+        root.GetComponent<RectTransform>().sizeDelta = new Vector2(170, 88);
 
         Image bg = root.AddComponent<Image>();
         bg.color = new Color(1f, 1f, 1f, 0.05f);
@@ -924,6 +926,16 @@ public static class HomeSceneBuilder
         if (text != null)
         {
             text.fontSize = fontSize;
+        }
+    }
+
+    private static void SetPrefabTextColor(Transform root, string childName, Color color)
+    {
+        Transform child = root.Find(childName);
+        TMP_Text text = child != null ? child.GetComponent<TMP_Text>() : null;
+        if (text != null)
+        {
+            text.color = color;
         }
     }
 
