@@ -20,7 +20,7 @@ public class NavTabButtonView : MonoBehaviour
     [SerializeField] private Button button;
 
     [Header("Icon Tint")]
-    [SerializeField] private Color selectedColor = Color.white;
+    [SerializeField] private Color selectedColor = new Color(0.84f, 0.68f, 0.36f, 1f);
     [SerializeField] private Color unselectedColor = new Color(1f, 1f, 1f, 0.6f);
 
     private Action<HomeTabType> onClick;
