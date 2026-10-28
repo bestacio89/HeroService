@@ -32,9 +32,24 @@ public sealed class ClientSettingsService : MonoBehaviour
     private int defaultScreenWidth;
     private int defaultScreenHeight;
 
-    public string ResolutionName =>
-        PlayerPrefs.GetInt(ResolutionWidthKey, defaultScreenWidth > 0 ? defaultScreenWidth : Screen.width) + " × " +
-        PlayerPrefs.GetInt(ResolutionHeightKey, defaultScreenHeight > 0 ? defaultScreenHeight : Screen.height);
+    public string ResolutionName
+    {
+        get
+        {
+            int width = Application.isMobilePlatform
+                ? Screen.width
+                : PlayerPrefs.GetInt(
+                    ResolutionWidthKey,
+                    defaultScreenWidth > 0 ? defaultScreenWidth : Screen.width);
+            int height = Application.isMobilePlatform
+                ? Screen.height
+                : PlayerPrefs.GetInt(
+                    ResolutionHeightKey,
+                    defaultScreenHeight > 0 ? defaultScreenHeight : Screen.height);
+
+            return width + " × " + height;
+        }
+    }
 
     public string QualityName
     {
@@ -278,6 +293,14 @@ public sealed class ClientSettingsService : MonoBehaviour
                 unique.Add(candidate);
             }
         }
+
+        unique.Sort((left, right) =>
+        {
+            int widthComparison = left.width.CompareTo(right.width);
+            return widthComparison != 0
+                ? widthComparison
+                : left.height.CompareTo(right.height);
+        });
 
         return unique.ToArray();
     }
