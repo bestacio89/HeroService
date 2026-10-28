@@ -76,7 +76,7 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         layout.childForceExpandWidth = true;
         layout.childForceExpandHeight = false;
 
-        TMP_Text title = EnsureText(column, "ModeSelectionTitle", "CHOOSE YOUR MODE", 54);
+        TMP_Text title = EnsureText(column, "ModeSelectionTitle", "CHOOSE YOUR MODE", 56);
         title.color = AccentColor;
         title.fontStyle = FontStyles.Bold;
         title.alignment = TextAlignmentOptions.Center;
@@ -84,7 +84,7 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         SetLayoutHeight(title.gameObject, 100f);
         title.transform.SetSiblingIndex(0);
 
-        TMP_Text subtitle = EnsureText(column, "ModeSelectionSubtitle", "Select your battlefield", 28);
+        TMP_Text subtitle = EnsureText(column, "ModeSelectionSubtitle", "Select your battlefield", 32);
         subtitle.color = MutedTextColor;
         subtitle.alignment = TextAlignmentOptions.Center;
         subtitle.enableWordWrapping = false;
@@ -133,7 +133,7 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         }
 
         labelText.text = label;
-        labelText.fontSize = 36f;
+        labelText.fontSize = 40f;
         labelText.fontStyle = FontStyles.Bold;
         labelText.alignment = TextAlignmentOptions.Center;
         labelText.color = Color.white;
@@ -170,7 +170,7 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         if (title != null)
         {
             title.text = "CHOOSE YOUR HERO";
-            title.fontSize = 52f;
+            title.fontSize = 56f;
             title.fontStyle = FontStyles.Bold;
             title.color = AccentColor;
             title.alignment = TextAlignmentOptions.Center;
@@ -265,7 +265,7 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         if (confirmLabel != null)
         {
             confirmLabel.text = "LOCK IN";
-            confirmLabel.fontSize = 36f;
+            confirmLabel.fontSize = 40f;
             confirmLabel.fontStyle = FontStyles.Bold;
             confirmLabel.color = BackgroundColor;
             confirmLabel.alignment = TextAlignmentOptions.Center;
