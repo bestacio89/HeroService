@@ -15,8 +15,10 @@ public sealed class ClientSettingsService : MonoBehaviour
     private const string FullscreenKey = "client.settings.fullscreen";
     private const string ResolutionWidthKey = "client.settings.resolutionWidth";
     private const string ResolutionHeightKey = "client.settings.resolutionHeight";
+    private const string InterfaceScaleKey = "client.settings.interfaceScale";
 
     private static readonly int[] SupportedFrameRates = { 30, 60, 90, 120 };
+    private static readonly float[] SupportedInterfaceScales = { 0.9f, 1f, 1.1f, 1.2f };
 
     public event Action OnSettingsChanged;
 
@@ -24,6 +26,8 @@ public sealed class ClientSettingsService : MonoBehaviour
     public int QualityLevel { get; private set; }
     public int TargetFrameRate { get; private set; }
     public bool Fullscreen { get; private set; }
+    public float InterfaceScale { get; private set; } = 1f;
+    public string InterfaceScaleName => Mathf.RoundToInt(InterfaceScale * 100f) + "%";
 
     private int defaultScreenWidth;
     private int defaultScreenHeight;
@@ -119,6 +123,24 @@ public sealed class ClientSettingsService : MonoBehaviour
         SaveAndNotify();
     }
 
+    public void CycleInterfaceScale(int direction)
+    {
+        int currentIndex = Array.FindIndex(
+            SupportedInterfaceScales,
+            value => Mathf.Approximately(value, InterfaceScale));
+        if (currentIndex < 0)
+        {
+            currentIndex = 1;
+        }
+
+        currentIndex = (currentIndex + Math.Sign(direction) + SupportedInterfaceScales.Length)
+            % SupportedInterfaceScales.Length;
+        InterfaceScale = SupportedInterfaceScales[currentIndex];
+        PlayerPrefs.SetFloat(InterfaceScaleKey, InterfaceScale);
+        ApplyInterfaceScale();
+        SaveAndNotify();
+    }
+
     public void ToggleFullscreen()
     {
         if (Application.isMobilePlatform)
@@ -138,6 +160,7 @@ public sealed class ClientSettingsService : MonoBehaviour
         QualityLevel = GetDefaultQualityLevel();
         TargetFrameRate = 60;
         Fullscreen = true;
+        InterfaceScale = 1f;
 
         ApplyAll();
         if (!Application.isMobilePlatform && defaultScreenWidth > 0 && defaultScreenHeight > 0)
@@ -154,6 +177,7 @@ public sealed class ClientSettingsService : MonoBehaviour
         PlayerPrefs.SetInt(QualityLevelKey, QualityLevel);
         PlayerPrefs.SetInt(TargetFrameRateKey, TargetFrameRate);
         PlayerPrefs.SetInt(FullscreenKey, Fullscreen ? 1 : 0);
+        PlayerPrefs.SetFloat(InterfaceScaleKey, InterfaceScale);
         SaveAndNotify();
     }
 
@@ -173,6 +197,7 @@ public sealed class ClientSettingsService : MonoBehaviour
             : 60;
 
         Fullscreen = PlayerPrefs.GetInt(FullscreenKey, 1) != 0;
+        InterfaceScale = Mathf.Clamp(PlayerPrefs.GetFloat(InterfaceScaleKey, 1f), 0.9f, 1.2f);
         ApplyAll();
 
         if (!Application.isMobilePlatform)
@@ -199,9 +224,22 @@ public sealed class ClientSettingsService : MonoBehaviour
 
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = TargetFrameRate;
+        ApplyInterfaceScale();
         if (!Application.isMobilePlatform)
         {
             Screen.fullScreen = Fullscreen;
+        }
+    }
+
+    private void ApplyInterfaceScale()
+    {
+        ResponsiveCanvasScaler[] scalers = FindObjectsOfType<ResponsiveCanvasScaler>(true);
+        foreach (ResponsiveCanvasScaler scaler in scalers)
+        {
+            if (scaler != null)
+            {
+                scaler.SetScaleMultiplier(InterfaceScale);
+            }
         }
     }
 
