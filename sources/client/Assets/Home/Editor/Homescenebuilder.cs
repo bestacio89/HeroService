@@ -30,6 +30,9 @@ using TMPro;
 public static class HomeSceneBuilder
 {
     private const float NavBarHeightRatio = 0.12f;
+    private static readonly Color BackgroundColor = new(0.035f, 0.045f, 0.07f, 1f);
+    private static readonly Color SurfaceColor = new(0.07f, 0.085f, 0.12f, 0.96f);
+    private static readonly Color AccentColor = new(0.84f, 0.68f, 0.36f, 1f);
 
     [MenuItem("MOBA/Home/Build Home Scene And Prefabs")]
     public static void BuildHomeScene()
@@ -159,12 +162,16 @@ public static class HomeSceneBuilder
     {
         GameObject panel = FindOrCreateUIChild(navRoot, "Panel_Home");
         AnchorPanelAboveNavBar(panel.GetComponent<RectTransform>());
+        ApplyPanelBackground(panel);
 
         HomeLandingPresenter presenter = GetOrAddComponent<HomeLandingPresenter>(panel);
 
         // --- Status bar ---
         GameObject statusBar = FindOrCreateUIChild(panel.transform, "StatusBar");
         SetAnchors(statusBar.GetComponent<RectTransform>(), new Vector2(0f, 0.9f), Vector2.one);
+        Image statusBackground = GetOrAddComponent<Image>(statusBar);
+        statusBackground.color = new Color(0.02f, 0.03f, 0.05f, 0.9f);
+        statusBackground.raycastTarget = false;
         HorizontalLayoutGroup statusLayout = GetOrAddComponent<HorizontalLayoutGroup>(statusBar);
         statusLayout.childForceExpandWidth = false;
         statusLayout.childForceExpandHeight = true;
@@ -184,6 +191,9 @@ public static class HomeSceneBuilder
         // --- Hero showcase ---
         GameObject showcase = FindOrCreateUIChild(panel.transform, "HeroShowcase");
         SetAnchors(showcase.GetComponent<RectTransform>(), new Vector2(0.1f, 0.28f), new Vector2(0.9f, 0.88f));
+        Image showcaseSurface = GetOrAddComponent<Image>(showcase);
+        showcaseSurface.color = SurfaceColor;
+        showcaseSurface.raycastTarget = false;
         HeroShowcaseCarousel carousel = GetOrAddComponent<HeroShowcaseCarousel>(showcase);
 
         GameObject portraitGo = FindOrCreateUIChild(showcase.transform, "PortraitImage");
@@ -198,6 +208,16 @@ public static class HomeSceneBuilder
 
         // --- Battle CTA ---
         Button battleButton = AddButtonChild(panel.transform, "BattleButton", "BATTLE", new Vector2(0.25f, 0.02f), new Vector2(0.75f, 0.16f));
+        Image battleBackground = battleButton.GetComponent<Image>();
+        battleBackground.color = AccentColor;
+        TMP_Text battleLabel = battleButton.GetComponentInChildren<TMP_Text>();
+        if (battleLabel != null)
+        {
+            battleLabel.color = BackgroundColor;
+            battleLabel.fontSize = 28;
+            battleLabel.fontStyle = FontStyles.Bold;
+            battleLabel.characterSpacing = 3f;
+        }
 
         SetPrivateField(presenter, "playerProfileService", playerProfileService);
         SetPrivateField(presenter, "sceneLoader", sceneLoader);
@@ -250,6 +270,7 @@ public static class HomeSceneBuilder
     {
         GameObject panel = FindOrCreateUIChild(navRoot, "Panel_Heroes");
         AnchorPanelAboveNavBar(panel.GetComponent<RectTransform>());
+        ApplyPanelBackground(panel);
 
         HeroCollectionPresenter presenter = GetOrAddComponent<HeroCollectionPresenter>(panel);
 
@@ -289,6 +310,7 @@ public static class HomeSceneBuilder
     {
         GameObject panel = FindOrCreateUIChild(navRoot, "Panel_Shop");
         AnchorPanelAboveNavBar(panel.GetComponent<RectTransform>());
+        ApplyPanelBackground(panel);
 
         ShopPanelPresenter presenter = GetOrAddComponent<ShopPanelPresenter>(panel);
 
@@ -303,6 +325,7 @@ public static class HomeSceneBuilder
     {
         GameObject panel = FindOrCreateUIChild(navRoot, "Panel_Profile");
         AnchorPanelAboveNavBar(panel.GetComponent<RectTransform>());
+        ApplyPanelBackground(panel);
 
         ProfilePanelPresenter presenter = GetOrAddComponent<ProfilePanelPresenter>(panel);
 
@@ -351,7 +374,7 @@ public static class HomeSceneBuilder
         SetAnchors(navBar.GetComponent<RectTransform>(), Vector2.zero, new Vector2(1f, NavBarHeightRatio));
 
         Image navBarBg = GetOrAddComponent<Image>(navBar);
-        navBarBg.color = new Color(0.05f, 0.05f, 0.07f, 1f);
+        navBarBg.color = BackgroundColor;
 
         HorizontalLayoutGroup layout = GetOrAddComponent<HorizontalLayoutGroup>(navBar);
         layout.childForceExpandWidth = true;
@@ -385,7 +408,7 @@ public static class HomeSceneBuilder
         GameObject indicatorGo = FindOrCreateUIChild(go.transform, "SelectedIndicator");
         SetAnchors(indicatorGo.GetComponent<RectTransform>(), new Vector2(0.3f, 0f), new Vector2(0.7f, 0.05f));
         Image indicatorImage = GetOrAddComponent<Image>(indicatorGo);
-        indicatorImage.color = new Color(0.3f, 0.75f, 1f, 1f);
+        indicatorImage.color = AccentColor;
         indicatorGo.SetActive(false);
 
         NavTabButtonView view = GetOrAddComponent<NavTabButtonView>(go);
@@ -417,7 +440,7 @@ public static class HomeSceneBuilder
         root.GetComponent<RectTransform>().sizeDelta = new Vector2(220, 280);
 
         Image bg = root.AddComponent<Image>();
-        bg.color = new Color(0.1f, 0.1f, 0.13f, 1f);
+        bg.color = SurfaceColor;
         Button button = root.AddComponent<Button>();
 
         GameObject portraitGo = CreateUIChildRaw(root.transform, "Portrait");
@@ -459,7 +482,7 @@ public static class HomeSceneBuilder
         root.GetComponent<RectTransform>().sizeDelta = new Vector2(110, 40);
 
         Image bg = root.AddComponent<Image>();
-        bg.color = new Color(1f, 1f, 1f, 0.08f);
+        bg.color = new Color(1f, 1f, 1f, 0.05f);
         Button button = root.AddComponent<Button>();
 
         LayoutElement layoutElement = root.AddComponent<LayoutElement>();
@@ -471,7 +494,7 @@ public static class HomeSceneBuilder
         GameObject indicatorGo = CreateUIChildRaw(root.transform, "SelectedIndicator");
         SetAnchors(indicatorGo.GetComponent<RectTransform>(), new Vector2(0.1f, 0f), new Vector2(0.9f, 0.08f));
         Image indicatorImage = indicatorGo.AddComponent<Image>();
-        indicatorImage.color = new Color(0.3f, 0.75f, 1f, 1f);
+        indicatorImage.color = AccentColor;
         indicatorGo.SetActive(false);
 
         PantheonFilterChipView view = root.AddComponent<PantheonFilterChipView>();
@@ -612,6 +635,13 @@ public static class HomeSceneBuilder
     // =================================================================
     // Generic helpers
     // =================================================================
+
+    private static void ApplyPanelBackground(GameObject panel)
+    {
+        Image background = GetOrAddComponent<Image>(panel);
+        background.color = BackgroundColor;
+        background.raycastTarget = false;
+    }
 
     private static GameObject FindOrCreateRoot(string name)
     {
