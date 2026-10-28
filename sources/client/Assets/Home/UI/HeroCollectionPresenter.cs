@@ -43,6 +43,7 @@ public class HeroCollectionPresenter : MonoBehaviour
     {
         if (heroCatalogService == null)
         {
+            SetCatalogStatus("Hero catalogue is not configured.", true);
             Debug.LogWarning("[HeroCollectionPresenter] HeroCatalogService is missing.");
             return;
         }
