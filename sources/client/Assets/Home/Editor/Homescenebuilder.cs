@@ -250,6 +250,26 @@ public static class HomeSceneBuilder
                 errors.Add("ResponsiveCanvasScaler is missing.");
             }
 
+            Transform navigationRoot = canvasObject.transform.Find("HomeNavigationController_Root");
+            if (navigationRoot == null || navigationRoot.GetComponent<SafeAreaController>() == null)
+            {
+                errors.Add("Home navigation safe-area root is missing.");
+            }
+
+            Transform bottomSafeRoot = canvasObject.transform.Find("BottomNavSafeRoot");
+            if (bottomSafeRoot == null || bottomSafeRoot.GetComponent<SafeAreaController>() == null)
+            {
+                errors.Add("Bottom navigation safe-area root is missing.");
+            }
+
+            Transform heroGridContent = navigationRoot != null
+                ? navigationRoot.Find("Panel_Heroes/HeroGridScroll/Viewport/Content")
+                : null;
+            if (heroGridContent == null || heroGridContent.GetComponent<ResponsiveHeroGridLayout>() == null)
+            {
+                errors.Add("Responsive hero grid layout is missing.");
+            }
+
             ClientSettingsPanel settingsPanel = canvasObject.GetComponent<ClientSettingsPanel>();
             if (settingsPanel == null)
             {
@@ -281,9 +301,18 @@ public static class HomeSceneBuilder
         {
             errors.Add("EventSystem is missing.");
         }
-        else if (eventSystem.GetComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>() == null)
+        else
         {
-            errors.Add("InputSystemUIInputModule is missing; the project uses the new Input System.");
+            UnityEngine.InputSystem.UI.InputSystemUIInputModule inputModule =
+                eventSystem.GetComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+            if (inputModule == null)
+            {
+                errors.Add("InputSystemUIInputModule is missing; the project uses the new Input System.");
+            }
+            else if (inputModule.actionsAsset == null)
+            {
+                errors.Add("InputSystemUIInputModule has no input actions assigned.");
+            }
         }
 
         HomeNavigationController navigation = Object.FindObjectOfType<HomeNavigationController>();
