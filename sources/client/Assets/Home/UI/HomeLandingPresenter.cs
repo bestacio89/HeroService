@@ -44,6 +44,11 @@ public class HomeLandingPresenter : MonoBehaviour
 
         playerProfileService.OnProfileUpdated += RefreshStatusBar;
         RefreshStatusBar(playerProfileService.CurrentProfile);
+
+        if (sceneLoader != null)
+        {
+            sceneLoader.OnLoadFailed += HandleSceneLoadFailed;
+        }
     }
 
     private void OnDisable()
@@ -51,6 +56,11 @@ public class HomeLandingPresenter : MonoBehaviour
         if (playerProfileService != null)
         {
             playerProfileService.OnProfileUpdated -= RefreshStatusBar;
+        }
+
+        if (sceneLoader != null)
+        {
+            sceneLoader.OnLoadFailed -= HandleSceneLoadFailed;
         }
     }
 
@@ -93,6 +103,16 @@ public class HomeLandingPresenter : MonoBehaviour
         {
             hardCurrencyText.text = profile.HardCurrency.ToString();
         }
+    }
+
+    private void HandleSceneLoadFailed()
+    {
+        if (battleButton != null)
+        {
+            battleButton.interactable = true;
+        }
+
+        Debug.LogWarning("[HomeLandingPresenter] Could not enter the match scene; the Battle button has been re-enabled.");
     }
 
     private void OnBattleClicked()
