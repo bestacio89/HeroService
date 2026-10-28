@@ -56,9 +56,14 @@ public class HeroCollectionPresenter : MonoBehaviour
         {
             HandleCatalogLoaded(heroCatalogService.CachedHeroes.ToArray());
         }
-        else
+        else if (heroCatalogService.IsLoading ||
+                 string.IsNullOrWhiteSpace(heroCatalogService.LastLoadError))
         {
             SetCatalogStatus("Loading heroes…", true);
+        }
+        else
+        {
+            SetCatalogStatus("Heroes are unavailable. Check your connection.", true);
         }
     }
 
