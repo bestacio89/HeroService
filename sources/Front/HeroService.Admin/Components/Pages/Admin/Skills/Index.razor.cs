@@ -40,6 +40,18 @@ public sealed partial class Index : ComponentBase
     {
       var result = await Client.GetAllAsync();
       Items = result?.OrderBy(skill => skill.Name, StringComparer.OrdinalIgnoreCase).ToArray() ?? [];
+      try
+      {
+        Heroes = (await HeroClient.BrowseAsync()).OrderBy(hero => hero.Name, StringComparer.OrdinalIgnoreCase).ToArray();
+        BuildHeroSkillIndex();
+      }
+      catch (Exception exception) when (exception is not OperationCanceledException)
+      {
+        Logger.LogWarning(exception, "Unable to load hero associations for the skill library.");
+        Heroes = [];
+        HeroesWithSkills = [];
+        _heroesBySkillId.Clear();
+      }
       _skillTypeCount = Items.Select(skill => skill.SkillType).Distinct().Count();
       ApplyFilter();
     }
@@ -76,6 +88,9 @@ public sealed partial class Index : ComponentBase
     if (_selectedType.HasValue)
       query = query.Where(skill => skill.SkillType == _selectedType.Value);
 
+    if (_selectedHeroId.HasValue)
+      query = query.Where(skill => _heroesBySkillId.TryGetValue(skill.Id, out var owners) && owners.Any(hero => hero.Id == _selectedHeroId.Value));
+
     if (!string.IsNullOrWhiteSpace(_search))
     {
       var term = _search.Trim();
@@ -83,6 +98,9 @@ public sealed partial class Index : ComponentBase
         skill.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
         skill.SkillType.ToString().Contains(term, StringComparison.OrdinalIgnoreCase) ||
         SkillTheme.GetDescription(skill.SkillType).Contains(term, StringComparison.OrdinalIgnoreCase) ||
+        (_heroesBySkillId.TryGetValue(skill.Id, out var owners) && owners.Any(hero =>
+          hero.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+          (hero.Class?.Name?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false))) ||
         (skill.Effects?.Any(effect =>
           effect.EffectType.ToString().Contains(term, StringComparison.OrdinalIgnoreCase) ||
           effect.BuffType?.ToString().Contains(term, StringComparison.OrdinalIgnoreCase) == true ||
@@ -98,12 +116,52 @@ public sealed partial class Index : ComponentBase
     ApplyFilter();
   }
 
+  private void OnHeroFilterChanged(Guid? heroId)
+  {
+    _selectedHeroId = heroId;
+    ApplyFilter();
+  }
+
   private void ClearFilters()
   {
     _search = null;
     _selectedType = null;
+    _selectedHeroId = null;
     ApplyFilter();
   }
+
+  private void BuildHeroSkillIndex()
+  {
+    var index = new Dictionary<Guid, List<HeroDto>>();
+    foreach (var hero in Heroes)
+    {
+      var kit = hero.SkillKit;
+      if (kit is null)
+        continue;
+
+      foreach (var skillId in new[] { kit.PassiveSkillId, kit.PrimarySkillId, kit.SecondarySkillId, kit.TertiarySkillId, kit.UltimateSkillId }.Where(id => id != Guid.Empty).Distinct())
+      {
+        if (!index.TryGetValue(skillId, out var owners))
+          index[skillId] = owners = [];
+        owners.Add(hero);
+      }
+    }
+
+    _heroesBySkillId.Clear();
+    foreach (var (skillId, owners) in index)
+      _heroesBySkillId[skillId] = owners.OrderBy(hero => hero.Name, StringComparer.OrdinalIgnoreCase).ToArray();
+
+    HeroesWithSkills = Heroes.Where(hero => hero.SkillKit is not null &&
+      new[] { hero.SkillKit.PassiveSkillId, hero.SkillKit.PrimarySkillId, hero.SkillKit.SecondarySkillId, hero.SkillKit.TertiarySkillId, hero.SkillKit.UltimateSkillId }
+        .Any(id => id != Guid.Empty && Items.Any(skill => skill.Id == id)))
+      .ToArray();
+  }
+
+  private IReadOnlyList<HeroDto> GetHeroesForSkill(Guid skillId) =>
+    _heroesBySkillId.TryGetValue(skillId, out var heroes) ? heroes : [];
+
+  private static string GetHeroLabel(HeroDto hero) =>
+    string.IsNullOrWhiteSpace(hero.Class?.Name) ? hero.Name : $"{hero.Name} · {hero.Class.Name}";
 
   private static string FormatStat(float? value, string suffix = "") =>
       value.HasValue ? $"{value.Value:0.##}{suffix}" : "—";
