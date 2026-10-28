@@ -182,14 +182,14 @@ public static class HomeSceneBuilder
         statusLayout.padding = new RectOffset(16, 16, 8, 8);
         statusLayout.childAlignment = TextAnchor.MiddleLeft;
 
-        TextMeshProUGUI nameText = AddTMPTextChild(statusBar.transform, "PlayerNameText", "Recruit", 26, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
-        TextMeshProUGUI levelText = AddTMPTextChild(statusBar.transform, "PlayerLevelText", "Lv. 1", 22, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
+        TextMeshProUGUI nameText = AddTMPTextChild(statusBar.transform, "PlayerNameText", "Recruit", 36, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
+        TextMeshProUGUI levelText = AddTMPTextChild(statusBar.transform, "PlayerLevelText", "Lv. 1", 30, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
         Slider xpBar = AddSliderChild(statusBar.transform, "XpBar", Vector2.zero, Vector2.one);
         LayoutElement xpLayoutElement = GetOrAddComponent<LayoutElement>(xpBar.gameObject);
         xpLayoutElement.preferredWidth = 160;
         xpLayoutElement.preferredHeight = 16;
-        TextMeshProUGUI softText = AddTMPTextChild(statusBar.transform, "SoftCurrencyText", "0", 20, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
-        TextMeshProUGUI hardText = AddTMPTextChild(statusBar.transform, "HardCurrencyText", "0", 20, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
+        TextMeshProUGUI softText = AddTMPTextChild(statusBar.transform, "SoftCurrencyText", "0", 28, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
+        TextMeshProUGUI hardText = AddTMPTextChild(statusBar.transform, "HardCurrencyText", "0", 28, TextAlignmentOptions.MidlineLeft, Vector2.zero, Vector2.one);
 
         // --- Hero showcase ---
         GameObject showcase = FindOrCreateUIChild(panel.transform, "HeroShowcase");
@@ -204,8 +204,8 @@ public static class HomeSceneBuilder
         Image portraitImage = GetOrAddComponent<Image>(portraitGo);
         portraitImage.color = new Color(0.15f, 0.15f, 0.18f, 1f);
 
-        TextMeshProUGUI heroNameText = AddTMPTextChild(showcase.transform, "HeroNameText", "Hero", 30, TextAlignmentOptions.Center, new Vector2(0f, 0f), new Vector2(1f, 0.1f));
-        TextMeshProUGUI pantheonTagText = AddTMPTextChild(showcase.transform, "PantheonTagText", "Pantheon", 18, TextAlignmentOptions.Center, new Vector2(0f, 0.1f), new Vector2(1f, 0.16f));
+        TextMeshProUGUI heroNameText = AddTMPTextChild(showcase.transform, "HeroNameText", "Hero", 48, TextAlignmentOptions.Center, new Vector2(0f, 0f), new Vector2(1f, 0.1f));
+        TextMeshProUGUI pantheonTagText = AddTMPTextChild(showcase.transform, "PantheonTagText", "Pantheon", 28, TextAlignmentOptions.Center, new Vector2(0f, 0.1f), new Vector2(1f, 0.16f));
         Button prevButton = AddButtonChild(showcase.transform, "PreviousButton", "<", new Vector2(0f, 0.4f), new Vector2(0.12f, 0.6f));
         Button nextButton = AddButtonChild(showcase.transform, "NextButton", ">", new Vector2(0.88f, 0.4f), new Vector2(1f, 0.6f));
 
@@ -217,7 +217,7 @@ public static class HomeSceneBuilder
         if (battleLabel != null)
         {
             battleLabel.color = BackgroundColor;
-            battleLabel.fontSize = 28;
+            battleLabel.fontSize = 38;
             battleLabel.fontStyle = FontStyles.Bold;
             battleLabel.characterSpacing = 3f;
         }
@@ -308,13 +308,13 @@ public static class HomeSceneBuilder
 
         ProfilePanelPresenter presenter = GetOrAddComponent<ProfilePanelPresenter>(panel);
 
-        TextMeshProUGUI nameText = AddTMPTextChild(panel.transform, "PlayerNameText", "Recruit", 32, TextAlignmentOptions.Center, new Vector2(0.1f, 0.85f), new Vector2(0.9f, 0.95f));
-        TextMeshProUGUI idText = AddTMPTextChild(panel.transform, "PlayerIdText", "Offline profile", 16, TextAlignmentOptions.Center, new Vector2(0.1f, 0.8f), new Vector2(0.9f, 0.85f));
-        TextMeshProUGUI levelText = AddTMPTextChild(panel.transform, "PlayerLevelText", "Level 1", 24, TextAlignmentOptions.Center, new Vector2(0.1f, 0.7f), new Vector2(0.9f, 0.78f));
+        TextMeshProUGUI nameText = AddTMPTextChild(panel.transform, "PlayerNameText", "Recruit", 44, TextAlignmentOptions.Center, new Vector2(0.1f, 0.85f), new Vector2(0.9f, 0.95f));
+        TextMeshProUGUI idText = AddTMPTextChild(panel.transform, "PlayerIdText", "Offline profile", 24, TextAlignmentOptions.Center, new Vector2(0.1f, 0.8f), new Vector2(0.9f, 0.85f));
+        TextMeshProUGUI levelText = AddTMPTextChild(panel.transform, "PlayerLevelText", "Level 1", 34, TextAlignmentOptions.Center, new Vector2(0.1f, 0.7f), new Vector2(0.9f, 0.78f));
         Slider xpBar = AddSliderChild(panel.transform, "XpBar", new Vector2(0.15f, 0.63f), new Vector2(0.85f, 0.68f));
-        TextMeshProUGUI xpLabel = AddTMPTextChild(panel.transform, "XpLabelText", "0 / 1000 XP", 16, TextAlignmentOptions.Center, new Vector2(0.1f, 0.56f), new Vector2(0.9f, 0.62f));
-        TextMeshProUGUI softText = AddTMPTextChild(panel.transform, "SoftCurrencyText", "0", 20, TextAlignmentOptions.Center, new Vector2(0.15f, 0.45f), new Vector2(0.45f, 0.53f));
-        TextMeshProUGUI hardText = AddTMPTextChild(panel.transform, "HardCurrencyText", "0", 20, TextAlignmentOptions.Center, new Vector2(0.55f, 0.45f), new Vector2(0.85f, 0.53f));
+        TextMeshProUGUI xpLabel = AddTMPTextChild(panel.transform, "XpLabelText", "0 / 1000 XP", 24, TextAlignmentOptions.Center, new Vector2(0.1f, 0.56f), new Vector2(0.9f, 0.62f));
+        TextMeshProUGUI softText = AddTMPTextChild(panel.transform, "SoftCurrencyText", "0", 30, TextAlignmentOptions.Center, new Vector2(0.15f, 0.45f), new Vector2(0.45f, 0.53f));
+        TextMeshProUGUI hardText = AddTMPTextChild(panel.transform, "HardCurrencyText", "0", 30, TextAlignmentOptions.Center, new Vector2(0.55f, 0.45f), new Vector2(0.85f, 0.53f));
 
         SetPrivateField(presenter, "playerProfileService", playerProfileService);
         SetPrivateField(presenter, "playerNameText", nameText);
@@ -400,12 +400,12 @@ public static class HomeSceneBuilder
             go.transform,
             "IconGlyph",
             GetTabGlyph(tab),
-            26,
+            42,
             TextAlignmentOptions.Center,
             new Vector2(0.25f, 0.42f),
             new Vector2(0.75f, 0.9f));
 
-        TextMeshProUGUI labelText = AddTMPTextChild(go.transform, "Label", label, 16, TextAlignmentOptions.Center, new Vector2(0f, 0.04f), new Vector2(1f, 0.34f));
+        TextMeshProUGUI labelText = AddTMPTextChild(go.transform, "Label", label, 28, TextAlignmentOptions.Center, new Vector2(0f, 0.04f), new Vector2(1f, 0.34f));
         labelText.fontStyle = FontStyles.Bold;
 
         GameObject indicatorGo = FindOrCreateUIChild(go.transform, "SelectedIndicator");
@@ -452,10 +452,10 @@ public static class HomeSceneBuilder
         Image portraitImage = portraitGo.AddComponent<Image>();
         portraitImage.color = Color.white;
 
-        TextMeshProUGUI nameText = CreateTMPRaw(root.transform, "HeroName", "Hero Name", 20, TextAlignmentOptions.Center, new Vector2(0f, 0.22f), new Vector2(1f, 0.34f));
-        TextMeshProUGUI classText = CreateTMPRaw(root.transform, "HeroClass", "Class", 15, TextAlignmentOptions.Center, new Vector2(0f, 0.12f), new Vector2(1f, 0.22f));
+        TextMeshProUGUI nameText = CreateTMPRaw(root.transform, "HeroName", "Hero Name", 30, TextAlignmentOptions.Center, new Vector2(0f, 0.22f), new Vector2(1f, 0.34f));
+        TextMeshProUGUI classText = CreateTMPRaw(root.transform, "HeroClass", "Class", 24, TextAlignmentOptions.Center, new Vector2(0f, 0.12f), new Vector2(1f, 0.22f));
         classText.color = new Color(1f, 1f, 1f, 0.75f);
-        TextMeshProUGUI pantheonText = CreateTMPRaw(root.transform, "PantheonTag", "Pantheon", 13, TextAlignmentOptions.Center, new Vector2(0f, 0.02f), new Vector2(1f, 0.12f));
+        TextMeshProUGUI pantheonText = CreateTMPRaw(root.transform, "PantheonTag", "Pantheon", 20, TextAlignmentOptions.Center, new Vector2(0f, 0.02f), new Vector2(1f, 0.12f));
         pantheonText.color = new Color(0.6f, 0.8f, 1f, 1f);
 
         HeroCollectionItemView view = root.AddComponent<HeroCollectionItemView>();
@@ -493,7 +493,7 @@ public static class HomeSceneBuilder
         layoutElement.preferredWidth = 110;
         layoutElement.preferredHeight = 32;
 
-        TextMeshProUGUI labelText = CreateTMPRaw(root.transform, "Label", "All", 16, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
+        TextMeshProUGUI labelText = CreateTMPRaw(root.transform, "Label", "All", 26, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
 
         GameObject indicatorGo = CreateUIChildRaw(root.transform, "SelectedIndicator");
         SetAnchors(indicatorGo.GetComponent<RectTransform>(), new Vector2(0.1f, 0f), new Vector2(0.9f, 0.08f));
@@ -539,7 +539,7 @@ public static class HomeSceneBuilder
 
         Button button = GetOrAddComponent<Button>(go);
 
-        AddTMPTextChild(go.transform, "Label", label, 22, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
+        AddTMPTextChild(go.transform, "Label", label, 32, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
 
         return button;
     }
