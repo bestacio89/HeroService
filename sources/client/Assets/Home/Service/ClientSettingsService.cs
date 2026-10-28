@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -95,8 +96,8 @@ public sealed class ClientSettingsService : MonoBehaviour
             return;
         }
 
-        Resolution[] resolutions = Screen.resolutions;
-        if (resolutions == null || resolutions.Length == 0)
+        Resolution[] resolutions = GetAvailableResolutions();
+        if (resolutions.Length == 0)
         {
             return;
         }
@@ -210,6 +211,28 @@ public sealed class ClientSettingsService : MonoBehaviour
         return Application.isMobilePlatform
             ? Mathf.Min(1, qualityCount - 1)
             : qualityCount - 1;
+    }
+
+    private static Resolution[] GetAvailableResolutions()
+    {
+        Resolution[] supported = Screen.resolutions;
+        if (supported == null || supported.Length == 0)
+        {
+            return Array.Empty<Resolution>();
+        }
+
+        List<Resolution> unique = new(supported.Length);
+        foreach (Resolution candidate in supported)
+        {
+            bool alreadyAdded = unique.Exists(
+                existing => existing.width == candidate.width && existing.height == candidate.height);
+            if (!alreadyAdded)
+            {
+                unique.Add(candidate);
+            }
+        }
+
+        return unique.ToArray();
     }
 
     private static int FindCurrentResolutionIndex(Resolution[] resolutions)
