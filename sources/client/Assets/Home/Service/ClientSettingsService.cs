@@ -286,6 +286,13 @@ public sealed class ClientSettingsService : MonoBehaviour
         List<Resolution> unique = new(supported.Length);
         foreach (Resolution candidate in supported)
         {
+            // The client is configured for landscape MOBA ergonomics. Do not
+            // offer portrait desktop modes that would contradict the menu layout.
+            if (candidate.width < candidate.height)
+            {
+                continue;
+            }
+
             bool alreadyAdded = unique.Exists(
                 existing => existing.width == candidate.width && existing.height == candidate.height);
             if (!alreadyAdded)
