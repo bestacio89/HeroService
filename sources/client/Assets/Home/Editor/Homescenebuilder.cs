@@ -250,9 +250,10 @@ public static class HomeSceneBuilder
 
         Transform gridContent = CreateVerticalScrollView(panel.transform, "HeroGridScroll", new Vector2(0f, 0f), new Vector2(1f, 0.88f), out _);
         GridLayoutGroup grid = GetOrAddComponent<GridLayoutGroup>(gridContent.gameObject);
-        grid.cellSize = new Vector2(220, 280);
+        grid.cellSize = new Vector2(320, 400);
         grid.spacing = new Vector2(12, 12);
         grid.padding = new RectOffset(12, 12, 12, 12);
+        GetOrAddComponent<ResponsiveHeroGridLayout>(gridContent.gameObject);
         ContentSizeFitter fitter = GetOrAddComponent<ContentSizeFitter>(gridContent.gameObject);
         fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
