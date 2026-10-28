@@ -77,6 +77,10 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         layout.childForceExpandHeight = false;
 
         TMP_Text title = EnsureText(column, "ModeSelectionTitle", "CHOOSE YOUR MODE", 56);
+        RectTransform titleLayoutRect = title.GetComponent<RectTransform>();
+        titleLayoutRect.anchorMin = new Vector2(0.5f, 0.5f);
+        titleLayoutRect.anchorMax = new Vector2(0.5f, 0.5f);
+        titleLayoutRect.pivot = new Vector2(0.5f, 0.5f);
         title.color = AccentColor;
         title.fontStyle = FontStyles.Bold;
         title.alignment = TextAlignmentOptions.Center;
@@ -85,6 +89,10 @@ public sealed class PreMatchScreenLayout : MonoBehaviour
         title.transform.SetSiblingIndex(0);
 
         TMP_Text subtitle = EnsureText(column, "ModeSelectionSubtitle", "Select your battlefield", 32);
+        RectTransform subtitleLayoutRect = subtitle.GetComponent<RectTransform>();
+        subtitleLayoutRect.anchorMin = new Vector2(0.5f, 0.5f);
+        subtitleLayoutRect.anchorMax = new Vector2(0.5f, 0.5f);
+        subtitleLayoutRect.pivot = new Vector2(0.5f, 0.5f);
         subtitle.color = MutedTextColor;
         subtitle.alignment = TextAlignmentOptions.Center;
         subtitle.enableWordWrapping = false;
