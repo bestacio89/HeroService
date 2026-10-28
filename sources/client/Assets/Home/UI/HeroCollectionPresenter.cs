@@ -91,7 +91,7 @@ public class HeroCollectionPresenter : MonoBehaviour
         activeFilter = AllFilterValue;
         BuildFilterChips();
         BuildHeroGrid();
-        SetCatalogStatus("Heroes are unavailable. Check your connection and try again.", true);
+        SetCatalogStatus("Heroes are unavailable. Check your connection.", true);
         Debug.LogWarning($"[HeroCollectionPresenter] Hero catalogue load failed: {error}");
     }
 
