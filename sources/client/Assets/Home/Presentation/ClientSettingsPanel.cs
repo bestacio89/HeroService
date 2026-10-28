@@ -115,6 +115,9 @@ public sealed class ClientSettingsPanel : MonoBehaviour
 
         GameObject viewport = CreateRect("Viewport", body.transform);
         Stretch(viewport.GetComponent<RectTransform>());
+        Image viewportRaycastSurface = viewport.AddComponent<Image>();
+        viewportRaycastSurface.color = new Color(0f, 0f, 0f, 0f);
+        viewportRaycastSurface.raycastTarget = true;
         viewport.AddComponent<RectMask2D>();
 
         GameObject bodyContent = CreateRect("Content", viewport.transform);
