@@ -90,7 +90,7 @@ public static class HomeSceneBuilder
 
         CanvasScaler scaler = GetOrAddComponent<CanvasScaler>(canvasGo);
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1080, 1920);
+        scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
         GetOrAddComponent<ResponsiveCanvasScaler>(canvasGo);
         GetOrAddComponent<GraphicRaycaster>(canvasGo);
