@@ -76,6 +76,10 @@ public static class HomeSceneBuilder
         if (inputModule == null)
         {
             inputModule = eventSystem.gameObject.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+        }
+
+        if (inputModule.actionsAsset == null)
+        {
             inputModule.AssignDefaultActions();
         }
 
