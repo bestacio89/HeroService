@@ -36,7 +36,7 @@ public class HeroSelectionItemView : MonoBehaviour
         if (heroNameText != null)
         {
             heroNameText.text = displayName;
-            heroNameText.fontSize = 34f;
+            heroNameText.fontSize = 40f;
             heroNameText.fontStyle = TMPro.FontStyles.Bold;
             heroNameText.color = Color.white;
             heroNameText.alignment = TMPro.TextAlignmentOptions.Center;
