@@ -8,10 +8,11 @@ using UnityEngine;
 /// Évite de dupliquer l'appel GET /api/v1/heroes entre le carrousel du Home
 /// et l'écran Hero Collection : les deux s'abonnent à ce service.
 ///
-/// Comportement :
-/// - Charge la liste une fois au démarrage (cache en mémoire).
-/// - Fallback MVP statique si le backend n'est pas joignable, pour garder
-///   le Home utilisable pendant le développement front-only.
+/// Behavior:
+/// - Loads the catalogue once at startup and caches it in memory.
+/// - Uses local demo data only when no HeroService URL is configured.
+/// - Preserves an empty/error state when a configured backend fails, rather
+///   than silently presenting demo heroes as authoritative backend data.
 /// </summary>
 public class HeroCatalogService : MonoBehaviour
 {
@@ -108,9 +109,8 @@ public class HeroCatalogService : MonoBehaviour
 
     private static HeroListItemDto[] BuildFallbackCatalog()
     {
-        // MVP V1 : reflète temporairement la même liste statique que
-        // HeroSelectionPanelPresenter, avec affiliation mythologique pour
-        // que le carrousel et les filtres de pantheon aient de la donnée.
+        // Explicit local-only demo data for front-end development. This is
+        // never used to hide a failure from a configured HeroService.
         return new[]
         {
             new HeroListItemDto
