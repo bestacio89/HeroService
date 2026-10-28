@@ -11,7 +11,6 @@ public sealed class ResponsiveHeroGridLayout : MonoBehaviour
 {
     [SerializeField, Min(1)] private int maximumColumns = 5;
     [SerializeField, Min(1f)] private float minimumCellWidth = 280f;
-    [SerializeField, Min(1f)] private float maximumCellWidth = 420f;
     [SerializeField, Min(0.5f)] private float cellHeightToWidthRatio = 1.25f;
 
     private GridLayoutGroup grid;
@@ -54,13 +53,7 @@ public sealed class ResponsiveHeroGridLayout : MonoBehaviour
         int columnsForMinimum = Mathf.Max(
             1,
             Mathf.FloorToInt((availableWidth + horizontalSpacing) / (minimumCellWidth + horizontalSpacing)));
-        int columnsForMaximum = Mathf.Max(
-            1,
-            Mathf.CeilToInt((availableWidth + horizontalSpacing) / (maximumCellWidth + horizontalSpacing)));
-        int columns = Mathf.Clamp(
-            Mathf.Min(columnsForMinimum, maximumColumns),
-            columnsForMaximum,
-            maximumColumns);
+        int columns = Mathf.Clamp(columnsForMinimum, 1, maximumColumns);
 
         float cellWidth = (availableWidth - horizontalSpacing * (columns - 1)) / columns;
         grid.cellSize = new Vector2(cellWidth, cellWidth * cellHeightToWidthRatio);
