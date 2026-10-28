@@ -35,6 +35,7 @@ public static class HomeSceneBuilder
     private static readonly Color BackgroundColor = new(0.035f, 0.045f, 0.07f, 1f);
     private static readonly Color SurfaceColor = new(0.07f, 0.085f, 0.12f, 0.96f);
     private static readonly Color AccentColor = new(0.84f, 0.68f, 0.36f, 1f);
+    private static readonly Color MutedTextColor = new(0.72f, 0.76f, 0.82f, 1f);
 
     private const string HomeScenePath = "Assets/Home/Scenes/home.unity";
 
@@ -228,7 +229,7 @@ public static class HomeSceneBuilder
     {
         List<string> errors = new();
 
-        if (PlayerSettings.defaultScreenOrientation != UIOrientation.AutoRotation &&
+        if (PlayerSettings.defaultInterfaceOrientation != UIOrientation.AutoRotation &&
             PlayerSettings.defaultScreenOrientation != UIOrientation.LandscapeLeft &&
             PlayerSettings.defaultScreenOrientation != UIOrientation.LandscapeRight)
         {
@@ -756,10 +757,10 @@ public static class HomeSceneBuilder
                 Transform indicator = prefabContents.transform.Find("SelectedIndicator");
                 if (indicator != null)
                 {
-                    Image indicatorImage = indicator.GetComponent<Image>();
-                    if (indicatorImage != null)
+                    Image existingIndicatorImage = indicator.GetComponent<Image>();
+                    if (existingIndicatorImage != null)
                     {
-                        indicatorImage.color = AccentColor;
+                        existingIndicatorImage.color = AccentColor;
                     }
                 }
 
