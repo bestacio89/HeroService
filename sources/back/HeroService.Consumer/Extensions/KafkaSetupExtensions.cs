@@ -1,17 +1,39 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Franz.Common.Messaging.Kafka;
+using Franz.Common.Messaging.Hosting;
+using Franz.Common.Messaging.Hosting.Executing;
+using Franz.Common.Messaging.Hosting.Kafka;
+using Franz.Common.Messaging.Hosting.Kafka.HostedServices;
+using Franz.Common.Messaging.Hosting.Listeners;
+using Franz.Common.Messaging.Kafka.Configuration;
 using Franz.Common.Messaging.Kafka.Extensions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace HeroService.Consumer.Extensions
+namespace HeroService.Consumer.Extensions;
+
+public static class KafkaSetupExtensions
 {
-  public static class KafkaSetupExtensions
+  public static IServiceCollection AddKafkaMessagingServices(
+      this IServiceCollection services,
+      IConfiguration configuration,
+      string environmentName)
   {
-    public static IServiceCollection AddKafkaMessagingServices(this IServiceCollection services, IConfiguration configuration)
-    {
-      // Register Kafka-related services
-      services.AddKafkaMessaging(configuration);
-      return services;
-    }
+    KafkaDeploymentConfigurationValidator.Validate(configuration, environmentName);
+
+    var inputTopics = configuration
+        .GetSection("Messaging:Kafka:Consumer:Topics")
+        .Get<string[]>() ?? [];
+
+    services.AddKafkaMessaging(configuration);
+    services.AddScoped<IMessagingStrategyExecuter, MessagingStrategyExecuter>();
+    services.AddSingleton<IEnumerable<string>>(_ => inputTopics);
+
+    services.AddKafkaHostedListener(options =>
+        configuration.GetSection(KafkaMessagingOptions.SectionName).Bind(options));
+
+    // The currently pinned 2.3.0 hosting package does not register IListener itself.
+    services.AddSingleton<IListener>(serviceProvider =>
+        serviceProvider.GetRequiredService<KafkaMessageListener>());
+
+    return services;
   }
 }

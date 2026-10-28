@@ -1,0 +1,114 @@
+using Microsoft.Extensions.Configuration;
+
+namespace HeroService.Consumer.Extensions;
+
+public static class KafkaDeploymentConfigurationValidator
+{
+  public static void Validate(IConfiguration configuration, string environmentName)
+  {
+    ArgumentNullException.ThrowIfNull(configuration);
+
+    var bootstrapServers = configuration["Messaging:Kafka:BootstrapServers"];
+    if (string.IsNullOrWhiteSpace(bootstrapServers))
+      throw new InvalidOperationException(
+          "Messaging:Kafka:BootstrapServers must be supplied by environment-specific configuration or deployment secrets.");
+
+    var groupId = configuration["Messaging:Kafka:GroupId"];
+    if (string.IsNullOrWhiteSpace(groupId))
+      throw new InvalidOperationException(
+          "Messaging:Kafka:GroupId must be configured at the Kafka options root.");
+
+    var outputTopic = configuration["Messaging:Kafka:TopicName"];
+    if (string.IsNullOrWhiteSpace(outputTopic))
+      throw new InvalidOperationException(
+          "Messaging:Kafka:TopicName must explicitly identify the HeroService outbound topic.");
+
+    var inputTopics = configuration.GetSection("Messaging:Kafka:Consumer:Topics").Get<string[]>() ?? [];
+    if (inputTopics.Length == 0 || inputTopics.Any(string.IsNullOrWhiteSpace))
+      throw new InvalidOperationException(
+          "At least one non-empty input topic must be configured under Messaging:Kafka:Consumer:Topics.");
+
+    if (inputTopics.Distinct(StringComparer.Ordinal).Count() != inputTopics.Length)
+      throw new InvalidOperationException("Kafka input topic names must be unique.");
+
+    if (inputTopics.Contains(outputTopic, StringComparer.Ordinal))
+      throw new InvalidOperationException(
+          "Kafka input topics must not include the outbound topic; this prevents accidental self-consumption loops.");
+
+    var isDevelopment = string.Equals(
+        environmentName, "Development", StringComparison.OrdinalIgnoreCase);
+
+    if (isDevelopment)
+      return;
+
+    if (bootstrapServers.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Any(server =>
+            server.Contains("localhost", StringComparison.OrdinalIgnoreCase) ||
+            server.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
+            server.StartsWith("0.0.0.0", StringComparison.OrdinalIgnoreCase)))
+    {
+      throw new InvalidOperationException(
+          "Production Kafka bootstrap servers must not point to a loopback or wildcard address.");
+    }
+
+    var databaseHost = configuration["Database:ServerName"];
+    var databaseName = configuration["Database:DatabaseName"];
+    var databaseUser = configuration["Database:UserName"];
+    var databasePassword = configuration["Database:Password"];
+    var databaseSsl = configuration["Database:SslMode"];
+    if (string.IsNullOrWhiteSpace(databaseHost) ||
+        databaseHost.Contains("localhost", StringComparison.OrdinalIgnoreCase) ||
+        databaseHost.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
+        string.IsNullOrWhiteSpace(databaseName) ||
+        string.IsNullOrWhiteSpace(databaseUser) ||
+        string.IsNullOrWhiteSpace(databasePassword) ||
+        string.Equals(databasePassword, "postgres", StringComparison.Ordinal) ||
+        string.IsNullOrWhiteSpace(databaseSsl) ||
+        string.Equals(databaseSsl, "Disable", StringComparison.OrdinalIgnoreCase))
+    {
+      throw new InvalidOperationException(
+          "Production database host, database, credentials and TLS mode must be supplied by deployment configuration.");
+    }
+
+    var cacheConnection = configuration["Caching:ConnectionString"];
+    if (string.IsNullOrWhiteSpace(cacheConnection) ||
+        cacheConnection.Contains("localhost", StringComparison.OrdinalIgnoreCase) ||
+        cacheConnection.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase))
+    {
+      throw new InvalidOperationException(
+          "Production Redis connection configuration must be supplied by deployment configuration.");
+    }
+
+    var securityProtocol = configuration["Messaging:Kafka:Security:SecurityProtocol"];
+    if (!string.Equals(securityProtocol, "Ssl", StringComparison.OrdinalIgnoreCase) &&
+        !string.Equals(securityProtocol, "SaslSsl", StringComparison.OrdinalIgnoreCase))
+    {
+      throw new InvalidOperationException(
+          "Kafka must use Ssl or SaslSsl outside the Development environment.");
+    }
+
+    if (string.Equals(securityProtocol, "SaslSsl", StringComparison.OrdinalIgnoreCase) &&
+        (string.IsNullOrWhiteSpace(configuration["Messaging:Kafka:Security:SaslMechanism"]) ||
+         string.IsNullOrWhiteSpace(configuration["Messaging:Kafka:Security:SaslUsername"]) ||
+         string.IsNullOrWhiteSpace(configuration["Messaging:Kafka:Security:SaslPassword"])))
+    {
+      throw new InvalidOperationException(
+          "SaslSsl requires a SASL mechanism, username and password supplied through secure configuration.");
+    }
+
+    if (bool.TryParse(configuration["Messaging:Kafka:Consumer:EnableAutoCommit"], out var autoCommit) && autoCommit)
+      throw new InvalidOperationException("Kafka auto-commit must remain disabled so processing controls acknowledgements.");
+
+    if (bool.TryParse(configuration["Messaging:Kafka:Consumer:EnableAutoOffsetStore"], out var autoOffsetStore) && autoOffsetStore)
+      throw new InvalidOperationException("Kafka auto-offset-store must remain disabled so only completed processing advances offsets.");
+
+    if (!bool.TryParse(configuration["Messaging:Kafka:Failure:EnableDeadLetter"], out var deadLetterEnabled) || !deadLetterEnabled)
+      throw new InvalidOperationException("Kafka dead-letter publishing must be enabled outside Development.");
+
+    if (!bool.TryParse(configuration["Messaging:Kafka:Producer:EnableIdempotence"], out var idempotence) || !idempotence)
+      throw new InvalidOperationException("Kafka producer idempotence must be enabled outside Development.");
+
+    if (!string.Equals(configuration["Messaging:Kafka:Producer:Acks"], "All", StringComparison.OrdinalIgnoreCase))
+      throw new InvalidOperationException("Kafka producer acknowledgements must be set to All outside Development.");
+  }
+}
