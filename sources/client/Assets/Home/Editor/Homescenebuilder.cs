@@ -223,6 +223,119 @@ public static class HomeSceneBuilder
         EditorBuildSettings.scenes = scenes.ToArray();
     }
 
+    [MenuItem("MOBA/Home/Validate Home Scene Setup")]
+    public static void ValidateHomeSceneSetup()
+    {
+        List<string> errors = new();
+        Scene activeScene = SceneManager.GetActiveScene();
+        if (activeScene.path != HomeScenePath)
+        {
+            errors.Add("Open the generated Home scene before validating.");
+        }
+
+        GameObject canvasObject = GameObject.Find("Canvas");
+        if (canvasObject == null)
+        {
+            errors.Add("Canvas root is missing.");
+        }
+        else
+        {
+            if (canvasObject.GetComponent<CanvasScaler>() == null)
+            {
+                errors.Add("CanvasScaler is missing.");
+            }
+
+            if (canvasObject.GetComponent<ResponsiveCanvasScaler>() == null)
+            {
+                errors.Add("ResponsiveCanvasScaler is missing.");
+            }
+
+            ClientSettingsPanel settingsPanel = canvasObject.GetComponent<ClientSettingsPanel>();
+            if (settingsPanel == null)
+            {
+                errors.Add("ClientSettingsPanel is missing.");
+            }
+            else
+            {
+                SerializedObject settingsObject = new(settingsPanel);
+                if (settingsObject.FindProperty("openButton")?.objectReferenceValue == null)
+                {
+                    errors.Add("Settings navigation button is not wired.");
+                }
+
+                if (settingsObject.FindProperty("settingsService")?.objectReferenceValue == null)
+                {
+                    errors.Add("ClientSettingsService reference is not wired.");
+                }
+            }
+        }
+
+        GameObject servicesRoot = GameObject.Find("Services");
+        if (servicesRoot == null || servicesRoot.GetComponentInChildren<ClientSettingsService>(true) == null)
+        {
+            errors.Add("ClientSettingsService is missing from Services.");
+        }
+
+        EventSystem eventSystem = Object.FindObjectOfType<EventSystem>();
+        if (eventSystem == null)
+        {
+            errors.Add("EventSystem is missing.");
+        }
+        else if (eventSystem.GetComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>() == null)
+        {
+            errors.Add("InputSystemUIInputModule is missing; the project uses the new Input System.");
+        }
+
+        HomeNavigationController navigation = Object.FindObjectOfType<HomeNavigationController>();
+        if (navigation == null)
+        {
+            errors.Add("HomeNavigationController is missing.");
+        }
+        else
+        {
+            SerializedObject navigationObject = new(navigation);
+            SerializedProperty tabs = navigationObject.FindProperty("tabs");
+            if (tabs == null || tabs.arraySize != 4)
+            {
+                errors.Add("Home navigation must define exactly four content tabs.");
+            }
+            else
+            {
+                for (int i = 0; i < tabs.arraySize; i++)
+                {
+                    SerializedProperty tab = tabs.GetArrayElementAtIndex(i);
+                    if (tab.FindPropertyRelative("panel")?.objectReferenceValue == null ||
+                        tab.FindPropertyRelative("navButton")?.objectReferenceValue == null)
+                    {
+                        errors.Add($"Navigation tab at index {i} has missing references.");
+                    }
+                }
+            }
+        }
+
+        EditorBuildSettingsScene[] buildScenes = EditorBuildSettings.scenes;
+        if (buildScenes.Length == 0 ||
+            buildScenes[0].path != HomeScenePath ||
+            !buildScenes[0].enabled)
+        {
+            errors.Add("Home must be the first enabled scene in Build Settings.");
+        }
+
+        if (errors.Count == 0)
+        {
+            EditorUtility.DisplayDialog(
+                "Home Scene Validation",
+                "Home scene references, responsive display components, settings, input, and startup scene registration are valid.",
+                "OK");
+            Debug.Log("[HomeSceneBuilder] Home scene validation passed.");
+            return;
+        }
+
+        string message = string.Join("\n• ", errors);
+        Debug.LogError("[HomeSceneBuilder] Home scene validation failed:\n• " + message);
+        EditorUtility.DisplayDialog("Home Scene Validation", message, "OK");
+    }
+
     // =================================================================
     // Panels
     // =================================================================
