@@ -713,7 +713,7 @@ public static class HomeSceneBuilder
             GameObject prefabContents = PrefabUtility.LoadPrefabContents(path);
             try
             {
-                prefabContents.GetComponent<RectTransform>().sizeDelta = new Vector2(150, 56);
+                prefabContents.GetComponent<RectTransform>().sizeDelta = new Vector2(170, 88);
                 Image background = prefabContents.GetComponent<Image>();
                 if (background != null)
                 {
@@ -721,8 +721,8 @@ public static class HomeSceneBuilder
                 }
 
                 LayoutElement layout = GetOrAddComponent<LayoutElement>(prefabContents);
-                layout.preferredWidth = 150;
-                layout.preferredHeight = 56;
+                layout.preferredWidth = 170;
+                layout.preferredHeight = 88;
 
                 SetPrefabTextSize(prefabContents.transform, "Label", 26);
                 Transform indicator = prefabContents.transform.Find("SelectedIndicator");
@@ -755,8 +755,8 @@ public static class HomeSceneBuilder
         Button button = root.AddComponent<Button>();
 
         LayoutElement layoutElement = root.AddComponent<LayoutElement>();
-        layoutElement.preferredWidth = 110;
-        layoutElement.preferredHeight = 32;
+        layoutElement.preferredWidth = 170;
+        layoutElement.preferredHeight = 88;
 
         TextMeshProUGUI labelText = CreateTMPRaw(root.transform, "Label", "All", 26, TextAlignmentOptions.Center, Vector2.zero, Vector2.one);
 
