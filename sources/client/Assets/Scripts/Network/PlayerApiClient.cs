@@ -1,61 +1,45 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
 
 /// <summary>
-/// Client HTTP pour communiquer avec le backend Player/Profile.
-///
-/// Responsabilités :
-/// - GET /api/v1/players/{playerId} → PlayerProfileDto
-///
-/// Utilisation :
-/// - Instancié par PlayerProfileService avec l'URL de base du Player/Profile service.
-/// - Ce service est distinct de HeroService : la base URL n'est PAS la même
-///   (bounded context "User" séparé, cf. architecture Loadouts/User).
-/// - Les méthodes sont async/await — appeler depuis une coroutine ou un contexte async.
-///
-/// Contraintes :
-/// - JsonUtility ne supporte pas les tableaux JSON directs ([...]) ; non pertinent ici
-///   car cet endpoint retourne un objet unique.
-/// - UnityWebRequest doit être utilisé depuis le thread principal Unity.
+/// HTTP client for the Player/Profile bounded context.
+/// Its base URL is configured independently from HeroService.
+/// Call methods from Unity's main thread.
 /// </summary>
-public class PlayerApiClient
+public sealed class PlayerApiClient
 {
-  private readonly string _baseUrl;
+    private readonly string baseUrl;
 
-  public PlayerApiClient(string baseUrl)
-  {
-    _baseUrl = baseUrl;
-  }
-
-  // ---------------------------------------------------------------
-  // GET api/v1/players/{playerId}
-  // ---------------------------------------------------------------
-
-  /// <summary>
-  /// Récupère le profil du joueur (niveau, xp, monnaies, héros équipé).
-  /// Appelé par PlayerProfileService au démarrage du Home.
-  /// </summary>
-  public async Task<PlayerProfileDto> GetProfileAsync(string playerId)
-  {
-    var url = $"{_baseUrl}/api/v1/players/{playerId}";
-
-    using var req = UnityWebRequest.Get(url);
-    var op = req.SendWebRequest();
-
-    while (!op.isDone)
-      await Task.Yield();
-
-    if (req.result != UnityWebRequest.Result.Success)
+    public PlayerApiClient(string baseUrl)
     {
-      Debug.LogError($"[PlayerApiClient] Profile error ({req.responseCode}): {req.error}\nURL: {url}");
-      throw new Exception($"[PlayerApiClient] Profile error: {req.error}");
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            throw new ArgumentException("A player service base URL is required.", nameof(baseUrl));
+        }
+
+        this.baseUrl = baseUrl;
     }
 
-    var json = req.downloadHandler.text;
-    Debug.Log($"[PlayerApiClient] Profil reçu pour playerId={playerId}");
+    /// <summary>
+    /// Retrieves a player's profile.
+    /// </summary>
+    public async Task<PlayerProfileDto> GetProfileAsync(string playerId)
+    {
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            throw new ArgumentException("A non-empty player identifier is required.", nameof(playerId));
+        }
 
-    return JsonUtility.FromJson<PlayerProfileDto>(json);
-  }
+        string path = $"api/v1/players/{Uri.EscapeDataString(playerId)}";
+        string json = await UnityHttpClient.GetJsonAsync(baseUrl, path, nameof(PlayerApiClient));
+
+        PlayerProfileDto profile = JsonUtility.FromJson<PlayerProfileDto>(json);
+        if (profile == null)
+        {
+            throw new InvalidOperationException("The player service returned an empty or invalid profile response.");
+        }
+
+        return profile;
+    }
 }
