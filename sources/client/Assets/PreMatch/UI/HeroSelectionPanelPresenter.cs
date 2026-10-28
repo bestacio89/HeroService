@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MobaPrototype.Managers;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -73,12 +74,28 @@ public class HeroSelectionPanelPresenter : MonoBehaviour
         ClearHeroList();
         selectedHeroId = null;
 
-        // MVP V1 : liste statique
-        CreateHeroItem("hero_warrior", "Warrior");
-        CreateHeroItem("hero_mage", "Mage");
-        CreateHeroItem("hero_archer", "Archer");
-        CreateHeroItem("hero_tank", "Tank");
-        CreateHeroItem("hero_assassin", "Assassin");
+        if (matchBootstrapper == null)
+        {
+            Debug.LogWarning("[HeroSelectionPanelPresenter] MatchBootstrapper is missing; no selectable runtime heroes are available.");
+            return;
+        }
+
+        foreach (HeroSelectionMapping mapping in matchBootstrapper.AvailableHeroMappings)
+        {
+            if (mapping == null ||
+                mapping.heroDefinition == null ||
+                string.IsNullOrWhiteSpace(mapping.selectionHeroId))
+            {
+                continue;
+            }
+
+            CreateHeroItem(mapping.selectionHeroId, mapping.heroDefinition.HeroDisplayName);
+        }
+
+        if (spawnedItems.Count == 0)
+        {
+            Debug.LogWarning("[HeroSelectionPanelPresenter] No valid local hero mappings are configured in HeroSpawner.");
+        }
     }
 
     private void CreateHeroItem(string heroId, string displayName)
