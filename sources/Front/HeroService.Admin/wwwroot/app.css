@@ -346,3 +346,39 @@ button:focus-visible {
 .mud-icon-button { border-radius:9px; }
 @media(max-width:600px) { .admin-page-heading { align-items:stretch; } .admin-page-actions { justify-content:stretch; } .admin-page-actions>* { max-width:100%; } .app-environment-chip { display:none; } }
 @media(prefers-reduced-motion:reduce) { .workspace-card:hover { transform:none; } }
+
+
+/* Overview card styles are global because MudBlazor renders the paper element. */
+.overview-hero {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid var(--app-border);
+    border-radius: calc(var(--app-radius) + 4px);
+    background: radial-gradient(circle at 88% 8%, rgba(212, 175, 55, 0.14), transparent 28rem), linear-gradient(135deg, #0B0F14 0%, #121826 70%, #1B1710 100%);
+}
+.overview-title { margin-block: .65rem; color: var(--app-text); font-family: Cinzel, Georgia, serif; letter-spacing: .01em; }
+.overview-description { max-width: 58rem; color: var(--app-muted); }
+.admin-section { display: grid; gap: 1rem; }
+.app-content .mud-paper.workspace-card {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: 1.4rem;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius);
+    background: linear-gradient(155deg, var(--app-surface-raised), var(--app-surface));
+    transition: border-color 160ms ease, transform 160ms ease;
+}
+.app-content .mud-paper.workspace-card:hover { border-color: rgba(212, 175, 55, .4); transform: translateY(-2px); }
+.workspace-card-icon {
+    display: grid; width: 2.75rem; height: 2.75rem; place-items: center;
+    border: 1px solid var(--app-border); border-radius: 12px;
+    background: rgba(212, 175, 55, .08); color: var(--app-gold);
+}
+.workspace-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: auto; padding-top: .5rem; }
+.app-content .mud-paper.workspace-card-compact { padding: 1.15rem; }
+.workspace-card-compact .mud-button-root { margin-top: auto; }
+@media (prefers-reduced-motion: reduce) { .app-content .mud-paper.workspace-card:hover { transform: none; } }
