@@ -256,21 +256,40 @@ public sealed class ClientSettingsPanel : MonoBehaviour
     private Slider CreateSlider(Transform parent, string name)
     {
         GameObject root = CreateRect(name, parent);
-        Image background = root.AddComponent<Image>();
-        background.color = new Color(1f, 1f, 1f, 0.12f);
+        RectTransform rootRect = root.GetComponent<RectTransform>();
+        rootRect.sizeDelta = new Vector2(0f, 44f);
+
+        GameObject background = CreateRect("Track", root.transform);
+        RectTransform backgroundRect = background.GetComponent<RectTransform>();
+        backgroundRect.anchorMin = new Vector2(0f, 0.38f);
+        backgroundRect.anchorMax = new Vector2(1f, 0.62f);
+        backgroundRect.offsetMin = Vector2.zero;
+        backgroundRect.offsetMax = Vector2.zero;
+        Image backgroundImage = background.AddComponent<Image>();
+        backgroundImage.color = new Color(1f, 1f, 1f, 0.16f);
 
         GameObject fill = CreateRect("Fill", root.transform);
         RectTransform fillRect = fill.GetComponent<RectTransform>();
-        fillRect.anchorMin = Vector2.zero;
-        fillRect.anchorMax = Vector2.one;
+        fillRect.anchorMin = new Vector2(0f, 0.38f);
+        fillRect.anchorMax = new Vector2(1f, 0.62f);
         fillRect.offsetMin = Vector2.zero;
         fillRect.offsetMax = Vector2.zero;
         Image fillImage = fill.AddComponent<Image>();
         fillImage.color = AccentColor;
+        fillImage.raycastTarget = false;
+
+        GameObject handle = CreateRect("Handle", root.transform);
+        RectTransform handleRect = handle.GetComponent<RectTransform>();
+        handleRect.anchorMin = new Vector2(0f, 0.5f);
+        handleRect.anchorMax = new Vector2(0f, 0.5f);
+        handleRect.sizeDelta = new Vector2(44f, 44f);
+        Image handleImage = handle.AddComponent<Image>();
+        handleImage.color = Color.white;
 
         Slider slider = root.AddComponent<Slider>();
         slider.fillRect = fillRect;
-        slider.targetGraphic = background;
+        slider.handleRect = handleRect;
+        slider.targetGraphic = handleImage;
         slider.minValue = 0f;
         slider.maxValue = 1f;
         slider.direction = Slider.Direction.LeftToRight;
