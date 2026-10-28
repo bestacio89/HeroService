@@ -95,6 +95,13 @@ public static class HomeSceneBuilder
         GetOrAddComponent<ResponsiveCanvasScaler>(canvasGo);
         GetOrAddComponent<GraphicRaycaster>(canvasGo);
 
+        GameObject screenBackground = FindOrCreateUIChild(canvasGo.transform, "ScreenBackground");
+        SetAnchors(screenBackground.GetComponent<RectTransform>(), Vector2.zero, Vector2.one);
+        Image screenBackgroundImage = GetOrAddComponent<Image>(screenBackground);
+        screenBackgroundImage.color = BackgroundColor;
+        screenBackgroundImage.raycastTarget = false;
+        screenBackground.transform.SetAsFirstSibling();
+
         EventSystem eventSystem = Object.FindObjectOfType<EventSystem>();
         if (eventSystem == null)
         {
