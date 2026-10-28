@@ -36,6 +36,11 @@ public class HomeLandingPresenter : MonoBehaviour
 
     private void OnEnable()
     {
+        if (sceneLoader != null)
+        {
+            sceneLoader.OnLoadFailed += HandleSceneLoadFailed;
+        }
+
         if (playerProfileService == null)
         {
             Debug.LogWarning("[HomeLandingPresenter] PlayerProfileService is missing.");
@@ -44,11 +49,6 @@ public class HomeLandingPresenter : MonoBehaviour
 
         playerProfileService.OnProfileUpdated += RefreshStatusBar;
         RefreshStatusBar(playerProfileService.CurrentProfile);
-
-        if (sceneLoader != null)
-        {
-            sceneLoader.OnLoadFailed += HandleSceneLoadFailed;
-        }
     }
 
     private void OnDisable()
