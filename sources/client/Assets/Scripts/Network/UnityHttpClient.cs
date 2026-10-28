@@ -39,14 +39,39 @@ public static class UnityHttpClient
         }
 
         if (!Uri.TryCreate(baseUrl.TrimEnd('/') + "/", UriKind.Absolute, out Uri baseUri) ||
-            (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
+            (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps) ||
+            !string.IsNullOrEmpty(baseUri.Query) ||
+            !string.IsNullOrEmpty(baseUri.Fragment))
         {
-            throw new ArgumentException("The service base URL must be an absolute HTTP or HTTPS URL.", nameof(baseUrl));
+            throw new ArgumentException(
+                "The service base URL must be an absolute HTTP or HTTPS URL without a query or fragment.",
+                nameof(baseUrl));
         }
 
-        if (!Uri.TryCreate(baseUri, relativePath.TrimStart('/'), out Uri requestUri))
+        string normalizedPath = relativePath.TrimStart('/');
+        if (normalizedPath.Contains('\\') ||
+            normalizedPath.Contains('#') ||
+            Uri.TryCreate(normalizedPath, UriKind.Absolute, out _))
         {
-            throw new ArgumentException("The request path could not be combined with the service base URL.", nameof(relativePath));
+            throw new ArgumentException("The request path must be relative and must not contain a fragment or backslash.", nameof(relativePath));
+        }
+
+        string pathWithoutQuery = normalizedPath.Split('?')[0];
+        foreach (string segment in pathWithoutQuery.Split('/'))
+        {
+            string decodedSegment = Uri.UnescapeDataString(segment);
+            if (decodedSegment == "." || decodedSegment == ".." || decodedSegment.Contains('\\'))
+            {
+                throw new ArgumentException("The request path must not contain traversal segments.", nameof(relativePath));
+            }
+        }
+
+        if (!Uri.TryCreate(baseUri, normalizedPath, out Uri requestUri) ||
+            !string.Equals(requestUri.Scheme, baseUri.Scheme, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(requestUri.Host, baseUri.Host, StringComparison.OrdinalIgnoreCase) ||
+            requestUri.Port != baseUri.Port)
+        {
+            throw new ArgumentException("The request path must resolve within the configured service origin.", nameof(relativePath));
         }
 
         using var request = UnityWebRequest.Get(requestUri.AbsoluteUri);
