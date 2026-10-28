@@ -493,7 +493,27 @@ public static class HomeSceneBuilder
         HeroCollectionItemView existing = AssetDatabase.LoadAssetAtPath<HeroCollectionItemView>(path);
         if (existing != null)
         {
-            return existing;
+            GameObject prefabContents = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                prefabContents.GetComponent<RectTransform>().sizeDelta = new Vector2(320, 400);
+                Image background = prefabContents.GetComponent<Image>();
+                if (background != null)
+                {
+                    background.color = SurfaceColor;
+                }
+
+                SetPrefabTextSize(prefabContents.transform, "HeroName", 30);
+                SetPrefabTextSize(prefabContents.transform, "HeroClass", 24);
+                SetPrefabTextSize(prefabContents.transform, "PantheonTag", 20);
+                PrefabUtility.SaveAsPrefabAsset(prefabContents, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(prefabContents);
+            }
+
+            return AssetDatabase.LoadAssetAtPath<HeroCollectionItemView>(path);
         }
 
         EnsureFolder("Assets/Home/Prefabs");
@@ -535,7 +555,39 @@ public static class HomeSceneBuilder
         PantheonFilterChipView existing = AssetDatabase.LoadAssetAtPath<PantheonFilterChipView>(path);
         if (existing != null)
         {
-            return existing;
+            GameObject prefabContents = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                prefabContents.GetComponent<RectTransform>().sizeDelta = new Vector2(150, 56);
+                Image background = prefabContents.GetComponent<Image>();
+                if (background != null)
+                {
+                    background.color = new Color(1f, 1f, 1f, 0.05f);
+                }
+
+                LayoutElement layout = GetOrAddComponent<LayoutElement>(prefabContents);
+                layout.preferredWidth = 150;
+                layout.preferredHeight = 56;
+
+                SetPrefabTextSize(prefabContents.transform, "Label", 26);
+                Transform indicator = prefabContents.transform.Find("SelectedIndicator");
+                if (indicator != null)
+                {
+                    Image indicatorImage = indicator.GetComponent<Image>();
+                    if (indicatorImage != null)
+                    {
+                        indicatorImage.color = AccentColor;
+                    }
+                }
+
+                PrefabUtility.SaveAsPrefabAsset(prefabContents, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(prefabContents);
+            }
+
+            return AssetDatabase.LoadAssetAtPath<PantheonFilterChipView>(path);
         }
 
         EnsureFolder("Assets/Home/Prefabs");
@@ -708,6 +760,16 @@ public static class HomeSceneBuilder
             HomeTabType.Profile => "P",
             _ => "•"
         };
+    }
+
+    private static void SetPrefabTextSize(Transform root, string childName, float fontSize)
+    {
+        Transform child = root.Find(childName);
+        TMP_Text text = child != null ? child.GetComponent<TMP_Text>() : null;
+        if (text != null)
+        {
+            text.fontSize = fontSize;
+        }
     }
 
     private static void ApplyPanelBackground(GameObject panel)
