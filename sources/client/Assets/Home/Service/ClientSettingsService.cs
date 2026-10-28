@@ -266,15 +266,23 @@ public sealed class ClientSettingsService : MonoBehaviour
 
     private static int GetDefaultQualityLevel()
     {
-        int qualityCount = QualitySettings.names.Length;
-        if (qualityCount == 0)
+        string[] qualityNames = QualitySettings.names;
+        if (qualityNames.Length == 0)
         {
             return 0;
         }
 
-        return Application.isMobilePlatform
-            ? Mathf.Min(1, qualityCount - 1)
-            : qualityCount - 1;
+        string preferredName = Application.isMobilePlatform ? "Mobile" : "PC";
+        int preferredIndex = Array.FindIndex(
+            qualityNames,
+            name => string.Equals(name, preferredName, StringComparison.OrdinalIgnoreCase));
+
+        if (preferredIndex >= 0)
+        {
+            return preferredIndex;
+        }
+
+        return Application.isMobilePlatform ? 0 : qualityNames.Length - 1;
     }
 
     private static Resolution[] GetAvailableResolutions()
