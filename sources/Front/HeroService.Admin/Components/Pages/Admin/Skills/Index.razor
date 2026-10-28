@@ -85,6 +85,12 @@
                               Immediate="true"
                               DebounceInterval="200"
                               Clearable="true" />
+                <MudSelect T="Guid?" Label="Filter by hero" Value="@_selectedHeroId" ValueChanged="OnHeroFilterChanged" Clearable="true" Dense="true" Variant="Variant.Outlined">
+                    @foreach (var hero in HeroesWithSkills)
+                    {
+                        <MudSelectItem @key="hero.Id" T="Guid?" Value="@((Guid?)hero.Id)">@GetHeroLabel(hero)</MudSelectItem>
+                    }
+                </MudSelect>
                 <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
                     <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mr-1">TYPE</MudText>
                     <MudButton Size="Size.Small"
@@ -173,6 +179,26 @@
                                         <MudText Typo="Typo.body2" Color="Color.Secondary">
                                             @SkillTheme.GetDescription(skill.SkillType)
                                         </MudText>
+                                    </div>
+
+                                    <div class="skill-hero-associations">
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">USED BY</MudText>
+                                        @if (GetHeroesForSkill(skill.Id) is { Count: > 0 } owners)
+                                        {
+                                            <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap">
+                                                @foreach (var hero in owners)
+                                                {
+                                                    <MudChip @key="hero.Id" T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Default">
+                                                        <MudIcon Icon="@Icons.Material.Filled.Shield" Size="Size.Small" Class="mr-1" />
+                                                        @GetHeroLabel(hero)
+                                                    </MudChip>
+                                                }
+                                            </MudStack>
+                                        }
+                                        else
+                                        {
+                                            <MudText Typo="Typo.body2" Color="Color.Secondary">Unassigned to a hero</MudText>
+                                        }
                                     </div>
 
                                     <MudDivider />
