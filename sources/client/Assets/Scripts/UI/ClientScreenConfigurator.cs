@@ -10,7 +10,7 @@ using UnityEngine.UI;
 /// </summary>
 public static class ClientScreenConfigurator
 {
-    private static readonly string[] FullScreenSafeAreaRoots =
+    private static readonly string[] LayoutSafeAreaRoots =
     {
         "HeroListContainer"
     };
@@ -51,9 +51,9 @@ public static class ClientScreenConfigurator
             }
         }
 
-        foreach (string rootName in FullScreenSafeAreaRoots)
+        foreach (string rootName in LayoutSafeAreaRoots)
         {
-            ConfigureNamedRoot<SafeAreaController>(scene, rootName);
+            ConfigureNamedRoot<SafeAreaLayoutPadding>(scene, rootName);
         }
 
         foreach (string rootName in EdgePaddedRoots)
