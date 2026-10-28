@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -34,9 +35,38 @@ public static class HomeSceneBuilder
     private static readonly Color SurfaceColor = new(0.07f, 0.085f, 0.12f, 0.96f);
     private static readonly Color AccentColor = new(0.84f, 0.68f, 0.36f, 1f);
 
+    private const string HomeScenePath = "Assets/Home/Scenes/Home.unity";
+
     [MenuItem("MOBA/Home/Build Home Scene And Prefabs")]
     public static void BuildHomeScene()
     {
+        EnsureFolder("Assets/Home/Scenes");
+
+        Scene activeScene = SceneManager.GetActiveScene();
+        if (activeScene.path != HomeScenePath)
+        {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                return;
+            }
+
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(HomeScenePath) != null)
+            {
+                EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+            }
+            else
+            {
+                Scene newHomeScene = EditorSceneManager.NewScene(
+                    NewSceneSetup.EmptyScene,
+                    NewSceneMode.Single);
+                if (!EditorSceneManager.SaveScene(newHomeScene, HomeScenePath))
+                {
+                    Debug.LogError("[HomeSceneBuilder] Could not create the Home scene asset.");
+                    return;
+                }
+            }
+        }
+
         // 1. Services (hors Canvas — objets logiques persistants)
         GameObject servicesRoot = FindOrCreateRoot("Services");
 
@@ -146,10 +176,37 @@ public static class HomeSceneBuilder
         panelProfile.SetActive(false);
 
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+        AssetDatabase.SaveAssets();
+        if (!EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), HomeScenePath))
+        {
+            Debug.LogError("[HomeSceneBuilder] Home scene changes could not be saved.");
+            return;
+        }
+
+        EnsureHomeSceneRegistered();
         EditorUtility.DisplayDialog(
             "Home Scene Builder",
-            "Home scene hierarchy built. Save the scene now (Ctrl+S).",
+            "Home scene built, saved, and registered as the startup scene. The Match scene remains available in Build Settings.",
             "OK");
+    }
+
+    private static void EnsureHomeSceneRegistered()
+    {
+        EditorBuildSettingsScene[] configuredScenes = EditorBuildSettings.scenes;
+        List<EditorBuildSettingsScene> scenes = new()
+        {
+            new EditorBuildSettingsScene(HomeScenePath, true)
+        };
+
+        foreach (EditorBuildSettingsScene scene in configuredScenes)
+        {
+            if (scene.path != HomeScenePath)
+            {
+                scenes.Add(scene);
+            }
+        }
+
+        EditorBuildSettings.scenes = scenes.ToArray();
     }
 
     // =================================================================
