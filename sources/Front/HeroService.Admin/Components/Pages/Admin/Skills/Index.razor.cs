@@ -30,6 +30,10 @@ public sealed partial class Index : ComponentBase
   private bool Loading { get; set; } = true;
   private string? ErrorMessage { get; set; }
   private int _skillTypeCount;
+  private const int PageSize = 24;
+  private int _currentPage = 1;
+  private int PageCount => Math.Max(1, (FilteredItems.Count + PageSize - 1) / PageSize);
+  private IReadOnlyList<SkillDto> VisibleItems => FilteredItems.Skip((_currentPage - 1) * PageSize).Take(PageSize).ToArray();
 
   protected override Task OnInitializedAsync() => LoadAsync();
 
@@ -109,6 +113,19 @@ public sealed partial class Index : ComponentBase
     }
 
     FilteredItems = query.ToArray();
+    _currentPage = 1;
+  }
+
+  private void PreviousPage()
+  {
+    if (_currentPage > 1)
+      _currentPage--;
+  }
+
+  private void NextPage()
+  {
+    if (_currentPage < PageCount)
+      _currentPage++;
   }
 
   private void SelectType(SkillType? type)
