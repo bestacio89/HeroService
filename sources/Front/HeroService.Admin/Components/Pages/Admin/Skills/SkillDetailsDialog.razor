@@ -30,15 +30,87 @@
                 <section>
                     <MudText Typo="Typo.h6" Class="mb-3">Base statistics</MudText>
                     <MudGrid Spacing="2">
-                        @if (CurrentStats.Damage is float damage) { <MudItem xs="6" sm="4" md="3"><MudPaper Class="pa-3" Elevation="0" Outlined="true"><MudText Typo="Typo.caption" Color="Color.Secondary">Damage</MudText><MudText Typo="Typo.h6">@FormatStat(damage)</MudText></MudPaper></MudItem> }
-                        @if (CurrentStats.Healing is float healing) { <MudItem xs="6" sm="4" md="3"><MudPaper Class="pa-3" Elevation="0" Outlined="true"><MudText Typo="Typo.caption" Color="Color.Secondary">Healing</MudText><MudText Typo="Typo.h6">@FormatStat(healing)</MudText></MudPaper></MudItem> }
-                        @if (CurrentStats.ShieldValue is float shield) { <MudItem xs="6" sm="4" md="3"><MudPaper Class="pa-3" Elevation="0" Outlined="true"><MudText Typo="Typo.caption" Color="Color.Secondary">Shield</MudText><MudText Typo="Typo.h6">@FormatStat(shield)</MudText></MudPaper></MudItem> }
-                        @if (CurrentStats.Cooldown is float cooldown) { <MudItem xs="6" sm="4" md="3"><MudPaper Class="pa-3" Elevation="0" Outlined="true"><MudText Typo="Typo.caption" Color="Color.Secondary">Cooldown</MudText><MudText Typo="Typo.h6">@FormatStat(cooldown, " s")</MudText></MudPaper></MudItem> }
-                        @if (CurrentStats.ManaCost is float manaCost) { <MudItem xs="6" sm="4" md="3"><MudPaper Class="pa-3" Elevation="0" Outlined="true"><MudText Typo="Typo.caption" Color="Color.Secondary">Mana cost</MudText><MudText Typo="Typo.h6">@FormatStat(manaCost)</MudText></MudPaper></MudItem> }
-                        @if (CurrentStats.CastTime is float castTime) { <MudItem xs="6" sm="4" md="3"><MudPaper Class="pa-3" Elevation="0" Outlined="true"><MudText Typo="Typo.caption" Color="Color.Secondary">Cast time</MudText><MudText Typo="Typo.h6">@FormatStat(castTime, " s")</MudText></MudPaper></MudItem> }
-                        @if (CurrentStats.ChannelDuration is float channelDuration) { <MudItem xs="6" sm="4" md="3"><MudPaper Class="pa-3" Elevation="0" Outlined="true"><MudText Typo="Typo.caption" Color="Color.Secondary">Channel duration</MudText><MudText Typo="Typo.h6">@FormatStat(channelDuration, " s")</MudText></MudPaper></MudItem> }
-                        @if (CurrentStats.Range is float range) { <MudItem xs="6" sm="4" md="3"><MudPaper Class="pa-3" Elevation="0" Outlined="true"><MudText Typo="Typo.caption" Color="Color.Secondary">Range</MudText><MudText Typo="Typo.h6">@FormatStat(range)</MudText></MudPaper></MudItem> }
-                        @if (CurrentStats.CrowdControlDuration is float crowdControl) { <MudItem xs="6" sm="4" md="3"><MudPaper Class="pa-3" Elevation="0" Outlined="true"><MudText Typo="Typo.caption" Color="Color.Secondary">Crowd control</MudText><MudText Typo="Typo.h6">@FormatStat(crowdControl, " s")</MudText></MudPaper></MudItem> }
+                        @if (CurrentStats.Damage is float damage)
+                        {
+                            <MudItem xs="6" sm="4" md="3">
+                                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Damage</MudText>
+                                    <MudText Typo="Typo.h6">@FormatStat(damage)</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @if (CurrentStats.Healing is float healing)
+                        {
+                            <MudItem xs="6" sm="4" md="3">
+                                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Healing</MudText>
+                                    <MudText Typo="Typo.h6">@FormatStat(healing)</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @if (CurrentStats.ShieldValue is float shield)
+                        {
+                            <MudItem xs="6" sm="4" md="3">
+                                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Shield</MudText>
+                                    <MudText Typo="Typo.h6">@FormatStat(shield)</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @if (CurrentStats.Cooldown is float cooldown)
+                        {
+                            <MudItem xs="6" sm="4" md="3">
+                                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Cooldown</MudText>
+                                    <MudText Typo="Typo.h6">@FormatStat(cooldown, " s")</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @if (CurrentStats.ManaCost is float manaCost)
+                        {
+                            <MudItem xs="6" sm="4" md="3">
+                                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Mana cost</MudText>
+                                    <MudText Typo="Typo.h6">@FormatStat(manaCost)</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @if (CurrentStats.CastTime is float castTime)
+                        {
+                            <MudItem xs="6" sm="4" md="3">
+                                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Cast time</MudText>
+                                    <MudText Typo="Typo.h6">@FormatStat(castTime, " s")</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @if (CurrentStats.ChannelDuration is float channelDuration)
+                        {
+                            <MudItem xs="6" sm="4" md="3">
+                                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Channel duration</MudText>
+                                    <MudText Typo="Typo.h6">@FormatStat(channelDuration, " s")</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @if (CurrentStats.Range is float range)
+                        {
+                            <MudItem xs="6" sm="4" md="3">
+                                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Range</MudText>
+                                    <MudText Typo="Typo.h6">@FormatStat(range)</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        @if (CurrentStats.CrowdControlDuration is float crowdControl)
+                        {
+                            <MudItem xs="6" sm="4" md="3">
+                                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">Crowd control</MudText>
+                                    <MudText Typo="Typo.h6">@FormatStat(crowdControl, " s")</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        }
                     </MudGrid>
                 </section>
             }
@@ -79,15 +151,66 @@
                                     </MudStack>
 
                                     <MudGrid Spacing="2">
-                                        @if (effect.Magnitude != 0) { <MudItem xs="6" sm="3"><MudText Typo="Typo.caption" Color="Color.Secondary">Magnitude</MudText><MudText Typo="Typo.body1">@effect.Magnitude.ToString("0.##")</MudText></MudItem> }
-                                        @if (effect.Duration > 0) { <MudItem xs="6" sm="3"><MudText Typo="Typo.caption" Color="Color.Secondary">Duration</MudText><MudText Typo="Typo.body1">@FormatStat(effect.Duration, " s")</MudText></MudItem> }
-                                        @if (effect.Radius > 0) { <MudItem xs="6" sm="3"><MudText Typo="Typo.caption" Color="Color.Secondary">Radius</MudText><MudText Typo="Typo.body1">@FormatStat(effect.Radius)</MudText></MudItem> }
-                                        <MudItem xs="6" sm="3"><MudText Typo="Typo.caption" Color="Color.Secondary">Target</MudText><MudText Typo="Typo.body1">@effect.TargetType</MudText></MudItem>
-                                        @if (effect.StackType.ToString() != "None") { <MudItem xs="6" sm="3"><MudText Typo="Typo.caption" Color="Color.Secondary">Stacking</MudText><MudText Typo="Typo.body1">@effect.StackType</MudText></MudItem> }
-                                        @if (effect.MaxStacks > 1) { <MudItem xs="6" sm="3"><MudText Typo="Typo.caption" Color="Color.Secondary">Maximum stacks</MudText><MudText Typo="Typo.body1">@effect.MaxStacks</MudText></MudItem> }
-                                        @if (effect.AttackDamageRatio is float attackRatio && attackRatio != 0) { <MudItem xs="6" sm="3"><MudText Typo="Typo.caption" Color="Color.Secondary">Attack scaling</MudText><MudText Typo="Typo.body1">@FormatStat(attackRatio)</MudText></MudItem> }
-                                        @if (effect.MagicDamageRatio is float magicRatio && magicRatio != 0) { <MudItem xs="6" sm="3"><MudText Typo="Typo.caption" Color="Color.Secondary">Magic scaling</MudText><MudText Typo="Typo.body1">@FormatStat(magicRatio)</MudText></MudItem> }
-                                        @if (effect.MaxHealthRatio is float healthRatio && healthRatio != 0) { <MudItem xs="6" sm="3"><MudText Typo="Typo.caption" Color="Color.Secondary">Max-health scaling</MudText><MudText Typo="Typo.body1">@FormatStat(healthRatio)</MudText></MudItem> }
+                                        @if (effect.Magnitude != 0)
+                                        {
+                                            <MudItem xs="6" sm="3">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Magnitude</MudText>
+                                                <MudText Typo="Typo.body1">@effect.Magnitude.ToString("0.##")</MudText>
+                                            </MudItem>
+                                        }
+                                        @if (effect.Duration > 0)
+                                        {
+                                            <MudItem xs="6" sm="3">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Duration</MudText>
+                                                <MudText Typo="Typo.body1">@FormatStat(effect.Duration, " s")</MudText>
+                                            </MudItem>
+                                        }
+                                        @if (effect.Radius > 0)
+                                        {
+                                            <MudItem xs="6" sm="3">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Radius</MudText>
+                                                <MudText Typo="Typo.body1">@FormatStat(effect.Radius)</MudText>
+                                            </MudItem>
+                                        }
+                                        <MudItem xs="6" sm="3">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Target</MudText>
+                                            <MudText Typo="Typo.body1">@effect.TargetType</MudText>
+                                        </MudItem>
+                                        @if (effect.StackType != HeroService.Domain.Heroes.Skills.StackType.None)
+                                        {
+                                            <MudItem xs="6" sm="3">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Stacking</MudText>
+                                                <MudText Typo="Typo.body1">@effect.StackType</MudText>
+                                            </MudItem>
+                                        }
+                                        @if (effect.MaxStacks > 1)
+                                        {
+                                            <MudItem xs="6" sm="3">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Maximum stacks</MudText>
+                                                <MudText Typo="Typo.body1">@effect.MaxStacks</MudText>
+                                            </MudItem>
+                                        }
+                                        @if (effect.AttackDamageRatio is float attackRatio && attackRatio != 0)
+                                        {
+                                            <MudItem xs="6" sm="3">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Attack scaling</MudText>
+                                                <MudText Typo="Typo.body1">@FormatStat(attackRatio)</MudText>
+                                            </MudItem>
+                                        }
+                                        @if (effect.MagicDamageRatio is float magicRatio && magicRatio != 0)
+                                        {
+                                            <MudItem xs="6" sm="3">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Magic scaling</MudText>
+                                                <MudText Typo="Typo.body1">@FormatStat(magicRatio)</MudText>
+                                            </MudItem>
+                                        }
+                                        @if (effect.MaxHealthRatio is float healthRatio && healthRatio != 0)
+                                        {
+                                            <MudItem xs="6" sm="3">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Max-health scaling</MudText>
+                                                <MudText Typo="Typo.body1">@FormatStat(healthRatio)</MudText>
+                                            </MudItem>
+                                        }
                                     </MudGrid>
 
                                     <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap">
