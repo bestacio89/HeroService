@@ -1,4 +1,7 @@
 using Franz.Common.Business.Extensions;
+using Franz.Common.Caching.Abstractions;
+using Franz.Common.Caching.Extensions;
+using HeroService.API.Caching;
 using Franz.Common.EntityFramework.Auditing;
 using Franz.Common.EntityFramework.Extensions;
 using Franz.Common.Http.Bootstrap.Extensions;
@@ -59,6 +62,11 @@ builder.Services.AddFranzMediatorV2Default (null ,
   .AddFranzSerilogAuditPipeline()
   .AddFranzSerilogLoggingPipeline();
 
+// Cache query responses through the mediator pipeline. Commands are excluded
+// by HeroServiceQueryCacheMetadataProvider.
+builder.Services.AddFranzMediatorCaching(config);
+builder.Services.AddSingleton<ICacheMetadataProvider, HeroServiceQueryCacheMetadataProvider>();
+
 builder.Services.AddFranzResilience(config);
 
 // =========================================================
@@ -87,6 +95,9 @@ using (var scope = app.Services.CreateScope())
         "Higher Environment detected. Database runtime initialization handled by orchestration plane.");
   }
 }
+
+// Populate required cache entries before the host begins accepting traffic.
+await HeroServiceCacheWarmup.WarmAsync(app.Services, app.Lifetime.ApplicationStopping);
 
 app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 
