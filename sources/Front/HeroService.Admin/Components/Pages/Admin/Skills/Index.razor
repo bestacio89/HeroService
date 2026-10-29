@@ -156,7 +156,7 @@
         else
         {
             <MudGrid Spacing="3">
-                @foreach (var skill in FilteredItems)
+                @foreach (var skill in VisibleItems)
                 {
                     <MudItem xs="12" sm="6" lg="4" xl="3" @key="skill.Id">
                         <MudCard Class="skill-library-card" Style="@SkillTheme.GetCardStyle(skill.SkillType)" Elevation="0">
@@ -203,24 +203,21 @@
 
                                     <MudDivider />
 
-                                    <MudGrid Spacing="1" Class="skill-library-stats">
-                                        <MudItem xs="6">
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">COOLDOWN</MudText>
-                                            <MudText Typo="Typo.subtitle2">@FormatStat(skill.BaseStats?.Cooldown, " s")</MudText>
-                                        </MudItem>
-                                        <MudItem xs="6">
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">RANGE</MudText>
-                                            <MudText Typo="Typo.subtitle2">@FormatStat(skill.BaseStats?.Range)</MudText>
-                                        </MudItem>
-                                        <MudItem xs="6">
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">DAMAGE</MudText>
-                                            <MudText Typo="Typo.subtitle2">@FormatStat(skill.BaseStats?.Damage)</MudText>
-                                        </MudItem>
-                                        <MudItem xs="6">
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">EFFECTS</MudText>
-                                            <MudText Typo="Typo.subtitle2">@(skill.Effects?.Count ?? 0)</MudText>
-                                        </MudItem>
-                                    </MudGrid>
+                                    <div class="skill-library-stats">
+                                        @if (skill.BaseStats?.Cooldown is float cooldown)
+                                        {
+                                            <div class="skill-library-stat"><MudText Typo="Typo.caption" Color="Color.Secondary">COOLDOWN</MudText><MudText Typo="Typo.subtitle2">@($"{cooldown:0.##} s")</MudText></div>
+                                        }
+                                        @if (skill.BaseStats?.Range is float range)
+                                        {
+                                            <div class="skill-library-stat"><MudText Typo="Typo.caption" Color="Color.Secondary">RANGE</MudText><MudText Typo="Typo.subtitle2">@($"{range:0.##}")</MudText></div>
+                                        }
+                                        @if (skill.BaseStats?.Damage is float damage)
+                                        {
+                                            <div class="skill-library-stat"><MudText Typo="Typo.caption" Color="Color.Secondary">DAMAGE</MudText><MudText Typo="Typo.subtitle2">@($"{damage:0.##}")</MudText></div>
+                                        }
+                                        <div class="skill-library-stat"><MudText Typo="Typo.caption" Color="Color.Secondary">EFFECTS</MudText><MudText Typo="Typo.subtitle2">@(skill.Effects?.Count ?? 0)</MudText></div>
+                                    </div>
 
                                     @if (skill.Effects is { Count: > 0 })
                                     {
@@ -258,6 +255,20 @@
                     </MudItem>
                 }
             </MudGrid>
+
+            @if (FilteredItems.Count > PageSize)
+            {
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mt-4">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Showing @((_currentPage - 1) * PageSize + 1)–@Math.Min(_currentPage * PageSize, FilteredItems.Count) of @FilteredItems.Count skills
+                    </MudText>
+                    <MudStack Row="true" Spacing="2">
+                        <MudButton Variant="Variant.Outlined" Disabled="@(_currentPage <= 1)" OnClick="PreviousPage">Previous</MudButton>
+                        <MudText Typo="Typo.body2" Class="align-self-center">Page @_currentPage of @PageCount</MudText>
+                        <MudButton Variant="Variant.Outlined" Disabled="@(_currentPage >= PageCount)" OnClick="NextPage">Next</MudButton>
+                    </MudStack>
+                </MudStack>
+            }
         }
     }
 </MudStack>
