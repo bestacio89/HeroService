@@ -1,4 +1,4 @@
-﻿using Franz.Common.Mapping.Profiles;
+using Franz.Common.Mapping.Profiles;
 using HeroService.Contracts.DTOs.Skills;
 using HeroService.Domain.Heroes.Skills;
 
@@ -18,10 +18,11 @@ public sealed class SkillProfile : FranzMapProfile
           Name = skill.Name,
           SkillType = skill.SkillType,
 
-          // OPTIMIZATION: Delegate nested collection mapping to the engine.
-          // This eliminates the manual inline LINQ lambda allocation storm and leverages
-          // the pre-compiled, cached execution plan of the SkillEffect profile.
-          Effects = context.Map<IReadOnlyCollection<SkillEffect>, List<SkillEffectDto>>(skill.Effects),
+          // Map each effect from this skill explicitly so collection mapping
+          // cannot reuse another skill's effect collection.
+          Effects = skill.Effects
+              .Select(effect => context.Map<SkillEffect, SkillEffectDto>(effect))
+              .ToList(),
 
           BaseStats = skill.BaseStats != null
                 ? context.Map<SkillBaseStats, SkillBaseStatsDto>(skill.BaseStats)

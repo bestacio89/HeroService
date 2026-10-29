@@ -5,7 +5,8 @@ namespace HeroService.API.Caching;
 
 /// <summary>
 /// Applies mediator response caching to query requests only.
-/// Snapshot queries retain their existing domain-specific cache keys.
+/// Snapshot projections and per-skill detail queries retain their existing
+/// data-loading behavior rather than sharing cached entity details.
 /// </summary>
 public sealed class HeroServiceQueryCacheMetadataProvider : ICacheMetadataProvider
 {
@@ -15,7 +16,10 @@ public sealed class HeroServiceQueryCacheMetadataProvider : ICacheMetadataProvid
 
     var requestType = request.GetType();
 
-    if (requestType.Name is "GetHeroSnapshotQuery" or "BrowseHeroSnapshotsQuery")
+    if (requestType.Name is
+        "GetHeroSnapshotQuery" or
+        "BrowseHeroSnapshotsQuery" or
+        "GetSkillDetailsQuery")
       return false;
 
     return requestType
