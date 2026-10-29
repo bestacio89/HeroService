@@ -22,30 +22,12 @@ public sealed partial class SkillDetailsDialog : ComponentBase
   private ILogger<SkillDetailsDialog> Logger { get; set; } = default!;
 
   private SkillLoreDto? Lore { get; set; }
-  private SkillBaseStatsDto? BaseStats { get; set; }
   private bool IsLoadingLore { get; set; } = true;
   private bool DetailsWarning { get; set; }
 
-  private SkillBaseStatsDto? CurrentStats => BaseStats ?? Skill.BaseStats;
+  private SkillBaseStatsDto? CurrentStats => Skill.BaseStats;
 
-  protected override async Task OnInitializedAsync()
-  {
-    BaseStats = Skill.BaseStats;
-    await Task.WhenAll(LoadBaseStatsAsync(), LoadLoreAsync());
-  }
-
-  private async Task LoadBaseStatsAsync()
-  {
-    try
-    {
-      BaseStats = await Client.GetBaseStatsAsync(Skill.Id) ?? Skill.BaseStats;
-    }
-    catch (Exception exception)
-    {
-      Logger.LogWarning(exception, "Unable to load base stats for skill {SkillId}; using the details payload when available.", Skill.Id);
-      DetailsWarning = true;
-    }
-  }
+  protected override Task OnInitializedAsync() => LoadLoreAsync();
 
   private async Task LoadLoreAsync()
   {
