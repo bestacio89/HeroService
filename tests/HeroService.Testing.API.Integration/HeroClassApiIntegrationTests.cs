@@ -88,7 +88,7 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-      builder.UseEnvironment("Production");
+      builder.UseEnvironment("Development");
       builder.ConfigureTestServices(services =>
       {
         services.AddAuthentication(options =>
