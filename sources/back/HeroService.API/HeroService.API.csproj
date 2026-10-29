@@ -23,6 +23,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCoreRateLimit" />
     <PackageReference Include="Franz.Common.Hosting" />
+    <PackageReference Include="Franz.Common.Caching" />
     <PackageReference Include="Franz.Common.Http" />
     <PackageReference Include="Franz.Common.Http.Bootstrap" />
     <PackageReference Include="Franz.Common.Http.Client" />
