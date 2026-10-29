@@ -1,4 +1,6 @@
+using Franz.Common.Caching.Abstractions;
 using Franz.Common.Mediator.Dispatchers;
+using HeroService.Application.Heroes.Versioned.Snapshotting;
 using HeroService.Contracts.Queries.Heroes;
 using HeroService.Contracts.Queries.Heroes.Classes;
 using HeroService.Contracts.Queries.Modifiers;
@@ -22,8 +24,10 @@ public static class HeroServiceCacheWarmup
     ArgumentNullException.ThrowIfNull(services);
 
     await using var scope = services.CreateAsyncScope();
-    var dispatcher = scope.ServiceProvider.GetRequiredService<IDispatcher>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+    var scopedServices = scope.ServiceProvider;
+    var dispatcher = scopedServices.GetRequiredService<IDispatcher>();
+    var cache = scopedServices.GetRequiredService<ICacheProvider>();
+    var logger = scopedServices.GetRequiredService<ILoggerFactory>()
         .CreateLogger("HeroService.CacheWarmup");
 
     // Cache the complete skill catalogue, including mapped effects and stats.
@@ -40,23 +44,25 @@ public static class HeroServiceCacheWarmup
         new GetAllHeroClassesQuery(),
         cancellationToken);
 
-    // Warm the complete snapshot projection first, then the per-hero keys used
-    // by individual snapshot requests. Each handler retains its own key policy.
+    // The browse handler computes the full snapshot projection in one pass.
+    // Reuse those results to seed the per-hero keys without recomputing each
+    // snapshot or opening hundreds of redundant database queries.
     var snapshots = await dispatcher.SendAsync(
         new BrowseHeroSnapshotsQuery(),
         cancellationToken);
 
-    foreach (var hero in heroes)
+    foreach (var snapshot in snapshots)
     {
       cancellationToken.ThrowIfCancellationRequested();
 
-      await dispatcher.SendAsync(
-          new GetHeroSnapshotQuery(hero.Id),
+      await cache.GetOrSetAsync(
+          HeroSnapshotCaching.SingleActiveKey(snapshot.HeroId),
+          _ => Task.FromResult(snapshot),
+          options: null,
           cancellationToken);
     }
 
-    // These bulk modifier reads are part of the skill/hero data used by the
-    // client and are cached by the mediator query pipeline.
+    // Warm the active-version modifier catalogues used by hero/skill views.
     await dispatcher.SendAsync(
         new GetSkillModifiersByGameVersionQuery(),
         cancellationToken);
