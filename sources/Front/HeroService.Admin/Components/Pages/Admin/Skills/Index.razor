@@ -203,21 +203,33 @@
 
                                     <MudDivider />
 
-                                    <div class="skill-library-stats">
+                                    <MudGrid Spacing="1" Class="skill-library-stats">
                                         @if (skill.BaseStats?.Cooldown is float cooldown)
                                         {
-                                            <div class="skill-library-stat"><MudText Typo="Typo.caption" Color="Color.Secondary">COOLDOWN</MudText><MudText Typo="Typo.subtitle2">@($"{cooldown:0.##} s")</MudText></div>
+                                            <MudItem xs="6">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">COOLDOWN</MudText>
+                                                <MudText Typo="Typo.subtitle2">@($"{cooldown:0.##} s")</MudText>
+                                            </MudItem>
                                         }
                                         @if (skill.BaseStats?.Range is float range)
                                         {
-                                            <div class="skill-library-stat"><MudText Typo="Typo.caption" Color="Color.Secondary">RANGE</MudText><MudText Typo="Typo.subtitle2">@($"{range:0.##}")</MudText></div>
+                                            <MudItem xs="6">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">RANGE</MudText>
+                                                <MudText Typo="Typo.subtitle2">@($"{range:0.##}")</MudText>
+                                            </MudItem>
                                         }
                                         @if (skill.BaseStats?.Damage is float damage)
                                         {
-                                            <div class="skill-library-stat"><MudText Typo="Typo.caption" Color="Color.Secondary">DAMAGE</MudText><MudText Typo="Typo.subtitle2">@($"{damage:0.##}")</MudText></div>
+                                            <MudItem xs="6">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">DAMAGE</MudText>
+                                                <MudText Typo="Typo.subtitle2">@($"{damage:0.##}")</MudText>
+                                            </MudItem>
                                         }
-                                        <div class="skill-library-stat"><MudText Typo="Typo.caption" Color="Color.Secondary">EFFECTS</MudText><MudText Typo="Typo.subtitle2">@(skill.Effects?.Count ?? 0)</MudText></div>
-                                    </div>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">EFFECTS</MudText>
+                                            <MudText Typo="Typo.subtitle2">@(skill.Effects?.Count ?? 0)</MudText>
+                                        </MudItem>
+                                    </MudGrid>
 
                                     @if (skill.Effects is { Count: > 0 })
                                     {
