@@ -25,8 +25,8 @@ public static class HeroServiceHttpArchitectureExtensions
 
     services.AddHttpArchitecture(hostEnvironment, configuration);
 
-    // Franz.Common 3.0 exposes both JsonSerializerOptions and IOptions<JsonSerializerOptions>
-    // constructors. Resolve the configured options explicitly to avoid ambiguous DI activation.
+    // HeroService is monotenant, so cache keys must not be tenant-prefixed.
+    // Resolve configured options explicitly because Franz.Common 3.0 exposes two DI-resolvable constructors.
     services.Replace(ServiceDescriptor.Singleton<ICacheKeyStrategy>(serviceProvider =>
         new DefaultCacheKeyStrategy(
             serviceProvider.GetRequiredService<IOptions<JsonSerializerOptions>>())));
