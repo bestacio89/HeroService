@@ -120,12 +120,13 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
         var values = new Dictionary<string, string?>
         {
           ["Database:Provider"] = "Postgres",
+          ["Database:IsolationMode"] = "SharedDatabase",
           ["Database:ServerName"] = _database.Hostname,
           ["Database:DatabaseName"] = "hero_service_api_tests",
           ["Database:UserName"] = "postgres",
           ["Database:Password"] = "postgres",
           ["Database:Port"] = _database.GetMappedPublicPort(5432).ToString(),
-          ["Database:Ssl"] = "Disable",
+          ["Database:SslMode"] = "Disable",
           ["Caching:ConnectionString"] = _cache.GetConnectionString(),
           ["Caching:KeyPrefix"] = "HeroServiceTests"
         };
