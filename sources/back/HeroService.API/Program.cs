@@ -4,6 +4,7 @@ using Franz.Common.Caching.Extensions;
 using HeroService.API.Caching;
 using Franz.Common.EntityFramework.Auditing;
 using Franz.Common.EntityFramework.Extensions;
+using Franz.Common.Http.Bootstrap.Extensions;
 using Franz.Common.Http.EntityFramework.Extensions;
 using Franz.Common.Logging.Extensions;
 using Franz.Common.Mediator.Bootstrap;
