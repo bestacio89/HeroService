@@ -38,7 +38,7 @@ public sealed class ConsumerPersistenceRegistrationTests : IAsyncLifetime
         ["Database:UserName"] = "postgres",
         ["Database:Password"] = "postgres",
         ["Database:Port"] = _postgres.GetMappedPublicPort(5432).ToString(),
-        ["Database:Ssl"] = "Disable",
+        ["Database:SslMode"] = "Disable",
         ["Caching:DefaultAbsoluteExpiration"] = "00:05:00",
         ["Caching:DefaultSlidingExpiration"] = "00:02:00",
         ["Caching:KeyPrefix"] = "HeroServiceConsumerTests",
