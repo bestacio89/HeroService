@@ -66,6 +66,7 @@ builder.Services.AddFranzMediatorV2Default (null ,
 // Cache query responses through the mediator pipeline. Commands are excluded
 // by HeroServiceQueryCacheMetadataProvider.
 builder.Services.AddFranzMediatorCaching(config);
+builder.Services.AddFranzCachingJsonTypeInfoResolver(HeroServiceJsonSerializerContext.Default);
 builder.Services.AddSingleton<ICacheMetadataProvider, HeroServiceQueryCacheMetadataProvider>();
 
 builder.Services.AddFranzResilience(config);
