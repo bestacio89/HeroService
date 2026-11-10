@@ -1,5 +1,5 @@
 using Franz.Common.Messaging.Hosting.Kafka.HostedServices;
-using Franz.Common.Messaging.Hosting.Listeners;
+using Franz.Common.Messaging.Hosting;
 using HeroService.Consumer.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
