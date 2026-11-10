@@ -19,7 +19,8 @@ public sealed class KafkaHostRegistrationTests
         ["Messaging:Kafka:GroupId"] = "hero-service-consumer-test",
         ["Messaging:Kafka:TopicName"] = "hero-service-out-test",
         ["Messaging:Kafka:Consumer:Topics:0"] = "hero-service-in-test",
-        ["Messaging:Kafka:Security:SecurityProtocol"] = "Plaintext"
+        ["Messaging:Kafka:Security:SecurityProtocol"] = "Plaintext",
+        ["Messaging:Kafka:Security:AllowInsecureTransport"] = "true"
       })
       .Build();
 
