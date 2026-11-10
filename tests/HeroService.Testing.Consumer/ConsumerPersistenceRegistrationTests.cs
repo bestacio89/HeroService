@@ -1,3 +1,4 @@
+using Franz.Common.EntityFramework.Configuration;
 using HeroService.Consumer.Extensions;
 using HeroService.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ public sealed class ConsumerPersistenceRegistrationTests : IAsyncLifetime
       .AddInMemoryCollection(new Dictionary<string, string?>
       {
         ["Database:Provider"] = "Postgres",
+        ["Database:IsolationMode"] = "SharedDatabase",
         ["Database:ServerName"] = _postgres.Hostname,
         ["Database:DatabaseName"] = "hero_service_consumer_tests",
         ["Database:UserName"] = "postgres",
@@ -68,6 +70,9 @@ public sealed class ConsumerPersistenceRegistrationTests : IAsyncLifetime
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
     Assert.Equal("Npgsql.EntityFrameworkCore.PostgreSQL", db.Database.ProviderName);
+
+    var databaseOptions = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<DatabaseOptions>>().Value;
+    Assert.Equal(DatabaseIsolationMode.SharedDatabase, databaseOptions.IsolationMode);
 
     await db.Database.MigrateAsync();
 
