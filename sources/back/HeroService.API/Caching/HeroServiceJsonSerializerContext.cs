@@ -62,4 +62,6 @@ namespace HeroService.API.Caching;
 [JsonSerializable(typeof(IReadOnlyList<HeroService.Contracts.DTOs.Heroes.OriginCultureDto>))]
 [JsonSerializable(typeof(IReadOnlyList<HeroService.Contracts.DTOs.Heroes.OriginArchetypeDto>))]
 [JsonSerializable(typeof(IReadOnlyList<HeroService.Contracts.DTOs.Snapshots.HeroSnapshotDto>))]
-internal partial class HeroServiceJsonSerializerContext : JsonSerializerContext;
+internal partial class HeroServiceJsonSerializerContext : JsonSerializerContext
+{
+}
