@@ -49,6 +49,9 @@ public class PersistenceArchitectureTests : BaseArchitectureTest
         .Classes()
         .That()
         .ResideInAssembly(PersistenceAssembly)
+        // Franz.Common 3.0 emits this composition-only source-generated type into the consuming assembly.
+        .And()
+        .DoNotHaveNameEndingWith("FranzMediatorGeneratedRegistration")
         .Should()
         .OnlyDependOnTypesThat()
         // Whitelist all Franz.Common and Microsoft infra
