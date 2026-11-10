@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using HeroService.Persistence;
+using Franz.Common.Http.MultiTenancy.Configuration;
+using Franz.Common.MultiTenancy;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
@@ -73,6 +75,20 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
     using var response = await _client!.GetAsync($"/api/v1/hero-classes/{Guid.NewGuid()}");
 
     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Integration")]
+  public void HttpArchitecture_DisablesTenantIsolationAndTenantEnforcement()
+  {
+    var multiTenancy = _factory!.Services
+        .GetRequiredService<IOptions<MultiTenancyOptions>>().Value;
+    var tenantResolution = _factory.Services
+        .GetRequiredService<IOptions<TenantResolutionOptions>>().Value;
+
+    Assert.False(multiTenancy.Enabled);
+    Assert.False(tenantResolution.RequireTenant);
+    Assert.False(tenantResolution.RequireAuthenticatedAuthorization);
   }
 
   private sealed class HeroServiceApiFactory : WebApplicationFactory<Program>
