@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using HeroService.Persistence;
+using Franz.Common.Http.MultiTenancy.Configuration;
+using Franz.Common.MultiTenancy;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
@@ -75,6 +77,20 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 
+  [Fact]
+  [Trait("Category", "Integration")]
+  public void HttpArchitecture_DisablesTenantIsolationAndTenantEnforcement()
+  {
+    var multiTenancy = _factory!.Services
+        .GetRequiredService<IOptions<MultiTenancyOptions>>().Value;
+    var tenantResolution = _factory.Services
+        .GetRequiredService<IOptions<TenantResolutionOptions>>().Value;
+
+    Assert.False(multiTenancy.Enabled);
+    Assert.False(tenantResolution.RequireTenant);
+    Assert.False(tenantResolution.RequireAuthenticatedAuthorization);
+  }
+
   private sealed class HeroServiceApiFactory : WebApplicationFactory<Program>
   {
     private readonly PostgreSqlContainer _database;
@@ -104,12 +120,13 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
         var values = new Dictionary<string, string?>
         {
           ["Database:Provider"] = "Postgres",
+          ["Database:IsolationMode"] = "SharedDatabase",
           ["Database:ServerName"] = _database.Hostname,
           ["Database:DatabaseName"] = "hero_service_api_tests",
           ["Database:UserName"] = "postgres",
           ["Database:Password"] = "postgres",
           ["Database:Port"] = _database.GetMappedPublicPort(5432).ToString(),
-          ["Database:Ssl"] = "Disable",
+          ["Database:SslMode"] = "Disable",
           ["Caching:ConnectionString"] = _cache.GetConnectionString(),
           ["Caching:KeyPrefix"] = "HeroServiceTests"
         };

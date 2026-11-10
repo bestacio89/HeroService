@@ -11,6 +11,7 @@ using Franz.Common.Mediator.Bootstrap;
 using Franz.Common.Mediator.Extensions;
 using Franz.Common.Mediator.Polly;
 using HeroService.Application;
+using HeroService.API.Extensions;
 using HeroService.Domain.Heroes.Skills;
 using HeroService.Persistence;
 using HeroService.Persistence.Persistence.Seeding;
@@ -52,7 +53,7 @@ builder.Services.RegisterPersistenceServices<ApplicationDbContext>(config);
 // =========================================================
 // HTTP
 // =========================================================
-builder.Services.AddHttpArchitecture(env, config);
+builder.Services.AddHeroServiceHttpArchitecture(env, config);
 
 // =========================================================
 // MEDIATOR PIPELINES
@@ -65,6 +66,7 @@ builder.Services.AddFranzMediatorV2Default (null ,
 // Cache query responses through the mediator pipeline. Commands are excluded
 // by HeroServiceQueryCacheMetadataProvider.
 builder.Services.AddFranzMediatorCaching(config);
+builder.Services.AddFranzCachingJsonTypeInfoResolver(HeroServiceJsonSerializerContext.Default);
 builder.Services.AddSingleton<ICacheMetadataProvider, HeroServiceQueryCacheMetadataProvider>();
 
 builder.Services.AddFranzResilience(config);

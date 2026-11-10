@@ -1,4 +1,3 @@
-using Franz.Common.Messaging.Bootstrap.Extenstions;
 using HeroService.Consumer.Extensions;
 using HeroService.Consumer.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -31,7 +30,7 @@ public static class Program
     var environment = builder.Environment;
 
     builder.Services.AddHeroServiceConsumerPersistence(configuration, environment);
-    builder.Services.AddMessagingArchitecture(environment, configuration);
+    builder.Services.AddHeroServiceMessagingArchitecture(configuration);
     builder.Services.AddKafkaMessagingServices(configuration, environment.EnvironmentName);
     builder.Services.AddHealthChecks()
         .AddCheck<KafkaBrokerHealthCheck>("kafka", tags: new[] { "ready" });

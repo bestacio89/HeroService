@@ -10,7 +10,7 @@ using Xunit;
 namespace HeroService.Testing.ArchitecturalReports.Layers
 {
   /// <summary>
-  /// ?? HeroService Tribunal — Persistence Layer Compliance Audit
+  /// ?? HeroService Tribunal â€” Persistence Layer Compliance Audit
   /// Validates repository structure, dependency purity, and isolation of the HeroService.Persistence layer.
   /// </summary>
   public sealed class PersistenceLayerComplianceAudit : ArchitecturalAuditBase
@@ -33,13 +33,13 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
         sb.AppendLine("              PERSISTENCE LAYER COMPLIANCE AUDIT               ");
         sb.AppendLine("---------------------------------------------------------------");
 
-        // RULE 1 — Assembly existence
+        // RULE 1 â€” Assembly existence
         ExecuteRule("Assembly", "Persistence assembly must be present.", () =>
         {
           Assert.NotNull(PersistenceAssembly);
         }, sb, markViolation);
 
-        // RULE 2 — Repository interface enforcement
+        // RULE 2 â€” Repository interface enforcement
         ExecuteRule("Repositories", "All repository classes must implement corresponding interfaces.", () =>
         {
           var persistenceAssemblies = LoadAssembliesWithPattern(@".*\.Persistence(\.|$)");
@@ -50,7 +50,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
 
           if (!repositoryTypes.Any())
           {
-            sb.AppendLine("?? No repositories found — skipping rule (virgin template).");
+            sb.AppendLine("?? No repositories found â€” skipping rule (virgin template).");
             return;
           }
 
@@ -67,7 +67,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
           sb.AppendLine($"? Verified {repositoryTypes.Count} repository implementation(s) are correctly interfaced.");
         }, sb, markViolation);
 
-        // RULE 3 — Dependencies to Domain/Contracts
+        // RULE 3 â€” Dependencies to Domain/Contracts
         ExecuteRule("Assembly Dependencies", "Persistence must depend on Domain or Contracts abstractions.", () =>
         {
           var persistenceTypes = LoadAssembliesWithPattern(@".*\.Persistence(\.|$)")
@@ -76,7 +76,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
 
           if (!persistenceTypes.Any())
           {
-            sb.AppendLine("?? No persistence types found — skipping dependency test.");
+            sb.AppendLine("?? No persistence types found â€” skipping dependency test.");
             return;
           }
 
@@ -95,7 +95,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
           }
         }, sb, markViolation);
 
-        // RULE 4 — Dependency purity
+        // RULE 4 â€” Dependency purity
         ExecuteRule("Dependencies", "Persistence layer may depend only on HeroService persistence abstractions, domain concepts, and system libraries.", () =>
         {
           var prefix = SolutionPrefix;
@@ -104,6 +104,9 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
               .Classes()
               .That()
               .ResideInAssembly(PersistenceAssembly)
+              // Franz.Common 3.0 emits this composition-only source-generated type into the consuming assembly.
+              .And()
+              .DoNotHaveNameEndingWith("FranzMediatorGeneratedRegistration")
               .Should()
               .OnlyDependOnTypesThat()
               // HeroService Core / Business
@@ -132,7 +135,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
           sb.AppendLine("? Verified persistence dependency isolation (HeroService + System + self).");
         }, sb, markViolation);
 
-        // RULE 5 — Isolation from upper layers
+        // RULE 5 â€” Isolation from upper layers
         ExecuteRule("Isolation", "Persistence must not depend on API or Application layers.", () =>
         {
           var prefix = SolutionPrefix;
@@ -141,6 +144,9 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
               .Classes()
               .That()
               .ResideInAssembly(PersistenceAssembly)
+              // Franz.Common 3.0 emits this composition-only source-generated type into the consuming assembly.
+              .And()
+              .DoNotHaveNameEndingWith("FranzMediatorGeneratedRegistration")
               .Should()
               .NotDependOnAnyTypesThat()
               .ResideInNamespaceMatching($"^{prefix}\\.API(\\..*)?$")

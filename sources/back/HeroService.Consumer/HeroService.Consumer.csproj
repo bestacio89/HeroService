@@ -27,12 +27,14 @@
   <ItemGroup>
     <PackageReference Include="Franz.Common.Hosting" />
     <PackageReference Include="Franz.Common.Http.EntityFramework" />
+    <PackageReference Include="Franz.Common.Bootstrap" />
     <PackageReference Include="Franz.Common.Mediator.Polly" />
-    <PackageReference Include="Franz.Common.Messaging.Bootstrap" />
+    <PackageReference Include="Franz.Common.Messaging" />
+    <PackageReference Include="Franz.Common.Messaging.Identity" />
     <PackageReference Include="Franz.Common.Messaging.EntityFramework" />
     <PackageReference Include="Franz.Common.Messaging.Hosting.Kafka" />
     <PackageReference Include="Franz.Common.Messaging.Hosting.Mediator" />
-    <PackageReference Include="Franz.Common.Messaging.KafKa" />
+    <PackageReference Include="Franz.Common.Messaging.Kafka" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
   </ItemGroup>

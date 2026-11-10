@@ -1,4 +1,5 @@
 using Franz.Common.Messaging.Hosting.Kafka.HostedServices;
+using Franz.Common.Messaging.Hosting;
 using HeroService.Consumer.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,8 @@ public sealed class KafkaHostRegistrationTests
         ["Messaging:Kafka:GroupId"] = "hero-service-consumer-test",
         ["Messaging:Kafka:TopicName"] = "hero-service-out-test",
         ["Messaging:Kafka:Consumer:Topics:0"] = "hero-service-in-test",
-        ["Messaging:Kafka:Security:SecurityProtocol"] = "Plaintext"
+        ["Messaging:Kafka:Security:SecurityProtocol"] = "Plaintext",
+        ["Messaging:Kafka:Security:AllowInsecureTransport"] = "true"
       })
       .Build();
 
@@ -37,5 +39,6 @@ public sealed class KafkaHostRegistrationTests
 
     var listener = provider.GetRequiredService<KafkaMessageListener>();
     Assert.NotNull(listener);
+    Assert.Same(listener, provider.GetRequiredService<IListener>());
   }
 }

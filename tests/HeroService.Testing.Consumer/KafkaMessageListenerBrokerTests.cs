@@ -1,6 +1,8 @@
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using Franz.Common.Messaging.Configuration;
 using Franz.Common.Messaging.Hosting;
+using Franz.Common.Messaging.Kafka;
 using Franz.Common.Messaging.Hosting.Kafka.HostedServices;
 using Franz.Common.Messaging.Kafka.Configuration;
 using Franz.Common.Messaging.Messages;
@@ -30,12 +32,16 @@ public sealed class KafkaMessageListenerBrokerTests
     await ProduceMessageAsync(kafka, topic, new Message("success"));
 
     using var cancellation = new CancellationTokenSource();
+    using var deadLetterProducer = BuildDeadLetterProducer(kafka);
+    using var rebalanceCoordinator = new KafkaRebalanceCoordinator();
     var handled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-    var listener = CreateListener(kafka, topic, groupId, new KafkaFailureOptions
-    {
-      EnableDeadLetter = false,
-      MaxRetryAttempts = 0
-    });
+    var listener = CreateListener(
+        kafka,
+        topic,
+        groupId,
+        new MessageFailurePolicy(maxRetryAttempts: 0, deadLetterOnExhaustion: false),
+        deadLetterProducer,
+        rebalanceCoordinator);
 
     listener.OnMessageReceivedAsync = args =>
     {
@@ -46,6 +52,7 @@ public sealed class KafkaMessageListenerBrokerTests
 
     var listening = Task.Run(() => listener.Listen(cancellation.Token));
     await handled.Task.WaitAsync(TimeSpan.FromSeconds(20));
+    await WaitForCommittedOffsetAsync(kafka, groupId, topic);
     cancellation.Cancel();
     await listening.WaitAsync(TimeSpan.FromSeconds(20));
 
@@ -68,12 +75,17 @@ public sealed class KafkaMessageListenerBrokerTests
     await ProduceMessageAsync(kafka, topic, payload);
 
     using var deadLetterProducer = BuildDeadLetterProducer(kafka);
-    var listener = CreateListener(kafka, topic, groupId, new KafkaFailureOptions
-    {
-      EnableDeadLetter = false,
-      MaxRetryAttempts = 0,
-      RetryBackoffMs = 0
-    }, deadLetterProducer);
+    using var rebalanceCoordinator = new KafkaRebalanceCoordinator();
+    var listener = CreateListener(
+        kafka,
+        topic,
+        groupId,
+        new MessageFailurePolicy(
+            maxRetryAttempts: 0,
+            retryBackoff: TimeSpan.Zero,
+            deadLetterOnExhaustion: false),
+        deadLetterProducer,
+        rebalanceCoordinator);
     listener.OnMessageReceivedAsync = _ => Task.FromException(new InvalidOperationException("Expected test failure."));
 
     var failure = await Record.ExceptionAsync(() => Task.Run(() => listener.Listen()).WaitAsync(TimeSpan.FromSeconds(20)));
@@ -101,19 +113,18 @@ public sealed class KafkaMessageListenerBrokerTests
     await ProduceMessageAsync(kafka, topic, new Message("poison"));
 
     using var producer = BuildDeadLetterProducer(kafka);
+    using var rebalanceCoordinator = new KafkaRebalanceCoordinator();
     var listener = CreateListener(
         kafka,
         topic,
         groupId,
-        new KafkaFailureOptions
-        {
-          EnableDeadLetter = true,
-          DeadLetterTopic = deadLetterTopic,
-          MaxRetryAttempts = 1,
-          RetryBackoffMs = 0,
-          UseOriginalMessageKey = true
-        },
-        producer);
+        new MessageFailurePolicy(
+            maxRetryAttempts: 1,
+            retryBackoff: TimeSpan.Zero,
+            deadLetterOnExhaustion: true),
+        producer,
+        rebalanceCoordinator,
+        deadLetterTopic);
 
     var attempts = 0;
     listener.OnMessageReceivedAsync = _ =>
@@ -136,6 +147,7 @@ public sealed class KafkaMessageListenerBrokerTests
     Assert.Equal("0", HeaderValue(deadLetter.Message.Headers, "x-franz-original-offset"));
     Assert.Equal(typeof(InvalidOperationException).FullName, HeaderValue(deadLetter.Message.Headers, "x-franz-failure-type"));
 
+    await WaitForCommittedOffsetAsync(kafka, groupId, topic);
     cancellation.Cancel();
     await listening.WaitAsync(TimeSpan.FromSeconds(20));
 
@@ -198,26 +210,32 @@ public sealed class KafkaMessageListenerBrokerTests
       KafkaContainer kafka,
       string topic,
       string groupId,
-      KafkaFailureOptions failureOptions,
-      IProducer<string, byte[]>? deadLetterProducer = null)
+      MessageFailurePolicy failurePolicy,
+      IProducer<string, byte[]> deadLetterProducer,
+      KafkaRebalanceCoordinator rebalanceCoordinator,
+      string? deadLetterTopic = null)
   {
     var consumer = BuildConsumer(kafka, groupId);
     var serializer = new JsonMessageSerializer();
     var logger = NullLogger<KafkaMessageListener>.Instance;
-
-    if (deadLetterProducer is null)
-      return new KafkaMessageListener(consumer, new[] { topic }, serializer, logger);
-
     var options = Options.Create(new KafkaMessagingOptions
     {
       BootstrapServers = kafka.GetBootstrapAddress(),
       GroupId = groupId,
       Consumer = new KafkaConsumerOptions(),
       Producer = new KafkaProducerOptions(),
-      Failure = failureOptions
+      FailurePolicy = failurePolicy,
+      DeadLetterTopic = deadLetterTopic
     });
 
-    return new KafkaMessageListener(consumer, new[] { topic }, serializer, logger, deadLetterProducer, options);
+    return new KafkaMessageListener(
+        consumer,
+        new[] { topic },
+        serializer,
+        logger,
+        deadLetterProducer,
+        options,
+        rebalanceCoordinator);
   }
 
   private static IConsumer<string, string> BuildConsumer(KafkaContainer kafka, string groupId)
@@ -230,6 +248,31 @@ public sealed class KafkaMessageListenerBrokerTests
       EnableAutoOffsetStore = false,
       AllowAutoCreateTopics = false
     }).Build();
+
+  private static async Task WaitForCommittedOffsetAsync(
+      KafkaContainer kafka,
+      string groupId,
+      string topic)
+  {
+    using var consumer = BuildConsumer(kafka, groupId);
+    var partition = new TopicPartition(topic, new Partition(0));
+    var deadline = DateTime.UtcNow.AddSeconds(10);
+
+    while (DateTime.UtcNow < deadline)
+    {
+      var committedOffsets = consumer.Committed(
+          new[] { partition },
+          TimeSpan.FromSeconds(1));
+
+      if (committedOffsets.Any(offset => offset.Offset.Value >= 1))
+        return;
+
+      await Task.Delay(TimeSpan.FromMilliseconds(100));
+    }
+
+    throw new TimeoutException(
+        $"Kafka consumer group '{groupId}' did not commit offset 1 for topic '{topic}'.");
+  }
 
   private static string NewTopic(string prefix) => $"{prefix}-{Guid.NewGuid():N}";
 
