@@ -147,6 +147,7 @@ public sealed class KafkaMessageListenerBrokerTests
     Assert.Equal("0", HeaderValue(deadLetter.Message.Headers, "x-franz-original-offset"));
     Assert.Equal(typeof(InvalidOperationException).FullName, HeaderValue(deadLetter.Message.Headers, "x-franz-failure-type"));
 
+    await WaitForCommittedOffsetAsync(kafka, groupId, topic);
     cancellation.Cancel();
     await listening.WaitAsync(TimeSpan.FromSeconds(20));
 
