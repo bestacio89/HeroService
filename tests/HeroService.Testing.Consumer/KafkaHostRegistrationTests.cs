@@ -1,4 +1,5 @@
 using Franz.Common.Messaging.Hosting.Kafka.HostedServices;
+using Franz.Common.Messaging.Hosting.Listeners;
 using HeroService.Consumer.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,5 +38,6 @@ public sealed class KafkaHostRegistrationTests
 
     var listener = provider.GetRequiredService<KafkaMessageListener>();
     Assert.NotNull(listener);
+    Assert.Same(listener, provider.GetRequiredService<IListener>());
   }
 }
