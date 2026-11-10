@@ -52,6 +52,7 @@ public sealed class KafkaMessageListenerBrokerTests
 
     var listening = Task.Run(() => listener.Listen(cancellation.Token));
     await handled.Task.WaitAsync(TimeSpan.FromSeconds(20));
+    await WaitForCommittedOffsetAsync(kafka, groupId, topic);
     cancellation.Cancel();
     await listening.WaitAsync(TimeSpan.FromSeconds(20));
 
@@ -246,6 +247,31 @@ public sealed class KafkaMessageListenerBrokerTests
       EnableAutoOffsetStore = false,
       AllowAutoCreateTopics = false
     }).Build();
+
+  private static async Task WaitForCommittedOffsetAsync(
+      KafkaContainer kafka,
+      string groupId,
+      string topic)
+  {
+    using var consumer = BuildConsumer(kafka, groupId);
+    var partition = new TopicPartition(topic, new Partition(0));
+    var deadline = DateTime.UtcNow.AddSeconds(10);
+
+    while (DateTime.UtcNow < deadline)
+    {
+      var committedOffsets = consumer.Committed(
+          new[] { partition },
+          TimeSpan.FromSeconds(1));
+
+      if (committedOffsets.Any(offset => offset.Offset.Value >= 1))
+        return;
+
+      await Task.Delay(TimeSpan.FromMilliseconds(100));
+    }
+
+    throw new TimeoutException(
+        $"Kafka consumer group '{groupId}' did not commit offset 1 for topic '{topic}'.");
+  }
 
   private static string NewTopic(string prefix) => $"{prefix}-{Guid.NewGuid():N}";
 
