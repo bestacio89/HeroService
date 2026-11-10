@@ -1,6 +1,6 @@
 using Franz.Common.Messaging.MultiTenancy.Accessors;
 using Franz.Common.Identity;
-using Franz.Common.Messaging.Contexting;
+using Franz.Common.Headers;
 using Franz.Common.MultiTenancy;
 using HeroService.Consumer.Extensions;
 using Microsoft.Extensions.Configuration;
