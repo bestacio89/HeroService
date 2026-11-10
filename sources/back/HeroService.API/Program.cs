@@ -4,13 +4,13 @@ using Franz.Common.Caching.Extensions;
 using HeroService.API.Caching;
 using Franz.Common.EntityFramework.Auditing;
 using Franz.Common.EntityFramework.Extensions;
-using Franz.Common.Http.Bootstrap.Extensions;
 using Franz.Common.Http.EntityFramework.Extensions;
 using Franz.Common.Logging.Extensions;
 using Franz.Common.Mediator.Bootstrap;
 using Franz.Common.Mediator.Extensions;
 using Franz.Common.Mediator.Polly;
 using HeroService.Application;
+using HeroService.API.Extensions;
 using HeroService.Domain.Heroes.Skills;
 using HeroService.Persistence;
 using HeroService.Persistence.Persistence.Seeding;
@@ -52,7 +52,7 @@ builder.Services.RegisterPersistenceServices<ApplicationDbContext>(config);
 // =========================================================
 // HTTP
 // =========================================================
-builder.Services.AddHttpArchitecture(env, config);
+builder.Services.AddHeroServiceHttpArchitecture(env, config);
 
 // =========================================================
 // MEDIATOR PIPELINES
