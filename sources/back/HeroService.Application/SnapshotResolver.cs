@@ -281,29 +281,28 @@ public sealed class SnapshotResolver
   private static SkillEffectSnapshot BuildEffects(
       IEnumerable<SkillEffect> effects)
   {
-    var list = effects.ToList();
+    var effectTypes = new HashSet<EffectType>();
+    var buffTypes = new HashSet<BuffType>();
+    var debuffTypes = new HashSet<DebuffType>();
 
-    bool Has(EffectType type)
-        => list.Any(x => x.EffectType == type);
+    foreach (var effect in effects)
+    {
+      effectTypes.Add(effect.EffectType);
 
+      if (effect.EffectType == EffectType.Buff &&
+          effect.BuffType is { } buffType)
+      {
+        buffTypes.Add(buffType);
+      }
 
-    var buffTypes =
-        list
-            .Where(x =>
-                x.EffectType == EffectType.Buff &&
-                x.BuffType.HasValue)
-            .Select(x => x.BuffType!.Value)
-            .ToHashSet();
+      if (effect.EffectType == EffectType.Debuff &&
+          effect.DebuffType is { } debuffType)
+      {
+        debuffTypes.Add(debuffType);
+      }
+    }
 
-
-    var debuffTypes =
-        list
-            .Where(x =>
-                x.EffectType == EffectType.Debuff &&
-                x.DebuffType.HasValue)
-            .Select(x => x.DebuffType!.Value)
-            .ToHashSet();
-
+    bool Has(EffectType type) => effectTypes.Contains(type);
 
     return new SkillEffectSnapshot(
         Has(EffectType.Damage),
