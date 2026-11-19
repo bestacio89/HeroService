@@ -82,22 +82,20 @@ public static class ServiceCollectionExtensions
       Configure(client, baseUrl, configureHttpClient);
     });
 
-    ///=======================================
-    /// MODIFIERS
-    ///=======================================
+    //=======================================
+    // MODIFIERS
+    //=======================================
     services.AddHttpClient<IHeroModifierClient, HeroModifierClient>(client =>
     {
       Configure(client, baseUrl, configureHttpClient);
     });
+
     services.AddHttpClient<ISkillModifierClient, SkillModifierClient>(client =>
     {
       Configure(client, baseUrl, configureHttpClient);
     });
 
-
     return services;
-
-    
   }
 
   private static void Configure(
@@ -106,6 +104,9 @@ public static class ServiceCollectionExtensions
       Action<HttpClient>? configureHttpClient)
   {
     client.BaseAddress = new Uri(baseUrl);
+
+    client.DefaultRequestHeaders.Accept.Clear();
+    client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
 
     client.DefaultRequestHeaders.Add("X-Client", "HeroService.Admin");
 
