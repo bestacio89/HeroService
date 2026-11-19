@@ -1,4 +1,4 @@
-﻿using HeroService.Contracts.Persistence.Heroes;
+using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Domain.Heroes.Core;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,9 +13,6 @@ public sealed class HeroRepository : IHeroRepository
     _dbContext = dbContext;
   }
 
-  // =========================================================
-  // BASE QUERY (CENTRALIZED GRAPH LOADING)
-  // =========================================================
   private IQueryable<Hero> BaseQuery()
   {
     return _dbContext.Heroes
@@ -30,23 +27,17 @@ public sealed class HeroRepository : IHeroRepository
         .Include(x => x.SkillKit);
   }
 
-  // =========================================================
-  // NAME LOOKUP (from INameLookupRepository)
-  // =========================================================
-  public async Task<Hero?> GetByNameAsync(
-     string name,
-     CancellationToken cancellationToken = default)
+  public Task<Hero?> GetByNameAsync(
+      string name,
+      CancellationToken cancellationToken = default)
   {
-    return await _dbContext.Set<Hero>()
-      .AsNoTracking()
-      .FirstOrDefaultAsync(
-        x => x.Name == name,
-        cancellationToken);
+    return _dbContext.Set<Hero>()
+        .AsNoTracking()
+        .FirstOrDefaultAsync(
+            x => x.Name == name,
+            cancellationToken);
   }
 
-  // =========================================================
-  // SINGLE AGGREGATE READ
-  // =========================================================
   public Task<Hero?> GetByIdAsync(
       Guid id,
       CancellationToken cancellationToken = default)
@@ -71,9 +62,6 @@ public sealed class HeroRepository : IHeroRepository
         .FirstOrDefaultAsync(x => x.Name == name, cancellationToken);
   }
 
-  // =========================================================
-  // FILTERED READS
-  // =========================================================
   public async Task<IReadOnlyCollection<Hero>> GetByClassAsync(
       Guid heroClassId,
       CancellationToken cancellationToken = default)
@@ -111,35 +99,40 @@ public sealed class HeroRepository : IHeroRepository
   }
 
   public Task<Hero?> GetDetailsAsync(
-    Guid heroId,
-    CancellationToken cancellationToken = default)
+      Guid heroId,
+      CancellationToken cancellationToken = default)
   {
     return BaseQuery()
         .FirstOrDefaultAsync(x => x.Id == heroId, cancellationToken);
   }
 
-  // =========================================================
-  // FULL BROWSE
-  // =========================================================
+  /// <summary>
+  /// Loads only the aggregate data required to build hero snapshots.
+  /// The catalogue projection does not require classification navigation graphs.
+  /// </summary>
   public async Task<IReadOnlyCollection<Hero>> GetAllWithDetailsAsync(
       CancellationToken cancellationToken = default)
   {
-    return await BaseQuery()
+    return await _dbContext.Heroes
+        .AsNoTracking()
+        .Include(hero => hero.BaseStats)
+        .Include(hero => hero.SkillKit)
         .ToListAsync(cancellationToken);
   }
 
-  public async Task<bool> ExistsByNameAsync(string name, CancellationToken ct)
+  public Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken)
   {
-    
-    return await _dbContext.Heroes
-        .AnyAsync(h => h.Name == name, ct);
+    return _dbContext.Heroes.AnyAsync(
+        hero => hero.Name == name,
+        cancellationToken);
   }
+
   public async Task<IReadOnlyCollection<Hero>> BrowseAsync(
-    Guid? heroClassId,
-    Guid? mythologyTypeId,
-    Guid? cultureId,
-    Guid? archetypeId,
-    CancellationToken ct = default)
+      Guid? heroClassId,
+      Guid? mythologyTypeId,
+      Guid? cultureId,
+      Guid? archetypeId,
+      CancellationToken cancellationToken = default)
   {
     var query = BaseQuery();
 
@@ -155,6 +148,6 @@ public sealed class HeroRepository : IHeroRepository
     if (archetypeId.HasValue)
       query = query.Where(x => x.Affiliation.Archetype.Id == archetypeId);
 
-    return await query.ToListAsync(ct);
+    return await query.ToListAsync(cancellationToken);
   }
 }
