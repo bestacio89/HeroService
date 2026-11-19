@@ -80,6 +80,7 @@ public static class UnityHttpClient
 
         using var request = UnityWebRequest.Get(requestUri.AbsoluteUri);
         request.timeout = timeoutSeconds;
+        request.SetRequestHeader("Accept", "application/json");
 
         UnityWebRequestAsyncOperation operation = request.SendWebRequest();
 
