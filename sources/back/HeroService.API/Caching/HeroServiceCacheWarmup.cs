@@ -31,7 +31,8 @@ public static class HeroServiceCacheWarmup
     await using var scope = services.CreateAsyncScope();
     var scopedServices = scope.ServiceProvider;
     var dispatcher = scopedServices.GetRequiredService<IDispatcher>();
-    var cacheWriter = scopedServices.GetService<ICacheWriter>();
+    var cacheProvider = scopedServices.GetRequiredService<ICacheProvider>();
+    var cacheWriter = cacheProvider as ICacheWriter;
     var logger = scopedServices.GetRequiredService<ILoggerFactory>()
         .CreateLogger("HeroService.CacheWarmup");
 
