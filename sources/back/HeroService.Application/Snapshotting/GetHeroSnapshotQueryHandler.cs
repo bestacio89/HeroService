@@ -6,6 +6,7 @@ using HeroService.Contracts.Persistence.GameVersions;
 using HeroService.Contracts.Persistence.Heroes;
 using HeroService.Contracts.Persistence.Modifiers;
 using HeroService.Contracts.Queries.Snapshots;
+using HeroService.Domain.Heroes.Versioned.GameVersion;
 
 namespace HeroService.Application.Heroes.Versioned.Snapshotting.Queries;
 
@@ -55,10 +56,10 @@ public sealed class GetHeroSnapshotQueryHandler
 
   private async Task<HeroSnapshotDto> ResolveAsync(
       GetHeroSnapshotQuery request,
-      Domain.Heroes.Versioned.GameVersion.GameVersion activeVersion,
+      GameVersion activeVersion,
       CancellationToken cancellationToken)
   {
-    var hero = await _heroRepository.GetDetailsAsync(
+    var hero = await _heroRepository.GetForSnapshotAsync(
         request.HeroId,
         cancellationToken)
         ?? throw new InvalidOperationException(
