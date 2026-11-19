@@ -49,8 +49,12 @@ public sealed class HeroSnapshotResolutionService
     if (heroes.Count == 0)
       return Array.Empty<HeroSnapshotDto>();
 
-    var skillIds = heroes
-        .SelectMany(GetSkillIds)
+    var skillIdsByHero = heroes.ToDictionary(
+        hero => hero.Id,
+        GetSkillIds);
+
+    var skillIds = skillIdsByHero.Values
+        .SelectMany(ids => ids)
         .Distinct()
         .ToArray();
 
@@ -78,7 +82,7 @@ public sealed class HeroSnapshotResolutionService
     {
       cancellationToken.ThrowIfCancellationRequested();
 
-      var heroSkills = GetSkillIds(hero)
+      var heroSkills = skillIdsByHero[hero.Id]
           .Select(skillId =>
           {
             if (!skillLookup.TryGetValue(skillId, out var skill))
