@@ -79,6 +79,56 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
 
   [Fact]
   [Trait("Category", "Integration")]
+  public async Task BrowseSnapshots_ReturnsCompleteSkillKits_AndSingleSnapshotMatches()
+  {
+    using var browseResponse = await _client!.GetAsync("/snapshots/heroes/browse");
+
+    Assert.Equal(HttpStatusCode.OK, browseResponse.StatusCode);
+
+    var browsePayload = await browseResponse.Content.ReadFromJsonAsync<JsonElement>();
+    Assert.Equal(JsonValueKind.Array, browsePayload.ValueKind);
+
+    var snapshots = browsePayload.EnumerateArray().ToArray();
+    Assert.NotEmpty(snapshots);
+
+    foreach (var snapshot in snapshots)
+    {
+      var skills = snapshot.GetProperty("skills");
+
+      foreach (var slot in new[] { "passive", "primary", "secondary", "tertiary", "ultimate" })
+      {
+        var skill = skills.GetProperty(slot);
+
+        Assert.NotEqual(Guid.Empty, skill.GetProperty("skillId").GetGuid());
+        Assert.True(skill.TryGetProperty("effectExecutions", out var executions));
+        Assert.Equal(JsonValueKind.Array, executions.ValueKind);
+      }
+    }
+
+    var firstSnapshot = snapshots[0];
+    var heroId = firstSnapshot.GetProperty("heroId").GetGuid();
+    var gameVersionId = firstSnapshot.GetProperty("gameVersionId").GetGuid();
+
+    using var singleResponse = await _client.GetAsync(
+        $"/snapshots/heroes/{heroId}?gameVersionId={gameVersionId}");
+
+    Assert.Equal(HttpStatusCode.OK, singleResponse.StatusCode);
+
+    var singleSnapshot = await singleResponse.Content.ReadFromJsonAsync<JsonElement>();
+    Assert.Equal(heroId, singleSnapshot.GetProperty("heroId").GetGuid());
+    Assert.Equal(gameVersionId, singleSnapshot.GetProperty("gameVersionId").GetGuid());
+
+    foreach (var slot in new[] { "passive", "primary", "secondary", "tertiary", "ultimate" })
+    {
+      var browseSkillId = firstSnapshot.GetProperty("skills").GetProperty(slot).GetProperty("skillId").GetGuid();
+      var singleSkillId = singleSnapshot.GetProperty("skills").GetProperty(slot).GetProperty("skillId").GetGuid();
+
+      Assert.Equal(browseSkillId, singleSkillId);
+    }
+  }
+
+  [Fact]
+  [Trait("Category", "Integration")]
   public void HttpArchitecture_DisablesTenantIsolationAndTenantEnforcement()
   {
     var multiTenancy = _factory!.Services
