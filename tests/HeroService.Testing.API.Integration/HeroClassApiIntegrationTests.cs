@@ -82,7 +82,7 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
   [Trait("Category", "Integration")]
   public async Task BrowseSnapshots_ReturnsCompleteSkillKits_AndSingleSnapshotMatches()
   {
-    using var browseResponse = await _client!.GetAsync("/snapshots/heroes/browse");
+    using var browseResponse = await _client!.GetAsync("/api/v1/snapshots/heroes/browse");
 
     browseResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -111,7 +111,7 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
     var gameVersionId = firstSnapshot.GetProperty("gameVersionId").GetGuid();
 
     using var singleResponse = await _client.GetAsync(
-        $"/snapshots/heroes/{heroId}?gameVersionId={gameVersionId}");
+        $"/api/v1/snapshots/heroes/{heroId}?gameVersionId={gameVersionId}");
 
     singleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
