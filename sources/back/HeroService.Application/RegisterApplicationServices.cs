@@ -9,30 +9,21 @@ using HeroService.Application.Services.GameVersions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-
 namespace HeroService.Application;
+
 public static class ApplicationServiceCollectionExtensions
 {
   public static IServiceCollection RegisterApplicationServices(this IServiceCollection collection)
   {
-
-
     collection.AddFranzMapping(Assembly.GetExecutingAssembly());
-    // Hero creation
     collection.AddScoped<IHeroCreationService, HeroCreationService>();
-
-    // Skill creation  
     collection.AddScoped<ISkillCreationService, SkillCreationService>();
-
-    // Game version
     collection.AddScoped<GameVersionService>();
-
-    // Snapshot resolution (two handlers depend on it)
     collection.AddScoped<SnapshotResolver>();
-
+    collection.AddScoped<HeroSnapshotResolutionService>();
     collection.AddScoped<IHeroUniquenessValidator, HeroUniquenessValidator>();
-
     collection.AddFranzTransactionPipeline();
-     return collection;
+
+    return collection;
   }
 }
