@@ -48,12 +48,12 @@ public sealed class SnapshotResolverEffectAggregationTests
       skills[0].AddEffect(effect);
     }
 
-    var baseStatsBySkill = skills.ToDictionary(
+    IReadOnlyDictionary<Guid, SkillBaseStats> baseStatsBySkill = skills.ToDictionary(
         skill => skill.Id,
-        skill => CreateSkillBaseStats(skill.Id));
-    var modifiersBySkill = skills.ToDictionary(
+        skill => (SkillBaseStats)CreateSkillBaseStats(skill.Id));
+    IReadOnlyDictionary<Guid, SkillModifier> modifiersBySkill = skills.ToDictionary(
         skill => skill.Id,
-        skill => CreateSkillModifier(version.Id, skill.Id));
+        skill => (SkillModifier)CreateSkillModifier(version.Id, skill.Id));
 
     var snapshot = new SnapshotResolver().ResolveHero(
         heroId,
