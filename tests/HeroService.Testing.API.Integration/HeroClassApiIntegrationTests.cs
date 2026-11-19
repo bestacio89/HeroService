@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using FluentAssertions;
 using HeroService.Persistence;
 using Franz.Common.Http.MultiTenancy.Configuration;
 using Franz.Common.MultiTenancy;
@@ -83,13 +84,13 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
   {
     using var browseResponse = await _client!.GetAsync("/snapshots/heroes/browse");
 
-    Assert.Equal(HttpStatusCode.OK, browseResponse.StatusCode);
+    browseResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
     var browsePayload = await browseResponse.Content.ReadFromJsonAsync<JsonElement>();
-    Assert.Equal(JsonValueKind.Array, browsePayload.ValueKind);
+    browsePayload.ValueKind.Should().Be(JsonValueKind.Array);
 
     var snapshots = browsePayload.EnumerateArray().ToArray();
-    Assert.NotEmpty(snapshots);
+    snapshots.Should().NotBeEmpty();
 
     foreach (var snapshot in snapshots)
     {
@@ -99,9 +100,9 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
       {
         var skill = skills.GetProperty(slot);
 
-        Assert.NotEqual(Guid.Empty, skill.GetProperty("skillId").GetGuid());
-        Assert.True(skill.TryGetProperty("effectExecutions", out var executions));
-        Assert.Equal(JsonValueKind.Array, executions.ValueKind);
+        skill.GetProperty("skillId").GetGuid().Should().NotBeEmpty();
+        skill.TryGetProperty("effectExecutions", out var executions).Should().BeTrue();
+        executions.ValueKind.Should().Be(JsonValueKind.Array);
       }
     }
 
@@ -112,18 +113,18 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
     using var singleResponse = await _client.GetAsync(
         $"/snapshots/heroes/{heroId}?gameVersionId={gameVersionId}");
 
-    Assert.Equal(HttpStatusCode.OK, singleResponse.StatusCode);
+    singleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
     var singleSnapshot = await singleResponse.Content.ReadFromJsonAsync<JsonElement>();
-    Assert.Equal(heroId, singleSnapshot.GetProperty("heroId").GetGuid());
-    Assert.Equal(gameVersionId, singleSnapshot.GetProperty("gameVersionId").GetGuid());
+    singleSnapshot.GetProperty("heroId").GetGuid().Should().Be(heroId);
+    singleSnapshot.GetProperty("gameVersionId").GetGuid().Should().Be(gameVersionId);
 
     foreach (var slot in new[] { "passive", "primary", "secondary", "tertiary", "ultimate" })
     {
       var browseSkillId = firstSnapshot.GetProperty("skills").GetProperty(slot).GetProperty("skillId").GetGuid();
       var singleSkillId = singleSnapshot.GetProperty("skills").GetProperty(slot).GetProperty("skillId").GetGuid();
 
-      Assert.Equal(browseSkillId, singleSkillId);
+      singleSkillId.Should().Be(browseSkillId);
     }
   }
 
