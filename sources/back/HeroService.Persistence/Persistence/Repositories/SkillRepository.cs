@@ -1,4 +1,4 @@
-﻿using HeroService.Contracts.Persistence.Skills;
+using HeroService.Contracts.Persistence.Skills;
 using HeroService.Domain.Heroes.Skills;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,22 +28,20 @@ public sealed class SkillRepository : ISkillRepository
       IEnumerable<Guid> ids,
       CancellationToken cancellationToken = default)
   {
-    if (ids is null)
-      throw new ArgumentNullException(nameof(ids));
+    ArgumentNullException.ThrowIfNull(ids);
 
     var idList = ids
-        .Where(x => x != Guid.Empty)
+        .Where(id => id != Guid.Empty)
         .Distinct()
-        .ToList();
+        .ToArray();
 
-    if (idList.Count == 0)
+    if (idList.Length == 0)
       return Array.Empty<Skill>();
 
     return await _dbContext.Set<Skill>()
         .AsNoTracking()
-        .Include(x => x.Effects)
-        .Include(x => x.BaseStats)
-        .Where(x => idList.Contains(x.Id))
+        .Include(skill => skill.Effects)
+        .Where(skill => idList.Contains(skill.Id))
         .ToListAsync(cancellationToken);
   }
 
@@ -53,10 +51,10 @@ public sealed class SkillRepository : ISkillRepository
   {
     return _dbContext.Set<Skill>()
         .AsNoTracking()
-        .Include(x => x.Effects)
-        .Include(x => x.BaseStats)
+        .Include(skill => skill.Effects)
+        .Include(skill => skill.BaseStats)
         .FirstOrDefaultAsync(
-            x => x.Id == skillId,
+            skill => skill.Id == skillId,
             cancellationToken);
   }
 
@@ -66,10 +64,10 @@ public sealed class SkillRepository : ISkillRepository
   {
     return _dbContext.Set<Skill>()
         .AsNoTracking()
-        .Include(x => x.Effects)
-        .Include(x => x.BaseStats)
+        .Include(skill => skill.Effects)
+        .Include(skill => skill.BaseStats)
         .FirstOrDefaultAsync(
-            x => x.Name == name,
+            skill => skill.Name == name,
             cancellationToken);
   }
 
@@ -78,9 +76,9 @@ public sealed class SkillRepository : ISkillRepository
   {
     return await _dbContext.Set<Skill>()
         .AsNoTracking()
-        .Include(x => x.Effects)
-        .Include(x => x.BaseStats)
-        .OrderBy(x => x.Name)
+        .Include(skill => skill.Effects)
+        .Include(skill => skill.BaseStats)
+        .OrderBy(skill => skill.Name)
         .ToListAsync(cancellationToken);
   }
 
@@ -90,16 +88,16 @@ public sealed class SkillRepository : ISkillRepository
   {
     return await _dbContext.Set<Skill>()
         .AsNoTracking()
-        .Include(x => x.Effects)
-        .Where(x => x.SkillType == skillType)
-        .OrderBy(x => x.Name)
+        .Include(skill => skill.Effects)
+        .Where(skill => skill.SkillType == skillType)
+        .OrderBy(skill => skill.Name)
         .ToListAsync(cancellationToken);
   }
 
-  public async Task<bool> ExistsByNameAsync(string name, CancellationToken ct)
+  public Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken)
   {
-
-    return await _dbContext.Skills
-        .AnyAsync(h => h.Name == name, ct);
+    return _dbContext.Skills.AnyAsync(
+        skill => skill.Name == name,
+        cancellationToken);
   }
 }
