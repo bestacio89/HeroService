@@ -106,11 +106,22 @@ public sealed class HeroRepository : IHeroRepository
         .FirstOrDefaultAsync(x => x.Id == heroId, cancellationToken);
   }
 
+  public Task<Hero?> GetForSnapshotAsync(
+      Guid heroId,
+      CancellationToken cancellationToken = default)
+  {
+    return _dbContext.Heroes
+        .AsNoTracking()
+        .Include(hero => hero.BaseStats)
+        .Include(hero => hero.SkillKit)
+        .FirstOrDefaultAsync(hero => hero.Id == heroId, cancellationToken);
+  }
+
   /// <summary>
   /// Loads only the aggregate data required to build hero snapshots.
   /// The catalogue projection does not require classification navigation graphs.
   /// </summary>
-  public async Task<IReadOnlyCollection<Hero>> GetAllWithDetailsAsync(
+  public async Task<IReadOnlyCollection<Hero>> GetAllForSnapshotAsync(
       CancellationToken cancellationToken = default)
   {
     return await _dbContext.Heroes
