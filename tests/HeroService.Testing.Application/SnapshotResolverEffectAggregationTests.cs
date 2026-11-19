@@ -102,8 +102,8 @@ public sealed class SnapshotResolverEffectAggregationTests
       [EffectType.Transformation] = effects.HasTransformation
     };
 
-    flags.Should().HaveCount(Enum.GetValues<EffectType>().Length);
-    flags.Should().OnlyContain(entry => entry.Value);
+    flags.Count.Should().Be(Enum.GetValues<EffectType>().Length);
+    flags.Values.Should().OnlyContain(flag => flag);
     passive.EffectExecutions.Should().HaveCount(Enum.GetValues<EffectType>().Length);
     effects.BuffTypes.Should().Contain(BuffType.Armor);
     effects.DebuffTypes.Should().Contain(DebuffType.ArmorReduction);
@@ -184,17 +184,38 @@ public sealed class SnapshotResolverEffectAggregationTests
     return modifier;
   }
 
-  private sealed class TestGameVersion(Guid id) : GameVersion(id);
+  private sealed class TestGameVersion : GameVersion
+  {
+    public TestGameVersion(Guid id) : base(id) { }
+  }
 
-  private sealed class TestSkill(Guid id) : Skill(id);
+  private sealed class TestSkill : Skill
+  {
+    public TestSkill(Guid id) : base(id) { }
+  }
 
-  private sealed class TestSkillEffect(Guid id) : SkillEffect(id);
+  private sealed class TestSkillEffect : SkillEffect
+  {
+    public TestSkillEffect(Guid id) : base(id) { }
+  }
 
-  private sealed class TestHeroBaseStats(Guid id) : HeroBaseStats(id);
+  private sealed class TestHeroBaseStats : HeroBaseStats
+  {
+    public TestHeroBaseStats(Guid id) : base(id) { }
+  }
 
-  private sealed class TestSkillBaseStats(Guid id) : SkillBaseStats(id);
+  private sealed class TestSkillBaseStats : SkillBaseStats
+  {
+    public TestSkillBaseStats(Guid id) : base(id) { }
+  }
 
-  private sealed class TestSkillModifier(Guid id) : SkillModifier(id);
+  private sealed class TestSkillModifier : SkillModifier
+  {
+    public TestSkillModifier(Guid id) : base(id) { }
+  }
 
-  private sealed class TestHeroModifier(Guid id) : HeroModifier(id);
+  private sealed class TestHeroModifier : HeroModifier
+  {
+    public TestHeroModifier(Guid id) : base(id) { }
+  }
 }
