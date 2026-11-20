@@ -8,6 +8,9 @@ public interface ISkillRepository :
   Task<IReadOnlyList<Skill>> GetByIdsAsync(
       IEnumerable<Guid> ids,
       CancellationToken cancellationToken);
+  Task<IReadOnlyList<SkillLookup>> GetLookupsByIdsAsync(
+      IEnumerable<Guid> ids,
+      CancellationToken cancellationToken = default);
   Task<Skill?> GetDetailsAsync(
        Guid skillId,
        CancellationToken cancellationToken = default);
