@@ -5,6 +5,7 @@ using HeroService.Contracts.DTOs.Skills;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using MudBlazor.Services;
+using OriginCulturesPage = HeroService.Admin.Components.Pages.Admin.OriginCultures.OriginCultures;
 using SkillsIndex = HeroService.Admin.Components.Pages.Admin.Skills.Index;
 using HeroClassesIndex = HeroService.Admin.Components.Pages.Admin.HeroClasses.Index;
 using MythologyTypesIndex = HeroService.Admin.Components.Pages.Admin.MythologyTypes.Index;
@@ -98,6 +99,40 @@ public sealed class AdminListComponentTests
     {
       Assert.Contains("No mythology types yet", cut.Markup);
       Assert.DoesNotContain("Mythology types could not be loaded", cut.Markup);
+    });
+
+    client.Verify(api => api.GetAllAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+  }
+
+  [Fact]
+  public void OriginCultures_DistinguishesLoadFailureAndRetriesSuccessfully()
+  {
+    using var context = CreateContext();
+    var client = new Mock<IOriginCultureClient>();
+    client
+      .SetupSequence(api => api.GetAllAsync(It.IsAny<CancellationToken>()))
+      .ThrowsAsync(new HttpRequestException("API unavailable"))
+      .ReturnsAsync((IReadOnlyList<OriginCultureDto>)
+      [
+        new OriginCultureDto(Guid.NewGuid(), "Norse")
+      ]);
+    context.Services.AddSingleton(client.Object);
+
+    var cut = context.RenderComponent<OriginCulturesPage>();
+
+    Assert.Contains("Records could not be loaded", cut.Markup);
+    Assert.Contains("The HeroService API could not be reached", cut.Markup);
+    Assert.DoesNotContain("No records yet", cut.Markup);
+
+    cut.FindAll("button")
+      .First(button => button.TextContent.Contains("Try again", StringComparison.Ordinal))
+      .Click();
+
+    cut.WaitForAssertion(() =>
+    {
+      Assert.Contains("Norse", cut.Markup);
+      Assert.DoesNotContain("Records could not be loaded", cut.Markup);
+      Assert.DoesNotContain("No records yet", cut.Markup);
     });
 
     client.Verify(api => api.GetAllAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
