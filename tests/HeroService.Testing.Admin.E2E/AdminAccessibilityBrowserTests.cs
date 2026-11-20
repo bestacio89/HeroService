@@ -44,33 +44,6 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
         {
             await NavigateToOverviewAsync();
 
-            await Page.Keyboard.PressAsync("Tab");
-
-            var focusDiagnostics = await Page.EvaluateAsync<string>(
-                """
-                () => {
-                    const active = document.activeElement;
-                    const focusable = [...document.querySelectorAll(
-                        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-                    )].slice(0, 8).map(element => ({
-                        tag: element.tagName,
-                        id: element.id,
-                        className: typeof element.className === "string" ? element.className : "",
-                        text: (element.textContent ?? "").trim().slice(0, 80)
-                    }));
-
-                    return JSON.stringify({
-                        activeElement: {
-                            tag: active?.tagName,
-                            id: active?.id,
-                            className: typeof active?.className === "string" ? active.className : "",
-                            text: (active?.textContent ?? "").trim().slice(0, 80)
-                        },
-                        firstFocusableElements: focusable
-                    });
-                }
-                """);
-
             var skipLinkCount = await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
             {
                 Name = "Skip to main content",
@@ -79,12 +52,41 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
 
             Assert.Equal(1, skipLinkCount);
 
-            var skipLinkHasFocus = await Page.EvaluateAsync<bool>(
-                "() => document.activeElement?.matches('a.skip-link') === true");
+            await Page.Keyboard.PressAsync("Tab");
 
-            Assert.True(
-                skipLinkHasFocus,
-                $"The first Tab did not focus the skip link. Browser focus state: {focusDiagnostics}");
+            var skipLinkHasFocus = await Page.EvaluateAsync<bool>(
+                "document.activeElement instanceof HTMLAnchorElement && document.activeElement.classList.contains('skip-link')");
+
+            if (!skipLinkHasFocus)
+            {
+                var focusDiagnostics = await Page.EvaluateAsync<string>(
+                    """
+                    () => {
+                        const active = document.activeElement;
+                        const focusable = [...document.querySelectorAll(
+                            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                        )].slice(0, 8).map(element => ({
+                            tag: element.tagName,
+                            id: element.id,
+                            className: typeof element.className === "string" ? element.className : "",
+                            text: (element.textContent ?? "").trim().slice(0, 80)
+                        }));
+
+                        return JSON.stringify({
+                            activeElement: {
+                                tag: active?.tagName,
+                                id: active?.id,
+                                className: typeof active?.className === "string" ? active.className : "",
+                                text: (active?.textContent ?? "").trim().slice(0, 80)
+                            },
+                            firstFocusableElements: focusable
+                        });
+                    }
+                    """);
+
+                Assert.Fail(
+                    $"The first Tab did not focus the skip link. Browser focus state: {focusDiagnostics}");
+            }
 
             await Page.Keyboard.PressAsync("Enter");
 
