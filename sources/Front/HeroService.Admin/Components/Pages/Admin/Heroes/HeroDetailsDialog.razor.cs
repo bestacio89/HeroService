@@ -1,4 +1,4 @@
-﻿using HeroService.Client.Http.Abstractions;
+using HeroService.Client.Http.Abstractions;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -26,27 +26,45 @@ public sealed partial class HeroDetailsDialog : ComponentBase
 
   protected override async Task OnInitializedAsync()
   {
-    var passiveTask = SkillClient.GetDetailsAsync(Hero.SkillKit.PassiveSkillId);
-    var primaryTask = SkillClient.GetDetailsAsync(Hero.SkillKit.PrimarySkillId);
-    var secondaryTask = SkillClient.GetDetailsAsync(Hero.SkillKit.SecondarySkillId);
-    var tertiaryTask = SkillClient.GetDetailsAsync(Hero.SkillKit.TertiarySkillId);
-    var ultimateTask = SkillClient.GetDetailsAsync(Hero.SkillKit.UltimateSkillId);
+    var skillKit = Hero.SkillKit;
+    if (skillKit is null)
+    {
+      IsLoadingSkills = false;
+      return;
+    }
 
-    await Task.WhenAll(
-        passiveTask,
-        primaryTask,
-        secondaryTask,
-        tertiaryTask,
-        ultimateTask);
+    try
+    {
+      var skillIds = new[]
+      {
+        skillKit.PassiveSkillId,
+        skillKit.PrimarySkillId,
+        skillKit.SecondarySkillId,
+        skillKit.TertiarySkillId,
+        skillKit.UltimateSkillId
+      };
 
-    PassiveSkillName = (await passiveTask)?.Name ?? "(unknown)";
-    PrimarySkillName = (await primaryTask)?.Name ?? "(unknown)";
-    SecondarySkillName = (await secondaryTask)?.Name ?? "(unknown)";
-    TertiarySkillName = (await tertiaryTask)?.Name ?? "(unknown)";
-    UltimateSkillName = (await ultimateTask)?.Name ?? "(unknown)";
+      var skills = await SkillClient.GetLookupsAsync(skillIds);
+      var namesById = skills.ToDictionary(skill => skill.Id, skill => skill.Name);
 
-    IsLoadingSkills = false;
+      PassiveSkillName = ResolveName(skillKit.PassiveSkillId, namesById);
+      PrimarySkillName = ResolveName(skillKit.PrimarySkillId, namesById);
+      SecondarySkillName = ResolveName(skillKit.SecondarySkillId, namesById);
+      TertiarySkillName = ResolveName(skillKit.TertiarySkillId, namesById);
+      UltimateSkillName = ResolveName(skillKit.UltimateSkillId, namesById);
+    }
+    finally
+    {
+      IsLoadingSkills = false;
+    }
   }
+
+  private static string ResolveName(
+      Guid skillId,
+      IReadOnlyDictionary<Guid, string> namesById) =>
+      skillId != Guid.Empty && namesById.TryGetValue(skillId, out var name)
+          ? name
+          : "(unknown)";
 
   private void Close()
   {
