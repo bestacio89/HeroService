@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using FluentAssertions;
 using HeroService.Client.Http.Clients;
 
 namespace HeroService.Testing.ClientHttp;
@@ -22,12 +21,12 @@ public sealed class SkillClientLookupTests
 
     var result = await sut.GetLookupsAsync([firstId, secondId, firstId]);
 
-    result.Should().BeEmpty();
-    handler.RequestCount.Should().Be(1);
-    handler.RequestUri!.AbsolutePath.Should().Be("/api/v1/skills/lookup");
-    handler.RequestUri.Query.Should().Contain($"ids={firstId}");
-    handler.RequestUri.Query.Should().Contain($"ids={secondId}");
-    handler.RequestUri.Query.Split("ids=", StringSplitOptions.RemoveEmptyEntries).Should().HaveCount(2);
+    Assert.Empty(result);
+    Assert.Equal(1, handler.RequestCount);
+    Assert.Equal("/api/v1/skills/lookup", handler.RequestUri!.AbsolutePath);
+    Assert.Contains($"ids={firstId}", handler.RequestUri.Query);
+    Assert.Contains($"ids={secondId}", handler.RequestUri.Query);
+    Assert.Equal(2, handler.RequestUri.Query.Split("ids=", StringSplitOptions.RemoveEmptyEntries).Length);
   }
 
   [Fact]
@@ -43,7 +42,7 @@ public sealed class SkillClientLookupTests
     var result = await sut.GetLookupsAsync([Guid.Empty]);
 
     result.Should().BeEmpty();
-    handler.RequestCount.Should().Be(0);
+    Assert.Equal(0, handler.RequestCount);
   }
 
   private sealed class RecordingHttpMessageHandler : HttpMessageHandler
