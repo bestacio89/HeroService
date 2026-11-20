@@ -1,12 +1,17 @@
 @inherits LayoutComponentBase
+@implements IAsyncDisposable
 @inject MudTheme Theme
+@inject IJSRuntime JS
 
 <MudThemeProvider Theme="@Theme" IsDarkMode="true" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<a class="skip-link" href="#main-content">Skip to main content</a>
+<a class="skip-link"
+   href="#main-content"
+   @onclick="FocusMainContentAsync"
+   @onclick:preventDefault="true">Skip to main content</a>
 
 <MudLayout Class="app-shell">
     <MudAppBar Elevation="0" Dense="true" Class="app-topbar">
@@ -71,7 +76,36 @@
 </div>
 
 @code {
+    private IJSObjectReference? _skipNavigationModule;
     private bool _drawerOpen = true;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _skipNavigationModule = await JS.InvokeAsync<IJSObjectReference>(
+            "import",
+            "./skip-navigation.js");
+    }
+
+    private async Task FocusMainContentAsync()
+    {
+        if (_skipNavigationModule is not null)
+        {
+            await _skipNavigationModule.InvokeVoidAsync("focusMainContent");
+        }
+    }
+
     private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_skipNavigationModule is not null)
+        {
+            await _skipNavigationModule.DisposeAsync();
+        }
+    }
 }
