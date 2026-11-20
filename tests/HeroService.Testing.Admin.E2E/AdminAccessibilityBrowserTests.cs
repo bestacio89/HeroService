@@ -96,7 +96,8 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             {
                 await Page.WaitForFunctionAsync(
                     "() => document.activeElement?.id === 'main-content'",
-                    new FrameWaitForFunctionOptions
+                    null,
+                    new PageWaitForFunctionOptions
                     {
                         Timeout = 2_000
                     });
