@@ -71,6 +71,23 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
 
   [Fact]
   [Trait("Category", "Integration")]
+  public async Task GetSkillLookups_ReturnsEmptyCollectionForUnknownIds()
+  {
+    var firstId = Guid.NewGuid();
+    var secondId = Guid.NewGuid();
+
+    using var response = await _client!.GetAsync(
+        $"/api/v1/skills/lookup?ids={firstId}&ids={secondId}");
+
+    response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+    var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+    payload.ValueKind.Should().Be(JsonValueKind.Array);
+    payload.GetArrayLength().Should().Be(0);
+  }
+
+  [Fact]
+  [Trait("Category", "Integration")]
   public async Task GetHeroClassById_ReturnsNotFoundWhenMissing()
   {
     using var response = await _client!.GetAsync($"/api/v1/hero-classes/{Guid.NewGuid()}");

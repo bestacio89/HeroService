@@ -80,6 +80,28 @@ public sealed class SkillClient : ISkillClient
            ?? [];
   }
 
+  public async Task<IReadOnlyCollection<SkillLookupDto>> GetLookupsAsync(
+      IEnumerable<Guid> skillIds,
+      CancellationToken cancellationToken = default)
+  {
+    ArgumentNullException.ThrowIfNull(skillIds);
+
+    var ids = skillIds
+        .Where(id => id != Guid.Empty)
+        .Distinct()
+        .ToArray();
+
+    if (ids.Length == 0)
+      return Array.Empty<SkillLookupDto>();
+
+    var query = string.Join("&", ids.Select(id => $"ids={Uri.EscapeDataString(id.ToString())}"));
+
+    return await _httpClient.GetFromJsonAsync<IReadOnlyCollection<SkillLookupDto>>(
+               $"api/v1/skills/lookup?{query}",
+               cancellationToken)
+           ?? [];
+  }
+
   // =========================================================
   // GET BY NAME
   // =========================================================

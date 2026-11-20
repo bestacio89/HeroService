@@ -23,6 +23,10 @@ public interface ISkillClient
   Task<IReadOnlyCollection<SkillDto>> GetAllAsync(
       CancellationToken cancellationToken = default);
 
+  Task<IReadOnlyCollection<SkillLookupDto>> GetLookupsAsync(
+      IEnumerable<Guid> skillIds,
+      CancellationToken cancellationToken = default);
+
   Task<SkillDto?> GetByNameAsync(
       string name,
       CancellationToken cancellationToken = default);

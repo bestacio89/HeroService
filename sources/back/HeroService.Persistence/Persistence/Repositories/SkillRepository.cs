@@ -45,6 +45,28 @@ public sealed class SkillRepository : ISkillRepository
         .ToListAsync(cancellationToken);
   }
 
+  public async Task<IReadOnlyList<SkillLookup>> GetLookupsByIdsAsync(
+      IEnumerable<Guid> ids,
+      CancellationToken cancellationToken = default)
+  {
+    ArgumentNullException.ThrowIfNull(ids);
+
+    var idList = ids
+        .Where(id => id != Guid.Empty)
+        .Distinct()
+        .ToArray();
+
+    if (idList.Length == 0)
+      return Array.Empty<SkillLookup>();
+
+    return await _dbContext.Set<Skill>()
+        .AsNoTracking()
+        .Where(skill => idList.Contains(skill.Id))
+        .OrderBy(skill => skill.Name)
+        .Select(skill => new SkillLookup(skill.Id, skill.Name))
+        .ToListAsync(cancellationToken);
+  }
+
   public Task<Skill?> GetDetailsAsync(
       Guid skillId,
       CancellationToken cancellationToken = default)

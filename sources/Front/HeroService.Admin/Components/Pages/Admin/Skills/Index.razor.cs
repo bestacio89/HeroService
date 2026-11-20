@@ -43,20 +43,17 @@ public sealed partial class Index : ComponentBase
     ErrorMessage = null;
     try
     {
-      var result = await Client.GetAllAsync();
-      Items = result?.OrderBy(skill => skill.Name, StringComparer.OrdinalIgnoreCase).ToArray() ?? [];
-      try
-      {
-        Heroes = (await HeroClient.BrowseAsync()).OrderBy(hero => hero.Name, StringComparer.OrdinalIgnoreCase).ToArray();
-        BuildHeroSkillIndex();
-      }
-      catch (Exception exception) when (exception is not OperationCanceledException)
-      {
-        Logger.LogWarning(exception, "Unable to load hero associations for the skill library.");
-        Heroes = [];
-        HeroesWithSkills = [];
-        _heroesBySkillId.Clear();
-      }
+      var heroesTask = LoadHeroesSafelyAsync();
+      var skillsTask = Client.GetAllAsync();
+
+      await Task.WhenAll(skillsTask, heroesTask);
+
+      Items = (await skillsTask)
+          .OrderBy(skill => skill.Name, StringComparer.OrdinalIgnoreCase)
+          .ToArray();
+      Heroes = await heroesTask;
+      BuildHeroSkillIndex();
+
       _skillTypeCount = Items.Select(skill => skill.SkillType).Distinct().Count();
       ApplyFilter();
     }
@@ -77,6 +74,21 @@ public sealed partial class Index : ComponentBase
     finally
     {
       Loading = false;
+    }
+  }
+
+  private async Task<IReadOnlyList<HeroDto>> LoadHeroesSafelyAsync()
+  {
+    try
+    {
+      return (await HeroClient.BrowseAsync())
+          .OrderBy(hero => hero.Name, StringComparer.OrdinalIgnoreCase)
+          .ToArray();
+    }
+    catch (Exception exception) when (exception is not OperationCanceledException)
+    {
+      Logger.LogWarning(exception, "Unable to load hero associations for the skill library.");
+      return [];
     }
   }
 
@@ -169,9 +181,19 @@ public sealed partial class Index : ComponentBase
     foreach (var (skillId, owners) in index)
       _heroesBySkillId[skillId] = owners.OrderBy(hero => hero.Name, StringComparer.OrdinalIgnoreCase).ToArray();
 
+    var knownSkillIds = Items
+        .Select(skill => skill.Id)
+        .ToHashSet();
+
     HeroesWithSkills = Heroes.Where(hero => hero.SkillKit is not null &&
-      new[] { hero.SkillKit.PassiveSkillId, hero.SkillKit.PrimarySkillId, hero.SkillKit.SecondarySkillId, hero.SkillKit.TertiarySkillId, hero.SkillKit.UltimateSkillId }
-        .Any(id => id != Guid.Empty && Items.Any(skill => skill.Id == id)))
+      new[]
+      {
+        hero.SkillKit.PassiveSkillId,
+        hero.SkillKit.PrimarySkillId,
+        hero.SkillKit.SecondarySkillId,
+        hero.SkillKit.TertiarySkillId,
+        hero.SkillKit.UltimateSkillId
+      }.Any(id => id != Guid.Empty && knownSkillIds.Contains(id)))
       .ToArray();
   }
 
