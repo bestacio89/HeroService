@@ -38,18 +38,20 @@ public sealed partial class LifecycleAdminPage<TDto> : ComponentBase
 
   private async Task OpenRename(TDto item)
   {
-    if (OnRename is null || !CanRunActions)
+    var callback = OnRename;
+    if (callback is null || !CanRunActions)
       return;
 
-    await ExecuteActionAsync(() => OnRename(item));
+    await ExecuteActionAsync(() => callback(item));
   }
 
   private async Task Retire(TDto item)
   {
-    if (OnRetire is null || !CanRunActions)
+    var callback = OnRetire;
+    if (callback is null || !CanRunActions)
       return;
 
-    await ExecuteActionAsync(() => OnRetire(item));
+    await ExecuteActionAsync(() => callback(item));
   }
 
   private async Task ExecuteActionAsync(Func<Task> action)
