@@ -11,10 +11,10 @@ public sealed partial class LifecycleAdminPage<TDto> : ComponentBase
   [Parameter] public string? ErrorMessage { get; set; }
   [Parameter] public RenderFragment? HeaderContent { get; set; }
   [Parameter] public RenderFragment<TDto>? RowTemplate { get; set; }
-  [Parameter] public Func<Task>? OnCreate { get; set; }
-  [Parameter] public Func<TDto, Task>? OnRename { get; set; }
-  [Parameter] public Func<TDto, Task>? OnRetire { get; set; }
-  [Parameter] public Func<Task>? OnRefresh { get; set; }
+  [Parameter] public EventCallback OnCreate { get; set; }
+  [Parameter] public EventCallback<TDto> OnRename { get; set; }
+  [Parameter] public EventCallback<TDto> OnRetire { get; set; }
+  [Parameter] public EventCallback OnRefresh { get; set; }
 
   private bool _isActionInProgress;
 
@@ -22,36 +22,34 @@ public sealed partial class LifecycleAdminPage<TDto> : ComponentBase
 
   private async Task Refresh()
   {
-    if (OnRefresh is null || !CanRunActions)
+    if (!OnRefresh.HasDelegate || !CanRunActions)
       return;
 
-    await ExecuteActionAsync(OnRefresh);
+    await ExecuteActionAsync(() => OnRefresh.InvokeAsync());
   }
 
   private async Task OpenCreate()
   {
-    if (OnCreate is null || !CanRunActions)
+    if (!OnCreate.HasDelegate || !CanRunActions)
       return;
 
-    await ExecuteActionAsync(OnCreate);
+    await ExecuteActionAsync(() => OnCreate.InvokeAsync());
   }
 
   private async Task OpenRename(TDto item)
   {
-    var callback = OnRename;
-    if (callback is null || !CanRunActions)
+    if (!OnRename.HasDelegate || !CanRunActions)
       return;
 
-    await ExecuteActionAsync(() => callback(item));
+    await ExecuteActionAsync(() => OnRename.InvokeAsync(item));
   }
 
   private async Task Retire(TDto item)
   {
-    var callback = OnRetire;
-    if (callback is null || !CanRunActions)
+    if (!OnRetire.HasDelegate || !CanRunActions)
       return;
 
-    await ExecuteActionAsync(() => callback(item));
+    await ExecuteActionAsync(() => OnRetire.InvokeAsync(item));
   }
 
   private async Task ExecuteActionAsync(Func<Task> action)
