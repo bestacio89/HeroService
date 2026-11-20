@@ -81,16 +81,18 @@ public sealed class SkillController : ControllerBase
 
   [HttpGet("lookup")]
   public async Task<ActionResult<IReadOnlyCollection<SkillLookupDto>>> GetLookups(
-      [FromQuery] IReadOnlyCollection<Guid> ids,
+      [FromQuery] Guid[]? ids,
       CancellationToken cancellationToken)
   {
     const int maximumBatchSize = 100;
 
-    if (ids.Count > maximumBatchSize)
+    var requestedIds = ids ?? [];
+
+    if (requestedIds.Length > maximumBatchSize)
       return BadRequest($"A maximum of {maximumBatchSize} skill IDs is supported.");
 
     var result = await _dispatcher.SendAsync(
-        new GetSkillLookupsQuery(ids),
+        new GetSkillLookupsQuery(requestedIds),
         cancellationToken);
 
     return Ok(result);
