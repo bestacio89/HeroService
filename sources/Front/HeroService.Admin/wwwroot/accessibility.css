@@ -17,7 +17,8 @@
     transform: translateY(0);
 }
 
-:where(a, button, input, select, textarea, [role="button"], [tabindex="0"]):focus-visible {
+:where(a, button, input, select, textarea, [role="button"], [tabindex="0"]):focus-visible,
+.mud-focus-visible:focus-visible {
     outline: 3px solid var(--app-gold);
     outline-offset: 3px;
     box-shadow: 0 0 0 2px var(--app-background);
