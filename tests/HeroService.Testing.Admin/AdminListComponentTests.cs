@@ -4,6 +4,7 @@ using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Contracts.DTOs.Skills;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using MudBlazor;
 using MudBlazor.Services;
 using OriginCulturesPage = HeroService.Admin.Components.Pages.Admin.OriginCultures.OriginCultures;
 using SkillsIndex = HeroService.Admin.Components.Pages.Admin.Skills.Index;
@@ -136,6 +137,71 @@ public sealed class AdminListComponentTests
     });
 
     client.Verify(api => api.GetAllAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+  }
+
+
+  [Fact]
+  public void OriginCultures_CancelledRetirementDoesNotCallApi()
+  {
+    using var context = CreateContext();
+    var culture = new OriginCultureDto(Guid.NewGuid(), "Norse");
+    var client = new Mock<IOriginCultureClient>();
+    client
+      .Setup(api => api.GetAllAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync((IReadOnlyList<OriginCultureDto>)[culture]);
+    context.Services.AddSingleton(client.Object);
+
+    var dialogProvider = context.RenderComponent<MudDialogProvider>();
+    var cut = context.RenderComponent<OriginCulturesPage>();
+
+    cut.Find("button[aria-label='Retire record']").Click();
+
+    dialogProvider.WaitForAssertion(() =>
+      Assert.Contains("Retire origin culture?", dialogProvider.Markup));
+
+    dialogProvider.FindAll("button")
+      .First(button => button.TextContent.Contains("Cancel", StringComparison.Ordinal))
+      .Click();
+
+    client.Verify(
+      api => api.RetireAsync(culture.Id, It.IsAny<CancellationToken>()),
+      Times.Never);
+  }
+
+  [Fact]
+  public void OriginCultures_ConfirmedRetirementCallsApiAndRefreshes()
+  {
+    using var context = CreateContext();
+    var culture = new OriginCultureDto(Guid.NewGuid(), "Norse");
+    var client = new Mock<IOriginCultureClient>();
+    client
+      .Setup(api => api.GetAllAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync((IReadOnlyList<OriginCultureDto>)[culture]);
+    client
+      .Setup(api => api.RetireAsync(culture.Id, It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
+    context.Services.AddSingleton(client.Object);
+
+    var dialogProvider = context.RenderComponent<MudDialogProvider>();
+    var cut = context.RenderComponent<OriginCulturesPage>();
+
+    cut.Find("button[aria-label='Retire record']").Click();
+
+    dialogProvider.WaitForAssertion(() =>
+      Assert.Contains("Retire origin culture?", dialogProvider.Markup));
+
+    dialogProvider.FindAll("button")
+      .First(button => button.TextContent.Trim() == "Retire")
+      .Click();
+
+    cut.WaitForAssertion(() =>
+      client.Verify(
+        api => api.RetireAsync(culture.Id, It.IsAny<CancellationToken>()),
+        Times.Once));
+
+    client.Verify(
+      api => api.GetAllAsync(It.IsAny<CancellationToken>()),
+      Times.Exactly(2));
   }
 
   private static TestContext CreateContext()
