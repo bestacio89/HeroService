@@ -14,14 +14,29 @@
         <div class="admin-page-actions">
             @if (OnRefresh is not null)
             {
-                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" Title="Refresh" AriaLabel="Refresh list" Disabled="@IsLoading" OnClick="Refresh" />
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh"
+                               Color="Color.Default"
+                               Title="Refresh"
+                               AriaLabel="Refresh list"
+                               Disabled="@(!CanRunActions)"
+                               OnClick="Refresh" />
             }
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Disabled="@(OnCreate is null)" OnClick="OpenCreate">Create</MudButton>
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Disabled="@(OnCreate is null || !CanRunActions)"
+                       OnClick="OpenCreate">
+                Create
+            </MudButton>
         </div>
     </div>
+
     <div class="admin-list-summary">
-        <MudText Typo="Typo.body2" Color="Color.Secondary">@(IsLoading ? "Loading records…" : $"{Items.Count} record{(Items.Count == 1 ? "" : "s")}")</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            @(IsLoading ? "Loading records…" : !string.IsNullOrWhiteSpace(ErrorMessage) ? "Records unavailable" : $"{Items.Count} record{(Items.Count == 1 ? "" : "s")}")
+        </MudText>
     </div>
+
     @if (IsLoading)
     {
         <div class="admin-loading-state" role="status" aria-live="polite">
@@ -31,6 +46,24 @@
             <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="44px" />
         </div>
     }
+    else if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Role="alert">
+            <MudText Typo="Typo.subtitle1">Records could not be loaded</MudText>
+            <MudText Typo="Typo.body2">@ErrorMessage</MudText>
+            @if (OnRefresh is not null)
+            {
+                <MudButton Class="mt-3"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           Disabled="@(!CanRunActions)"
+                           OnClick="Refresh">
+                    Try again
+                </MudButton>
+            }
+        </MudAlert>
+    }
     else if (Items.Count == 0)
     {
         <MudPaper Class="empty-state" Elevation="0">
@@ -39,7 +72,13 @@
             <MudText Typo="Typo.body2" Color="Color.Secondary">Create the first record to populate this section.</MudText>
             @if (OnCreate is not null)
             {
-                <MudButton Color="Color.Primary" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreate">Create record</MudButton>
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           Disabled="@(!CanRunActions)"
+                           OnClick="OpenCreate">
+                    Create record
+                </MudButton>
             }
         </MudPaper>
     }
@@ -60,8 +99,20 @@
                 }
                 <MudTd DataLabel="Actions">
                     <div class="table-actions">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" Title="Rename" AriaLabel="Rename record" Disabled="@(OnRename is null)" OnClick="@(() => OpenRename(item))" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Archive" Size="Size.Small" Color="Color.Error" Title="Retire" AriaLabel="Retire record" Disabled="@(OnRetire is null)" OnClick="@(() => Retire(item))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       Title="Rename"
+                                       AriaLabel="Rename record"
+                                       Disabled="@(OnRename is null || !CanRunActions)"
+                                       OnClick="@(() => OpenRename(item))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Archive"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       Title="Retire"
+                                       AriaLabel="Retire record"
+                                       Disabled="@(OnRetire is null || !CanRunActions)"
+                                       OnClick="@(() => Retire(item))" />
                     </div>
                 </MudTd>
             </RowTemplate>
