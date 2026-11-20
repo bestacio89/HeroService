@@ -103,14 +103,14 @@
                                        Size="Size.Small"
                                        Color="Color.Primary"
                                        Title="Rename"
-                                       AriaLabel="Rename record"
+                                       aria-label="Rename record"
                                        Disabled="@(!OnRename.HasDelegate || !CanRunActions)"
                                        OnClick="@(() => OpenRename(item))" />
                         <MudIconButton Icon="@Icons.Material.Filled.Archive"
                                        Size="Size.Small"
                                        Color="Color.Error"
                                        Title="Retire"
-                                       AriaLabel="Retire record"
+                                       aria-label="Retire record"
                                        Disabled="@(!OnRetire.HasDelegate || !CanRunActions)"
                                        OnClick="@(() => Retire(item))" />
                     </div>
