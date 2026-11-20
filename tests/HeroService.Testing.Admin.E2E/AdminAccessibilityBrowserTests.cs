@@ -52,8 +52,34 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 Exact = true
             });
 
-            Assert.True(await skipLink.EvaluateAsync<bool>(
-                "element => element === document.activeElement"));
+            var focusDiagnostics = await Page.EvaluateAsync<string>(
+                """
+                () => {
+                    const active = document.activeElement;
+                    const focusable = [...document.querySelectorAll(
+                        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                    )].slice(0, 8).map(element => ({
+                        tag: element.tagName,
+                        id: element.id,
+                        className: typeof element.className === "string" ? element.className : "",
+                        text: (element.textContent ?? "").trim().slice(0, 80)
+                    }));
+
+                    return JSON.stringify({
+                        activeElement: {
+                            tag: active?.tagName,
+                            id: active?.id,
+                            className: typeof active?.className === "string" ? active.className : "",
+                            text: (active?.textContent ?? "").trim().slice(0, 80)
+                        },
+                        firstFocusableElements: focusable
+                    });
+                }
+                """);
+
+            Assert.True(
+                await skipLink.EvaluateAsync<bool>("element => element === document.activeElement"),
+                $"The first Tab did not focus the skip link. Browser focus state: {focusDiagnostics}");
 
             await Page.Keyboard.PressAsync("Enter");
 
@@ -89,7 +115,10 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             var violations = results.Violations ?? [];
             var violationSummary = string.Join(
                 Environment.NewLine,
-                violations.Select(violation => $"{violation.Id}: {violation.HelpUrl}"));
+                violations.SelectMany(violation =>
+                    violation.Nodes.Select(node =>
+                        $"{violation.Id}: target={string.Join(", ", node.Target ?? [])}; " +
+                        $"html={node.Html}; failure={node.FailureSummary}; help={violation.HelpUrl}")));
 
             Assert.True(
                 !violations.Any(),
