@@ -33,7 +33,7 @@
 
     <div class="admin-list-summary">
         <MudText Typo="Typo.body2" Color="Color.Secondary">
-            @(IsLoading ? "Loading records…" : ErrorMessage is not null ? "Records unavailable" : $"{Items.Count} record{(Items.Count == 1 ? "" : "s")}")
+            @(IsLoading ? "Loading records…" : !string.IsNullOrWhiteSpace(ErrorMessage) ? "Records unavailable" : $"{Items.Count} record{(Items.Count == 1 ? "" : "s")}")
         </MudText>
     </div>
 
