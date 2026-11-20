@@ -57,11 +57,9 @@
         </div>
     </MudDrawer>
 
-    <MudMainContent Class="app-main">
+    <MudMainContent id="main-content" tabindex="-1" role="main" Class="app-main">
         <MudContainer MaxWidth="MaxWidth.False" Class="app-content">
-            <main id="main-content" tabindex="-1">
-                @Body
-            </main>
+            @Body
         </MudContainer>
     </MudMainContent>
 </MudLayout>

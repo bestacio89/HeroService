@@ -35,7 +35,8 @@ public sealed class AdminAccessibilityTests
 
         Assert.Equal("#main-content", cut.Find("a.skip-link").GetAttribute("href"));
         Assert.NotNull(cut.Find("nav[aria-label='Primary navigation']"));
-        Assert.Equal("-1", cut.Find("main#main-content").GetAttribute("tabindex"));
+        Assert.Equal("-1", cut.Find("#main-content").GetAttribute("tabindex"));
+        Assert.Equal("main", cut.Find("#main-content").GetAttribute("role"));
         Assert.Equal(
             "primary-navigation",
             cut.Find("button[aria-label='Toggle navigation']").GetAttribute("aria-controls"));
