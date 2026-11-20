@@ -81,7 +81,7 @@ public sealed partial class OriginCultures : ComponentBase
         parameters);
     var result = await dialog.Result;
 
-    if (!result.Canceled)
+    if (result is { Canceled: false })
       await Load();
   }
 
