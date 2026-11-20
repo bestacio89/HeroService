@@ -153,6 +153,7 @@ public sealed class AdminListComponentTests
     var dialogProvider = context.RenderComponent<MudDialogProvider>();
     var cut = context.RenderComponent<OriginCulturesPage>();
 
+    cut.WaitForAssertion(() => Assert.Contains("Norse", cut.Markup));
     cut.WaitForElement("button[aria-label='Retire record']").Click();
 
     dialogProvider.WaitForAssertion(() =>
@@ -184,6 +185,7 @@ public sealed class AdminListComponentTests
     var dialogProvider = context.RenderComponent<MudDialogProvider>();
     var cut = context.RenderComponent<OriginCulturesPage>();
 
+    cut.WaitForAssertion(() => Assert.Contains("Norse", cut.Markup));
     cut.WaitForElement("button[aria-label='Retire record']").Click();
 
     dialogProvider.WaitForAssertion(() =>
