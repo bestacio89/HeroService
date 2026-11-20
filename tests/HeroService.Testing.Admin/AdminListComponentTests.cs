@@ -139,7 +139,6 @@ public sealed class AdminListComponentTests
     client.Verify(api => api.GetAllAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
   }
 
-
   [Fact]
   public void OriginCultures_CancelledRetirementDoesNotCallApi()
   {
@@ -154,7 +153,7 @@ public sealed class AdminListComponentTests
     var dialogProvider = context.RenderComponent<MudDialogProvider>();
     var cut = context.RenderComponent<OriginCulturesPage>();
 
-    cut.Find("button[aria-label='Retire record']").Click();
+    cut.WaitForElement("button[aria-label='Retire record']").Click();
 
     dialogProvider.WaitForAssertion(() =>
       Assert.Contains("Retire origin culture?", dialogProvider.Markup));
@@ -185,7 +184,7 @@ public sealed class AdminListComponentTests
     var dialogProvider = context.RenderComponent<MudDialogProvider>();
     var cut = context.RenderComponent<OriginCulturesPage>();
 
-    cut.Find("button[aria-label='Retire record']").Click();
+    cut.WaitForElement("button[aria-label='Retire record']").Click();
 
     dialogProvider.WaitForAssertion(() =>
       Assert.Contains("Retire origin culture?", dialogProvider.Markup));
