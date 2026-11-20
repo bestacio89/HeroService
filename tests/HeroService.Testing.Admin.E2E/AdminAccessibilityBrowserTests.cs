@@ -92,7 +92,7 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 violations.Select(violation => $"{violation.Id}: {violation.HelpUrl}"));
 
             Assert.True(
-                violations.Count == 0,
+                !violations.Any(),
                 $"axe-core reported WCAG accessibility violations:{Environment.NewLine}{violationSummary}");
         });
     }
