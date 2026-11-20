@@ -12,7 +12,7 @@
             }
         </div>
         <div class="admin-page-actions">
-            @if (OnRefresh is not null)
+            @if (OnRefresh.HasDelegate)
             {
                 <MudIconButton Icon="@Icons.Material.Filled.Refresh"
                                Color="Color.Default"
@@ -24,7 +24,7 @@
             <MudButton Color="Color.Primary"
                        Variant="Variant.Filled"
                        StartIcon="@Icons.Material.Filled.Add"
-                       Disabled="@(OnCreate is null || !CanRunActions)"
+                       Disabled="@(!OnCreate.HasDelegate || !CanRunActions)"
                        OnClick="OpenCreate">
                 Create
             </MudButton>
@@ -51,7 +51,7 @@
         <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Role="alert">
             <MudText Typo="Typo.subtitle1">Records could not be loaded</MudText>
             <MudText Typo="Typo.body2">@ErrorMessage</MudText>
-            @if (OnRefresh is not null)
+            @if (OnRefresh.HasDelegate)
             {
                 <MudButton Class="mt-3"
                            Variant="Variant.Filled"
@@ -70,7 +70,7 @@
             <MudIcon Icon="@Icons.Material.Outlined.Inventory2" Size="Size.Large" Color="Color.Secondary" />
             <MudText Typo="Typo.h6">No records yet</MudText>
             <MudText Typo="Typo.body2" Color="Color.Secondary">Create the first record to populate this section.</MudText>
-            @if (OnCreate is not null)
+            @if (OnCreate.HasDelegate)
             {
                 <MudButton Color="Color.Primary"
                            Variant="Variant.Outlined"
@@ -104,14 +104,14 @@
                                        Color="Color.Primary"
                                        Title="Rename"
                                        AriaLabel="Rename record"
-                                       Disabled="@(OnRename is null || !CanRunActions)"
+                                       Disabled="@(!OnRename.HasDelegate || !CanRunActions)"
                                        OnClick="@(() => OpenRename(item))" />
                         <MudIconButton Icon="@Icons.Material.Filled.Archive"
                                        Size="Size.Small"
                                        Color="Color.Error"
                                        Title="Retire"
                                        AriaLabel="Retire record"
-                                       Disabled="@(OnRetire is null || !CanRunActions)"
+                                       Disabled="@(!OnRetire.HasDelegate || !CanRunActions)"
                                        OnClick="@(() => Retire(item))" />
                     </div>
                 </MudTd>
