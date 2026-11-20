@@ -23,6 +23,7 @@
     <Project Path="tests/HeroService.Testing.API.Integration/HeroService.Testing.API.Integration.csproj" />
     <Project Path="tests/HeroService.Testing.Persistence.Integration/HeroService.Testing.Persistence.Integration.csproj" />
     <Project Path="tests/HeroService.Testing.Admin/HeroService.Testing.Admin.csproj" />
+    <Project Path="tests/HeroService.Testing.Admin.E2E/HeroService.Testing.Admin.E2E.csproj" />
   </Folder>
   <Folder Name="/Infrastructure/">
     <File Path="main.bicep" />

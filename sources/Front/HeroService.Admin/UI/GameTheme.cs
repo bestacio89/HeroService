@@ -9,6 +9,7 @@ public static class GameTheme
     PaletteDark = new PaletteDark
     {
       Primary = "#D4AF37",
+      PrimaryContrastText = "#0B0F14",
       Secondary = "#7B3F00",
       Background = "#0B0F14",
       Surface = "#121826",
