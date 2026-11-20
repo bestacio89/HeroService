@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text;
-using System.Text.Json;
 using HeroService.Client.Http.Clients;
 
 namespace HeroService.Testing.ClientHttp;
@@ -24,9 +23,14 @@ public sealed class SkillClientLookupTests
     Assert.Empty(result);
     Assert.Equal(1, handler.RequestCount);
     Assert.Equal("/api/v1/skills/lookup", handler.RequestUri!.AbsolutePath);
-    Assert.Contains($"ids={firstId}", handler.RequestUri.Query);
-    Assert.Contains($"ids={secondId}", handler.RequestUri.Query);
-    Assert.Equal(2, handler.RequestUri.Query.Split("ids=", StringSplitOptions.RemoveEmptyEntries).Length);
+
+    var queryParameters = handler.RequestUri.Query
+        .TrimStart('?')
+        .Split('&', StringSplitOptions.RemoveEmptyEntries);
+
+    Assert.Equal(2, queryParameters.Length);
+    Assert.Contains($"ids={firstId}", queryParameters);
+    Assert.Contains($"ids={secondId}", queryParameters);
   }
 
   [Fact]
