@@ -65,7 +65,7 @@ public sealed partial class OriginCultures : ComponentBase
     var dialog = await DialogService.ShowAsync<OriginCultureDialog>("Create Culture");
     var result = await dialog.Result;
 
-    if (!result.Canceled)
+    if (result is { Canceled: false })
       await Load();
   }
 
@@ -87,7 +87,7 @@ public sealed partial class OriginCultures : ComponentBase
 
   private async Task Retire(OriginCultureDto item)
   {
-    var confirmed = await DialogService.ShowMessageBox(
+    var confirmed = await DialogService.ShowMessageBoxAsync(
         title: "Retire origin culture?",
         message: $"'{item.Name}' will be retired and will no longer be available for new assignments.",
         yesText: "Retire",
