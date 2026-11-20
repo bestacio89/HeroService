@@ -24,7 +24,7 @@
 
 
             <div class="admin-page-actions">
-                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" Title="Refresh modifiers" AriaLabel="Refresh modifiers" Disabled="@Loading" OnClick="LoadAsync" />
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" Title="Refresh modifiers" aria-label="Refresh modifiers" Disabled="@Loading" OnClick="LoadAsync" />
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">Create Modifier</MudButton>
             </div>
 
@@ -159,6 +159,7 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                    Color="Color.Primary"
                                    Title="Edit Modifier"
+                                   aria-label="Edit hero modifier"
                                    OnClick="@(() => OpenEditDialog(context))" />
 
                 </MudTd>
