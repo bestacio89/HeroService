@@ -79,6 +79,23 @@ public sealed class SkillController : ControllerBase
     return Ok(result);
   }
 
+  [HttpGet("lookup")]
+  public async Task<ActionResult<IReadOnlyCollection<SkillLookupDto>>> GetLookups(
+      [FromQuery] IReadOnlyCollection<Guid> ids,
+      CancellationToken cancellationToken)
+  {
+    const int maximumBatchSize = 100;
+
+    if (ids.Count > maximumBatchSize)
+      return BadRequest($"A maximum of {maximumBatchSize} skill IDs is supported.");
+
+    var result = await _dispatcher.SendAsync(
+        new GetSkillLookupsQuery(ids),
+        cancellationToken);
+
+    return Ok(result);
+  }
+
   // =========================================================
   // GET SKILL BY NAME
   // =========================================================
