@@ -46,12 +46,6 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
 
             await Page.Keyboard.PressAsync("Tab");
 
-            var skipLink = Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
-            {
-                Name = "Skip to main content",
-                Exact = true
-            });
-
             var focusDiagnostics = await Page.EvaluateAsync<string>(
                 """
                 () => {
@@ -77,8 +71,19 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 }
                 """);
 
+            var skipLinkCount = await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
+            {
+                Name = "Skip to main content",
+                Exact = true
+            }).CountAsync();
+
+            Assert.Equal(1, skipLinkCount);
+
+            var skipLinkHasFocus = await Page.EvaluateAsync<bool>(
+                "() => document.activeElement?.matches('a.skip-link') === true");
+
             Assert.True(
-                await skipLink.EvaluateAsync<bool>("element => element === document.activeElement"),
+                skipLinkHasFocus,
                 $"The first Tab did not focus the skip link. Browser focus state: {focusDiagnostics}");
 
             await Page.Keyboard.PressAsync("Enter");
