@@ -5,21 +5,21 @@
 <PageTitle>Overview | HeroService Admin</PageTitle>
 
 <MudStack Spacing="5" Class="page-stack">
-    <section class="overview-hero">
+    <section class="overview-hero" aria-labelledby="overview-title">
         <MudText Typo="Typo.overline" Class="eyebrow">HERO SERVICE / ADMINISTRATION</MudText>
-        <MudText Typo="Typo.h3" Class="overview-title">Codex workspace</MudText>
+        <h1 id="overview-title" class="mud-typography mud-typography-h3 overview-title">Codex workspace</h1>
         <MudText Typo="Typo.body1" Class="overview-description">Author game content, maintain balance data, and manage the world classifications used by the gameplay pipeline.</MudText>
     </section>
 
-    <section class="admin-section">
+    <section class="admin-section" aria-labelledby="core-authoring-title">
         <div class="section-heading">
-            <div><MudText Typo="Typo.h5">Core authoring</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Define the entities and abilities that drive gameplay.</MudText></div>
+            <div><h2 id="core-authoring-title" class="mud-typography mud-typography-h5">Core authoring</h2><MudText Typo="Typo.body2" Color="Color.Secondary">Define the entities and abilities that drive gameplay.</MudText></div>
         </div>
         <MudGrid Spacing="3">
             <MudItem xs="12" md="6">
                 <MudPaper Class="workspace-card" Elevation="0">
-                    <div class="workspace-card-icon"><MudIcon Icon="@Icons.Material.Filled.Shield" Size="Size.Large" /></div>
-                    <MudText Typo="Typo.h6">Heroes</MudText>
+                    <div class="workspace-card-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Filled.Shield" Size="Size.Large" /></div>
+                    <h3 class="mud-typography mud-typography-h6">Heroes</h3>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">Manage identity, combat roles, affiliations and progression.</MudText>
                     <div class="workspace-card-actions">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => Nav.NavigateTo("/admin/heroes"))">Browse heroes</MudButton>
@@ -29,8 +29,8 @@
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudPaper Class="workspace-card" Elevation="0">
-                    <div class="workspace-card-icon"><MudIcon Icon="@Icons.Material.Filled.Bolt" Size="Size.Large" /></div>
-                    <MudText Typo="Typo.h6">Skills</MudText>
+                    <div class="workspace-card-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Filled.Bolt" Size="Size.Large" /></div>
+                    <h3 class="mud-typography mud-typography-h6">Skills</h3>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">Define abilities, effects, scaling and execution rules.</MudText>
                     <div class="workspace-card-actions">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => Nav.NavigateTo("/admin/skills"))">Browse skills</MudButton>
@@ -41,23 +41,23 @@
         </MudGrid>
     </section>
 
-    <section class="admin-section">
+    <section class="admin-section" aria-labelledby="balance-tuning-title">
         <div class="section-heading">
-            <div><MudText Typo="Typo.h5">Balance and tuning</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Adjust active game-version values without changing base definitions.</MudText></div>
+            <div><h2 id="balance-tuning-title" class="mud-typography mud-typography-h5">Balance and tuning</h2><MudText Typo="Typo.body2" Color="Color.Secondary">Adjust active game-version values without changing base definitions.</MudText></div>
         </div>
         <MudGrid Spacing="3">
             <MudItem xs="12" md="6">
                 <MudPaper Class="workspace-card" Elevation="0">
-                    <div class="workspace-card-icon"><MudIcon Icon="@Icons.Material.Filled.Tune" Size="Size.Large" /></div>
-                    <MudText Typo="Typo.h6">Hero modifiers</MudText>
+                    <div class="workspace-card-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Filled.Tune" Size="Size.Large" /></div>
+                    <h3 class="mud-typography mud-typography-h6">Hero modifiers</h3>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">Tune health, damage, armor and movement multipliers.</MudText>
                     <div class="workspace-card-actions"><MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => Nav.NavigateTo("/admin/hero-modifiers"))">Manage modifiers</MudButton></div>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudPaper Class="workspace-card" Elevation="0">
-                    <div class="workspace-card-icon"><MudIcon Icon="@Icons.Material.Filled.SettingsSuggest" Size="Size.Large" /></div>
-                    <MudText Typo="Typo.h6">Skill modifiers</MudText>
+                    <div class="workspace-card-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Filled.SettingsSuggest" Size="Size.Large" /></div>
+                    <h3 class="mud-typography mud-typography-h6">Skill modifiers</h3>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">Tune cooldown, damage, healing, mana cost and range.</MudText>
                     <div class="workspace-card-actions"><MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => Nav.NavigateTo("/admin/skill-modifiers"))">Manage modifiers</MudButton></div>
                 </MudPaper>
@@ -65,32 +65,32 @@
         </MudGrid>
     </section>
 
-    <section class="admin-section">
+    <section class="admin-section" aria-labelledby="world-classification-title">
         <div class="section-heading">
-            <div><MudText Typo="Typo.h5">World and classification</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Maintain reference data that connects heroes to the game world.</MudText></div>
+            <div><h2 id="world-classification-title" class="mud-typography mud-typography-h5">World and classification</h2><MudText Typo="Typo.body2" Color="Color.Secondary">Maintain reference data that connects heroes to the game world.</MudText></div>
         </div>
         <MudGrid Spacing="3">
             <MudItem xs="12" sm="6" lg="3">
                 <MudPaper Class="workspace-card workspace-card-compact" Elevation="0">
-                    <MudText Typo="Typo.subtitle1">Hero classes</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Combat roles and archetypes.</MudText>
+                    <h3 class="mud-typography mud-typography-subtitle1">Hero classes</h3><MudText Typo="Typo.body2" Color="Color.Secondary">Combat roles and archetypes.</MudText>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => Nav.NavigateTo("/admin/hero-classes"))">Open</MudButton>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" lg="3">
                 <MudPaper Class="workspace-card workspace-card-compact" Elevation="0">
-                    <MudText Typo="Typo.subtitle1">Mythology types</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Narrative and cultural frameworks.</MudText>
+                    <h3 class="mud-typography mud-typography-subtitle1">Mythology types</h3><MudText Typo="Typo.body2" Color="Color.Secondary">Narrative and cultural frameworks.</MudText>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => Nav.NavigateTo("/admin/mythology-types"))">Open</MudButton>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" lg="3">
                 <MudPaper Class="workspace-card workspace-card-compact" Elevation="0">
-                    <MudText Typo="Typo.subtitle1">Origin archetypes</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Foundational character patterns.</MudText>
+                    <h3 class="mud-typography mud-typography-subtitle1">Origin archetypes</h3><MudText Typo="Typo.body2" Color="Color.Secondary">Foundational character patterns.</MudText>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => Nav.NavigateTo("/admin/origin-archetypes"))">Open</MudButton>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" lg="3">
                 <MudPaper Class="workspace-card workspace-card-compact" Elevation="0">
-                    <MudText Typo="Typo.subtitle1">Origin cultures</MudText><MudText Typo="Typo.body2" Color="Color.Secondary">Cultural origin classifications.</MudText>
+                    <h3 class="mud-typography mud-typography-subtitle1">Origin cultures</h3><MudText Typo="Typo.body2" Color="Color.Secondary">Cultural origin classifications.</MudText>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => Nav.NavigateTo("/admin/origin-cultures"))">Open</MudButton>
                 </MudPaper>
             </MudItem>

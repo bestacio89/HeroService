@@ -5,7 +5,7 @@
     <div class="admin-page-heading">
         <div class="admin-page-heading-copy">
             <MudText Typo="Typo.overline" Class="eyebrow">REFERENCE DATA</MudText>
-            <MudText Typo="Typo.h4" Class="page-title">@Title</MudText>
+            <h1 class="mud-typography mud-typography-h4 page-title">@Title</h1>
             @if (!string.IsNullOrWhiteSpace(Description))
             {
                 <MudText Typo="Typo.body2" Color="Color.Secondary">@Description</MudText>
@@ -17,7 +17,7 @@
                 <MudIconButton Icon="@Icons.Material.Filled.Refresh"
                                Color="Color.Default"
                                Title="Refresh"
-                               AriaLabel="Refresh list"
+                               aria-label="Refresh list"
                                Disabled="@(!CanRunActions)"
                                OnClick="Refresh" />
             }

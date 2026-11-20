@@ -1,0 +1,68 @@
+/* WCAG 2.2 AA interaction and navigation foundations. */
+.skip-link {
+    position: fixed;
+    z-index: 2000;
+    inset-block-start: 0.75rem;
+    inset-inline-start: 0.75rem;
+    transform: translateY(calc(-100% - 1rem));
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--app-gold);
+    border-radius: 0.5rem;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font-weight: 700;
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
+:where(a, button, input, select, textarea, [role="button"], [tabindex="0"]):focus-visible,
+.mud-focus-visible:focus-visible {
+    outline: 3px solid var(--app-gold);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 2px var(--app-background);
+}
+
+.mud-icon-button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+}
+
+#main-content {
+    min-width: 0;
+    outline: none;
+}
+
+#main-content:focus {
+    outline: none;
+}
+
+@media (forced-colors: active) {
+    :where(a, button, input, select, textarea, [role="button"], [tabindex="0"]):focus-visible {
+        outline: 3px solid Highlight;
+        outline-offset: 3px;
+        box-shadow: none;
+    }
+
+    .skip-link {
+        border-color: CanvasText;
+        background: Canvas;
+        color: CanvasText;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html:focus-within {
+        scroll-behavior: auto;
+    }
+
+    .skip-link {
+        transition: none;
+    }
+
+    .mud-icon-button,
+    .mud-button-root {
+        transition: none;
+    }
+}

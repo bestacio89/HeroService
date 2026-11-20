@@ -7,7 +7,7 @@
     <div class="page-heading">
         <div>
             <MudText Typo="Typo.overline" Class="eyebrow">WORLD & CLASSIFICATION</MudText>
-            <MudText Typo="Typo.h4" Class="page-title">Mythology Types</MudText>
+            <h1 class="mud-typography mud-typography-h4 page-title">Mythology Types</h1>
             <MudText Typo="Typo.body1" Color="Color.Secondary">Manage narrative traditions and cultural frameworks.</MudText>
         </div>
         <div class="admin-page-actions">
@@ -61,7 +61,7 @@
             <HeaderContent><MudTh>Name</MudTh><MudTh Style="width:120px;">Actions</MudTh></HeaderContent>
             <RowTemplate Context="item">
                 <MudTd DataLabel="Name"><MudText Typo="Typo.subtitle2">@item.Name</MudText></MudTd>
-                <MudTd DataLabel="Actions"><MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Rename mythology type" AriaLabel="Rename mythology type" OnClick="@(() => EditAsync(item))" /></MudTd>
+                <MudTd DataLabel="Actions"><MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Rename mythology type" aria-label="Rename mythology type" OnClick="@(() => EditAsync(item))" /></MudTd>
             </RowTemplate>
         </MudTable>
     }
