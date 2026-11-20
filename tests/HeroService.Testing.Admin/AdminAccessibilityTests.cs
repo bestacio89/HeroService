@@ -16,11 +16,11 @@ public sealed class AdminAccessibilityTests
 
         var cut = context.RenderComponent<Home>();
 
-        cut.FindAll("h1").Should().ContainSingle();
-        cut.Find("h1").TextContent.Should().Be("Codex workspace");
-        cut.Find("section[aria-labelledby='core-authoring-title']");
-        cut.Find("section[aria-labelledby='balance-tuning-title']");
-        cut.Find("section[aria-labelledby='world-classification-title']");
+        Assert.Single(cut.FindAll("h1"));
+        Assert.Equal("Codex workspace", cut.Find("h1").TextContent);
+        Assert.NotNull(cut.Find("section[aria-labelledby='core-authoring-title']"));
+        Assert.NotNull(cut.Find("section[aria-labelledby='balance-tuning-title']"));
+        Assert.NotNull(cut.Find("section[aria-labelledby='world-classification-title']"));
     }
 
     [Fact]
@@ -33,11 +33,12 @@ public sealed class AdminAccessibilityTests
                 layout => layout.Body,
                 builder => builder.AddMarkupContent(0, "<h1>Test page</h1>")));
 
-        cut.Find("a.skip-link").GetAttribute("href").Should().Be("#main-content");
-        cut.Find("nav[aria-label='Primary navigation']");
-        cut.Find("main#main-content").GetAttribute("tabindex").Should().Be("-1");
-        cut.Find("button[aria-label='Toggle navigation']").GetAttribute("aria-controls")
-            .Should().Be("primary-navigation");
+        Assert.Equal("#main-content", cut.Find("a.skip-link").GetAttribute("href"));
+        Assert.NotNull(cut.Find("nav[aria-label='Primary navigation']"));
+        Assert.Equal("-1", cut.Find("main#main-content").GetAttribute("tabindex"));
+        Assert.Equal(
+            "primary-navigation",
+            cut.Find("button[aria-label='Toggle navigation']").GetAttribute("aria-controls"));
     }
 
     private static TestContext CreateContext()
