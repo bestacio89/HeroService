@@ -41,7 +41,7 @@ public sealed class SkillClientLookupTests
 
     var result = await sut.GetLookupsAsync([Guid.Empty]);
 
-    result.Should().BeEmpty();
+    Assert.Empty(result);
     Assert.Equal(0, handler.RequestCount);
   }
 
