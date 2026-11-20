@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using FluentAssertions;
 using HeroService.Persistence;
 using Franz.Common.Http.MultiTenancy.Configuration;
 using Franz.Common.MultiTenancy;
@@ -75,6 +76,56 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
     using var response = await _client!.GetAsync($"/api/v1/hero-classes/{Guid.NewGuid()}");
 
     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+  }
+
+  [Fact]
+  [Trait("Category", "Integration")]
+  public async Task BrowseSnapshots_ReturnsCompleteSkillKits_AndSingleSnapshotMatches()
+  {
+    using var browseResponse = await _client!.GetAsync("/api/v1/snapshots/heroes/browse");
+
+    browseResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+    var browsePayload = await browseResponse.Content.ReadFromJsonAsync<JsonElement>();
+    browsePayload.ValueKind.Should().Be(JsonValueKind.Array);
+
+    var snapshots = browsePayload.EnumerateArray().ToArray();
+    snapshots.Should().NotBeEmpty();
+
+    foreach (var snapshot in snapshots)
+    {
+      var skills = snapshot.GetProperty("skills");
+
+      foreach (var slot in new[] { "passive", "primary", "secondary", "tertiary", "ultimate" })
+      {
+        var skill = skills.GetProperty(slot);
+
+        skill.GetProperty("skillId").GetGuid().Should().NotBeEmpty();
+        skill.TryGetProperty("effectExecutions", out var executions).Should().BeTrue();
+        executions.ValueKind.Should().Be(JsonValueKind.Array);
+      }
+    }
+
+    var firstSnapshot = snapshots[0];
+    var heroId = firstSnapshot.GetProperty("heroId").GetGuid();
+    var gameVersionId = firstSnapshot.GetProperty("gameVersionId").GetGuid();
+
+    using var singleResponse = await _client.GetAsync(
+        $"/api/v1/snapshots/heroes/{heroId}?gameVersionId={gameVersionId}");
+
+    singleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+    var singleSnapshot = await singleResponse.Content.ReadFromJsonAsync<JsonElement>();
+    singleSnapshot.GetProperty("heroId").GetGuid().Should().Be(heroId);
+    singleSnapshot.GetProperty("gameVersionId").GetGuid().Should().Be(gameVersionId);
+
+    foreach (var slot in new[] { "passive", "primary", "secondary", "tertiary", "ultimate" })
+    {
+      var browseSkillId = firstSnapshot.GetProperty("skills").GetProperty(slot).GetProperty("skillId").GetGuid();
+      var singleSkillId = singleSnapshot.GetProperty("skills").GetProperty(slot).GetProperty("skillId").GetGuid();
+
+      singleSkillId.Should().Be(browseSkillId);
+    }
   }
 
   [Fact]

@@ -12,6 +12,10 @@ public interface IHeroRepository : INameLookupRepository<Hero, Guid>
       Guid heroId,
       CancellationToken cancellationToken = default);
 
+  Task<Hero?> GetForSnapshotAsync(
+      Guid heroId,
+      CancellationToken cancellationToken = default);
+
   Task<Hero?> GetByNameWithDetailsAsync(
       string name,
       CancellationToken cancellationToken = default);
@@ -39,7 +43,7 @@ public interface IHeroRepository : INameLookupRepository<Hero, Guid>
   // FULL BROWSING
   // =========================================================
 
-  Task<IReadOnlyCollection<Hero>> GetAllWithDetailsAsync(
+  Task<IReadOnlyCollection<Hero>> GetAllForSnapshotAsync(
       CancellationToken cancellationToken = default);
   Task<IReadOnlyCollection<Hero>> BrowseAsync(
     Guid? heroClassId,
