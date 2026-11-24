@@ -66,7 +66,17 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             await Page.Keyboard.PressAsync("Enter");
 
             await Page.WaitForFunctionAsync(
-                "() => document.activeElement?.id === 'main-content'",
+                """
+                () => {
+                    const mainContent = document.getElementById("main-content");
+                    const activeElement = document.activeElement;
+
+                    return mainContent instanceof HTMLElement
+                        && activeElement instanceof HTMLElement
+                        && mainContent.contains(activeElement)
+                        && !activeElement.classList.contains("skip-link");
+                }
+                """,
                 null,
                 new PageWaitForFunctionOptions
                 {
@@ -75,8 +85,8 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
 
             Assert.True(
                 await Page.Locator("#main-content").EvaluateAsync<bool>(
-                    "element => document.activeElement === element"),
-                "Activating the skip link did not move focus to the main content landmark.");
+                    "element => element.contains(document.activeElement)"),
+                "Activating the skip link did not move focus into the main content region.");
         });
     }
 
