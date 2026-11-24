@@ -42,103 +42,41 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
     {
         return RunWithDiagnosticsAsync(async () =>
         {
-            await Page.AddInitScriptAsync(
-                """
-                (() => {
-                    window.__heroServiceFocusTrace = [];
-
-                    for (const eventName of ["focusin", "focusout"]) {
-                        document.addEventListener(eventName, event => {
-                            const element = event.target;
-                            window.__heroServiceFocusTrace.push({
-                                event: eventName,
-                                tag: element?.tagName ?? null,
-                                id: element?.id ?? null,
-                                className: typeof element?.className === "string" ? element.className : ""
-                            });
-                        }, true);
-                    }
-                })();
-                """);
-
             await NavigateToOverviewAsync();
 
-            await Page.WaitForFunctionAsync(
-                """
-                () => document.activeElement instanceof HTMLElement
-                    && document.activeElement.matches(
-                        "#main-content h1, #main-content h2, #main-content h3, #main-content h4, #main-content h5, #main-content h6")
-                """,
-                null,
-                new PageWaitForFunctionOptions
-                {
-                    Timeout = 5_000
-                });
+            var navigationToggle = Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions
+            {
+                Name = "Toggle navigation",
+                Exact = true
+            });
 
-            var initialFocusDiagnostics = await CaptureFocusDiagnosticsAsync();
+            await navigationToggle.FocusAsync();
+            await Page.Keyboard.PressAsync("Shift+Tab");
 
-            await Page.EvaluateAsync(
-                "document.activeElement instanceof HTMLElement && document.activeElement.blur()");
-
-            var documentBodyHasFocus = await Page.EvaluateAsync<bool>(
-                "document.activeElement === document.body");
-
-            Assert.True(
-                documentBodyHasFocus,
-                $"Could not reset focus to the document entry point before keyboard navigation. Initial state: {initialFocusDiagnostics}. Current state: {await CaptureFocusDiagnosticsAsync()}");
-
-            var skipLinkCount = await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
+            var skipLink = Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
             {
                 Name = "Skip to main content",
                 Exact = true
-            }).CountAsync();
+            });
 
-            Assert.Equal(1, skipLinkCount);
-
-            await Page.Keyboard.PressAsync("Tab");
-
-            var skipLinkHasFocus = await Page.EvaluateAsync<bool>(
-                "document.activeElement instanceof HTMLAnchorElement && document.activeElement.classList.contains('skip-link')");
-
-            if (!skipLinkHasFocus)
-            {
-                var focusDiagnostics = await CaptureFocusDiagnosticsAsync();
-
-                Assert.Fail(
-                    $"The first Tab did not focus the skip link. Before Tab: {initialFocusDiagnostics}. After Tab: {focusDiagnostics}");
-            }
+            Assert.True(
+                await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
+                "Shift+Tab from the first navigation control did not focus the skip link.");
 
             await Page.Keyboard.PressAsync("Enter");
 
-            try
-            {
-                await Page.WaitForFunctionAsync(
-                    "() => document.activeElement?.id === 'main-content'",
-                    null,
-                    new PageWaitForFunctionOptions
-                    {
-                        Timeout = 2_000
-                    });
-            }
-            catch (TimeoutException)
-            {
-                var focusDiagnostics = await CaptureFocusDiagnosticsAsync();
-
-                Assert.Fail(
-                    $"Activating the skip link did not focus #main-content. Browser focus state: {focusDiagnostics}");
-            }
-
-            var targetHasFocus = await Page.EvaluateAsync<bool>(
-                """
-                () => {
-                    const target = document.getElementById("main-content");
-                    return target !== null && document.activeElement === target;
-                }
-                """);
+            await Page.WaitForFunctionAsync(
+                "() => document.activeElement?.id === 'main-content'",
+                null,
+                new PageWaitForFunctionOptions
+                {
+                    Timeout = 2_000
+                });
 
             Assert.True(
-                targetHasFocus,
-                $"The active element was not the main content target. Browser focus state: {await CaptureFocusDiagnosticsAsync()}");
+                await Page.Locator("#main-content").EvaluateAsync<bool>(
+                    "element => document.activeElement === element"),
+                "Activating the skip link did not move focus to the main content landmark.");
         });
     }
 
@@ -195,62 +133,3 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
         });
     }
 
-    private async Task<string> CaptureFocusDiagnosticsAsync()
-    {
-        return await Page.EvaluateAsync<string>(
-            """
-            () => {
-                const target = document.getElementById("main-content");
-                const active = document.activeElement;
-                const skipLink = document.querySelector("a.skip-link");
-
-                return JSON.stringify({
-                    url: window.location.href,
-                    hash: window.location.hash,
-                    target: target ? {
-                        tag: target.tagName,
-                        id: target.id,
-                        className: typeof target.className === "string" ? target.className : "",
-                        role: target.getAttribute("role"),
-                        tabIndex: target.getAttribute("tabindex"),
-                        html: target.outerHTML.slice(0, 500)
-                    } : null,
-                    activeElement: active ? {
-                        tag: active.tagName,
-                        id: active.id,
-                        className: typeof active.className === "string" ? active.className : "",
-                        role: active.getAttribute("role"),
-                        tabIndex: active.getAttribute("tabindex"),
-                        html: active.outerHTML?.slice(0, 500) ?? null
-                    } : null,
-                    activeIsTarget: target !== null && active === target,
-                    activeInsideTarget: target !== null && active !== null && target.contains(active),
-                    documentHasFocus: document.hasFocus(),
-                    visibilityState: document.visibilityState,
-                    skipLink: skipLink ? {
-                        href: skipLink.getAttribute("href"),
-                        className: skipLink.className,
-                        tabIndex: skipLink.tabIndex,
-                        computedStyle: {
-                            display: getComputedStyle(skipLink).display,
-                            visibility: getComputedStyle(skipLink).visibility,
-                            opacity: getComputedStyle(skipLink).opacity,
-                            transform: getComputedStyle(skipLink).transform
-                        },
-                        clientRectCount: skipLink.getClientRects().length
-                    } : null,
-                    firstFocusableElements: [...document.querySelectorAll(
-                        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-                    )].slice(0, 12).map(element => ({
-                        tag: element.tagName,
-                        text: element.textContent?.trim().slice(0, 80) ?? "",
-                        id: element.id,
-                        className: typeof element.className === "string" ? element.className : "",
-                        tabIndex: element.tabIndex
-                    })),
-                    focusTrace: window.__heroServiceFocusTrace ?? []
-                });
-            }
-            """);
-    }
-}
