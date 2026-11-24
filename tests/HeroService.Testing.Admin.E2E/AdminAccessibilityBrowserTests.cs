@@ -42,7 +42,28 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
     {
         return RunWithDiagnosticsAsync(async () =>
         {
+            await Page.AddInitScriptAsync(
+                """
+                (() => {
+                    window.__heroServiceFocusTrace = [];
+
+                    for (const eventName of ["focusin", "focusout"]) {
+                        document.addEventListener(eventName, event => {
+                            const element = event.target;
+                            window.__heroServiceFocusTrace.push({
+                                event: eventName,
+                                tag: element?.tagName ?? null,
+                                id: element?.id ?? null,
+                                className: typeof element?.className === "string" ? element.className : ""
+                            });
+                        }, true);
+                    }
+                })();
+                """);
+
             await NavigateToOverviewAsync();
+
+            var initialFocusDiagnostics = await CaptureFocusDiagnosticsAsync();
 
             var skipLinkCount = await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
             {
@@ -62,33 +83,8 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 var focusDiagnostics = await CaptureFocusDiagnosticsAsync();
 
                 Assert.Fail(
-                    $"The first Tab did not focus the skip link. Browser focus state: {focusDiagnostics}");
+                    $"The first Tab did not focus the skip link. Before Tab: {initialFocusDiagnostics}. After Tab: {focusDiagnostics}");
             }
-
-            await Page.EvaluateAsync(
-                """
-                () => {
-                    window.__heroServiceFocusTrace = [];
-                    document.addEventListener("focusin", event => {
-                        const element = event.target;
-                        window.__heroServiceFocusTrace.push({
-                            event: "focusin",
-                            tag: element?.tagName ?? null,
-                            id: element?.id ?? null,
-                            className: typeof element?.className === "string" ? element.className : ""
-                        });
-                    }, true);
-                    document.addEventListener("focusout", event => {
-                        const element = event.target;
-                        window.__heroServiceFocusTrace.push({
-                            event: "focusout",
-                            tag: element?.tagName ?? null,
-                            id: element?.id ?? null,
-                            className: typeof element?.className === "string" ? element.className : ""
-                        });
-                    }, true);
-                }
-                """);
 
             await Page.Keyboard.PressAsync("Enter");
 
@@ -207,10 +203,29 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                     } : null,
                     activeIsTarget: target !== null && active === target,
                     activeInsideTarget: target !== null && active !== null && target.contains(active),
+                    documentHasFocus: document.hasFocus(),
+                    visibilityState: document.visibilityState,
                     skipLink: skipLink ? {
                         href: skipLink.getAttribute("href"),
-                        className: skipLink.className
+                        className: skipLink.className,
+                        tabIndex: skipLink.tabIndex,
+                        computedStyle: {
+                            display: getComputedStyle(skipLink).display,
+                            visibility: getComputedStyle(skipLink).visibility,
+                            opacity: getComputedStyle(skipLink).opacity,
+                            transform: getComputedStyle(skipLink).transform
+                        },
+                        clientRectCount: skipLink.getClientRects().length
                     } : null,
+                    firstFocusableElements: [...document.querySelectorAll(
+                        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                    )].slice(0, 12).map(element => ({
+                        tag: element.tagName,
+                        text: element.textContent?.trim().slice(0, 80) ?? "",
+                        id: element.id,
+                        className: typeof element.className === "string" ? element.className : "",
+                        tabIndex: element.tabIndex
+                    })),
                     focusTrace: window.__heroServiceFocusTrace ?? []
                 });
             }
