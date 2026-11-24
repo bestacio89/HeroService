@@ -63,6 +63,18 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
 
             await NavigateToOverviewAsync();
 
+            await Page.WaitForFunctionAsync(
+                """
+                () => document.activeElement instanceof HTMLElement
+                    && document.activeElement.matches(
+                        "#main-content h1, #main-content h2, #main-content h3, #main-content h4, #main-content h5, #main-content h6")
+                """,
+                null,
+                new PageWaitForFunctionOptions
+                {
+                    Timeout = 5_000
+                });
+
             var initialFocusDiagnostics = await CaptureFocusDiagnosticsAsync();
 
             await Page.EvaluateAsync(
