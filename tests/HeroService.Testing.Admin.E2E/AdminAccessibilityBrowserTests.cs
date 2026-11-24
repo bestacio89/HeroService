@@ -132,4 +132,4 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             Assert.False(hasHorizontalOverflow, "The overview page overflows horizontally at a 390px viewport.");
         });
     }
-
+}
