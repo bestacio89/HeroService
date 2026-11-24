@@ -65,6 +65,16 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
 
             var initialFocusDiagnostics = await CaptureFocusDiagnosticsAsync();
 
+            await Page.EvaluateAsync(
+                "document.activeElement instanceof HTMLElement && document.activeElement.blur()");
+
+            var documentBodyHasFocus = await Page.EvaluateAsync<bool>(
+                "document.activeElement === document.body");
+
+            Assert.True(
+                documentBodyHasFocus,
+                $"Could not reset focus to the document entry point before keyboard navigation. Initial state: {initialFocusDiagnostics}. Current state: {await CaptureFocusDiagnosticsAsync()}");
+
             var skipLinkCount = await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
             {
                 Name = "Skip to main content",
