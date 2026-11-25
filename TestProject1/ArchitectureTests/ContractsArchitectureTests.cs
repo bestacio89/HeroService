@@ -16,6 +16,7 @@ using Interface = System.Reflection.TypeInfo;
 
 namespace HeroService.Testing.ArchitectureTests
 {
+  [Trait("Category", "Architecture")]
   public class ContractsArchitecture : BaseArchitectureTest
   {
 
@@ -36,7 +37,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!commandobjects.Any())
       {
-        Console.WriteLine("?? No Queries found in Contract layer — skipping rule.");
+        Console.WriteLine("?? No Queries found in Contract layer â€” skipping rule.");
         return;
       }
       ArchRuleDefinition.
@@ -56,7 +57,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!commandobjects.Any())
       {
-        Console.WriteLine("?? No Commands found in Contract layer — skipping rule.");
+        Console.WriteLine("?? No Commands found in Contract layer â€” skipping rule.");
         return;
       }
       ArchRuleDefinition.
@@ -94,7 +95,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!contractObjects.Any())
       {
-        Console.WriteLine("?? No Custom Service Intefaces found — skipping persistence contract enforcement (virgin template).");
+        Console.WriteLine("?? No Custom Service Intefaces found â€” skipping persistence contract enforcement (virgin template).");
         return;
       }
       ArchRuleDefinition.
@@ -122,7 +123,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!contractObjects.Any())
       {
-        Console.WriteLine("?? No repository interfaces found — skipping persistence contract enforcement (virgin template).");
+        Console.WriteLine("?? No repository interfaces found â€” skipping persistence contract enforcement (virgin template).");
         return;
       }
 
@@ -165,7 +166,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!contractObjects.Any())
       {
-        Console.WriteLine("?? No custom repository interfaces found — skipping persistence contract enforcement (virgin template).");
+        Console.WriteLine("?? No custom repository interfaces found â€” skipping persistence contract enforcement (virgin template).");
         return;
       }
       // ? Enforce rule: all custom repository interfaces should inherit IScopedDependency
@@ -195,7 +196,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!dtoObjects.Any())
       {
-        Console.WriteLine("?? No DTOs found — skipping DTO immutability rule.");
+        Console.WriteLine("?? No DTOs found â€” skipping DTO immutability rule.");
         return;
       }
 
@@ -230,7 +231,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!offenders.Any())
       {
-        Console.WriteLine("? All DTOs are immutable records or init-only — compliance confirmed.");
+        Console.WriteLine("? All DTOs are immutable records or init-only â€” compliance confirmed.");
         return;
       }
 
@@ -254,7 +255,7 @@ namespace HeroService.Testing.ArchitectureTests
 
     private static Type? GetReflectionType(IType archType)
     {
-      // Try dynamic reflection — avoids compile-time generic binding
+      // Try dynamic reflection â€” avoids compile-time generic binding
       var maybeTypeProp = archType.GetType().GetProperty("Type", BindingFlags.Public | BindingFlags.Instance);
       if (maybeTypeProp?.GetValue(archType) is Type systemType)
         return systemType;

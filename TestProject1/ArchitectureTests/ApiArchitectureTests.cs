@@ -9,6 +9,7 @@ using Xunit;
 using ControllerBase =  Microsoft.AspNetCore.Mvc.ControllerBase;
 
 namespace HeroService.Testing.ArchitectureTests;
+[Trait("Category", "Architecture")]
 public class ApiArchitectureTests : BaseArchitectureTest
 {
   [Fact]

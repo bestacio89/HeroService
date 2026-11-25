@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace HeroService.Testing.ArchitectureTests;
+[Trait("Category", "Architecture")]
 public class PersistenceArchitectureTests : BaseArchitectureTest
 {
   private Assembly[] LoadAssembliesWithPattern(string assemblyPattern)
