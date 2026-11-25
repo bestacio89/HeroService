@@ -2,31 +2,73 @@
 
 @page "/admin/heroes/create"
 
+<PageTitle>Create Hero | HeroService</PageTitle>
+
 <MudPaper Class="pa-4">
-
-    <h1 class="mud-typography mud-typography-h5 page-title">Create Hero</h1>
-
-    <MudDivider Class="my-2" />
-
     <MudStack Spacing="3">
+        <div>
+            <MudText Typo="Typo.overline" Class="eyebrow">ROSTER AUTHORING</MudText>
+            <h1 class="mud-typography mud-typography-h5 page-title">Create Hero</h1>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                Define the hero identity, affiliation, combat profile, skill kit and lore.
+            </MudText>
+        </div>
 
-        <MudTextField Label="Name"
-                      @bind-Value="Model.Name" />
+        <MudDivider />
 
-        <HeroAffiliationSelector Model="Model" />
+        @if (!string.IsNullOrWhiteSpace(_errorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Role="alert">
+                @_errorMessage
+            </MudAlert>
+        }
 
-        <HeroBaseStatsEditor Model="Model" />
+        @if (_validationErrors.Count > 0)
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" Role="alert">
+                <MudText Typo="Typo.subtitle2">Review the following required information:</MudText>
+                <ul>
+                    @foreach (var error in _validationErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </MudAlert>
+        }
 
-        <HeroSkillKitEditor Model="Model.SkillKit" />
+        <MudStack Spacing="3">
+            <MudTextField T="string"
+                          Label="Name"
+                          @bind-Value="Model.Name"
+                          Required="true"
+                          RequiredError="A hero name is required."
+                          MaxLength="120"
+                          Immediate="true"
+                          Disabled="@_isSubmitting" />
 
-        <HeroLoreEditor Model="Model" />
+            <HeroAffiliationSelector Model="Model" />
 
-        <MudButton Color="Color.Primary"
-                   Variant="Variant.Filled"
-                   OnClick="CreateHero">
-            Create
-        </MudButton>
+            <HeroBaseStatsEditor Model="Model" />
 
+            <HeroSkillKitEditor Model="Model.SkillKit" />
+
+            <HeroLoreEditor Model="Model" />
+
+            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Default"
+                           Disabled="@_isSubmitting"
+                           Href="/admin/heroes">
+                    Cancel
+                </MudButton>
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           Disabled="@_isSubmitting"
+                           Loading="@_isSubmitting"
+                           OnClick="CreateHero">
+                    Create hero
+                </MudButton>
+            </MudStack>
+        </MudStack>
     </MudStack>
-
 </MudPaper>
