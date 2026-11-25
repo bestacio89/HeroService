@@ -8,16 +8,21 @@
                     Description="Manage foundational character patterns and origin classifications."
                     Items="Items"
                     IsLoading="IsLoading"
+                    ErrorMessage="@ErrorMessage"
+                    SearchPlaceholder="Search origin archetypes"
+                    SearchTextSelector="@(item => item.Name)"
                     OnRefresh="Load"
                     OnCreate="Create"
                     OnRename="Rename"
                     OnRetire="Retire">
     <HeaderContent>
         <MudTh>Name</MudTh>
-        <MudTh>Status</MudTh>
+        <MudTh>Classification</MudTh>
     </HeaderContent>
     <RowTemplate Context="item">
         <MudTd DataLabel="Name">@item.Name</MudTd>
-        <MudTd DataLabel="Status"><MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Outlined">Active</MudChip></MudTd>
+        <MudTd DataLabel="Classification">
+            <MudChip T="string" Color="Color.Info" Size="Size.Small" Variant="Variant.Outlined">Archetype</MudChip>
+        </MudTd>
     </RowTemplate>
 </LifecycleAdminPage>

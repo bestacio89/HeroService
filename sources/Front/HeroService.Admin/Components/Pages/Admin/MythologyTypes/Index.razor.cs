@@ -8,81 +8,109 @@ namespace HeroService.Admin.Components.Pages.Admin.MythologyTypes;
 
 public sealed partial class Index : ComponentBase
 {
-  [Inject] private IMythologyTypeClient MythologyTypeClient { get; set; } = default!;
-  [Inject] private IDialogService DialogService { get; set; } = default!;
-  [Inject] private ILogger<Index> Logger { get; set; } = default!;
+  [Inject]
+  private IMythologyTypeClient MythologyTypeClient { get; set; } = default!;
 
-  private List<MythologyTypeDto> _items = [];
-  private IReadOnlyList<MythologyTypeDto> _filteredItems = [];
-  private string? _search;
-  private bool _isLoading = true;
-  private string? _errorMessage;
+  [Inject]
+  private IDialogService DialogService { get; set; } = default!;
 
-  protected override Task OnInitializedAsync() => LoadAsync();
+  [Inject]
+  private ISnackbar Snackbar { get; set; } = default!;
 
-  private async Task LoadAsync()
+  [Inject]
+  private ILogger<Index> Logger { get; set; } = default!;
+
+  private IReadOnlyList<MythologyTypeDto> Items = [];
+  private bool IsLoading = true;
+  private string? ErrorMessage;
+
+  protected override Task OnInitializedAsync() => Load();
+
+  private async Task Load()
   {
-    _isLoading = true;
-    _errorMessage = null;
+    IsLoading = true;
+    ErrorMessage = null;
+
     try
     {
-      var result = await MythologyTypeClient.GetAllAsync();
-      _items = result?.ToList() ?? [];
-      ApplyFilter();
+      Items = await MythologyTypeClient.GetAllAsync();
     }
-    catch (OperationCanceledException)
+    catch (OperationCanceledException exception)
     {
-      _errorMessage = "The request was cancelled or timed out. Retry when the service is available.";
+      Items = [];
+      ErrorMessage = "The request was cancelled or timed out. Retry when the service is available.";
+      Logger.LogWarning(exception, "Loading mythology types was cancelled.");
     }
     catch (HttpRequestException exception)
     {
-      Logger.LogWarning(exception, "The HeroService API could not be reached while loading mythology types.");
-      _errorMessage = "The HeroService API could not be reached. Check the service connection and try again.";
+      Items = [];
+      ErrorMessage = "The HeroService API could not be reached. Check the service connection and try again.";
+      Logger.LogWarning(exception, "Unable to load mythology types from HeroService.");
     }
     catch (Exception exception)
     {
+      Items = [];
+      ErrorMessage = "An unexpected error occurred while loading mythology types.";
       Logger.LogError(exception, "Unexpected failure while loading mythology types.");
-      _errorMessage = "An unexpected error occurred while loading mythology types.";
     }
     finally
     {
-      _isLoading = false;
+      IsLoading = false;
     }
   }
 
-  private void OnSearchChanged(string? value)
-  {
-    _search = value;
-    ApplyFilter();
-  }
-
-  private void ApplyFilter()
-  {
-    _filteredItems = string.IsNullOrWhiteSpace(_search)
-      ? _items
-      : _items.Where(item => item.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false).ToArray();
-  }
-
-  private void ClearSearch()
-  {
-    _search = null;
-    ApplyFilter();
-  }
-
-  private async Task CreateAsync()
+  private async Task Create()
   {
     var dialog = await DialogService.ShowAsync<MythologyTypeDialog>("Create Mythology Type");
     var result = await dialog.Result;
+
     if (result is { Canceled: false })
-      await LoadAsync();
+      await Load();
   }
 
-  private async Task EditAsync(MythologyTypeDto item)
+  private async Task Rename(MythologyTypeDto item)
   {
     var parameters = new DialogParameters { ["Item"] = item };
-    var dialog = await DialogService.ShowAsync<MythologyTypeDialog>("Rename Mythology Type", parameters);
+    var dialog = await DialogService.ShowAsync<MythologyTypeDialog>(
+        "Rename Mythology Type",
+        parameters);
     var result = await dialog.Result;
+
     if (result is { Canceled: false })
-      await LoadAsync();
+      await Load();
+  }
+
+  private async Task Retire(MythologyTypeDto item)
+  {
+    var confirmed = await DialogService.ShowMessageBoxAsync(
+        title: "Retire mythology type?",
+        message: $"'{item.Name}' will be retired and will no longer be available for new assignments.",
+        yesText: "Retire",
+        cancelText: "Cancel");
+
+    if (confirmed != true)
+      return;
+
+    try
+    {
+      await MythologyTypeClient.RetireAsync(item.Id);
+      Snackbar.Add($"'{item.Name}' was retired.", Severity.Success);
+      await Load();
+    }
+    catch (OperationCanceledException exception)
+    {
+      Logger.LogWarning(exception, "Retiring mythology type {MythologyTypeId} was cancelled.", item.Id);
+      Snackbar.Add("The retirement request was cancelled. No change was confirmed.", Severity.Warning);
+    }
+    catch (HttpRequestException exception)
+    {
+      Logger.LogWarning(exception, "Unable to retire mythology type {MythologyTypeId}.", item.Id);
+      Snackbar.Add("The mythology type could not be retired. Check the service connection and try again.", Severity.Error);
+    }
+    catch (Exception exception)
+    {
+      Logger.LogError(exception, "Unexpected failure while retiring mythology type {MythologyTypeId}.", item.Id);
+      Snackbar.Add("An unexpected error occurred while retiring the mythology type.", Severity.Error);
+    }
   }
 }

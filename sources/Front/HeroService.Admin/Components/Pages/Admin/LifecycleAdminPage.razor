@@ -31,9 +31,26 @@
         </div>
     </div>
 
+    @if (SearchTextSelector is not null)
+    {
+        <MudTextField T="string"
+                      Value="@_search"
+                      ValueChanged="OnSearchChanged"
+                      Placeholder="@SearchPlaceholder"
+                      AriaLabel="@SearchPlaceholder"
+                      Variant="Variant.Outlined"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Immediate="true"
+                      DebounceInterval="200"
+                      Clearable="true"
+                      Disabled="@IsLoading"
+                      Class="catalogue-search" />
+    }
+
     <div class="admin-list-summary">
         <MudText Typo="Typo.body2" Color="Color.Secondary">
-            @(IsLoading ? "Loading records…" : !string.IsNullOrWhiteSpace(ErrorMessage) ? "Records unavailable" : $"{Items.Count} record{(Items.Count == 1 ? "" : "s")}")
+            @(IsLoading ? "Loading records…" : !string.IsNullOrWhiteSpace(ErrorMessage) ? "Records unavailable" : SearchTextSelector is null ? $"{Items.Count} record{(Items.Count == 1 ? "" : "s")}" : $"{FilteredItems.Count} of {Items.Count} records")
         </MudText>
     </div>
 
@@ -82,9 +99,18 @@
             }
         </MudPaper>
     }
+    else if (FilteredItems.Count == 0)
+    {
+        <MudPaper Class="empty-state" Elevation="0">
+            <MudIcon Icon="@Icons.Material.Outlined.SearchOff" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.h6">No matching records</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Try a different search term.</MudText>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearSearch">Clear search</MudButton>
+        </MudPaper>
+    }
     else
     {
-        <MudTable Items="Items" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Class="admin-data-table">
+        <MudTable Items="FilteredItems" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Class="admin-data-table">
             <HeaderContent>
                 @if (HeaderContent is not null)
                 {
