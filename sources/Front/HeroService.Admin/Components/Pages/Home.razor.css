@@ -1,42 +1,151 @@
-﻿.codex-hero {
-    background: linear-gradient(135deg, #0B0F14 0%, #121826 100%);
-    border: 1px solid rgba(212, 175, 55, 0.15);
-    position: relative;
-    overflow: hidden;
+.dashboard-hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
 }
 
-    .codex-hero::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.10), transparent 60%);
-        pointer-events: none;
+.dashboard-hero-copy {
+    min-width: 0;
+}
+
+.dashboard-hero-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+}
+
+.dashboard-refresh-indicator {
+    display: grid;
+    gap: .35rem;
+    max-width: 100%;
+}
+
+.dashboard-section-heading {
+    margin-top: .25rem;
+}
+
+.dashboard-metric {
+    display: flex;
+    min-height: 10.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .85rem;
+}
+
+.dashboard-metric-heading {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.dashboard-metric-icon,
+.dashboard-panel-icon {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid var(--app-border);
+    border-radius: 11px;
+    background: rgba(212, 175, 55, .08);
+    color: var(--app-gold);
+}
+
+.dashboard-metric .metric-value {
+    margin-block: .1rem;
+}
+
+.dashboard-unavailable {
+    margin-block: .15rem;
+    color: var(--app-muted);
+}
+
+.dashboard-version-card .metric-value {
+    overflow-wrap: anywhere;
+}
+
+.dashboard-distribution-panel {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.4rem;
+}
+
+.dashboard-panel-heading {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+}
+
+.dashboard-panel-heading h3 {
+    margin: 0;
+}
+
+.dashboard-distribution-list {
+    display: grid;
+    gap: 1.05rem;
+}
+
+.dashboard-distribution-row {
+    display: grid;
+    gap: .45rem;
+}
+
+.dashboard-distribution-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.dashboard-empty-state {
+    display: grid;
+    min-height: 8rem;
+    align-content: center;
+    justify-items: center;
+    gap: .5rem;
+    color: var(--app-muted);
+    text-align: center;
+}
+
+.dashboard-page .workspace-card {
+    min-height: 13rem;
+}
+
+.dashboard-page .workspace-card-compact {
+    min-height: 10rem;
+}
+
+@media (max-width: 960px) {
+    .dashboard-hero {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
-.codex-title {
-    letter-spacing: 0.02em;
-    color: #E6E6E6;
+    .dashboard-hero-actions {
+        width: 100%;
+    }
 }
 
-.codex-card {
-    border: 1px solid rgba(255,255,255,0.06);
-    transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-    .codex-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(212, 175, 55, 0.25);
+@media (max-width: 600px) {
+    .dashboard-hero {
+        padding: 1.35rem;
     }
 
+    .dashboard-hero-actions .mud-button-root {
+        width: 100%;
+    }
 
-/* Shared workspace design language used by all admin modules. */
-.overview-hero { position:relative; overflow:hidden; padding:clamp(1.5rem,4vw,3rem); border:1px solid var(--app-border); border-radius:calc(var(--app-radius) + 4px); background:radial-gradient(circle at 88% 8%,rgba(212,175,55,.14),transparent 28rem),linear-gradient(135deg,#0B0F14 0%,#121826 70%,#1B1710 100%); }
-.overview-title { margin-block:.65rem; color:var(--app-text); font-family:Cinzel,Georgia,serif; letter-spacing:.01em; }
-.overview-description { max-width:58rem; color:var(--app-muted); }
-.admin-section { display:grid; gap:1rem; }
-.workspace-card { display:flex; height:100%; flex-direction:column; align-items:flex-start; gap:.75rem; padding:1.4rem; border:1px solid var(--app-border); border-radius:var(--app-radius); background:linear-gradient(155deg,var(--app-surface-raised),var(--app-surface)); transition:border-color 160ms ease,transform 160ms ease; }
-.workspace-card:hover { border-color:rgba(212,175,55,.4); transform:translateY(-2px); }
-.workspace-card-icon { display:grid; width:2.75rem; height:2.75rem; place-items:center; border:1px solid var(--app-border); border-radius:12px; background:rgba(212,175,55,.08); color:var(--app-gold); }
-.workspace-card-actions { display:flex; flex-wrap:wrap; align-items:center; gap:.4rem; margin-top:auto; padding-top:.5rem; }
-.workspace-card-compact { padding:1.15rem; }
-.workspace-card-compact .mud-button-root { margin-top:auto; }
+    .dashboard-distribution-panel {
+        padding: 1.1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-page .workspace-card:hover {
+        transform: none;
+    }
+}
