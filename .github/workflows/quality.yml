@@ -25,7 +25,7 @@ jobs:
   build-and-test:
     name: Restore, build and test (.NET 10)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
 
     steps:
       - name: Checkout
@@ -56,7 +56,7 @@ jobs:
           dotnet test HeroService.slnx
           --configuration ${{ env.BUILD_CONFIGURATION }}
           --no-build
-          --filter "Category!=Integration"
+          --filter "Category!=Integration&Category!=E2E"
           --logger "trx"
           --results-directory TestResults/Unit
 
@@ -70,11 +70,71 @@ jobs:
           --logger "trx"
           --results-directory TestResults/Integration
 
+      - name: Install Chromium for admin browser tests
+        run: pwsh tests/HeroService.Testing.Admin.E2E/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Start admin application
+        run: |
+          mkdir -p TestResults/AdminE2E
+          nohup dotnet sources/Front/HeroService.Admin/bin/Release/net10.0/HeroService.Admin.dll > /tmp/hero-admin.log 2>&1 &
+          echo $! > /tmp/hero-admin.pid
+
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:5062/ > /dev/null; then
+              echo "HeroService.Admin is ready."
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          cat /tmp/hero-admin.log
+          exit 1
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5062
+          HeroService__BaseUrl: http://127.0.0.1:5999
+
+      - name: Run admin browser, accessibility and performance tests
+        run: >
+          dotnet test tests/HeroService.Testing.Admin.E2E/HeroService.Testing.Admin.E2E.csproj
+          --configuration ${{ env.BUILD_CONFIGURATION }}
+          --no-build
+          --filter "Category=E2E"
+          --logger "trx"
+          --results-directory TestResults/AdminE2E
+        env:
+          ADMIN_BASE_URL: http://127.0.0.1:5062/
+          ADMIN_DIAGNOSTICS_DIRECTORY: TestResults/AdminE2E/Screenshots
+          ADMIN_PERFORMANCE_RESULTS_PATH: TestResults/AdminE2E/performance.json
+
+      - name: Stop admin application and collect logs
+        if: always()
+        run: |
+          mkdir -p TestResults/AdminE2E
+
+          if [ -f /tmp/hero-admin.log ]; then
+            cp /tmp/hero-admin.log TestResults/AdminE2E/hero-admin.log
+          fi
+
+          if [ -f /tmp/hero-admin.pid ]; then
+            kill "$(cat /tmp/hero-admin.pid)" || true
+          fi
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: TestResults/**/*.trx
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload admin browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-browser-diagnostics
+          path: TestResults/AdminE2E/**
           if-no-files-found: warn
           retention-days: 14
