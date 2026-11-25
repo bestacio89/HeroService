@@ -110,6 +110,14 @@
             Skill Kit
         </MudText>
 
+        @if (IsSkillLookupFailed)
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" Role="alert">
+                @SkillLookupError
+                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="LoadSkillsAsync">Retry skill lookup</MudButton>
+            </MudAlert>
+        }
+
         @if (IsLoadingSkills)
         {
             <MudProgressCircular Indeterminate="true" Size="Size.Small" />
