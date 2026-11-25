@@ -30,7 +30,15 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 1,
                 await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions
                 {
-                    Name = "Codex workspace",
+                    Name = "World command center",
+                    Exact = true
+                }).CountAsync());
+
+            Assert.Equal(
+                1,
+                await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions
+                {
+                    Name = "Catalogue overview",
                     Exact = true
                 }).CountAsync());
         });
