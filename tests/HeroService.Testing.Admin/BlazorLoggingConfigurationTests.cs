@@ -15,7 +15,7 @@ public sealed class BlazorLoggingConfigurationTests
     [Fact]
     public void Configure_WhenNoComponentOverrideExists_DefaultsToWarning()
     {
-        var configuration = new ConfigurationBuilder().Build();
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
 
         BlazorLoggingConfiguration.Configure(configuration);
 
@@ -44,7 +44,7 @@ public sealed class BlazorLoggingConfigurationTests
     [Fact]
     public void SerilogConfiguration_SuppressesRendererDiagnostics_AndPreservesWarningsApplicationAndAuditEvents()
     {
-        var configuration = new ConfigurationBuilder().Build();
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
         BlazorLoggingConfiguration.Configure(configuration);
 
         var sink = new CollectingSink();
