@@ -63,30 +63,76 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
                 "Shift+Tab from the first navigation control did not focus the skip link.");
 
+            await skipLink.EvaluateAsync(
+                """
+                element => {
+                    window.__skipNavigationTrace = [];
+
+                    const record = event => {
+                        const target = event.target;
+
+                        window.__skipNavigationTrace.push({
+                            type: event.type,
+                            targetTag: target instanceof HTMLElement ? target.tagName : target?.nodeName,
+                            targetId: target instanceof HTMLElement ? target.id : null,
+                            targetClass: target instanceof HTMLElement ? target.className : null,
+                            defaultPrevented: event.defaultPrevented,
+                            hash: window.location.hash
+                        });
+                    };
+
+                    element.addEventListener("click", record);
+                    document.addEventListener("focusin", record);
+                    document.addEventListener("focusout", record);
+                    window.addEventListener("hashchange", record);
+                }
+                """);
+
             await Page.Keyboard.PressAsync("Enter");
 
             await Page.WaitForFunctionAsync(
-                """
-                () => {
-                    const mainContent = document.getElementById("main-content");
-                    const activeElement = document.activeElement;
-
-                    return mainContent instanceof HTMLElement
-                        && activeElement instanceof HTMLElement
-                        && mainContent.contains(activeElement)
-                        && !activeElement.classList.contains("skip-link");
-                }
-                """,
+                "() => window.__skipNavigationTrace?.some(event => event.type === 'click')",
                 null,
                 new PageWaitForFunctionOptions
                 {
                     Timeout = 2_000
                 });
 
+            var navigationState = await Page.EvaluateAsync<string>(
+                """
+                () => JSON.stringify({
+                    url: window.location.href,
+                    hash: window.location.hash,
+                    activeElement: document.activeElement instanceof HTMLElement
+                        ? {
+                            tagName: document.activeElement.tagName,
+                            id: document.activeElement.id,
+                            className: document.activeElement.className,
+                            text: document.activeElement.textContent?.trim()
+                        }
+                        : null,
+                    mainContent: (() => {
+                        const element = document.getElementById("main-content");
+
+                        return element instanceof HTMLElement
+                            ? {
+                                tagName: element.tagName,
+                                tabIndex: element.tabIndex,
+                                containsActiveElement: element.contains(document.activeElement),
+                                outerHtml: element.outerHTML.slice(0, 500)
+                            }
+                            : null;
+                    })(),
+                    trace: window.__skipNavigationTrace
+                })
+                """);
+
+            var focusEnteredMainContent = await Page.Locator("#main-content").EvaluateAsync<bool>(
+                "element => element.contains(document.activeElement)");
+
             Assert.True(
-                await Page.Locator("#main-content").EvaluateAsync<bool>(
-                    "element => element.contains(document.activeElement)"),
-                "Activating the skip link did not move focus into the main content region.");
+                focusEnteredMainContent,
+                $"Activating the skip link did not move focus into the main content region. Browser state: {navigationState}");
         });
     }
 
