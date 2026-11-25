@@ -115,11 +115,11 @@ public sealed class HeroCreationService : IHeroCreationService
 
     var culture =
         await _cultures.GetByIdAsync(
-            request.OriginArchetypeId,
+            request.OriginCultureId,
             cancellationToken)
         ?? throw new BusinessException(
             "422",
-            "All Heroes Belong to a Cutural Region. Please provide a valid Culture.");
+            "All Heroes Belong to a Cultural Region. Please provide a valid Culture.");
 
 
     var hero = _heroFactory.Create();
