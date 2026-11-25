@@ -5,6 +5,8 @@ namespace HeroService.Testing.Admin.E2E;
 
 public abstract class AdminBrowserTestBase : IAsyncLifetime
 {
+    private const string OverviewHeading = "World command center";
+
     private IPlaywright? _playwright;
     private IBrowser? _browser;
 
@@ -56,7 +58,7 @@ public abstract class AdminBrowserTestBase : IAsyncLifetime
 
         await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions
         {
-            Name = "Codex workspace",
+            Name = OverviewHeading,
             Exact = true
         }).WaitForAsync();
     }

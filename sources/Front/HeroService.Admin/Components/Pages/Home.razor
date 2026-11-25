@@ -4,16 +4,220 @@
 
 <PageTitle>Overview | HeroService Admin</PageTitle>
 
-<MudStack Spacing="5" Class="page-stack">
-    <section class="overview-hero" aria-labelledby="overview-title">
-        <MudText Typo="Typo.overline" Class="eyebrow">HERO SERVICE / ADMINISTRATION</MudText>
-        <h1 id="overview-title" class="mud-typography mud-typography-h3 overview-title">Codex workspace</h1>
-        <MudText Typo="Typo.body1" Class="overview-description">Author game content, maintain balance data, and manage the world classifications used by the gameplay pipeline.</MudText>
+<MudStack Spacing="5" Class="page-stack dashboard-page">
+    <section class="overview-hero dashboard-hero" aria-labelledby="overview-title">
+        <div class="dashboard-hero-copy">
+            <MudText Typo="Typo.overline" Class="eyebrow">HERO SERVICE / ADMINISTRATION</MudText>
+            <h1 id="overview-title" class="mud-typography mud-typography-h3 overview-title">World command center</h1>
+            <MudText Typo="Typo.body1" Class="overview-description">
+                A live view of the content catalogue and the active game configuration. Player activity and match-derived insights will be integrated when their owning services are available.
+            </MudText>
+        </div>
+        <div class="dashboard-hero-actions">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Refresh"
+                       Disabled="@_isLoading"
+                       OnClick="LoadDashboardAsync">
+                Refresh overview
+            </MudButton>
+        </div>
+    </section>
+
+    @if (_isLoading)
+    {
+        <div class="dashboard-refresh-indicator" role="status" aria-live="polite">
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+            <MudText Typo="Typo.caption" Color="Color.Secondary">Synchronizing catalogue information…</MudText>
+        </div>
+    }
+
+    <section class="admin-section" aria-labelledby="catalogue-overview-title">
+        <div class="section-heading dashboard-section-heading">
+            <div>
+                <h2 id="catalogue-overview-title" class="mud-typography mud-typography-h5">Catalogue overview</h2>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Authoritative counts from HeroService reference data.</MudText>
+            </div>
+        </div>
+
+        <MudGrid Spacing="3">
+            <MudItem xs="12" sm="6" lg="4">
+                <MudPaper Class="metric-card dashboard-metric" Elevation="0">
+                    <div class="dashboard-metric-heading">
+                        <span class="dashboard-metric-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Filled.Shield" /></span>
+                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Hero roster</MudText>
+                    </div>
+                    @if (!_heroesLoaded)
+                    {
+                        <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" />
+                    }
+                    else if (_heroError is not null)
+                    {
+                        <MudText Typo="Typo.h5" Class="dashboard-unavailable" data-testid="hero-count">Unavailable</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@_heroError</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h3" Class="metric-value" data-testid="hero-count">@_heroes.Count.ToString("N0")</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@_heroClassDistribution.Count distinct class group(s)</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" lg="4">
+                <MudPaper Class="metric-card dashboard-metric" Elevation="0">
+                    <div class="dashboard-metric-heading">
+                        <span class="dashboard-metric-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Filled.Bolt" /></span>
+                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Skill library</MudText>
+                    </div>
+                    @if (!_skillsLoaded)
+                    {
+                        <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" />
+                    }
+                    else if (_skillError is not null)
+                    {
+                        <MudText Typo="Typo.h5" Class="dashboard-unavailable" data-testid="skill-count">Unavailable</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@_skillError</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h3" Class="metric-value" data-testid="skill-count">@_skills.Count.ToString("N0")</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@_skillTypeDistribution.Count distinct skill type(s)</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" lg="4">
+                <MudPaper Class="metric-card dashboard-metric dashboard-version-card" Elevation="0">
+                    <div class="dashboard-metric-heading">
+                        <span class="dashboard-metric-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Filled.Layers" /></span>
+                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Active game version</MudText>
+                    </div>
+                    @if (!_gameVersionLoaded)
+                    {
+                        <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" />
+                    }
+                    else if (_gameVersionError is not null)
+                    {
+                        <MudText Typo="Typo.h6" Class="dashboard-unavailable" data-testid="active-game-version">Unavailable</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@_gameVersionError</MudText>
+                    }
+                    else if (_activeGameVersion is null)
+                    {
+                        <MudText Typo="Typo.h6" Class="dashboard-unavailable" data-testid="active-game-version">Not configured</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">No active game version is currently published.</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h4" Class="metric-value" data-testid="active-game-version">@_activeGameVersion.VersionNumber</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@_activeGameVersion.VersionName</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </section>
+
+    <section class="admin-section" aria-labelledby="catalogue-composition-title">
+        <div class="section-heading dashboard-section-heading">
+            <div>
+                <h2 id="catalogue-composition-title" class="mud-typography mud-typography-h5">Catalogue composition</h2>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Distribution of the definitions currently maintained by this service.</MudText>
+            </div>
+        </div>
+
+        <MudGrid Spacing="3">
+            <MudItem xs="12" lg="6">
+                <MudPaper Class="admin-panel dashboard-distribution-panel" Elevation="0">
+                    <div class="dashboard-panel-heading">
+                        <div class="dashboard-panel-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Filled.Shield" /></div>
+                        <div>
+                            <h3 class="mud-typography mud-typography-h6">Heroes by class</h3>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Hero definitions grouped by their assigned class.</MudText>
+                        </div>
+                    </div>
+                    @if (!_heroesLoaded)
+                    {
+                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+                    }
+                    else if (_heroError is not null)
+                    {
+                        <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" Dense="true">@_heroError</MudAlert>
+                    }
+                    else if (_heroClassDistribution.Count == 0)
+                    {
+                        <div class="dashboard-empty-state">
+                            <MudIcon Icon="@Icons.Material.Outlined.BarChart" Size="Size.Large" />
+                            <MudText Typo="Typo.body2">No hero class data is available yet.</MudText>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dashboard-distribution-list">
+                            @foreach (var item in _heroClassDistribution)
+                            {
+                                <div class="dashboard-distribution-row" @key="item.Label">
+                                    <div class="dashboard-distribution-label">
+                                        <MudText Typo="Typo.body2">@item.Label</MudText>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">@item.Count</MudText>
+                                    </div>
+                                    <MudProgressLinear Value="@item.Percentage" Color="Color.Primary" Size="Size.Small" Rounded="true" />
+                                </div>
+                            }
+                        </div>
+                    }
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" lg="6">
+                <MudPaper Class="admin-panel dashboard-distribution-panel" Elevation="0">
+                    <div class="dashboard-panel-heading">
+                        <div class="dashboard-panel-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Filled.Bolt" /></div>
+                        <div>
+                            <h3 class="mud-typography mud-typography-h6">Skills by type</h3>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Skill definitions grouped by their design-intent category.</MudText>
+                        </div>
+                    </div>
+                    @if (!_skillsLoaded)
+                    {
+                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+                    }
+                    else if (_skillError is not null)
+                    {
+                        <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" Dense="true">@_skillError</MudAlert>
+                    }
+                    else if (_skillTypeDistribution.Count == 0)
+                    {
+                        <div class="dashboard-empty-state">
+                            <MudIcon Icon="@Icons.Material.Outlined.BarChart" Size="Size.Large" />
+                            <MudText Typo="Typo.body2">No skill type data is available yet.</MudText>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dashboard-distribution-list">
+                            @foreach (var item in _skillTypeDistribution)
+                            {
+                                <div class="dashboard-distribution-row" @key="item.Label">
+                                    <div class="dashboard-distribution-label">
+                                        <MudText Typo="Typo.body2">@item.Label</MudText>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">@item.Count</MudText>
+                                    </div>
+                                    <MudProgressLinear Value="@item.Percentage" Color="Color.Primary" Size="Size.Small" Rounded="true" />
+                                </div>
+                            }
+                        </div>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
     </section>
 
     <section class="admin-section" aria-labelledby="core-authoring-title">
         <div class="section-heading">
-            <div><h2 id="core-authoring-title" class="mud-typography mud-typography-h5">Core authoring</h2><MudText Typo="Typo.body2" Color="Color.Secondary">Define the entities and abilities that drive gameplay.</MudText></div>
+            <div>
+                <h2 id="core-authoring-title" class="mud-typography mud-typography-h5">Core authoring</h2>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Define the entities and abilities that drive gameplay.</MudText>
+            </div>
         </div>
         <MudGrid Spacing="3">
             <MudItem xs="12" md="6">
@@ -43,7 +247,10 @@
 
     <section class="admin-section" aria-labelledby="balance-tuning-title">
         <div class="section-heading">
-            <div><h2 id="balance-tuning-title" class="mud-typography mud-typography-h5">Balance and tuning</h2><MudText Typo="Typo.body2" Color="Color.Secondary">Adjust active game-version values without changing base definitions.</MudText></div>
+            <div>
+                <h2 id="balance-tuning-title" class="mud-typography mud-typography-h5">Balance and tuning</h2>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Adjust active game-version values without changing base definitions.</MudText>
+            </div>
         </div>
         <MudGrid Spacing="3">
             <MudItem xs="12" md="6">
@@ -67,30 +274,37 @@
 
     <section class="admin-section" aria-labelledby="world-classification-title">
         <div class="section-heading">
-            <div><h2 id="world-classification-title" class="mud-typography mud-typography-h5">World and classification</h2><MudText Typo="Typo.body2" Color="Color.Secondary">Maintain reference data that connects heroes to the game world.</MudText></div>
+            <div>
+                <h2 id="world-classification-title" class="mud-typography mud-typography-h5">World and classification</h2>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Maintain reference data that connects heroes to the game world.</MudText>
+            </div>
         </div>
         <MudGrid Spacing="3">
             <MudItem xs="12" sm="6" lg="3">
                 <MudPaper Class="workspace-card workspace-card-compact" Elevation="0">
-                    <h3 class="mud-typography mud-typography-subtitle1">Hero classes</h3><MudText Typo="Typo.body2" Color="Color.Secondary">Combat roles and archetypes.</MudText>
+                    <h3 class="mud-typography mud-typography-subtitle1">Hero classes</h3>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Combat roles and archetypes.</MudText>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => Nav.NavigateTo("/admin/hero-classes"))">Open</MudButton>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" lg="3">
                 <MudPaper Class="workspace-card workspace-card-compact" Elevation="0">
-                    <h3 class="mud-typography mud-typography-subtitle1">Mythology types</h3><MudText Typo="Typo.body2" Color="Color.Secondary">Narrative and cultural frameworks.</MudText>
+                    <h3 class="mud-typography mud-typography-subtitle1">Mythology types</h3>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Narrative and cultural frameworks.</MudText>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => Nav.NavigateTo("/admin/mythology-types"))">Open</MudButton>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" lg="3">
                 <MudPaper Class="workspace-card workspace-card-compact" Elevation="0">
-                    <h3 class="mud-typography mud-typography-subtitle1">Origin archetypes</h3><MudText Typo="Typo.body2" Color="Color.Secondary">Foundational character patterns.</MudText>
+                    <h3 class="mud-typography mud-typography-subtitle1">Origin archetypes</h3>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Foundational character patterns.</MudText>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => Nav.NavigateTo("/admin/origin-archetypes"))">Open</MudButton>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="6" lg="3">
                 <MudPaper Class="workspace-card workspace-card-compact" Elevation="0">
-                    <h3 class="mud-typography mud-typography-subtitle1">Origin cultures</h3><MudText Typo="Typo.body2" Color="Color.Secondary">Cultural origin classifications.</MudText>
+                    <h3 class="mud-typography mud-typography-subtitle1">Origin cultures</h3>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Cultural origin classifications.</MudText>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => Nav.NavigateTo("/admin/origin-cultures"))">Open</MudButton>
                 </MudPaper>
             </MudItem>
