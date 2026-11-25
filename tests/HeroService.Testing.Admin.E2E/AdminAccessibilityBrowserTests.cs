@@ -14,10 +14,7 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
         {
             await NavigateToOverviewAsync();
 
-            Assert.Equal(
-                1,
-                await Page.GetByRole(AriaRole.Main).CountAsync());
-
+            Assert.Equal(1, await Page.GetByRole(AriaRole.Main).CountAsync());
             Assert.Equal(
                 1,
                 await Page.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions
@@ -25,7 +22,6 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                     Name = "Primary navigation",
                     Exact = true
                 }).CountAsync());
-
             Assert.Equal(
                 1,
                 await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions
@@ -33,7 +29,6 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                     Name = "World command center",
                     Exact = true
                 }).CountAsync());
-
             Assert.Equal(
                 1,
                 await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions
@@ -58,29 +53,26 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 Exact = true
             });
 
-            // Validate the real keyboard entry path: the first Tab from the page
-            // must reach the first focusable element, which is the skip link.
+            // FocusOnNavigate intentionally moves focus to the route heading.
+            // Reset to the document entry point before testing the skip link's
+            // first position in sequential keyboard navigation.
+            await Page.EvaluateAsync(
+                "() => { document.activeElement?.blur(); document.body.setAttribute('tabindex', '-1'); document.body.focus(); }");
             await Page.Keyboard.PressAsync("Tab");
 
             Assert.True(
                 await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
-                "The first Tab from the document did not focus the skip link.");
+                "The first Tab from the document entry point did not focus the skip link.");
 
             await Page.Keyboard.PressAsync("Enter");
 
             await Page.WaitForFunctionAsync(
                 "() => document.getElementById('main-content') === document.activeElement",
                 null,
-                new PageWaitForFunctionOptions
-                {
-                    Timeout = 2_000
-                });
-
-            var focusEnteredMainContent = await Page.Locator("#main-content").EvaluateAsync<bool>(
-                "element => element === document.activeElement");
+                new PageWaitForFunctionOptions { Timeout = 2_000 });
 
             Assert.True(
-                focusEnteredMainContent,
+                await Page.Locator("#main-content").EvaluateAsync<bool>("element => element === document.activeElement"),
                 "Activating the skip link did not move focus to the main content landmark.");
         });
     }
@@ -135,6 +127,69 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 "() => document.documentElement.scrollWidth > window.innerWidth");
 
             Assert.False(hasHorizontalOverflow, "The overview page overflows horizontally at a 390px viewport.");
+        });
+    }
+
+    [Fact]
+    [Trait("Category", "E2E")]
+    public Task SkillCatalogue_ExposesItsPageHeadingWithoutRequiringAnApiFixture()
+    {
+        return RunWithDiagnosticsAsync(async () =>
+        {
+            await Page.GotoAsync($"{BaseUrl.TrimEnd('/')}/admin/skills", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.Load
+            });
+
+            await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions
+            {
+                Name = "Skill library",
+                Exact = true
+            }).WaitForAsync();
+        });
+    }
+
+    [Fact]
+    [Trait("Category", "E2E")]
+    public Task HeroCatalogue_ExposesItsPageHeadingWithoutRequiringAnApiFixture()
+    {
+        return RunWithDiagnosticsAsync(async () =>
+        {
+            await Page.GotoAsync($"{BaseUrl.TrimEnd('/')}/admin/heroes", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.Load
+            });
+
+            await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions
+            {
+                Name = "Heroes",
+                Exact = true
+            }).WaitForAsync();
+        });
+    }
+
+    [Fact]
+    [Trait("Category", "E2E")]
+    public Task HeroAndSkillCatalogues_DoNotOverflowAtMobileViewportWidth()
+    {
+        return RunWithDiagnosticsAsync(async () =>
+        {
+            await Page.SetViewportSizeAsync(390, 844);
+
+            foreach (var route in new[] { "/admin/heroes", "/admin/skills" })
+            {
+                await Page.GotoAsync($"{BaseUrl.TrimEnd('/')}{route}", new PageGotoOptions
+                {
+                    WaitUntil = WaitUntilState.Load
+                });
+
+                await Page.GetByRole(AriaRole.Main).WaitForAsync();
+
+                var hasHorizontalOverflow = await Page.EvaluateAsync<bool>(
+                    "() => document.documentElement.scrollWidth > window.innerWidth");
+
+                Assert.False(hasHorizontalOverflow, $"{route} overflows horizontally at a 390px viewport.");
+            }
         });
     }
 }

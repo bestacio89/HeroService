@@ -107,6 +107,7 @@
                                    Variant="@(_selectedType == type ? Variant.Filled : Variant.Outlined)"
                                    Style="@SkillTheme.GetBadgeStyle(type)"
                                    OnClick="@(() => SelectType(type))">
+                            <MudIcon Icon="@SkillTheme.GetIcon(type)" Size="Size.Small" Class="mr-1" />
                             @type (@count)
                         </MudButton>
                     }
@@ -164,7 +165,7 @@
                                 <MudStack Spacing="2">
                                     <MudStack Row="true" AlignItems="AlignItems.Start" Justify="Justify.SpaceBetween" Spacing="2">
                                         <MudPaper Class="skill-type-mark" Elevation="0" Style="@SkillTheme.GetMarkStyle(skill.SkillType)">
-                                            <MudIcon Icon="@Icons.Material.Filled.Bolt" Size="Size.Large" />
+                                            <MudIcon data-testid="skill-type-icon" Icon="@SkillTheme.GetIcon(skill.SkillType)" Size="Size.Large" />
                                         </MudPaper>
                                         <MudChip T="string"
                                                  Size="Size.Small"
@@ -240,6 +241,7 @@
                                                          T="string"
                                                          Size="Size.Small"
                                                          Variant="Variant.Outlined">
+                                                    <MudIcon data-testid="skill-effect-icon" Icon="@SkillEffectTheme.GetIcon(effect.EffectType)" Size="Size.Small" Class="mr-1" />
                                                     @effect.EffectType
                                                 </MudChip>
                                             }

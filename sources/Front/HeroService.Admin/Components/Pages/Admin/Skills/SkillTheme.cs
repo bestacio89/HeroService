@@ -11,6 +11,19 @@ public static class SkillTheme
 {
   // Retained for existing MudBlazor call sites; the skill library uses the
   // high-contrast palette below to distinguish every category.
+  public static string GetIcon(SkillType type) => type switch
+  {
+    SkillType.Damage => Icons.Material.Filled.LocalFireDepartment,
+    SkillType.Heal => Icons.Material.Filled.Healing,
+    SkillType.Shield => Icons.Material.Filled.Shield,
+    SkillType.Mobility => Icons.Material.Filled.DirectionsRun,
+    SkillType.Control => Icons.Material.Filled.GpsFixed,
+    SkillType.Buff => Icons.Material.Filled.TrendingUp,
+    SkillType.Debuff => Icons.Material.Filled.TrendingDown,
+    SkillType.Ultimate => Icons.Material.Filled.AutoAwesome,
+    _ => Icons.Material.Filled.HelpOutline
+  };
+
   public static Color GetColor(SkillType type) => type switch
   {
     SkillType.Damage => Color.Error,
