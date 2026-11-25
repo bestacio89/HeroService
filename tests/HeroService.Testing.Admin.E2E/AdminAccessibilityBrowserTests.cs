@@ -52,95 +52,36 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
         {
             await NavigateToOverviewAsync();
 
-            var navigationToggle = Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions
-            {
-                Name = "Toggle navigation",
-                Exact = true
-            });
-
-            await navigationToggle.FocusAsync();
-            await Page.Keyboard.PressAsync("Shift+Tab");
-
             var skipLink = Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
             {
                 Name = "Skip to main content",
                 Exact = true
             });
 
+            // Validate the real keyboard entry path: the first Tab from the page
+            // must reach the first focusable element, which is the skip link.
+            await Page.Keyboard.PressAsync("Tab");
+
             Assert.True(
                 await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
-                "Shift+Tab from the first navigation control did not focus the skip link.");
-
-            await skipLink.EvaluateAsync(
-                """
-                element => {
-                    window.__skipNavigationTrace = [];
-
-                    const record = event => {
-                        const target = event.target;
-
-                        window.__skipNavigationTrace.push({
-                            type: event.type,
-                            targetTag: target instanceof HTMLElement ? target.tagName : target?.nodeName,
-                            targetId: target instanceof HTMLElement ? target.id : null,
-                            targetClass: target instanceof HTMLElement ? target.className : null,
-                            defaultPrevented: event.defaultPrevented,
-                            hash: window.location.hash
-                        });
-                    };
-
-                    element.addEventListener("click", record);
-                    document.addEventListener("focusin", record);
-                    document.addEventListener("focusout", record);
-                    window.addEventListener("hashchange", record);
-                }
-                """);
+                "The first Tab from the document did not focus the skip link.");
 
             await Page.Keyboard.PressAsync("Enter");
 
             await Page.WaitForFunctionAsync(
-                "() => window.__skipNavigationTrace?.some(event => event.type === 'click')",
+                "() => document.getElementById('main-content') === document.activeElement",
                 null,
                 new PageWaitForFunctionOptions
                 {
                     Timeout = 2_000
                 });
 
-            var navigationState = await Page.EvaluateAsync<string>(
-                """
-                () => JSON.stringify({
-                    url: window.location.href,
-                    hash: window.location.hash,
-                    activeElement: document.activeElement instanceof HTMLElement
-                        ? {
-                            tagName: document.activeElement.tagName,
-                            id: document.activeElement.id,
-                            className: document.activeElement.className,
-                            text: document.activeElement.textContent?.trim()
-                        }
-                        : null,
-                    mainContent: (() => {
-                        const element = document.getElementById("main-content");
-
-                        return element instanceof HTMLElement
-                            ? {
-                                tagName: element.tagName,
-                                tabIndex: element.tabIndex,
-                                containsActiveElement: element.contains(document.activeElement),
-                                outerHtml: element.outerHTML.slice(0, 500)
-                            }
-                            : null;
-                    })(),
-                    trace: window.__skipNavigationTrace
-                })
-                """);
-
             var focusEnteredMainContent = await Page.Locator("#main-content").EvaluateAsync<bool>(
-                "element => element.contains(document.activeElement)");
+                "element => element === document.activeElement");
 
             Assert.True(
                 focusEnteredMainContent,
-                $"Activating the skip link did not move focus into the main content region. Browser state: {navigationState}");
+                "Activating the skip link did not move focus to the main content landmark.");
         });
     }
 
