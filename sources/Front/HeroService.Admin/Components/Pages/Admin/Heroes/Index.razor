@@ -103,19 +103,24 @@
                 @foreach (var hero in FilteredHeroes)
                 {
                     <MudItem xs="12" sm="6" lg="4" xl="3" @key="hero.Id">
-                        <MudCard Class="hero-card" Elevation="0">
+                        <MudCard Class="hero-card" Style="@HeroClassTheme.GetCardStyle(hero.Class?.Name)" Elevation="0">
                             <MudCardContent Class="hero-card-content">
-                                <div class="hero-card-mark">
+                                <div class="hero-card-mark" aria-hidden="true">
                                     <MudIcon data-testid="hero-class-icon" Icon="@HeroClassTheme.GetIcon(hero.Class?.Name)" Size="Size.Large" />
                                 </div>
                                 <MudText Typo="Typo.h6" Class="hero-card-title">@hero.Name</MudText>
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined"
+                                         Class="hero-class-chip"
+                                         Style="@HeroClassTheme.GetBadgeStyle(hero.Class?.Name)">
                                     @(hero.Class?.Name ?? "Unclassified")
-                                </MudText>
+                                </MudChip>
                                 <MudDivider Class="my-3" />
                                 <div class="hero-card-meta">
                                     <MudText Typo="Typo.caption" Color="Color.Secondary">MYTHOLOGY</MudText>
-                                    <MudText Typo="Typo.body2">@(hero.Affiliation?.Mythology?.Name ?? "Not assigned")</MudText>
+                                    <MudText Typo="Typo.body2" Class="hero-mythology-value"
+                                               Style="@MythologyTheme.GetBadgeStyle(hero.Affiliation?.Mythology?.Name)">
+                                        @(hero.Affiliation?.Mythology?.Name ?? "Not assigned")
+                                    </MudText>
                                 </div>
                                 <div class="hero-card-meta">
                                     <MudText Typo="Typo.caption" Color="Color.Secondary">ARCHETYPE</MudText>

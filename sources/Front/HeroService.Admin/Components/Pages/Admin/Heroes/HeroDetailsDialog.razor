@@ -4,30 +4,40 @@
 
     <DialogContent>
 
-        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
-            <MudText Typo="Typo.h6">@Hero.Name</MudText>
-            <MudChip T="string" Color="Color.Primary" Size="Size.Small">
-                <MudIcon data-testid="hero-class-icon" Icon="@HeroClassTheme.GetIcon(Hero.Class?.Name)" Size="Size.Small" Class="mr-1" />
-                @Hero.Class?.Name
-            </MudChip>
-        </MudStack>
+        <MudPaper Class="hero-detail-banner" Elevation="0"
+                   Style="@HeroClassTheme.GetCardStyle(Hero.Class?.Name)">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.h5" Class="hero-detail-title">@Hero.Name</MudText>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined"
+                             Class="hero-class-chip"
+                             Style="@HeroClassTheme.GetBadgeStyle(Hero.Class?.Name)">
+                        <MudIcon data-testid="hero-class-icon" Icon="@HeroClassTheme.GetIcon(Hero.Class?.Name)"
+                                 Size="Size.Small" Class="mr-1" />
+                        @(Hero.Class?.Name ?? "Unclassified")
+                    </MudChip>
 
-        <MudStack Row="true" Spacing="1" Class="mb-3">
-            @if (Hero.Affiliation?.Mythology?.Name is { } mythology)
-            {
-                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@mythology</MudChip>
-            }
+                    @if (Hero.Affiliation?.Mythology?.Name is { } mythology)
+                    {
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined"
+                                 Class="hero-mythology-chip"
+                                 Style="@MythologyTheme.GetBadgeStyle(mythology)">
+                            @mythology
+                        </MudChip>
+                    }
 
-            @if (Hero.Affiliation?.Culture?.Name is { } culture)
-            {
-                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@culture</MudChip>
-            }
+                    @if (Hero.Affiliation?.Culture?.Name is { } culture)
+                    {
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@culture</MudChip>
+                    }
 
-            @if (Hero.Affiliation?.Archetype?.Name is { } archetype)
-            {
-                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@archetype</MudChip>
-            }
-        </MudStack>
+                    @if (Hero.Affiliation?.Archetype?.Name is { } archetype)
+                    {
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@archetype</MudChip>
+                    }
+                </MudStack>
+            </MudStack>
+        </MudPaper>
 
         <MudDivider Class="mb-3" />
 
