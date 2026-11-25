@@ -48,4 +48,75 @@ public sealed class SemanticIconThemeTests
   {
     HeroClassTheme.GetIcon(className).Should().Be(MudBlazor.Icons.Material.Filled.PersonOutline);
   }
+
+  [Theory]
+  [InlineData("Assassin")]
+  [InlineData("Mage")]
+  [InlineData("Ranger")]
+  [InlineData("Support")]
+  [InlineData("Tank")]
+  [InlineData("Warrior")]
+  public void HeroClassTheme_ShouldProvideDistinctPrimaryPalettes(string className)
+  {
+    var palette = HeroClassTheme.GetPalette(className);
+
+    palette.Accent.Should().NotBeNullOrWhiteSpace();
+    palette.Surface.Should().NotBeNullOrWhiteSpace();
+    palette.Border.Should().NotBeNullOrWhiteSpace();
+  }
+
+  [Theory]
+  [InlineData("Fighter", "Warrior")]
+  [InlineData("Bruiser", "Warrior")]
+  [InlineData("Rogue", "Assassin")]
+  [InlineData("Wizard", "Mage")]
+  [InlineData("Sorcerer", "Mage")]
+  [InlineData("Guardian", "Tank")]
+  [InlineData("Defender", "Tank")]
+  [InlineData("Healer", "Support")]
+  [InlineData("Marksman", "Ranger")]
+  [InlineData("Archer", "Ranger")]
+  public void HeroClassTheme_ShouldSharePaletteAcrossAliases(string alias, string canonicalName)
+  {
+    HeroClassTheme.GetPalette(alias).Should().Be(HeroClassTheme.GetPalette(canonicalName));
+  }
+
+  [Fact]
+  public void HeroClassTheme_ShouldUseNeutralPaletteForUnknownNames()
+  {
+    HeroClassTheme.GetPalette(null).Should().Be(HeroClassTheme.GetPalette("unknown"));
+  }
+
+  [Theory]
+  [InlineData("Greek")]
+  [InlineData("Norse")]
+  [InlineData("Egyptian")]
+  [InlineData("Japanese")]
+  [InlineData("Celtic")]
+  [InlineData("Mesopotamian")]
+  [InlineData("Hindu")]
+  [InlineData("Chinese")]
+  [InlineData("Yoruba")]
+  [InlineData("Maya")]
+  public void MythologyTheme_ShouldProvidePaletteForEverySeededMythology(string mythologyName)
+  {
+    var palette = MythologyTheme.GetPalette(mythologyName);
+
+    palette.Accent.Should().NotBeNullOrWhiteSpace();
+    palette.Surface.Should().NotBeNullOrWhiteSpace();
+    palette.Border.Should().NotBeNullOrWhiteSpace();
+  }
+
+  [Fact]
+  public void MythologyTheme_ShouldNormalizeNamesAndUseNeutralFallback()
+  {
+    MythologyTheme.GetPalette("  gReEk  ").Should().Be(MythologyTheme.GetPalette("Greek"));
+    MythologyTheme.GetPalette(null).Should().Be(MythologyTheme.GetPalette("unknown"));
+  }
+
+  [Fact]
+  public void ClassAndMythologyPalettes_ShouldRemainIndependent()
+  {
+    HeroClassTheme.GetPalette("Warrior").Should().NotBe(MythologyTheme.GetPalette("Greek"));
+  }
 }

@@ -3,11 +3,14 @@ using MudBlazor;
 namespace HeroService.Admin.Components.Pages.Admin.Heroes;
 
 /// <summary>
-/// Resolves seeded hero class names to semantic Admin icons.
-/// Unknown reference-data values intentionally use a neutral fallback.
+/// Resolves hero class reference data to semantic Admin icons and primary visual palettes.
+/// Unknown values intentionally use a neutral fallback.
 /// </summary>
 public static class HeroClassTheme
 {
+  private static readonly HeroVisualPalette NeutralPalette =
+      new("#A8B0BD", "rgba(168, 176, 189, 0.08)", "rgba(168, 176, 189, 0.30)");
+
   public static string GetIcon(string? className)
   {
     var normalized = Normalize(className);
@@ -24,9 +27,33 @@ public static class HeroClassTheme
     };
   }
 
-  private static string Normalize(string? value) =>
-    string.IsNullOrWhiteSpace(value)
-      ? string.Empty
-      : string.Join(' ', value.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
-          .ToLowerInvariant();
+  public static HeroVisualPalette GetPalette(string? className) =>
+      Normalize(className) switch
+      {
+        "assassin" or "rogue" => new HeroVisualPalette(
+            "#F07B86", "rgba(240, 123, 134, 0.10)", "rgba(240, 123, 134, 0.38)"),
+        "mage" or "wizard" or "sorcerer" => new HeroVisualPalette(
+            "#C4A5FF", "rgba(196, 165, 255, 0.10)", "rgba(196, 165, 255, 0.38)"),
+        "ranger" or "marksman" or "archer" => new HeroVisualPalette(
+            "#69D6A3", "rgba(105, 214, 163, 0.10)", "rgba(105, 214, 163, 0.38)"),
+        "support" or "healer" => new HeroVisualPalette(
+            "#66D9D0", "rgba(102, 217, 208, 0.10)", "rgba(102, 217, 208, 0.38)"),
+        "tank" or "guardian" or "defender" => new HeroVisualPalette(
+            "#8CBCE8", "rgba(140, 188, 232, 0.10)", "rgba(140, 188, 232, 0.38)"),
+        "warrior" or "fighter" or "bruiser" => new HeroVisualPalette(
+            "#F0C36A", "rgba(240, 195, 106, 0.10)", "rgba(240, 195, 106, 0.38)"),
+        _ => NeutralPalette
+      };
+
+  public static string GetCardStyle(string? className) =>
+      GetPalette(className).ToCssVariables("hero");
+
+  public static string GetBadgeStyle(string? className) =>
+      GetPalette(className).ToCssVariables("hero");
+
+  internal static string Normalize(string? value) =>
+      string.IsNullOrWhiteSpace(value)
+          ? string.Empty
+          : string.Join(' ', value.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+              .ToLowerInvariant();
 }

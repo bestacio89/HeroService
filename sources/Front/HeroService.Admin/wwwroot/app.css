@@ -382,3 +382,52 @@ button:focus-visible {
 .app-content .mud-paper.workspace-card-compact { padding: 1.15rem; }
 .workspace-card-compact .mud-button-root { margin-top: auto; }
 @media (prefers-reduced-motion: reduce) { .app-content .mud-paper.workspace-card:hover { transform: none; } }
+
+
+/* Hero classification identity: class is primary, mythology is secondary. */
+.hero-card {
+    border-color: var(--hero-border, var(--app-border));
+    background: linear-gradient(155deg,
+        var(--hero-surface, var(--app-surface-raised)),
+        var(--app-surface));
+}
+
+.hero-card:hover {
+    border-color: var(--hero-accent, var(--app-gold));
+}
+
+.hero-card-mark {
+    border-color: var(--hero-border, var(--app-border));
+    background: var(--hero-surface, rgba(212, 175, 55, 0.08));
+    color: var(--hero-accent, var(--app-gold));
+}
+
+.hero-class-chip {
+    border-color: var(--hero-border, var(--app-border)) !important;
+    background: var(--hero-surface, transparent);
+    color: var(--hero-accent, var(--app-text));
+}
+
+.hero-mythology-value {
+    color: var(--mythology-accent, var(--app-text));
+}
+
+.hero-detail-banner {
+    padding: 1.15rem 1.25rem;
+    border: 1px solid var(--hero-border, var(--app-border));
+    border-radius: 12px;
+    background: linear-gradient(145deg,
+        var(--hero-surface, var(--app-surface-raised)),
+        var(--app-surface));
+}
+
+.hero-detail-title {
+    color: var(--app-text);
+    font-family: Cinzel, Georgia, serif;
+}
+
+.hero-mythology-chip {
+    border-color: var(--mythology-border, var(--app-border)) !important;
+    background: var(--mythology-surface, transparent);
+    color: var(--mythology-accent, var(--app-text));
+}
