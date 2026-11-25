@@ -10,6 +10,7 @@
                              Style="@SkillTheme.GetBadgeStyle(Skill.SkillType)"
                              Variant="Variant.Outlined"
                              Size="Size.Small">
+                        <MudIcon Icon="@SkillTheme.GetIcon(Skill.SkillType)" Size="Size.Small" Class="mr-1" aria-hidden="true" />
                         @Skill.SkillType
                     </MudChip>
                 </MudStack>
@@ -139,6 +140,7 @@
                             <MudPaper @key="effect" Class="pa-3" Elevation="0" Outlined="true">
                                 <MudStack Spacing="2">
                                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudIcon Icon="@SkillEffectTheme.GetIcon(effect.EffectType)" Size="Size.Medium" aria-hidden="true" data-testid="skill-effect-icon" />
                                         <MudText Typo="Typo.subtitle1">@effect.EffectType</MudText>
                                         @if (effect.BuffType.HasValue)
                                         {

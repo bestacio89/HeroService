@@ -137,4 +137,75 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             Assert.False(hasHorizontalOverflow, "The overview page overflows horizontally at a 390px viewport.");
         });
     }
+
+    [Fact]
+    [Trait("Category", "E2E")]
+    public Task SkillCatalogue_RendersSemanticIconsAndRetainsTextLabels()
+    {
+        return RunWithDiagnosticsAsync(async () =>
+        {
+            await Page.GotoAsync($"{BaseUrl.TrimEnd('/')}/admin/skills", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.Load
+            });
+
+            await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions
+            {
+                Name = "Skill library",
+                Exact = true
+            }).WaitForAsync();
+
+            await Page.Locator("[data-testid='skill-type-icon']").First.WaitForAsync();
+            Assert.True(await Page.Locator("[data-testid='skill-effect-icon']").CountAsync() > 0);
+            Assert.True(await Page.GetByText("Damage", new PageGetByTextOptions { Exact = true }).CountAsync() > 0);
+        });
+    }
+
+    [Fact]
+    [Trait("Category", "E2E")]
+    public Task HeroCatalogue_RendersClassIconsAndRetainsClassNames()
+    {
+        return RunWithDiagnosticsAsync(async () =>
+        {
+            await Page.GotoAsync($"{BaseUrl.TrimEnd('/')}/admin/heroes", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.Load
+            });
+
+            await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions
+            {
+                Name = "Heroes",
+                Exact = true
+            }).WaitForAsync();
+
+            await Page.Locator("[data-testid='hero-class-icon']").First.WaitForAsync();
+            Assert.True(await Page.GetByText("Warrior", new PageGetByTextOptions { Exact = true }).CountAsync() > 0);
+        });
+    }
+
+    [Fact]
+    [Trait("Category", "E2E")]
+    public Task HeroAndSkillCatalogues_DoNotOverflowAtMobileViewportWidth()
+    {
+        return RunWithDiagnosticsAsync(async () =>
+        {
+            await Page.SetViewportSize(390, 844);
+
+            foreach (var route in new[] { "/admin/heroes", "/admin/skills" })
+            {
+                await Page.GotoAsync($"{BaseUrl.TrimEnd('/')}{route}", new PageGotoOptions
+                {
+                    WaitUntil = WaitUntilState.Load
+                });
+
+                await Page.Locator("main").WaitForAsync();
+
+                var hasHorizontalOverflow = await Page.EvaluateAsync<bool>(
+                    "() => document.documentElement.scrollWidth > window.innerWidth");
+
+                Assert.False(hasHorizontalOverflow, $"{route} overflows horizontally at a 390px viewport.");
+            }
+        });
+    }
+
 }
