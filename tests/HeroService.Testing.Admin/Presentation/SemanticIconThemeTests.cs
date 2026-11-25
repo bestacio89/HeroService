@@ -65,6 +65,22 @@ public sealed class SemanticIconThemeTests
     palette.Border.Should().NotBeNullOrWhiteSpace();
   }
 
+  [Theory]
+  [InlineData("Fighter", "Warrior")]
+  [InlineData("Bruiser", "Warrior")]
+  [InlineData("Rogue", "Assassin")]
+  [InlineData("Wizard", "Mage")]
+  [InlineData("Sorcerer", "Mage")]
+  [InlineData("Guardian", "Tank")]
+  [InlineData("Defender", "Tank")]
+  [InlineData("Healer", "Support")]
+  [InlineData("Marksman", "Ranger")]
+  [InlineData("Archer", "Ranger")]
+  public void HeroClassTheme_ShouldSharePaletteAcrossAliases(string alias, string canonicalName)
+  {
+    HeroClassTheme.GetPalette(alias).Should().Be(HeroClassTheme.GetPalette(canonicalName));
+  }
+
   [Fact]
   public void HeroClassTheme_ShouldUseNeutralPaletteForUnknownNames()
   {

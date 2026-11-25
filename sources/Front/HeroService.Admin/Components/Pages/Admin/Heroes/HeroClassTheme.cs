@@ -30,17 +30,17 @@ public static class HeroClassTheme
   public static HeroVisualPalette GetPalette(string? className) =>
       Normalize(className) switch
       {
-        "assassin" => new HeroVisualPalette(
+        "assassin" or "rogue" => new HeroVisualPalette(
             "#F07B86", "rgba(240, 123, 134, 0.10)", "rgba(240, 123, 134, 0.38)"),
-        "mage" => new HeroVisualPalette(
+        "mage" or "wizard" or "sorcerer" => new HeroVisualPalette(
             "#C4A5FF", "rgba(196, 165, 255, 0.10)", "rgba(196, 165, 255, 0.38)"),
-        "ranger" => new HeroVisualPalette(
+        "ranger" or "marksman" or "archer" => new HeroVisualPalette(
             "#69D6A3", "rgba(105, 214, 163, 0.10)", "rgba(105, 214, 163, 0.38)"),
-        "support" => new HeroVisualPalette(
+        "support" or "healer" => new HeroVisualPalette(
             "#66D9D0", "rgba(102, 217, 208, 0.10)", "rgba(102, 217, 208, 0.38)"),
-        "tank" => new HeroVisualPalette(
+        "tank" or "guardian" or "defender" => new HeroVisualPalette(
             "#8CBCE8", "rgba(140, 188, 232, 0.10)", "rgba(140, 188, 232, 0.38)"),
-        "warrior" => new HeroVisualPalette(
+        "warrior" or "fighter" or "bruiser" => new HeroVisualPalette(
             "#F0C36A", "rgba(240, 195, 106, 0.10)", "rgba(240, 195, 106, 0.38)"),
         _ => NeutralPalette
       };
