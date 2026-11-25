@@ -106,7 +106,6 @@
                                    Size="Size.Small"
                                    Variant="@(_selectedType == type ? Variant.Filled : Variant.Outlined)"
                                    Style="@SkillTheme.GetBadgeStyle(type)"
-                                   StartIcon="@SkillTheme.GetIcon(type)"
                                    OnClick="@(() => SelectType(type))">
                             @type (@count)
                         </MudButton>
@@ -165,13 +164,12 @@
                                 <MudStack Spacing="2">
                                     <MudStack Row="true" AlignItems="AlignItems.Start" Justify="Justify.SpaceBetween" Spacing="2">
                                         <MudPaper Class="skill-type-mark" Elevation="0" Style="@SkillTheme.GetMarkStyle(skill.SkillType)">
-                                            <MudIcon Icon="@SkillTheme.GetIcon(skill.SkillType)" Size="Size.Large" aria-hidden="true" data-testid="skill-type-icon" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Bolt" Size="Size.Large" />
                                         </MudPaper>
                                         <MudChip T="string"
                                                  Size="Size.Small"
                                                  Variant="Variant.Outlined"
                                                  Style="@SkillTheme.GetBadgeStyle(skill.SkillType)">
-                                            <MudIcon Icon="@SkillTheme.GetIcon(skill.SkillType)" Size="Size.Small" Class="mr-1" aria-hidden="true" />
                                             @skill.SkillType
                                         </MudChip>
                                     </MudStack>
@@ -242,7 +240,6 @@
                                                          T="string"
                                                          Size="Size.Small"
                                                          Variant="Variant.Outlined">
-                                                    <MudIcon Icon="@SkillEffectTheme.GetIcon(effect.EffectType)" Size="Size.Small" Class="mr-1" aria-hidden="true" data-testid="skill-effect-icon" />
                                                     @effect.EffectType
                                                 </MudChip>
                                             }

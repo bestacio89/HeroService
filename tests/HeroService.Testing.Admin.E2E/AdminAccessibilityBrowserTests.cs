@@ -189,7 +189,7 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
     {
         return RunWithDiagnosticsAsync(async () =>
         {
-            await Page.SetViewportSize(390, 844);
+            await Page.SetViewportSizeAsync(390, 844);
 
             foreach (var route in new[] { "/admin/heroes", "/admin/skills" })
             {

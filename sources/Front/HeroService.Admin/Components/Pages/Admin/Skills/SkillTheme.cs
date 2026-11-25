@@ -9,23 +9,6 @@ namespace HeroService.Admin.Components.Pages.Admin.Skills;
 /// </summary>
 public static class SkillTheme
 {
-  /// <summary>
-  /// Resolves the semantic Material icon for each skill category.
-  /// The icon is presentation metadata; SkillType remains the domain source of truth.
-  /// </summary>
-  public static string GetIcon(SkillType type) => type switch
-  {
-    SkillType.Damage => Icons.Material.Filled.Whatshot,
-    SkillType.Heal => Icons.Material.Filled.Healing,
-    SkillType.Shield => Icons.Material.Filled.Shield,
-    SkillType.Mobility => Icons.Material.Filled.DirectionsRun,
-    SkillType.Control => Icons.Material.Filled.ControlCamera,
-    SkillType.Buff => Icons.Material.Filled.TrendingUp,
-    SkillType.Debuff => Icons.Material.Filled.TrendingDown,
-    SkillType.Ultimate => Icons.Material.Filled.AutoAwesome,
-    _ => Icons.Material.Filled.Help
-  };
-
   // Retained for existing MudBlazor call sites; the skill library uses the
   // high-contrast palette below to distinguish every category.
   public static Color GetColor(SkillType type) => type switch

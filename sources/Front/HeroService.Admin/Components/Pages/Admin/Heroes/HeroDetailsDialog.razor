@@ -6,10 +6,7 @@
 
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
             <MudText Typo="Typo.h6">@Hero.Name</MudText>
-            <MudChip T="string" Color="Color.Primary" Size="Size.Small">
-                <MudIcon Icon="@HeroClassTheme.GetIcon(Hero.Class?.Name)" Size="Size.Small" Class="mr-1" aria-hidden="true" />
-                @Hero.Class?.Name
-            </MudChip>
+            <MudChip T="string" Color="Color.Primary" Size="Size.Small">@Hero.Class?.Name</MudChip>
         </MudStack>
 
         <MudStack Row="true" Spacing="1" Class="mb-3">
