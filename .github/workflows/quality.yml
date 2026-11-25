@@ -51,14 +51,27 @@ jobs:
         id: build
         run: dotnet build HeroService.slnx --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
 
-      - name: Run unit and architecture tests
+      - name: Run unit tests
+        if: ${{ always() && steps.build.outcome == 'success' }}
         run: >
           dotnet test HeroService.slnx
           --configuration ${{ env.BUILD_CONFIGURATION }}
           --no-build
-          --filter "Category!=Integration&Category!=E2E"
+          --no-restore
+          --filter "Category!=Integration&Category!=E2E&Category!=Architecture&Category!=ArchitecturalReport"
           --logger "trx"
           --results-directory TestResults/Unit
+
+      - name: Run architecture tests and reports
+        if: ${{ always() && steps.build.outcome == 'success' }}
+        run: >
+          dotnet test HeroService.slnx
+          --configuration ${{ env.BUILD_CONFIGURATION }}
+          --no-build
+          --no-restore
+          --filter "Category=Architecture|Category=ArchitecturalReport"
+          --logger "trx"
+          --results-directory TestResults/Architecture
 
       - name: Run container-backed integration tests
         if: ${{ always() && steps.build.outcome == 'success' }}
@@ -66,14 +79,19 @@ jobs:
           dotnet test HeroService.slnx
           --configuration ${{ env.BUILD_CONFIGURATION }}
           --no-build
+          --no-restore
           --filter "Category=Integration"
           --logger "trx"
           --results-directory TestResults/Integration
 
       - name: Install Chromium for admin browser tests
+        id: install_chromium
+        if: ${{ always() && steps.build.outcome == 'success' }}
         run: pwsh tests/HeroService.Testing.Admin.E2E/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
 
       - name: Start admin application
+        id: start_admin
+        if: ${{ always() && steps.install_chromium.outcome == 'success' }}
         run: |
           mkdir -p TestResults/AdminE2E
           nohup dotnet sources/Front/HeroService.Admin/bin/Release/net10.0/HeroService.Admin.dll > /tmp/hero-admin.log 2>&1 &
@@ -96,10 +114,12 @@ jobs:
           HeroService__BaseUrl: http://127.0.0.1:5999
 
       - name: Run admin browser, accessibility and performance tests
+        if: ${{ always() && steps.start_admin.outcome == 'success' }}
         run: >
           dotnet test tests/HeroService.Testing.Admin.E2E/HeroService.Testing.Admin.E2E.csproj
           --configuration ${{ env.BUILD_CONFIGURATION }}
           --no-build
+          --no-restore
           --filter "Category=E2E"
           --logger "trx"
           --results-directory TestResults/AdminE2E
@@ -135,6 +155,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: admin-browser-diagnostics
-          path: TestResults/AdminE2E/**
+          path: |
+            TestResults/AdminE2E/Screenshots/**
+            TestResults/AdminE2E/performance.json
+            TestResults/AdminE2E/hero-admin.log
           if-no-files-found: warn
           retention-days: 14

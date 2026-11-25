@@ -7,6 +7,7 @@ using Testcontainers.Kafka;
 
 namespace HeroService.Testing.Consumer;
 
+[Trait("Category", "Integration")]
 public sealed class KafkaBrokerHealthCheckTests : IAsyncLifetime
 {
   private readonly KafkaContainer _kafka =

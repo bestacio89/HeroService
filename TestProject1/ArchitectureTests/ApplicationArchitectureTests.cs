@@ -11,9 +11,10 @@ using Xunit;
 namespace HeroService.Testing.ArchitectureTests
 {
   /// <summary>
-  /// ?? HeroService Architecture Governance — Application Layer
+  /// ?? HeroService Architecture Governance â€” Application Layer
   /// Enforces CQRS and dependency boundaries for the Application assembly.
   /// </summary>
+  [Trait("Category", "Architecture")]
   public class ApplicationArchitectureTests : BaseArchitectureTest
   {
     [Fact]
@@ -34,7 +35,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!handlers.Any())
       {
-        Console.WriteLine("?? No CommandHandlers found in Application layer — skipping rule.");
+        Console.WriteLine("?? No CommandHandlers found in Application layer â€” skipping rule.");
         return;
       }
 
@@ -64,7 +65,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!handlers.Any())
       {
-        Console.WriteLine("?? No QueryHandlers found in Application layer — skipping rule.");
+        Console.WriteLine("?? No QueryHandlers found in Application layer â€” skipping rule.");
         return;
       }
 
@@ -89,7 +90,7 @@ namespace HeroService.Testing.ArchitectureTests
     {
       if (!HasEventHandlers)
       {
-        Console.WriteLine("?? No notification or event handlers found — skipping rule.");
+        Console.WriteLine("?? No notification or event handlers found â€” skipping rule.");
         return;
       }
 
@@ -115,7 +116,7 @@ namespace HeroService.Testing.ArchitectureTests
 
       if (!HasDomainEvents)
       {
-        Console.WriteLine("?? No domain events or event handlers detected — skipping rule.");
+        Console.WriteLine("?? No domain events or event handlers detected â€” skipping rule.");
         return;
       }
 
@@ -173,13 +174,13 @@ namespace HeroService.Testing.ArchitectureTests
           Console.WriteLine($"   ? {evt.FullName}");
       }
 
-      Console.WriteLine($"? Event governance check completed — {pureDomainEvents.Count} domain event(s), {ApplicationEventHandlerTypes.Count} handler(s).");
+      Console.WriteLine($"? Event governance check completed â€” {pureDomainEvents.Count} domain event(s), {ApplicationEventHandlerTypes.Count} handler(s).");
     }
 
     // -----------------------------------------------
     // ?? DEPENDENCY BOUNDARY
     // -----------------------------------------------
-    [Fact(DisplayName = "?? Application Layer — Strict Dependency Governance")]
+    [Fact(DisplayName = "?? Application Layer â€” Strict Dependency Governance")]
     public void ApplicationLayer_Should_Depend_Only_On_Allowed_Namespaces()
     {
       ReportArchitectureContext();
@@ -210,12 +211,12 @@ namespace HeroService.Testing.ArchitectureTests
           .OrShould().DependOnAnyTypesThat().ResideInNamespace("System.Threading")
           .OrShould().DependOnAnyTypesThat().ResideInNamespace("System.Threading.Tasks")
           .OrShould().DependOnAnyTypesThat().ResideInNamespace("Microsoft.Extensions.DependencyInjection")
-          .Because("The Application layer must remain pure — only Franz.Common and System namespaces are allowed.");
+          .Because("The Application layer must remain pure â€” only Franz.Common and System namespaces are allowed.");
 
       try
       {
         rule.Check(BaseArchitecture);
-        Console.WriteLine("? Application layer validated — no foreign dependencies detected.");
+        Console.WriteLine("? Application layer validated â€” no foreign dependencies detected.");
       }
       catch (FailedArchRuleException ex)
       {

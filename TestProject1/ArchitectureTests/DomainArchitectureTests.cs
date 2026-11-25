@@ -11,6 +11,7 @@ namespace HeroService.Testing.ArchitectureTests;
 /// <summary>
 /// Validates the structural integrity of the Domain layer in HeroService-based projects.
 /// </summary>
+[Trait("Category", "Architecture")]
 public class DomainArchitectureTests : BaseArchitectureTest
 {
   // ---------------------------------------------
@@ -42,7 +43,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!domainEntities.Any())
     {
-      Console.WriteLine("?? No domain entities found — skipping Entity<> enforcement.");
+      Console.WriteLine("?? No domain entities found â€” skipping Entity<> enforcement.");
       return;
     }
 
@@ -75,7 +76,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (aggregateRootInterface == null)
     {
-      Console.WriteLine("?? IAggregateRoot<TEvent> interface not found — skipping aggregate root validation.");
+      Console.WriteLine("?? IAggregateRoot<TEvent> interface not found â€” skipping aggregate root validation.");
       return;
     }
 
@@ -89,7 +90,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!aggregateRoots.Any())
     {
-      Console.WriteLine("?? No aggregate roots implementing IAggregateRoot<TEvent> found — skipping aggregate rule.");
+      Console.WriteLine("?? No aggregate roots implementing IAggregateRoot<TEvent> found â€” skipping aggregate rule.");
       return;
     }
 
@@ -124,7 +125,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
     }
     else
     {
-      Console.WriteLine("?? IDomainEvent interface not found — skipping dependency validation.");
+      Console.WriteLine("?? IDomainEvent interface not found â€” skipping dependency validation.");
     }
   }
 
@@ -147,13 +148,13 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!hasAggregates)
     {
-      Console.WriteLine("?? No aggregates found — skipping event validation test.");
+      Console.WriteLine("?? No aggregates found â€” skipping event validation test.");
       return;
     }
 
     if (!HasDomainEvents)
     {
-      Console.WriteLine("?? No domain events found — skipping event validation test.");
+      Console.WriteLine("?? No domain events found â€” skipping event validation test.");
       return;
     }
 
@@ -170,7 +171,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!validDomainEvents.Any())
     {
-      Console.WriteLine("?? No valid domain events found after filtering internal types — skipping.");
+      Console.WriteLine("?? No valid domain events found after filtering internal types â€” skipping.");
       return;
     }
 
@@ -202,7 +203,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
 
     if (!domainobjects.Any())
     {
-      Console.WriteLine("?? No CommandHandlers found in Application layer — skipping rule.");
+      Console.WriteLine("?? No CommandHandlers found in Application layer â€” skipping rule.");
       return;
     }
     ArchRuleDefinition
@@ -240,7 +241,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
   {
     if (!HasDomainEvents)
     {
-      Console.WriteLine("?? No domain events found — skipping infrastructure dependency rule.");
+      Console.WriteLine("?? No domain events found â€” skipping infrastructure dependency rule.");
       return;
     }
 
