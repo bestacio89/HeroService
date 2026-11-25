@@ -1,4 +1,5 @@
 using HeroService.Admin.Components;
+using HeroService.Admin.Logging;
 using HeroService.Client.Http.DependencyInjection;
 using MudBlazor.Services;
 using HeroService.Admin.UI;
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // =========================================
 // RAZOR COMPONENTS
 // =========================================
+BlazorLoggingConfiguration.Configure(builder.Configuration);
 builder.Host.UseLog();
 builder.Services
     .AddRazorComponents()
