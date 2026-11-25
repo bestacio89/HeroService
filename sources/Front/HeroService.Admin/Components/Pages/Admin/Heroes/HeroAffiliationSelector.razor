@@ -3,7 +3,15 @@
 <MudGrid Spacing="2">
 
     <MudItem xs="12" sm="6">
+        @if (_heroClassesError is not null)
+        {
+            <MudAlert Severity="Severity.Warning" Dense="true">
+                _heroClassesError
+                <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="LoadHeroClassesAsync">Retry</MudButton>
+            </MudAlert>
+        }
         <MudSelect T="Guid"
+                   Disabled="@_loadingHeroClasses"
                    Label="Hero Class"
                    @bind-Value="Model.HeroClassId">
             @foreach (var item in HeroClasses)
@@ -16,7 +24,15 @@
     </MudItem>
 
     <MudItem xs="12" sm="6">
+        @if (_mythologiesError is not null)
+        {
+            <MudAlert Severity="Severity.Warning" Dense="true">
+                _mythologiesError
+                <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="LoadMythologiesAsync">Retry</MudButton>
+            </MudAlert>
+        }
         <MudSelect T="Guid"
+                   Disabled="@_loadingMythologies"
                    Label="Mythology"
                    @bind-Value="Model.MythologyTypeId">
             @foreach (var item in Mythologies)
@@ -29,7 +45,15 @@
     </MudItem>
 
     <MudItem xs="12" sm="6">
+        @if (_culturesError is not null)
+        {
+            <MudAlert Severity="Severity.Warning" Dense="true">
+                _culturesError
+                <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="LoadCulturesAsync">Retry</MudButton>
+            </MudAlert>
+        }
         <MudSelect T="Guid"
+                   Disabled="@_loadingCultures"
                    Label="Origin Culture"
                    @bind-Value="Model.OriginCultureId">
             @foreach (var item in Cultures)
@@ -42,7 +66,15 @@
     </MudItem>
 
     <MudItem xs="12" sm="6">
+        @if (_archetypesError is not null)
+        {
+            <MudAlert Severity="Severity.Warning" Dense="true">
+                _archetypesError
+                <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="LoadArchetypesAsync">Retry</MudButton>
+            </MudAlert>
+        }
         <MudSelect T="Guid"
+                   Disabled="@_loadingArchetypes"
                    Label="Origin Archetype"
                    @bind-Value="Model.OriginArchetypeId">
             @foreach (var item in Archetypes)
