@@ -53,16 +53,25 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 Exact = true
             });
 
-            // FocusOnNavigate intentionally moves focus to the route heading.
-            // Reset to the document entry point before testing the skip link's
-            // first position in sequential keyboard navigation.
-            await Page.EvaluateAsync(
-                "() => { document.activeElement?.blur(); document.body.setAttribute('tabindex', '-1'); document.body.focus(); }");
+            // Wait for Blazor's asynchronous FocusOnNavigate operation to finish
+            // before resetting focus. Otherwise it can race this keyboard test.
+            await Page.WaitForFunctionAsync(
+                "() => document.activeElement?.matches('#main-content h1, #main-content h2, #main-content h3, #main-content h4, #main-content h5, #main-content h6')");
+
+            // Start sequential keyboard navigation at the document entry point.
+            var focusReset = await Page.EvaluateAsync<bool>(
+                "() => { document.activeElement?.blur(); document.body.setAttribute('tabindex', '-1'); document.body.focus(); return document.activeElement === document.body; }");
+
+            Assert.True(focusReset, "The browser did not move focus to the document entry point.");
+
             await Page.Keyboard.PressAsync("Tab");
+
+            var focusState = await Page.EvaluateAsync<string>(
+                "() => { const active = document.activeElement; return 'active=' + active?.tagName + '#' + active?.id + '; firstFocusable=' + Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex=\"-1\"])')).slice(0, 5).map(element => element.tagName + '#' + element.id + '.' + element.className).join(','); }");
 
             Assert.True(
                 await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
-                "The first Tab from the document entry point did not focus the skip link.");
+                $"The first Tab from the document entry point did not focus the skip link ({focusState}).");
 
             await Page.Keyboard.PressAsync("Enter");
 
