@@ -98,7 +98,7 @@ public sealed partial class HeroDetailsDialog : ComponentBase, IDisposable
     MudDialog.Close();
   }
 
-  private readonly bool _disposed;
+  private bool _disposed;
 
   public void Dispose()
   {
