@@ -47,31 +47,39 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
         {
             await NavigateToOverviewAsync();
 
-            var skipLink = Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
-            {
-                Name = "Skip to main content",
-                Exact = true
-            });
+            var skipLink = Page.Locator("a.skip-link");
+            Assert.Equal(1, await skipLink.CountAsync());
+            Assert.Equal(
+                1,
+                await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
+                {
+                    Name = "Skip to main content",
+                    Exact = true
+                }).CountAsync());
 
             // FocusOnNavigate moves focus to the route heading after navigation.
-            // Blurring that heading does not reset Chromium's sequential-focus
-            // starting point. Temporarily make body a tabbable document-entry
-            // anchor so the next real Tab follows DOM order from the document start.
+            // Programmatically focus body without adding it to the sequential
+            // tab order, then verify the first real Tab reaches the skip link.
             var focusReset = await Page.EvaluateAsync<bool>(
-                "() => { document.body.setAttribute('tabindex', '0'); document.body.focus(); return document.activeElement === document.body; }");
+                "() => { document.body.setAttribute('tabindex', '-1'); document.body.focus(); return document.activeElement === document.body; }");
 
             Assert.True(focusReset, "The browser could not focus the temporary document-entry anchor.");
 
-            await Page.Keyboard.PressAsync("Tab");
+            try
+            {
+                await Page.Keyboard.PressAsync("Tab");
 
-            var focusState = await Page.EvaluateAsync<string>(
-                """() => { const active = document.activeElement; const link = document.querySelector('a.skip-link'); const style = link ? getComputedStyle(link) : null; const rect = link?.getBoundingClientRect(); const firstFocusable = Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])')).slice(0, 8).map(element => element.tagName + '#' + element.id + '.' + element.className).join(','); return 'active=' + active?.tagName + '#' + active?.id + '; firstFocusable=' + firstFocusable + '; skipLink={tabIndex:' + link?.tabIndex + ',display:' + style?.display + ',visibility:' + style?.visibility + ',position:' + style?.position + ',transform:' + style?.transform + ',rect:' + (rect ? [rect.x, rect.y, rect.width, rect.height].join(',') : 'missing') + '}'; }""");
+                var focusState = await Page.EvaluateAsync<string>(
+                    """() => { const active = document.activeElement; const link = document.querySelector('a.skip-link'); const style = link ? getComputedStyle(link) : null; const rect = link?.getBoundingClientRect(); return 'active=' + active?.tagName + '#' + active?.id + '.' + active?.className + '; activeMatchesSkipLink=' + Boolean(active?.matches('a.skip-link')) + '; skipLink={tabIndex:' + link?.tabIndex + ',display:' + style?.display + ',visibility:' + style?.visibility + ',transform:' + style?.transform + ',rect:' + (rect ? [rect.x, rect.y, rect.width, rect.height].join(',') : 'missing') + '}'; }""");
 
-            Assert.True(
-                await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
-                $"The first Tab from the document-entry anchor did not focus the skip link ({focusState}).");
-
-            await Page.EvaluateAsync("() => document.body.removeAttribute('tabindex')");
+                Assert.True(
+                    await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
+                    $"The first Tab from the programmatic document-entry focus did not focus the skip link ({focusState}).");
+            }
+            finally
+            {
+                await Page.EvaluateAsync("() => document.body.removeAttribute('tabindex')");
+            }
 
             await Page.Keyboard.PressAsync("Enter");
 
