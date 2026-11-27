@@ -61,7 +61,8 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             // skip link. This avoids browser-specific document/body focus rules
             // while preserving real keyboard navigation through the link.
             var focusOrigin = await Page.EvaluateAsync<bool>(
-                """() => {
+                """
+                () => {
                     const skipLink = document.querySelector('a.skip-link');
                     if (!skipLink) return false;
 
@@ -73,7 +74,8 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                     origin.focus();
 
                     return document.activeElement === origin;
-                }""");
+                }
+                """);
 
             Assert.True(focusOrigin, "The browser could not establish the temporary keyboard focus origin.");
 
