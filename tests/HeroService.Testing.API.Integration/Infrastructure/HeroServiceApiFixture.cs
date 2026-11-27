@@ -102,7 +102,8 @@ public sealed class HeroServiceApiFixture : IAsyncLifetime
                     ["Database:Port"] = _database.GetMappedPublicPort(5432).ToString(),
                     ["Database:SslMode"] = "Disable",
                     ["Caching:ConnectionString"] = _cache.GetConnectionString(),
-                    ["Caching:KeyPrefix"] = "HeroServiceTests"
+                    ["Caching:KeyPrefix"] = "HeroServiceTests",
+                    ["Authentication:Development:Enabled"] = "true"
                 };
 
                 configuration.AddInMemoryCollection(values);
