@@ -57,6 +57,7 @@ public sealed class HeroServiceJwtAuthenticationTests : IDisposable
             .ConfigureServices(services =>
             {
                 services.AddLogging();
+                services.AddRouting();
                 services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = HeroServiceAuthenticationSchemes.Player;
