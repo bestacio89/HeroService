@@ -90,7 +90,7 @@ public sealed class AdminListComponentTests
 
     var cut = context.RenderComponent<MythologyTypesIndex>();
 
-    Assert.Contains("Mythology types could not be loaded", cut.Markup);
+    Assert.Contains("Records could not be loaded", cut.Markup);
     Assert.Contains("Try again", cut.Markup);
 
     cut.FindAll("button").First(button => button.TextContent.Contains("Try again", StringComparison.Ordinal))
@@ -98,8 +98,8 @@ public sealed class AdminListComponentTests
 
     cut.WaitForAssertion(() =>
     {
-      Assert.Contains("No mythology types yet", cut.Markup);
-      Assert.DoesNotContain("Mythology types could not be loaded", cut.Markup);
+      Assert.Contains("No records yet", cut.Markup);
+      Assert.DoesNotContain("Records could not be loaded", cut.Markup);
     });
 
     client.Verify(api => api.GetAllAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));

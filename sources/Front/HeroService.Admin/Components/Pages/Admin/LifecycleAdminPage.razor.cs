@@ -9,6 +9,8 @@ public sealed partial class LifecycleAdminPage<TDto> : ComponentBase
   [Parameter] public IReadOnlyList<TDto> Items { get; set; } = [];
   [Parameter] public bool IsLoading { get; set; }
   [Parameter] public string? ErrorMessage { get; set; }
+  [Parameter] public string SearchPlaceholder { get; set; } = "Search records";
+  [Parameter] public Func<TDto, string?>? SearchTextSelector { get; set; }
   [Parameter] public RenderFragment? HeaderContent { get; set; }
   [Parameter] public RenderFragment<TDto>? RowTemplate { get; set; }
   [Parameter] public EventCallback OnCreate { get; set; }
@@ -16,9 +18,21 @@ public sealed partial class LifecycleAdminPage<TDto> : ComponentBase
   [Parameter] public EventCallback<TDto> OnRetire { get; set; }
   [Parameter] public EventCallback OnRefresh { get; set; }
 
+  private string? _search;
   private bool _isActionInProgress;
 
   private bool CanRunActions => !IsLoading && !_isActionInProgress;
+
+  private IReadOnlyList<TDto> FilteredItems =>
+      SearchTextSelector is null || string.IsNullOrWhiteSpace(_search)
+          ? Items
+          : Items.Where(item =>
+              SearchTextSelector(item)?.Contains(_search, StringComparison.OrdinalIgnoreCase) == true)
+            .ToArray();
+
+  private void OnSearchChanged(string? value) => _search = value;
+
+  private void ClearSearch() => _search = null;
 
   private async Task Refresh()
   {
