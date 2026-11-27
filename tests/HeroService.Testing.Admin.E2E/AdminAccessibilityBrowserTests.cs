@@ -54,25 +54,42 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             });
 
             // FocusOnNavigate moves focus to the route heading after navigation.
-            // Wait for that lifecycle operation, then blur the heading. The browser
-            // returns focus to body naturally; do not add a tabindex to body because
-            // that changes the sequential-focus starting conditions being tested.
-            await Page.WaitForFunctionAsync(
-                "() => document.activeElement?.matches('#main-content h1, #main-content h2, #main-content h3, #main-content h4, #main-content h5, #main-content h6')");
-
+            // Blurring that heading does not reset Chromium's sequential-focus
+            // starting point. Temporarily make body a tabbable document-entry
+            // anchor so the next real Tab follows DOM order from the document start.
             var focusReset = await Page.EvaluateAsync<bool>(
-                "() => { document.activeElement?.blur(); return document.activeElement === document.body; }");
+                "() => { document.body.setAttribute('tabindex', '0'); document.body.focus(); return document.activeElement === document.body; }");
 
-            Assert.True(focusReset, "Blurring the route heading did not return focus to the document body.");
+            Assert.True(focusReset, "The browser could not focus the temporary document-entry anchor.");
 
             await Page.Keyboard.PressAsync("Tab");
 
             var focusState = await Page.EvaluateAsync<string>(
-                """() => { const active = document.activeElement; return 'active=' + active?.tagName + '#' + active?.id + '; firstFocusable=' + Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])')).slice(0, 8).map(element => element.tagName + '#' + element.id + '.' + element.className).join(','); }""");
+                """() => {
+                    const active = document.activeElement;
+                    const link = document.querySelector('a.skip-link');
+                    const style = link ? getComputedStyle(link) : null;
+                    const rect = link?.getBoundingClientRect();
+                    const firstFocusable = Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])'))
+                        .slice(0, 8)
+                        .map(element => element.tagName + '#' + element.id + '.' + element.className)
+                        .join(',');
+                    return 'active=' + active?.tagName + '#' + active?.id
+                        + '; firstFocusable=' + firstFocusable
+                        + '; skipLink={tabIndex:' + link?.tabIndex
+                        + ',display:' + style?.display
+                        + ',visibility:' + style?.visibility
+                        + ',position:' + style?.position
+                        + ',transform:' + style?.transform
+                        + ',rect:' + (rect ? [rect.x, rect.y, rect.width, rect.height].join(',') : 'missing')
+                        + '}';
+                }""");
 
             Assert.True(
                 await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
-                $"The first Tab from the document entry point did not focus the skip link ({focusState}).");
+                $"The first Tab from the document-entry anchor did not focus the skip link ({focusState}).");
+
+            await Page.EvaluateAsync("() => document.body.removeAttribute('tabindex')");
 
             await Page.Keyboard.PressAsync("Enter");
 
@@ -116,7 +133,7 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 Environment.NewLine,
                 violations.SelectMany(violation =>
                     violation.Nodes.Select(node =>
-                        $"{violation.Id}: html={node.Html}; help={violation.HelpUrl}")));
+                        $"{violation.Id}: html={node.Html}; help={node.HelpUrl}")));
 
             Assert.True(
                 !violations.Any(),
