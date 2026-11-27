@@ -65,25 +65,7 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             await Page.Keyboard.PressAsync("Tab");
 
             var focusState = await Page.EvaluateAsync<string>(
-                """() => {
-                    const active = document.activeElement;
-                    const link = document.querySelector('a.skip-link');
-                    const style = link ? getComputedStyle(link) : null;
-                    const rect = link?.getBoundingClientRect();
-                    const firstFocusable = Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])'))
-                        .slice(0, 8)
-                        .map(element => element.tagName + '#' + element.id + '.' + element.className)
-                        .join(',');
-                    return 'active=' + active?.tagName + '#' + active?.id
-                        + '; firstFocusable=' + firstFocusable
-                        + '; skipLink={tabIndex:' + link?.tabIndex
-                        + ',display:' + style?.display
-                        + ',visibility:' + style?.visibility
-                        + ',position:' + style?.position
-                        + ',transform:' + style?.transform
-                        + ',rect:' + (rect ? [rect.x, rect.y, rect.width, rect.height].join(',') : 'missing')
-                        + '}';
-                }""");
+                """() => { const active = document.activeElement; const link = document.querySelector('a.skip-link'); const style = link ? getComputedStyle(link) : null; const rect = link?.getBoundingClientRect(); const firstFocusable = Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])')).slice(0, 8).map(element => element.tagName + '#' + element.id + '.' + element.className).join(','); return 'active=' + active?.tagName + '#' + active?.id + '; firstFocusable=' + firstFocusable + '; skipLink={tabIndex:' + link?.tabIndex + ',display:' + style?.display + ',visibility:' + style?.visibility + ',position:' + style?.position + ',transform:' + style?.transform + ',rect:' + (rect ? [rect.x, rect.y, rect.width, rect.height].join(',') : 'missing') + '}'; }""");
 
             Assert.True(
                 await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
