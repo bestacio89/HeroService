@@ -119,7 +119,7 @@ public partial class SkillModifierList
     var result = await dialog.Result;
 
 
-    if (!result.Canceled)
+    if (result is { Canceled: false })
     {
       await LoadAsync();
     }
@@ -142,7 +142,7 @@ public partial class SkillModifierList
     var result = await dialog.Result;
 
 
-    if (!result.Canceled)
+    if (result is { Canceled: false })
     {
       await LoadAsync();
     }

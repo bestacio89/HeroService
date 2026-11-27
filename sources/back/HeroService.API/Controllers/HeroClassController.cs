@@ -2,11 +2,14 @@
 using HeroService.Contracts.Commands.Heroes;
 using HeroService.Contracts.Queries.Heroes.Classes;
 using HeroService.Contracts.DTOs.Heroes;
+using HeroService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.Api.Controllers;
 
 
+[Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueRead)]
 [ApiController]
 [Route("hero-classes")]
 public sealed class HeroClassController : ControllerBase
@@ -21,6 +24,7 @@ public sealed class HeroClassController : ControllerBase
   // =========================================================
   // CREATE HERO CLASS
   // =========================================================
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
   [HttpPost]
   public async Task<ActionResult<Guid>> Create(
       [FromBody] CreateHeroClassCommand command,

@@ -16,7 +16,7 @@ public class PersistenceArchitectureTests : BaseArchitectureTest
   {
     var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
     var matchingAssemblies = loadedAssemblies
-        .Where(assembly => Regex.IsMatch(assembly.FullName, assemblyPattern))
+        .Where(assembly => assembly.FullName is { } fullName && Regex.IsMatch(fullName, assemblyPattern))
         .ToArray();
 
     return matchingAssemblies;
@@ -37,7 +37,11 @@ public class PersistenceArchitectureTests : BaseArchitectureTest
     foreach (var type in persistenceTypes)
     {
       var dependencies = type.GetTypeInfo().ImplementedInterfaces;
-      Assert.True(dependencies.Any(dep => dep.FullName.EndsWith("Domain.dll") || dep.FullName.EndsWith("Contracts.dll")));
+      Assert.Contains(
+        dependencies,
+        dependency =>
+          dependency.FullName?.EndsWith("Domain.dll", StringComparison.Ordinal) == true
+          || dependency.FullName?.EndsWith("Contracts.dll", StringComparison.Ordinal) == true);
     }
   }
 

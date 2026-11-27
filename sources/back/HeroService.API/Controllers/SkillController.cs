@@ -3,10 +3,13 @@ using HeroService.Contracts.Commands.Skills;
 using HeroService.Contracts.Queries.Skills;
 using HeroService.Contracts.DTOs.Skills;
 using HeroService.Domain.Heroes.Skills;
+using HeroService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.Api.Controllers;
 
+[Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueRead)]
 [ApiController]
 [Route("skills")]
 public sealed class SkillController : ControllerBase
@@ -21,6 +24,7 @@ public sealed class SkillController : ControllerBase
   // =========================================================
   // CREATE SKILL
   // =========================================================
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
   [HttpPost]
   public async Task<ActionResult<Guid>> CreateSkill(
       [FromBody] CreateSkillCommand command,
@@ -33,6 +37,7 @@ public sealed class SkillController : ControllerBase
   // =========================================================
   // ADD EFFECT
   // =========================================================
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
   [HttpPost("{skillId:guid}/effects")]
   public async Task<ActionResult> AddEffect(
       Guid skillId,
@@ -52,6 +57,7 @@ public sealed class SkillController : ControllerBase
   // =========================================================
   // UPDATE LORE
   // =========================================================
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
   [HttpPut("{skillId:guid}/lore")]
   public async Task<ActionResult> UpdateLore(
     Guid skillId,

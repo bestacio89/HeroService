@@ -2,12 +2,15 @@
 using HeroService.Contracts.Commands.Heroes.Classifications.OriginCulture;
 using HeroService.Contracts.DTOs.Heroes;
 using HeroService.Contracts.Queries.Heroes.Classification.OriginCultures;
+using HeroService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.Api.Controllers;
 
 
 
+[Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueRead)]
 [ApiController]
 [Route("origin-cultures")]
 public sealed class OriginCultureController : ControllerBase
@@ -54,6 +57,8 @@ public sealed class OriginCultureController : ControllerBase
     return result is null ? NotFound() : Ok(result);
   }
 
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
+
   [HttpPost]
   public async Task<ActionResult<Guid>> Create(
       CreateOriginCultureCommand command,
@@ -62,6 +67,8 @@ public sealed class OriginCultureController : ControllerBase
     var result = await _dispatcher.SendAsync(command, cancellationToken);
     return Ok(result);
   }
+
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
 
   [HttpPut("{id:guid}")]
   public async Task<IActionResult> Rename(
@@ -72,6 +79,8 @@ public sealed class OriginCultureController : ControllerBase
     await _dispatcher.SendAsync(command with { Id = id }, cancellationToken);
     return NoContent();
   }
+
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
 
   [HttpDelete("{id:guid}")]
   public async Task<IActionResult> Retire(

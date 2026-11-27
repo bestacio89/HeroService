@@ -1,12 +1,15 @@
 ﻿using Franz.Common.Mediator.Dispatchers;
 using HeroService.Contracts.Commands.Heroes;
 using HeroService.Contracts.Queries.Heroes;
+using HeroService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.Api.Controllers;
 
 
 
+[Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueRead)]
 [ApiController]
 [Route("hero-progression")]
 public sealed class HeroProgressionController : ControllerBase
@@ -27,6 +30,8 @@ public sealed class HeroProgressionController : ControllerBase
 
     return result == null ? NotFound() : Ok(result);
   }
+
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
 
   [HttpPost]
   public async Task<IActionResult> Define([FromBody] DefineHeroProgressionCommand command, CancellationToken ct)

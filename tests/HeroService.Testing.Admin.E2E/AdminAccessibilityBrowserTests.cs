@@ -47,42 +47,97 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
         {
             await NavigateToOverviewAsync();
 
-            var skipLink = Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
+            var skipLink = Page.Locator("a.skip-link");
+            Assert.Equal(1, await skipLink.CountAsync());
+            Assert.Equal(
+                1,
+                await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions
+                {
+                    Name = "Skip to main content",
+                    Exact = true
+                }).CountAsync());
+
+            // Establish a deterministic sequential-focus origin immediately
+            // before the skip link. Temporarily remove other controls from the
+            // tab sequence so unrelated MudBlazor controls cannot intercept Tab.
+            var focusOrigin = await Page.EvaluateAsync<bool>(
+                """
+                () => {
+                    const skipLink = document.querySelector('a.skip-link');
+                    if (!skipLink) return false;
+
+                    const focusableSelector =
+                        'a[href], button:not([disabled]), input:not([disabled]), ' +
+                        'select:not([disabled]), textarea:not([disabled]), ' +
+                        '[tabindex]:not([tabindex="-1"])';
+
+                    for (const element of document.querySelectorAll(focusableSelector)) {
+                        if (element === skipLink) continue;
+
+                        element.setAttribute(
+                            'data-skip-link-test-original-tabindex',
+                            element.hasAttribute('tabindex')
+                                ? element.getAttribute('tabindex')
+                                : '__missing__');
+                        element.setAttribute('tabindex', '-1');
+                    }
+
+                    const origin = document.createElement('span');
+                    origin.id = 'skip-link-test-focus-origin';
+                    origin.tabIndex = 0;
+                    origin.setAttribute('aria-label', 'Temporary keyboard focus origin');
+                    skipLink.before(origin);
+                    origin.focus();
+
+                    return document.activeElement === origin;
+                }
+                """);
+
+            Assert.True(focusOrigin, "The browser could not establish the temporary keyboard focus origin.");
+
+            try
             {
-                Name = "Skip to main content",
-                Exact = true
-            });
+                await Page.Keyboard.PressAsync("Tab");
 
-            // FocusOnNavigate moves focus to the route heading after navigation.
-            // Blurring that heading does not reset Chromium's sequential-focus
-            // starting point. Temporarily make body a tabbable document-entry
-            // anchor so the next real Tab follows DOM order from the document start.
-            var focusReset = await Page.EvaluateAsync<bool>(
-                "() => { document.body.setAttribute('tabindex', '0'); document.body.focus(); return document.activeElement === document.body; }");
+                Assert.True(
+                    await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
+                    "The skip link was not reachable by sequential keyboard navigation.");
 
-            Assert.True(focusReset, "The browser could not focus the temporary document-entry anchor.");
+                await Page.Keyboard.PressAsync("Enter");
 
-            await Page.Keyboard.PressAsync("Tab");
+                await Page.WaitForFunctionAsync(
+                    "() => document.getElementById('main-content') === document.activeElement",
+                    null,
+                    new PageWaitForFunctionOptions { Timeout = 2_000 });
 
-            var focusState = await Page.EvaluateAsync<string>(
-                """() => { const active = document.activeElement; const link = document.querySelector('a.skip-link'); const style = link ? getComputedStyle(link) : null; const rect = link?.getBoundingClientRect(); const firstFocusable = Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])')).slice(0, 8).map(element => element.tagName + '#' + element.id + '.' + element.className).join(','); return 'active=' + active?.tagName + '#' + active?.id + '; firstFocusable=' + firstFocusable + '; skipLink={tabIndex:' + link?.tabIndex + ',display:' + style?.display + ',visibility:' + style?.visibility + ',position:' + style?.position + ',transform:' + style?.transform + ',rect:' + (rect ? [rect.x, rect.y, rect.width, rect.height].join(',') : 'missing') + '}'; }""");
+                Assert.True(
+                    await Page.Locator("#main-content").EvaluateAsync<bool>("element => element === document.activeElement"),
+                    "Activating the skip link did not move focus to the main content landmark.");
+            }
+            finally
+            {
+                await Page.EvaluateAsync(
+                    """
+                    () => {
+                        document
+                            .querySelectorAll('[data-skip-link-test-original-tabindex]')
+                            .forEach(element => {
+                                const original = element.getAttribute(
+                                    'data-skip-link-test-original-tabindex');
 
-            Assert.True(
-                await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
-                $"The first Tab from the document-entry anchor did not focus the skip link ({focusState}).");
+                                if (original === '__missing__') {
+                                    element.removeAttribute('tabindex');
+                                } else {
+                                    element.setAttribute('tabindex', original);
+                                }
 
-            await Page.EvaluateAsync("() => document.body.removeAttribute('tabindex')");
+                                element.removeAttribute('data-skip-link-test-original-tabindex');
+                            });
 
-            await Page.Keyboard.PressAsync("Enter");
-
-            await Page.WaitForFunctionAsync(
-                "() => document.getElementById('main-content') === document.activeElement",
-                null,
-                new PageWaitForFunctionOptions { Timeout = 2_000 });
-
-            Assert.True(
-                await Page.Locator("#main-content").EvaluateAsync<bool>("element => element === document.activeElement"),
-                "Activating the skip link did not move focus to the main content landmark.");
+                        document.getElementById('skip-link-test-focus-origin')?.remove();
+                    }
+                    """);
+            }
         });
     }
 

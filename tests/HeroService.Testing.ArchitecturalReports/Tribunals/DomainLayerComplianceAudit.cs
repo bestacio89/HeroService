@@ -34,14 +34,21 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
         // RULE 1 — Entity inheritance
         ExecuteRule("Entities", "All Domain Entities must inherit Entity or Entity<T>.", () =>
         {
+          if (DomainAssembly is not { } domainAssembly)
+          {
+            sb.AppendLine("Domain assembly not found — skipping entity inheritance validation.");
+            return;
+          }
+
           var domainEntities = DomainLayer
               .GetObjects(BaseArchitecture)
               .Where(t =>
+                  t.FullName is { } fullName &&
                   !t.ResidesInNamespace($"{prefix}.Domain.ValueObjects") &&
-                  !t.FullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase) &&
-                  !t.FullName.Contains("Persistence", StringComparison.OrdinalIgnoreCase) &&
-                  !t.FullName.Contains("Mongo", StringComparison.OrdinalIgnoreCase) &&
-                  !t.FullName.Contains("Snapshot", StringComparison.OrdinalIgnoreCase) &&
+                  !fullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase) &&
+                  !fullName.Contains("Persistence", StringComparison.OrdinalIgnoreCase) &&
+                  !fullName.Contains("Mongo", StringComparison.OrdinalIgnoreCase) &&
+                  !fullName.Contains("Snapshot", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.EndsWith("Kit", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.EndsWith("Affiliation", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.Contains("Repository", StringComparison.OrdinalIgnoreCase) &&
@@ -51,7 +58,7 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
                   !t.Name.Contains("Service", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.Contains("Factory", StringComparison.OrdinalIgnoreCase) &&
                   !t.Name.Contains("State", StringComparison.OrdinalIgnoreCase) &&
-                  t.Assembly.NameEquals(DomainAssembly.GetName().Name))
+                  t.Assembly.NameEquals(domainAssembly.GetName().Name))
               .ToList();
 
           if (!domainEntities.Any())

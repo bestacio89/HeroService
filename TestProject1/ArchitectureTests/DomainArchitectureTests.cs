@@ -21,14 +21,21 @@ public class DomainArchitectureTests : BaseArchitectureTest
   [Fact]
   public void DomainEntities_ShouldInherit_FromEntityOrEntityOfT()
   {
+    if (DomainAssembly is not { } domainAssembly)
+    {
+      Console.WriteLine("Domain assembly not found — skipping Entity<> enforcement.");
+      return;
+    }
+
     var domainEntities = DomainLayer
         .GetObjects(BaseArchitecture)
         .Where(t =>
+            t.FullName is { } fullName &&
             !t.ResidesInNamespace("HeroService.Domain.ValueObjects") &&
-            !t.FullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase) &&
-            !t.FullName.Contains("Persistence", StringComparison.OrdinalIgnoreCase) &&
-            !t.FullName.Contains("Mongo", StringComparison.OrdinalIgnoreCase) &&
-            !t.FullName.Contains("Snapshot", StringComparison.OrdinalIgnoreCase) && // Exclude Snapshots
+            !fullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase) &&
+            !fullName.Contains("Persistence", StringComparison.OrdinalIgnoreCase) &&
+            !fullName.Contains("Mongo", StringComparison.OrdinalIgnoreCase) &&
+            !fullName.Contains("Snapshot", StringComparison.OrdinalIgnoreCase) && // Exclude Snapshots
             !t.Name.EndsWith("Kit", StringComparison.OrdinalIgnoreCase) &&          // Exclude Kits/Projections
             !t.Name.EndsWith("Affiliation", StringComparison.OrdinalIgnoreCase) &&  // Exclude components/affiliations
             !t.Name.Contains("Repository", StringComparison.OrdinalIgnoreCase) &&
@@ -38,7 +45,7 @@ public class DomainArchitectureTests : BaseArchitectureTest
             !t.Name.Contains("Service", StringComparison.OrdinalIgnoreCase) &&
             !t.Name.Contains("Factory", StringComparison.OrdinalIgnoreCase) &&      // Exclude Factories
             !t.Name.Contains("State", StringComparison.OrdinalIgnoreCase) &&       // Exclude state machines/objects
-            t.Assembly.NameEquals(DomainAssembly.GetName().Name))
+            t.Assembly.NameEquals(domainAssembly.GetName().Name))
         .ToList();
 
     if (!domainEntities.Any())

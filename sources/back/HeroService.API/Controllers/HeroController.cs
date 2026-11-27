@@ -2,12 +2,15 @@
 using HeroService.Contracts.Commands.Heroes;
 using HeroService.Contracts.DTOs.Requests;
 using HeroService.Contracts.Queries.Heroes;
+using HeroService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.API.Controllers;
 
 
 
+[Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueRead)]
 [ApiController]
 [Route("heroes")]
 public sealed class HeroController : ControllerBase
@@ -52,6 +55,7 @@ public sealed class HeroController : ControllerBase
   // =========================================================
   // POST: api/v1/heroes
   // =========================================================
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
   [HttpPost]
   public async Task<IActionResult> Create(
       [FromBody] HeroCreateRequestDto request,

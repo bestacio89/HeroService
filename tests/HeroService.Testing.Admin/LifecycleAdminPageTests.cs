@@ -23,7 +23,7 @@ public sealed class LifecycleAdminPageTests
       .Add(component => component.Title, "Origin Cultures")
       .Add(component => component.Items, items)
       .Add(component => component.SearchPlaceholder, "Search origin cultures")
-      .Add(component => component.SearchTextSelector, item => item.Name)
+      .Add(component => component.SearchTextSelector, item => item.Name ?? string.Empty)
       .Add<RenderFragment<OriginCultureDto>>(component => component.RowTemplate,
         item => builder => builder.AddContent(0, item.Name)));
 
@@ -55,7 +55,7 @@ public sealed class LifecycleAdminPageTests
       .Add(component => component.Title, "Origin Cultures")
       .Add(component => component.Items, items)
       .Add(component => component.SearchPlaceholder, "Search origin cultures")
-      .Add(component => component.SearchTextSelector, item => item.Name)
+      .Add(component => component.SearchTextSelector, item => item.Name ?? string.Empty)
       .Add<RenderFragment<OriginCultureDto>>(component => component.RowTemplate,
         item => builder => builder.AddContent(0, item.Name)));
 

@@ -1,4 +1,6 @@
 using Franz.Common.Mediator.Dispatchers;
+using HeroService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using HeroService.Contracts.DTOs.Snapshots;
 using HeroService.Contracts.Queries.Snapshots;
@@ -7,6 +9,7 @@ namespace HeroService.Api.Controllers;
 
 
 
+[Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueRead)]
 [ApiController]
 [Route("snapshots/heroes")]
 public sealed class HeroSnapshotController : ControllerBase
