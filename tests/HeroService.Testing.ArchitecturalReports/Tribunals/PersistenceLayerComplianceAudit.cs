@@ -19,7 +19,8 @@ namespace HeroService.Testing.ArchitecturalReports.Layers
     {
       var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
       return loadedAssemblies
-          .Where(assembly => Regex.IsMatch(assembly.FullName, assemblyPattern, RegexOptions.IgnoreCase))
+          .Where(assembly => assembly.FullName is { } fullName &&
+              Regex.IsMatch(fullName, assemblyPattern, RegexOptions.IgnoreCase))
           .ToArray();
     }
 

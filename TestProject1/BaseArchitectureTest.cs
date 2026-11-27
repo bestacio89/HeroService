@@ -41,22 +41,25 @@ namespace HeroService.Testing
       // Gather assemblies already loaded into the AppDomain that match our suffixes
       var assembliesToLoad = AppDomain.CurrentDomain
         .GetAssemblies()
-        .Where(a => Regex.IsMatch(
-            a.GetName().Name,
-            @"\.(Common(\.Mediator)?|Mediator|Domain|Application|API|Persistence|Contracts)$",
-            RegexOptions.IgnoreCase))
+        .Where(a => a.GetName().Name is { } assemblyName &&
+            Regex.IsMatch(
+                assemblyName,
+                @"\.(Common(\.Mediator)?|Mediator|Domain|Application|API|Persistence|Contracts)$",
+                RegexOptions.IgnoreCase))
         .Distinct()
         .ToArray();
 
       // Detect solution prefix (best-effort cosmetic)
       var solutionPrefix = assembliesToLoad
-        .Select(a => a.GetName().Name.Split('.')[0])
+        .Select(a => a.GetName().Name)
+        .OfType<string>()
+        .Select(name => name.Split('.')[0])
         .GroupBy(x => x)
         .OrderByDescending(g => g.Count())
         .FirstOrDefault()?.Key ?? "Unknown";
 
       Console.WriteLine($"??  Detected Solution Prefix: {solutionPrefix}");
-      foreach (var asm in assembliesToLoad) Console.WriteLine($"   • {asm.GetName().Name}");
+      foreach (var asm in assembliesToLoad) Console.WriteLine($"   â€¢ {asm.GetName().Name}");
 
       // Build architecture graph
       BaseArchitecture = new ArchLoader()
@@ -66,14 +69,14 @@ namespace HeroService.Testing
       Console.WriteLine("? Architecture graph built successfully.\n");
 
       // Late-binding by suffix (fallback)
-      DomainAssembly = TryResolveAssembly(".Domain") ?? assembliesToLoad.FirstOrDefault(a => a.GetName().Name.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase));
-      ApplicationAssembly = TryResolveAssembly(".Application") ?? assembliesToLoad.FirstOrDefault(a => a.GetName().Name.EndsWith(".Application", StringComparison.OrdinalIgnoreCase));
-      PersistenceAssembly = TryResolveAssembly(".Persistence") ?? assembliesToLoad.FirstOrDefault(a => a.GetName().Name.EndsWith(".Persistence", StringComparison.OrdinalIgnoreCase));
-      ApiAssembly = TryResolveAssembly(".API") ?? assembliesToLoad.FirstOrDefault(a => a.GetName().Name.EndsWith(".API", StringComparison.OrdinalIgnoreCase));
-      ContractsAssembly = TryResolveAssembly(".Contracts") ?? assembliesToLoad.FirstOrDefault(a => a.GetName().Name.EndsWith(".Contracts", StringComparison.OrdinalIgnoreCase));
+      DomainAssembly = TryResolveAssembly(".Domain") ?? assembliesToLoad.FirstOrDefault(a => HasAssemblySuffix(a, ".Domain"));
+      ApplicationAssembly = TryResolveAssembly(".Application") ?? assembliesToLoad.FirstOrDefault(a => HasAssemblySuffix(a, ".Application"));
+      PersistenceAssembly = TryResolveAssembly(".Persistence") ?? assembliesToLoad.FirstOrDefault(a => HasAssemblySuffix(a, ".Persistence"));
+      ApiAssembly = TryResolveAssembly(".API") ?? assembliesToLoad.FirstOrDefault(a => HasAssemblySuffix(a, ".API"));
+      ContractsAssembly = TryResolveAssembly(".Contracts") ?? assembliesToLoad.FirstOrDefault(a => HasAssemblySuffix(a, ".Contracts"));
       // (Common assemblies are not strictly needed as fields, we just need them loaded into BaseArchitecture)
 
-      // ?? Diagnostics — verify key interfaces are visible to the model
+      // ?? Diagnostics â€” verify key interfaces are visible to the model
       bool scopedExists = BaseArchitecture.Interfaces.Any(i => i.FullName == typeof(Franz.Common.DependencyInjection.IScopedDependency).FullName);
       bool singletonExists = BaseArchitecture.Interfaces.Any(i => i.FullName == typeof(Franz.Common.DependencyInjection.ISingletonDependency).FullName);
       bool icommandExists = BaseArchitecture.Interfaces.Any(i => i.FullName == typeof(ICommand).FullName);
@@ -151,14 +154,14 @@ namespace HeroService.Testing
     protected static void ReportArchitectureContext()
     {
       Console.WriteLine("-----------------------------------------------");
-      Console.WriteLine($" ??  HeroService GOVERNANCE — {SolutionPrefix}");
+      Console.WriteLine($" ??  HeroService GOVERNANCE â€” {SolutionPrefix}");
       Console.WriteLine("-----------------------------------------------");
       Console.WriteLine($"?? Assemblies:");
-      Console.WriteLine($"   • Domain:       {DomainAssembly?.GetName().Name ?? "N/A"}");
-      Console.WriteLine($"   • Application:  {ApplicationAssembly?.GetName().Name ?? "N/A"}");
-      Console.WriteLine($"   • Persistence:  {PersistenceAssembly?.GetName().Name ?? "N/A"}");
-      Console.WriteLine($"   • API:          {ApiAssembly?.GetName().Name ?? "N/A"}");
-      Console.WriteLine($"   • Contracts:    {ContractsAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"   â€¢ Domain:       {DomainAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"   â€¢ Application:  {ApplicationAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"   â€¢ Persistence:  {PersistenceAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"   â€¢ API:          {ApiAssembly?.GetName().Name ?? "N/A"}");
+      Console.WriteLine($"   â€¢ Contracts:    {ContractsAssembly?.GetName().Name ?? "N/A"}");
       Console.WriteLine($"?? Domain Events:  {DomainEventTypes.Count}");
       Console.WriteLine($"?? Handlers:       {ApplicationEventHandlerTypes.Count}");
       Console.WriteLine("-----------------------------------------------\n");
@@ -169,7 +172,7 @@ namespace HeroService.Testing
       var count = layer.GetObjects(BaseArchitecture).Count();
       if (count == 0)
       {
-        Console.WriteLine($"?? {name} — no types found (virgin template). Skipping.");
+        Console.WriteLine($"?? {name} â€” no types found (virgin template). Skipping.");
         return true;
       }
       return false;
@@ -179,7 +182,7 @@ namespace HeroService.Testing
     {
       if (asm == null)
       {
-        Console.WriteLine($"?? {name} — assembly not found. Skipping.");
+        Console.WriteLine($"?? {name} â€” assembly not found. Skipping.");
         return false;
       }
       return true;
@@ -209,12 +212,17 @@ namespace HeroService.Testing
     // ---------------------------------------------
     // Private helpers
     // ---------------------------------------------
+    private static bool HasAssemblySuffix(Assembly assembly, string suffix)
+    {
+      return assembly.GetName().Name?.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) == true;
+    }
+
     private static Assembly? TryResolveAssembly(string suffix)
     {
       // Try to find an already loaded assembly by suffix
       var asm = AppDomain.CurrentDomain
         .GetAssemblies()
-        .FirstOrDefault(a => a.GetName().Name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase));
+        .FirstOrDefault(a => HasAssemblySuffix(a, suffix));
 
       if (asm != null) return asm;
 
@@ -232,7 +240,7 @@ namespace HeroService.Testing
         }
         catch (Exception ex)
         {
-          Console.WriteLine($"?? Could not load {suffix}.dll — {ex.Message}");
+          Console.WriteLine($"?? Could not load {suffix}.dll â€” {ex.Message}");
         }
       }
       return asm;
@@ -263,7 +271,7 @@ namespace HeroService.Testing
         }
         catch (Exception ex)
         {
-          Console.WriteLine($"?? Skipped {Path.GetFileName(file)} — {ex.Message}");
+          Console.WriteLine($"?? Skipped {Path.GetFileName(file)} â€” {ex.Message}");
         }
       }
     }
@@ -272,22 +280,28 @@ namespace HeroService.Testing
     {
       if (t is not ArchUnitNET.Domain.Class c) return false;
 
-      var isConcrete = (bool)!c.IsAbstract && !c.IsGeneric;
+      var isConcrete = c.IsAbstract is false && !c.IsGeneric;
+
+      var domainEventInterface = BaseArchitecture.Interfaces
+        .FirstOrDefault(i => i.FullName == typeof(IDomainEvent).FullName);
+      var integrationEventInterface = BaseArchitecture.Interfaces
+        .FirstOrDefault(i => i.FullName == typeof(IIntegrationEvent).FullName);
 
       var implementsDomainEvent =
-        t.ImplementsInterface(BaseArchitecture.Interfaces.FirstOrDefault(i => i.FullName == typeof(IDomainEvent).FullName));
+        domainEventInterface is not null && t.ImplementsInterface(domainEventInterface);
 
       var implementsIntegrationEvent =
-        t.ImplementsInterface(BaseArchitecture.Interfaces.FirstOrDefault(i => i.FullName == typeof(IIntegrationEvent).FullName));
+        integrationEventInterface is not null && t.ImplementsInterface(integrationEventInterface);
 
       var isInfraNoise =
-           t.FullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase)
-        || t.FullName.Contains("Persistence", StringComparison.OrdinalIgnoreCase)
-        || t.FullName.Contains("Repository", StringComparison.OrdinalIgnoreCase)
-        || t.FullName.Contains("Handler", StringComparison.OrdinalIgnoreCase)
-        || t.FullName.Contains("Service", StringComparison.OrdinalIgnoreCase)
-        || t.FullName.Contains("Validator", StringComparison.OrdinalIgnoreCase)
-        || t.FullName.Contains("Mongo", StringComparison.OrdinalIgnoreCase);
+        t.FullName is not { } fullName
+        || fullName.Contains("Infrastructure", StringComparison.OrdinalIgnoreCase)
+        || fullName.Contains("Persistence", StringComparison.OrdinalIgnoreCase)
+        || fullName.Contains("Repository", StringComparison.OrdinalIgnoreCase)
+        || fullName.Contains("Handler", StringComparison.OrdinalIgnoreCase)
+        || fullName.Contains("Service", StringComparison.OrdinalIgnoreCase)
+        || fullName.Contains("Validator", StringComparison.OrdinalIgnoreCase)
+        || fullName.Contains("Mongo", StringComparison.OrdinalIgnoreCase);
 
       return isConcrete && !isInfraNoise && (implementsDomainEvent || implementsIntegrationEvent);
     }
