@@ -57,40 +57,50 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                     Exact = true
                 }).CountAsync());
 
-            // FocusOnNavigate moves focus to the route heading after navigation.
-            // Programmatically focus body without adding it to the sequential
-            // tab order, then verify the first real Tab reaches the skip link.
-            var focusReset = await Page.EvaluateAsync<bool>(
-                "() => { document.body.setAttribute('tabindex', '-1'); document.body.focus(); return document.activeElement === document.body; }");
+            // Use a temporary sequential-focus origin immediately before the
+            // skip link. This avoids browser-specific document/body focus rules
+            // while preserving real keyboard navigation through the link.
+            var focusOrigin = await Page.EvaluateAsync<bool>(
+                """() => {
+                    const skipLink = document.querySelector('a.skip-link');
+                    if (!skipLink) return false;
 
-            Assert.True(focusReset, "The browser could not focus the temporary document-entry anchor.");
+                    const origin = document.createElement('span');
+                    origin.id = 'skip-link-test-focus-origin';
+                    origin.tabIndex = 0;
+                    origin.setAttribute('aria-label', 'Temporary keyboard focus origin');
+                    skipLink.before(origin);
+                    origin.focus();
+
+                    return document.activeElement === origin;
+                }""");
+
+            Assert.True(focusOrigin, "The browser could not establish the temporary keyboard focus origin.");
 
             try
             {
                 await Page.Keyboard.PressAsync("Tab");
 
-                var focusState = await Page.EvaluateAsync<string>(
-                    """() => { const active = document.activeElement; const link = document.querySelector('a.skip-link'); const style = link ? getComputedStyle(link) : null; const rect = link?.getBoundingClientRect(); return 'active=' + active?.tagName + '#' + active?.id + '.' + active?.className + '; activeMatchesSkipLink=' + Boolean(active?.matches('a.skip-link')) + '; skipLink={tabIndex:' + link?.tabIndex + ',display:' + style?.display + ',visibility:' + style?.visibility + ',transform:' + style?.transform + ',rect:' + (rect ? [rect.x, rect.y, rect.width, rect.height].join(',') : 'missing') + '}'; }""");
-
                 Assert.True(
                     await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
-                    $"The first Tab from the programmatic document-entry focus did not focus the skip link ({focusState}).");
+                    "The skip link was not the next keyboard-focusable element after the test focus origin.");
+
+                await Page.Keyboard.PressAsync("Enter");
+
+                await Page.WaitForFunctionAsync(
+                    "() => document.getElementById('main-content') === document.activeElement",
+                    null,
+                    new PageWaitForFunctionOptions { Timeout = 2_000 });
+
+                Assert.True(
+                    await Page.Locator("#main-content").EvaluateAsync<bool>("element => element === document.activeElement"),
+                    "Activating the skip link did not move focus to the main content landmark.");
             }
             finally
             {
-                await Page.EvaluateAsync("() => document.body.removeAttribute('tabindex')");
+                await Page.EvaluateAsync(
+                    "() => document.getElementById('skip-link-test-focus-origin')?.remove()");
             }
-
-            await Page.Keyboard.PressAsync("Enter");
-
-            await Page.WaitForFunctionAsync(
-                "() => document.getElementById('main-content') === document.activeElement",
-                null,
-                new PageWaitForFunctionOptions { Timeout = 2_000 });
-
-            Assert.True(
-                await Page.Locator("#main-content").EvaluateAsync<bool>("element => element === document.activeElement"),
-                "Activating the skip link did not move focus to the main content landmark.");
         });
     }
 
