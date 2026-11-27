@@ -1,9 +1,10 @@
+using Franz.Common.Logging.Extensions;
 using HeroService.Admin.Components;
 using HeroService.Admin.Logging;
+using HeroService.Admin.Operational;
+using HeroService.Admin.UI;
 using HeroService.Client.Http.DependencyInjection;
 using MudBlazor.Services;
-using HeroService.Admin.UI;
-using Franz.Common.Logging.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,25 +22,46 @@ builder.Services
 // =========================================
 builder.Services.AddMudServices(config =>
 {
-  config.SnackbarConfiguration.PositionClass = "mud-snackbar-location-bottom-right";
+    config.SnackbarConfiguration.PositionClass = "mud-snackbar-location-bottom-right";
 });
 builder.Services.AddSingleton(GameTheme.Create());
+
 // =========================================
 // HERO SERVICE HTTP CLIENTS
 // =========================================
+var heroServiceBaseUrl = builder.Configuration["HeroService:BaseUrl"]
+                         ?? "https://localhost:5001";
+
 builder.Services.AddHeroServiceClients(
-    baseUrl: builder.Configuration["HeroService:BaseUrl"]
-              ?? "https://localhost:5001",
+    baseUrl: heroServiceBaseUrl,
     configureHttpClient: client =>
     {
-      client.Timeout = TimeSpan.FromSeconds(30);
-      client.DefaultRequestHeaders.Add("X-Client", "HeroService.Admin");
+        client.Timeout = TimeSpan.FromSeconds(30);
+        client.DefaultRequestHeaders.Add("X-Client", "HeroService.Admin");
     });
 
 // =========================================
-// UI SERVICES (future-ready)
+// OPERATIONAL VISIBILITY HTTP CLIENTS
 // =========================================
+builder.Services.AddHttpClient(OperationalStatusClient.ApiClientName, client =>
+{
+    client.BaseAddress = new Uri(heroServiceBaseUrl, UriKind.Absolute);
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
 
+builder.Services.AddHttpClient(OperationalStatusClient.ConsumerClientName, client =>
+{
+    var consumerBaseUrl = builder.Configuration["OperationalVisibility:ConsumerBaseUrl"];
+
+    if (Uri.TryCreate(consumerBaseUrl, UriKind.Absolute, out var consumerUri))
+    {
+        client.BaseAddress = consumerUri;
+    }
+
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+
+builder.Services.AddScoped<IOperationalStatusClient, OperationalStatusClient>();
 
 var app = builder.Build();
 
@@ -48,19 +70,15 @@ var app = builder.Build();
 // =========================================
 if (!app.Environment.IsDevelopment())
 {
-  app.UseExceptionHandler("/Error", createScopeForErrors: true);
-  app.UseHsts();
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHsts();
 }
 
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
-
 app.UseAntiforgery();
 
-// static assets (Blazor Web App pattern)
 app.MapStaticAssets();
-
-// Razor app entry
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
