@@ -64,7 +64,7 @@ X-HeroService-Development-Subject: local-operator-1
 X-HeroService-Development-Roles: HeroCatalogue.ReleaseManagement
 ```
 
-Omit the identity header to test unauthenticated requests. Use `player` to test player restrictions and `operator` to test administrative access. Never enable this setting in a publicly reachable environment. The host environment itself is the explicit opt-in; do not set `ASPNETCORE_ENVIRONMENT=Development` in a publicly reachable deployment.
+Omit the identity header to test unauthenticated requests. Use `player` to test player restrictions and `operator` to test administrative access. Never enable this setting in a publicly reachable environment. The host environment itself is the explicit opt-in; do not set `ASPNETCORE_ENVIRONMENT=Development` in a publicly reachable deployment. The repository's `appsettings.Development.json` enables this local-only mechanism for developer convenience; deployments must use a non-Development environment and must not publish the Development configuration file.
 
 ## UserService integration boundary
 
