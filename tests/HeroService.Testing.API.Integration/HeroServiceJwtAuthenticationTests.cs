@@ -164,6 +164,11 @@ public sealed class HeroServiceJwtAuthenticationTests : IDisposable
         RSA signingKey,
         DateTime? expires = null)
     {
+        var tokenExpires = expires ?? DateTime.UtcNow.AddMinutes(5);
+        var notBefore = tokenExpires < DateTime.UtcNow
+            ? tokenExpires.AddMinutes(-10)
+            : DateTime.UtcNow.AddMinutes(-1);
+
         var securityKey = new RsaSecurityKey(signingKey)
         {
             KeyId = "hero-service-authentication-test-key"
@@ -173,9 +178,9 @@ public sealed class HeroServiceJwtAuthenticationTests : IDisposable
             issuer,
             audience,
             [new Claim("sub", "test-subject")],
-            notBefore: DateTime.UtcNow.AddMinutes(-1),
-            expires: expires ?? DateTime.UtcNow.AddMinutes(5),
-            signingCredentials: credentials);
+            notBefore,
+            tokenExpires,
+            credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
