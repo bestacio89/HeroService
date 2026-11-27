@@ -1,4 +1,5 @@
-﻿namespace HeroService.Domain.Heroes.Core;
+namespace HeroService.Domain.Heroes.Core;
+
 /// <summary>
 /// Represents the narrative and mythological lore associated with a Hero.
 ///
@@ -54,60 +55,60 @@
 /// </summary>
 public sealed class HeroLore : Entity<Guid>
 {
-  public Guid HeroId { get; private set; }
+    public Guid HeroId { get; private set; }
 
-  public string Title { get; private set; } = string.Empty;
-  public string Description { get; private set; } = string.Empty;
-  public string BackgroundStory { get; private set; } = string.Empty;
+    public string Title { get; private set; } = string.Empty;
+    public string Description { get; private set; } = string.Empty;
+    public string BackgroundStory { get; private set; } = string.Empty;
 
-  protected HeroLore(Guid id) : base(id) { }
+    private HeroLore(Guid id) : base(id) { }
 
-  public void Define(
-      Guid heroId,
-      string title,
-      string description,
-      string background,
-      string createdBy)
-  {
-    if (heroId == Guid.Empty)
-      throw new ArgumentException("HeroId is required.");
+    public void Define(
+        Guid heroId,
+        string title,
+        string description,
+        string background,
+        string createdBy)
+    {
+        if (heroId == Guid.Empty)
+            throw new ArgumentException("HeroId is required.");
 
-    if (string.IsNullOrWhiteSpace(title))
-      throw new ArgumentException("Title is required.");
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Title is required.");
 
-    if (string.IsNullOrWhiteSpace(description))
-      throw new ArgumentException("Description is required.");
+        if (string.IsNullOrWhiteSpace(description))
+            throw new ArgumentException("Description is required.");
 
-    if (string.IsNullOrWhiteSpace(background))
-      throw new ArgumentException("Background story is required.");
+        if (string.IsNullOrWhiteSpace(background))
+            throw new ArgumentException("Background story is required.");
 
-    HeroId = heroId;
-    Title = title;
-    Description = description;
-    BackgroundStory = background;
+        HeroId = heroId;
+        Title = title;
+        Description = description;
+        BackgroundStory = background;
 
-    MarkCreated(createdBy);
-  }
+        MarkCreated(createdBy);
+    }
 
-  public void Revise(
-    string title,
-    string description,
-    string backgroundStory,
-    string updatedBy)
-  {
-    if (string.IsNullOrWhiteSpace(title))
-      throw new ArgumentException("Title is required.");
+    public void Revise(
+        string title,
+        string description,
+        string backgroundStory,
+        string updatedBy)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Title is required.");
 
-    if (string.IsNullOrWhiteSpace(description))
-      throw new ArgumentException("Description is required.");
+        if (string.IsNullOrWhiteSpace(description))
+            throw new ArgumentException("Description is required.");
 
-    if (string.IsNullOrWhiteSpace(backgroundStory))
-      throw new ArgumentException("Background story is required.");
+        if (string.IsNullOrWhiteSpace(backgroundStory))
+            throw new ArgumentException("Background story is required.");
 
-    Title = title;
-    Description = description;
-    BackgroundStory = backgroundStory;
+        Title = title;
+        Description = description;
+        BackgroundStory = backgroundStory;
 
-    MarkUpdated(updatedBy);
-  }
+        MarkUpdated(updatedBy);
+    }
 }
