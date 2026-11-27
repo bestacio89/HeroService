@@ -53,21 +53,22 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 Exact = true
             });
 
-            // Wait for Blazor's asynchronous FocusOnNavigate operation to finish
-            // before resetting focus. Otherwise it can race this keyboard test.
+            // FocusOnNavigate moves focus to the route heading after navigation.
+            // Wait for that lifecycle operation, then blur the heading. The browser
+            // returns focus to body naturally; do not add a tabindex to body because
+            // that changes the sequential-focus starting conditions being tested.
             await Page.WaitForFunctionAsync(
                 "() => document.activeElement?.matches('#main-content h1, #main-content h2, #main-content h3, #main-content h4, #main-content h5, #main-content h6')");
 
-            // Start sequential keyboard navigation at the document entry point.
             var focusReset = await Page.EvaluateAsync<bool>(
-                "() => { document.activeElement?.blur(); document.body.setAttribute('tabindex', '-1'); document.body.focus(); return document.activeElement === document.body; }");
+                "() => { document.activeElement?.blur(); return document.activeElement === document.body; }");
 
-            Assert.True(focusReset, "The browser did not move focus to the document entry point.");
+            Assert.True(focusReset, "Blurring the route heading did not return focus to the document body.");
 
             await Page.Keyboard.PressAsync("Tab");
 
             var focusState = await Page.EvaluateAsync<string>(
-                "() => { const active = document.activeElement; return 'active=' + active?.tagName + '#' + active?.id + '; firstFocusable=' + Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex=\"-1\"])')).slice(0, 5).map(element => element.tagName + '#' + element.id + '.' + element.className).join(','); }");
+                "() => { const active = document.activeElement; return 'active=' + active?.tagName + '#' + active?.id + '; firstFocusable=' + Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex=\\"-1\\"])')).slice(0, 8).map(element => element.tagName + '#' + element.id + '.' + element.className).join(','); }");
 
             Assert.True(
                 await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
