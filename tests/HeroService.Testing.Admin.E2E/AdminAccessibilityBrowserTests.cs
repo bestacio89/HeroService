@@ -68,7 +68,7 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             await Page.Keyboard.PressAsync("Tab");
 
             var focusState = await Page.EvaluateAsync<string>(
-                "() => { const active = document.activeElement; return 'active=' + active?.tagName + '#' + active?.id + '; firstFocusable=' + Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex=\\"-1\\"])')).slice(0, 8).map(element => element.tagName + '#' + element.id + '.' + element.className).join(','); }");
+                """() => { const active = document.activeElement; return 'active=' + active?.tagName + '#' + active?.id + '; firstFocusable=' + Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])')).slice(0, 8).map(element => element.tagName + '#' + element.id + '.' + element.className).join(','); }""");
 
             Assert.True(
                 await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
