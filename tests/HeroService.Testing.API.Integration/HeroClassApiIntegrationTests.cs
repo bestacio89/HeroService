@@ -159,6 +159,35 @@ public sealed class HeroClassApiIntegrationTests : IAsyncLifetime
     Assert.False(tenantResolution.RequireAuthenticatedAuthorization);
   }
 
+  [Fact]
+  [Trait("Category", "Integration")]
+  public async Task HealthLive_ReportsProcessLivenessWithoutDependencyChecks()
+  {
+    using var response = await _client!.GetAsync("/health/live");
+
+    response.StatusCode.Should().Be(HttpStatusCode.OK);
+    var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+    payload.GetProperty("status").GetString().Should().Be("Healthy");
+    payload.GetProperty("checks").GetArrayLength().Should().Be(0);
+  }
+
+  [Fact]
+  [Trait("Category", "Integration")]
+  public async Task HealthReady_ReportsTheMandatoryDatabaseDependency()
+  {
+    using var response = await _client!.GetAsync("/health/ready");
+
+    response.StatusCode.Should().Be(HttpStatusCode.OK);
+    var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+    payload.GetProperty("status").GetString().Should().Be("Healthy");
+
+    var checks = payload.GetProperty("checks").EnumerateArray().ToArray();
+    checks.Should().ContainSingle();
+    checks[0].GetProperty("name").GetString().Should().Be("postgresql");
+    checks[0].GetProperty("status").GetString().Should().Be("Healthy");
+    payload.ToString().Should().NotContain("postgres:postgres");
+  }
+
   private sealed class HeroServiceApiFactory : WebApplicationFactory<Program>
   {
     private readonly PostgreSqlContainer _database;

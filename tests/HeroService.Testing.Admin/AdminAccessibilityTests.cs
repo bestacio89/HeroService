@@ -3,6 +3,7 @@ using FluentAssertions;
 using HeroService.Admin.Components.Layout;
 using HeroService.Admin.Components.Pages;
 using HeroService.Admin.UI;
+using HeroService.Admin.Operational;
 using HeroService.Client.Http.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -54,6 +55,12 @@ public sealed class AdminAccessibilityTests
         context.Services.AddMudServices();
         context.Services.AddLogging();
         context.Services.AddSingleton(GameTheme.Create());
+
+        var operationalStatusClient = new Mock<IOperationalStatusClient>();
+        operationalStatusClient
+            .Setup(client => client.GetStatusesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<OperationalCheckResult>());
+        context.Services.AddSingleton(operationalStatusClient.Object);
 
         var heroClient = new Mock<IHeroClient>();
         heroClient

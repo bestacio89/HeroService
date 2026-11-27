@@ -1,0 +1,61 @@
+@using MudBlazor
+
+<section class="admin-section operational-visibility" aria-labelledby="operational-visibility-title">
+    <div class="section-heading">
+        <div>
+            <h2 id="operational-visibility-title" class="mud-typography mud-typography-h5">Operational visibility</h2>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Independent health signals from the API and Consumer hosts. No infrastructure credentials or raw diagnostics are exposed.</MudText>
+        </div>
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Refresh"
+                   Disabled="@_isLoading"
+                   OnClick="RefreshAsync">
+            Refresh status
+        </MudButton>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div role="status" aria-live="polite">
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+            <MudText Typo="Typo.caption" Color="Color.Secondary">Checking service health…</MudText>
+        </div>
+    }
+    else if (_checks.Count == 0)
+    {
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">No operational status results are available.</MudAlert>
+    }
+    else
+    {
+        <MudGrid Spacing="3">
+            @foreach (var serviceGroup in _checks.GroupBy(check => check.Service))
+            {
+                <MudItem xs="12" lg="6" @key="serviceGroup.Key">
+                    <MudPaper Class="admin-panel operational-service-panel" Elevation="0">
+                        <h3 class="mud-typography mud-typography-h6">@serviceGroup.Key</h3>
+                        @foreach (var check in serviceGroup)
+                        {
+                            <div class="operational-check-row" @key="check.Check">
+                                <div class="operational-check-copy">
+                                    <MudText Typo="Typo.subtitle2">@check.Check</MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">@check.Message</MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                        Checked: @FormatCheckedAt(check.LastCheckedAt)
+                                        · Duration: @FormatDuration(check.Duration)
+                                    </MudText>
+                                </div>
+                                <MudChip T="string"
+                                         Size="Size.Small"
+                                         Variant="Variant.Outlined"
+                                         Color="@GetStatusColor(check.Status)">
+                                    @FormatStatus(check.Status)
+                                </MudChip>
+                            </div>
+                        }
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</section>

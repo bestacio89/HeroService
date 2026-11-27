@@ -1,6 +1,7 @@
 using Bunit;
 using FluentAssertions;
 using HeroService.Admin.Components.Pages;
+using HeroService.Admin.Operational;
 using HeroService.Client.Http.Abstractions;
 using HeroService.Contracts.DTOs.GameVersions;
 using HeroService.Contracts.DTOs.Heroes;
@@ -76,6 +77,12 @@ public sealed class HomeDashboardTests
         context.JSInterop.Mode = JSRuntimeMode.Loose;
         context.Services.AddMudServices();
         context.Services.AddLogging();
+
+        var operationalStatusClient = new Mock<IOperationalStatusClient>();
+        operationalStatusClient
+            .Setup(client => client.GetStatusesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<OperationalCheckResult>());
+        context.Services.AddSingleton(operationalStatusClient.Object);
 
         var heroClient = new Mock<IHeroClient>();
         if (failHeroRequest)
