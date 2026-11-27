@@ -57,14 +57,30 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                     Exact = true
                 }).CountAsync());
 
-            // Use a temporary sequential-focus origin immediately before the
-            // skip link. This avoids browser-specific document/body focus rules
-            // while preserving real keyboard navigation through the link.
+            // Establish a deterministic sequential-focus origin immediately
+            // before the skip link. Temporarily remove other controls from the
+            // tab sequence so unrelated MudBlazor controls cannot intercept Tab.
             var focusOrigin = await Page.EvaluateAsync<bool>(
                 """
                 () => {
                     const skipLink = document.querySelector('a.skip-link');
                     if (!skipLink) return false;
+
+                    const focusableSelector =
+                        'a[href], button:not([disabled]), input:not([disabled]), ' +
+                        'select:not([disabled]), textarea:not([disabled]), ' +
+                        '[tabindex]:not([tabindex="-1"])';
+
+                    for (const element of document.querySelectorAll(focusableSelector)) {
+                        if (element === skipLink) continue;
+
+                        element.setAttribute(
+                            'data-skip-link-test-original-tabindex',
+                            element.hasAttribute('tabindex')
+                                ? element.getAttribute('tabindex')
+                                : '__missing__');
+                        element.setAttribute('tabindex', '-1');
+                    }
 
                     const origin = document.createElement('span');
                     origin.id = 'skip-link-test-focus-origin';
@@ -85,7 +101,7 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
 
                 Assert.True(
                     await skipLink.EvaluateAsync<bool>("element => document.activeElement === element"),
-                    "The skip link was not the next keyboard-focusable element after the test focus origin.");
+                    "The skip link was not reachable by sequential keyboard navigation.");
 
                 await Page.Keyboard.PressAsync("Enter");
 
@@ -101,7 +117,26 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
             finally
             {
                 await Page.EvaluateAsync(
-                    "() => document.getElementById('skip-link-test-focus-origin')?.remove()");
+                    """
+                    () => {
+                        document
+                            .querySelectorAll('[data-skip-link-test-original-tabindex]')
+                            .forEach(element => {
+                                const original = element.getAttribute(
+                                    'data-skip-link-test-original-tabindex');
+
+                                if (original === '__missing__') {
+                                    element.removeAttribute('tabindex');
+                                } else {
+                                    element.setAttribute('tabindex', original);
+                                }
+
+                                element.removeAttribute('data-skip-link-test-original-tabindex');
+                            });
+
+                        document.getElementById('skip-link-test-focus-origin')?.remove();
+                    }
+                    """);
             }
         });
     }
