@@ -115,7 +115,7 @@ public sealed class AdminAccessibilityBrowserTests : AdminBrowserTestBase
                 Environment.NewLine,
                 violations.SelectMany(violation =>
                     violation.Nodes.Select(node =>
-                        $"{violation.Id}: html={node.Html}; help={node.HelpUrl}")));
+                        $"{violation.Id}: html={node.Html}; help={violation.HelpUrl}")));
 
             Assert.True(
                 !violations.Any(),
