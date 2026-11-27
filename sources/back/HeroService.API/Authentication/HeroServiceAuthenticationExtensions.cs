@@ -23,7 +23,7 @@ public static class HeroServiceAuthenticationExtensions
 
         var authentication = services.AddAuthentication();
 
-        if (environment.IsDevelopment())
+        if (environment.IsDevelopment() && configuration.GetValue<bool>("Authentication:Development:Enabled"))
         {
             authentication
                 .AddScheme<AuthenticationSchemeOptions, DevelopmentAuthenticationHandler>(
