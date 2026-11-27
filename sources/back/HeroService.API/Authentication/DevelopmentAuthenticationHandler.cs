@@ -11,8 +11,13 @@ namespace HeroService.API.Authentication;
 /// </summary>
 public sealed class DevelopmentAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
+    /// <summary>HTTP header selecting the local player or operator identity.</summary>
     public const string IdentityHeader = "X-HeroService-Development-Identity";
+
+    /// <summary>HTTP header supplying the local subject identifier.</summary>
     public const string SubjectHeader = "X-HeroService-Development-Subject";
+
+    /// <summary>HTTP header supplying comma-separated operator roles.</summary>
     public const string RolesHeader = "X-HeroService-Development-Roles";
 
     private readonly IConfiguration _configuration;

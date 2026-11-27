@@ -20,7 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace HeroService.Testing.API.Integration;
 
-public sealed class HeroServiceJwtAuthenticationTests : IDisposable
+public sealed class HeroServiceJwtAuthenticationTests : IAsyncLifetime
 {
     private const string PlayerAuthority = "https://player.identity.test";
     private const string PlayerIssuer = "https://player.identity.test/";
@@ -32,10 +32,11 @@ public sealed class HeroServiceJwtAuthenticationTests : IDisposable
     private readonly RSA _playerSigningKey = RSA.Create(2048);
     private readonly RSA _operatorSigningKey = RSA.Create(2048);
     private readonly RSA _untrustedSigningKey = RSA.Create(2048);
-    private readonly TestServer _server;
-    private readonly HttpClient _client;
+    private IHost _host = null!;
+    private TestServer _server = null!;
+    private HttpClient _client = null!;
 
-    public HeroServiceJwtAuthenticationTests()
+    public async Task InitializeAsync()
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -54,46 +55,52 @@ public sealed class HeroServiceJwtAuthenticationTests : IDisposable
             EnvironmentName = Environments.Production
         };
 
-        _server = new TestServer(new WebHostBuilder()
-            .ConfigureServices(services =>
-            {
-                services.AddLogging();
-                services.AddRouting();
-                services.AddAuthentication(options =>
+        _host = new HostBuilder()
+            .ConfigureWebHost(webHost => webHost
+                .UseTestServer()
+                .ConfigureServices(services =>
                 {
-                    options.DefaultAuthenticateScheme = HeroServiceAuthenticationSchemes.Player;
-                    options.DefaultChallengeScheme = HeroServiceAuthenticationSchemes.Player;
-                });
+                    services.AddLogging();
+                    services.AddRouting();
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = HeroServiceAuthenticationSchemes.Player;
+                        options.DefaultChallengeScheme = HeroServiceAuthenticationSchemes.Player;
+                    });
 
-                services.AddHeroServiceAuthentication(environment, configuration);
+                    services.AddHeroServiceAuthentication(environment, configuration);
 
-                services.Configure<JwtBearerOptions>(
-                    HeroServiceAuthenticationSchemes.Player,
-                    options => options.ConfigurationManager = CreateConfigurationManager(PlayerIssuer, _playerSigningKey));
+                    services.Configure<JwtBearerOptions>(
+                        HeroServiceAuthenticationSchemes.Player,
+                        options => options.ConfigurationManager = CreateConfigurationManager(PlayerIssuer, _playerSigningKey));
 
-                services.Configure<JwtBearerOptions>(
-                    HeroServiceAuthenticationSchemes.Operator,
-                    options => options.ConfigurationManager = CreateConfigurationManager(OperatorIssuer, _operatorSigningKey));
-            })
-            .Configure(application =>
-            {
-                application.UseRouting();
-                application.UseAuthentication();
-                application.UseAuthorization();
-                application.UseEndpoints(endpoints =>
+                    services.Configure<JwtBearerOptions>(
+                        HeroServiceAuthenticationSchemes.Operator,
+                        options => options.ConfigurationManager = CreateConfigurationManager(OperatorIssuer, _operatorSigningKey));
+                })
+                .Configure(application =>
                 {
-                    endpoints.MapGet(
-                            "/catalogue",
-                            context => context.Response.WriteAsync("catalogue"))
-                        .RequireAuthorization(HeroServiceAuthorizationPolicies.CatalogueRead);
+                    application.UseRouting();
+                    application.UseAuthentication();
+                    application.UseAuthorization();
+                    application.UseEndpoints(endpoints =>
+                    {
+                        endpoints.MapGet(
+                                "/catalogue",
+                                context => context.Response.WriteAsync("catalogue"))
+                            .RequireAuthorization(HeroServiceAuthorizationPolicies.CatalogueRead);
 
-                    endpoints.MapGet(
-                            "/operator",
-                            context => context.Response.WriteAsync("operator"))
-                        .RequireAuthorization(HeroServiceAuthorizationPolicies.CatalogueWrite);
-                });
-            }));
+                        endpoints.MapGet(
+                                "/operator",
+                                context => context.Response.WriteAsync("operator"))
+                            .RequireAuthorization(HeroServiceAuthorizationPolicies.CatalogueWrite);
+                    });
+                }))
+            .Build();
 
+        await _host.StartAsync();
+
+        _server = _host.GetTestServer();
         _client = _server.CreateClient();
     }
 
@@ -202,10 +209,11 @@ public sealed class HeroServiceJwtAuthenticationTests : IDisposable
         return new StaticOpenIdConnectConfigurationManager(configuration);
     }
 
-    public void Dispose()
+    public async Task DisposeAsync()
     {
         _client.Dispose();
-        _server.Dispose();
+        await _host.StopAsync();
+        _host.Dispose();
         _playerSigningKey.Dispose();
         _operatorSigningKey.Dispose();
         _untrustedSigningKey.Dispose();
