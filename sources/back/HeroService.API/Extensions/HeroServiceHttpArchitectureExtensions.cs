@@ -3,6 +3,7 @@ using Franz.Common.Caching.Estrategies;
 using Franz.Common.Http.Bootstrap.Extensions;
 using Franz.Common.Http.MultiTenancy.Configuration;
 using Franz.Common.MultiTenancy;
+using HeroService.API.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -24,6 +25,7 @@ public static class HeroServiceHttpArchitectureExtensions
     ArgumentNullException.ThrowIfNull(configuration);
 
     services.AddHttpArchitecture(hostEnvironment, configuration);
+    services.AddHeroServiceAuthentication(hostEnvironment, configuration);
 
     // HeroService is monotenant, so cache keys must not be tenant-prefixed.
     // Resolve configured options explicitly because Franz.Common 3.0 exposes two DI-resolvable constructors.

@@ -116,23 +116,10 @@ await HeroServiceCacheWarmup.WarmAsync(
 
 app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 
-// =========================================================
-// MIDDLEWARE
-// =========================================================
+// Franz.Common.UseHttpArchitecture maps controller endpoints and applies
+// the configured default authorization policy. Do not map controllers again.
 app.UseHttpArchitecture();
-app.UseExceptionHandler();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapControllers().AllowAnonymous();
-    });
-}
-
-app.MapControllers();
-
-// Liveness is process-only. Readiness includes only the mandatory API database.
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
     Predicate = _ => false,

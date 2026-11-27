@@ -3,10 +3,13 @@ using Franz.Common.Mediator.Dispatchers;
 using HeroService.Contracts.Commands.Modifiers;
 using HeroService.Contracts.DTOs.Modifiers;
 using HeroService.Contracts.Queries.Modifiers;
+using HeroService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.Api.Controllers;
 
+[Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueRead)]
 [ApiController]
 [Route("skill-modifiers")]
 public sealed class SkillModifiersController : ControllerBase
@@ -24,6 +27,8 @@ public sealed class SkillModifiersController : ControllerBase
   // =========================================================
   // CREATE
   // =========================================================
+
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
 
   [HttpPost]
   public async Task<ActionResult<Guid>> Create(
@@ -43,6 +48,8 @@ public sealed class SkillModifiersController : ControllerBase
   // =========================================================
   // UPDATE
   // =========================================================
+
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
 
   [HttpPut("{id:guid}")]
   public async Task<IActionResult> Update(

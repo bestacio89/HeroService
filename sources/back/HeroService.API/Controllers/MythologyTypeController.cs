@@ -2,12 +2,15 @@
 using HeroService.Contracts.Commands.Heroes.Classifications.MythologyTypes;
 using HeroService.Contracts.Queries.Heroes.Classification.MythologyTypes;
 using HeroService.Contracts.DTOs.Heroes;
+using HeroService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.Api.Controllers;
 
 
 
+[Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueRead)]
 [ApiController]
 [Route("mythology-types")]
 public sealed class MythologyTypeController : ControllerBase
@@ -19,6 +22,8 @@ public sealed class MythologyTypeController : ControllerBase
     _dispatcher = dispatcher;
   }
 
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
+
   [HttpPost]
   public async Task<ActionResult<Guid>> Create(
       CreateMythologyTypeCommand command,
@@ -27,6 +32,8 @@ public sealed class MythologyTypeController : ControllerBase
     var result = await _dispatcher.SendAsync(command, cancellationToken);
     return Ok(result);
   }
+
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
 
   [HttpPut("{id:guid}")]
   public async Task<IActionResult> Rename(
@@ -39,6 +46,8 @@ public sealed class MythologyTypeController : ControllerBase
     await _dispatcher.SendAsync(updated, cancellationToken);
     return NoContent();
   }
+
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueWrite)]
 
   [HttpDelete("{id:guid}")]
   public async Task<IActionResult> Retire(

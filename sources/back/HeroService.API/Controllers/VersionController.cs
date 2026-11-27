@@ -2,12 +2,15 @@
 using HeroService.Contracts.Commands.GameVersions;
 using HeroService.Contracts.Queries.GameVersions;
 using HeroService.Contracts.DTOs.GameVersions;
+using HeroService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HeroService.Api.Controllers;
 
 
 
+[Authorize(Policy = HeroServiceAuthorizationPolicies.CatalogueRead)]
 [ApiController]
 [Route("game-versions")]
 public sealed class GameVersionController : ControllerBase
@@ -22,6 +25,7 @@ public sealed class GameVersionController : ControllerBase
   // =========================================================
   // CREATE + ACTIVATE NEW VERSION
   // =========================================================
+  [Authorize(Policy = HeroServiceAuthorizationPolicies.ReleaseManagement)]
   [HttpPost]
   public async Task<ActionResult<Guid>> Create(
       [FromBody] CreateGameVersionCommand command,
